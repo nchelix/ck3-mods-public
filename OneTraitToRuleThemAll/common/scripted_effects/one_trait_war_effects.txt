@@ -1,0 +1,41 @@
+﻿# One Trait wars (1.11): the spoils. Run from on_victory, where scope:attacker
+# and scope:defender are set.
+
+# The defender's spouses and close family who hold no land go to the
+# attacker's dungeon. Never the attacker's own family, nor anyone already
+# imprisoned (see one_trait_war_can_capture_trigger).
+one_trait_war_captives_effect = {
+	scope:defender = {
+		every_spouse = {
+			limit = { one_trait_war_can_capture_trigger = yes }
+			add_to_list = one_trait_war_captives
+		}
+		every_close_family_member = {
+			limit = { one_trait_war_can_capture_trigger = yes }
+			add_to_list = one_trait_war_captives
+		}
+	}
+	every_in_list = {
+		list = one_trait_war_captives
+		save_temporary_scope_as = one_trait_captive
+		scope:attacker = {
+			imprison = {
+				target = scope:one_trait_captive
+				type = dungeon
+			}
+		}
+	}
+}
+
+# Half the gold the defender holds (Conquest and Blitz of the One).
+one_trait_war_plunder_effect = {
+	scope:defender = {
+		if = {
+			limit = { gold > 0 }
+			pay_short_term_gold = {
+				target = scope:attacker
+				gold = one_trait_war_half_gold_value
+			}
+		}
+	}
+}

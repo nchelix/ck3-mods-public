@@ -1,0 +1,634 @@
+﻿# Pantheon of One scripted effects. Root is always the god.
+
+# Proclaim Your Divinity: a god on a branched rite pushes its divergence until the engine splits it into a
+# faith of its own. Proven in game (1.1 spike): one push of 100 reached 95, a second crossed 100 and the rite
+# became a new faith. Stops as soon as the rite is its faith's main rite, and after 5 pushes at most.
+pantheon_proclaim_effect = {
+	set_local_variable = {
+		name = pantheon_proclaim_tries
+		value = 0
+	}
+	while = {
+		limit = {
+			NOT = { rite = faith.main_rite }
+			local_var:pantheon_proclaim_tries < 5
+		}
+		rite = {
+			change_rite_divergence = {
+				value = 100
+				override_tenets_first = yes
+			}
+		}
+		change_local_variable = {
+			name = pantheon_proclaim_tries
+			add = 1
+		}
+	}
+	# Some rites run out of tenets and doctrines to swap short of 100 (vanilla's Carolingian rite stopped at
+	# 99.25 in game). A day later, if it is still a rite, tell the god what to do instead.
+	trigger_event = { id = pantheon.0030 days = 1 }
+}
+
+# Make the god the landless spiritual Head of their faith, holding the Holy Seat. Proven in the prototype.
+pantheon_take_throne_effect = {
+	# A god is no one's vassal (1.1 in-game test: a liege tried to revoke an enthroned god's county)
+	if = {
+		limit = { is_independent_ruler = no }
+		create_title_and_vassal_change = {
+			type = independency
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		becomes_independent = { change = scope:change }
+		resolve_title_and_vassal_change = scope:change
+	}
+	faith = {
+		save_scope_as = pantheon_faith
+		# Vanilla's REL_HEAD_TITLE_NAME reads scope:my_faith (without it the title was named "The")
+		save_scope_as = my_faith
+		if = {
+			limit = { has_doctrine = doctrine_no_head }
+			hidden_effect = { remove_doctrine = doctrine_no_head }
+		}
+		if = {
+			limit = { has_doctrine = doctrine_temporal_head }
+			hidden_effect = { remove_doctrine = doctrine_temporal_head }
+		}
+		if = {
+			limit = { NOT = { has_doctrine = doctrine_spiritual_head } }
+			add_doctrine = doctrine_spiritual_head
+		}
+	}
+	# The Holy Seat: a holy site of the faith that the god holds, else the god's capital
+	scope:pantheon_faith = {
+		random_holy_site_barony = {
+			limit = { county.holder = root }
+			county = { save_scope_as = pantheon_seat }
+		}
+	}
+	if = {
+		limit = { NOT = { exists = scope:pantheon_seat } }
+		capital_county = { save_scope_as = pantheon_seat }
+	}
+	if = {
+		limit = {
+			scope:pantheon_faith = {
+				exists = religious_head_title
+				religious_head_title = { is_landless_type_title = yes }
+			}
+		}
+		# The faith already has a landless head title (a spiritual HoF): take it over.
+		# A landed one (the Papal State, a temporal realm) is left as an ordinary realm and replaced below.
+		scope:pantheon_faith.religious_head_title = { save_scope_as = new_title }
+		if = {
+			limit = { NOT = { scope:new_title.holder ?= root } }
+			create_title_and_vassal_change = {
+				type = conquest
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			scope:new_title = {
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		scope:new_title = {
+			# Prototype: the capital must come first, or set_landless_title fails
+			set_capital_county = scope:pantheon_seat
+			set_landless_title = yes
+		}
+		scope:pantheon_faith = { set_religious_head_title = scope:new_title }
+	}
+	else = {
+		create_dynamic_title = {
+			tier = duchy
+			name = REL_HEAD_TITLE_NAME
+			adj = REL_HEAD_TITLE_ADJ
+		}
+		create_title_and_vassal_change = {
+			type = created
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:new_title = {
+			set_capital_county = scope:pantheon_seat
+			set_landless_title = yes
+			set_no_automatic_claims = yes
+			set_definitive_form = yes
+			set_always_follows_primary_heir = yes
+			change_title_holder = {
+				holder = root
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		scope:pantheon_faith = { set_religious_head_title = scope:new_title }
+		scope:new_title = { generate_coa = religious_title }
+	}
+	scope:pantheon_seat = {
+		add_county_modifier = { modifier = pantheon_holy_seat }
+	}
+	# The god's own guardians, to keep raiders from holy ground (1.2)
+	# size must be a literal number ("Malformed token" for a script value); matches pantheon_host_stacks
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		create_maa_regiment = {
+			type = pantheon_guardian_maa
+			check_can_recruit = no
+			size = 10
+		}
+	}
+	else = {
+		create_maa_regiment = {
+			type = pantheon_guardian_maa
+			check_can_recruit = no
+			size = 5
+		}
+	}
+	set_variable = pantheon_enthroned
+	if = {
+		limit = { NOT = { has_variable = pantheon_worship } }
+		set_variable = {
+			name = pantheon_worship
+			value = 0
+		}
+	}
+	trigger_event = { id = pantheon.0010 days = 91 }
+}
+
+# ---- Boons. Root is the god; scope:pantheon_target is the follower. Each pays, grants, and schedules its end.
+
+pantheon_bless_opinion_effect = {
+	if = {
+		limit = { NOT = { scope:pantheon_target = root } }
+		scope:pantheon_target = {
+			add_opinion = {
+				target = root
+				modifier = pantheon_blessed_opinion
+				years = 10
+			}
+		}
+	}
+}
+
+pantheon_grant_trait_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_trait }
+	scope:pantheon_target = {
+		add_trait = $TRAIT$
+		set_variable = {
+			name = pantheon_boon_trait
+			value = yes
+			years = pantheon_trait_years
+		}
+		trigger_event = { id = pantheon.0020 years = pantheon_trait_years }
+		add_character_modifier = { modifier = pantheon_gift_marker years = pantheon_trait_years }
+		set_variable = {
+			name = pantheon_ends_trait
+			value = {
+				value = current_year
+				add = pantheon_trait_years
+			}
+		}
+	}
+	pantheon_remember_blessed_effect = yes
+	pantheon_bless_opinion_effect = yes
+}
+
+pantheon_grant_realm_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_realm }
+	scope:pantheon_target = {
+		set_variable = {
+			name = pantheon_boon_$KEY$
+			value = yes
+			years = pantheon_blessing_years
+		}
+		every_held_county = {
+			add_county_modifier = { modifier = $MODIFIER$ years = pantheon_blessing_years }
+		}
+		trigger_event = { id = pantheon.0022 years = pantheon_blessing_years }
+		set_variable = {
+			name = pantheon_ends_$KEY$
+			value = {
+				value = current_year
+				add = pantheon_blessing_years
+			}
+		}
+	}
+	pantheon_remember_blessed_effect = yes
+	pantheon_bless_opinion_effect = yes
+}
+
+pantheon_grant_vigor_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = {
+		if = {
+			limit = { NOT = { has_trait = immortal } }
+			add_trait = immortal
+			set_variable = pantheon_vigor_gave_immortal
+		}
+		add_character_modifier = { modifier = pantheon_vigor years = pantheon_blessing_years }
+		set_variable = {
+			name = pantheon_boon_vigor
+			value = yes
+			years = pantheon_blessing_years
+		}
+		trigger_event = { id = pantheon.0021 years = pantheon_blessing_years }
+		set_variable = {
+			name = pantheon_ends_vigor
+			value = {
+				value = current_year
+				add = pantheon_blessing_years
+			}
+		}
+	}
+	pantheon_remember_blessed_effect = yes
+	pantheon_bless_opinion_effect = yes
+}
+
+pantheon_grant_fertility_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = {
+		add_character_modifier = { modifier = pantheon_fertility years = pantheon_blessing_years }
+		set_variable = {
+			name = pantheon_boon_fertility
+			value = yes
+			years = pantheon_blessing_years
+		}
+		trigger_event = { id = pantheon.0023 years = pantheon_blessing_years }
+		set_variable = {
+			name = pantheon_ends_fertility
+			value = {
+				value = current_year
+				add = pantheon_blessing_years
+			}
+		}
+	}
+	pantheon_remember_blessed_effect = yes
+	pantheon_bless_opinion_effect = yes
+}
+
+pantheon_grant_lineage_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = {
+		add_character_flag = pantheon_lineage
+		set_variable = pantheon_boon_lineage
+		add_character_modifier = pantheon_lineage_marker
+	}
+	pantheon_remember_blessed_effect = yes
+	pantheon_bless_opinion_effect = yes
+}
+
+# The Host descends for one of the follower's wars and is disbanded by the engine when that war ends.
+pantheon_call_host_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_host }
+	scope:pantheon_target = {
+		random_character_war = {
+			limit = { NOT = { has_variable = pantheon_host_called } }
+			save_temporary_scope_as = pantheon_war
+			set_variable = pantheon_host_called
+		}
+		spawn_army = {
+			war = scope:pantheon_war
+			uses_supply = no
+			inheritable = no
+			men_at_arms = {
+				type = pantheon_host_maa
+				stacks = pantheon_host_stacks
+			}
+			location = scope:pantheon_target.capital_province
+			name = pantheon_host_army_name
+		}
+	}
+	pantheon_bless_opinion_effect = yes
+}
+
+# A god neither sickens nor stays wounded. Root is the god. Run at Ascend and every quarter.
+pantheon_divine_health_effect = {
+	# A god does not fret, and does not sin (vanilla made a god's child by a married woman adultery)
+	add_stress = -1000
+	if = {
+		limit = { has_trait = adulterer }
+		remove_trait = adulterer
+	}
+	if = {
+		limit = { has_trait = fornicator }
+		remove_trait = fornicator
+	}
+	# Vanilla's own immunity: can_contract_disease_trigger refuses anyone with this flag
+	if = {
+		limit = { NOT = { has_character_flag = immune_to_disease } }
+		add_character_flag = immune_to_disease
+	}
+	if = {
+		limit = { has_trait = ill }
+		remove_trait = ill
+	}
+	if = {
+		limit = { has_trait = pneumonic }
+		remove_trait = pneumonic
+	}
+	if = {
+		limit = { has_trait = great_pox }
+		remove_trait = great_pox
+	}
+	if = {
+		limit = { has_trait = early_great_pox }
+		remove_trait = early_great_pox
+	}
+	if = {
+		limit = { has_trait = lovers_pox }
+		remove_trait = lovers_pox
+	}
+	if = {
+		limit = { has_trait = leper }
+		remove_trait = leper
+	}
+	if = {
+		limit = { has_trait = consumption }
+		remove_trait = consumption
+	}
+	if = {
+		limit = { has_trait = cancer }
+		remove_trait = cancer
+	}
+	if = {
+		limit = { has_trait = typhus }
+		remove_trait = typhus
+	}
+	if = {
+		limit = { has_trait = bubonic_plague }
+		remove_trait = bubonic_plague
+	}
+	if = {
+		limit = { has_trait = smallpox }
+		remove_trait = smallpox
+	}
+	if = {
+		limit = { has_trait = measles }
+		remove_trait = measles
+	}
+	if = {
+		limit = { has_trait = dysentery }
+		remove_trait = dysentery
+	}
+	if = {
+		limit = { has_trait = ergotism }
+		remove_trait = ergotism
+	}
+	if = {
+		limit = { has_trait = gout_ridden }
+		remove_trait = gout_ridden
+	}
+	if = {
+		limit = { has_trait = wounded_1 }
+		remove_trait = wounded_1
+	}
+	if = {
+		limit = { has_trait = wounded_2 }
+		remove_trait = wounded_2
+	}
+	if = {
+		limit = { has_trait = wounded_3 }
+		remove_trait = wounded_3
+	}
+	if = {
+		limit = { has_trait = maimed }
+		remove_trait = maimed
+	}
+	if = {
+		limit = { has_trait = one_eyed }
+		remove_trait = one_eyed
+	}
+	if = {
+		limit = { has_trait = one_legged }
+		remove_trait = one_legged
+	}
+	if = {
+		limit = { has_trait = disfigured }
+		remove_trait = disfigured
+	}
+	if = {
+		limit = { has_trait = blind }
+		remove_trait = blind
+	}
+	if = {
+		limit = { has_trait = incapable }
+		remove_trait = incapable
+	}
+	if = {
+		limit = { has_trait = infirm }
+		remove_trait = infirm
+	}
+	if = {
+		limit = { has_trait = withering_mind }
+		remove_trait = withering_mind
+	}
+	if = {
+		limit = { has_trait = clouded_eyes }
+		remove_trait = clouded_eyes
+	}
+	if = {
+		limit = { has_trait = faltering_heart }
+		remove_trait = faltering_heart
+	}
+	if = {
+		limit = { has_trait = fragile_bones }
+		remove_trait = fragile_bones
+	}
+}
+
+# ---- 1.2: tracking, notices and Divine Conception
+
+# Remember a follower who now carries a lasting boon, for the Your Blessed page. Root is the god.
+pantheon_remember_blessed_effect = {
+	scope:pantheon_target = {
+		set_variable = {
+			name = pantheon_blessed_by
+			value = root
+		}
+		set_variable = {
+			name = pantheon_blessed_year
+			value = current_year
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				is_target_in_variable_list = {
+					name = pantheon_blessed
+					target = scope:pantheon_target
+				}
+			}
+		}
+		add_to_variable_list = { name = pantheon_blessed target = scope:pantheon_target }
+	}
+}
+
+# A boon has faded: tell the god who granted it, if the Boon Expiry Notices rule allows. Root is the follower.
+pantheon_expiry_notice_effect = {
+	if = {
+		limit = {
+			exists = var:pantheon_blessed_by
+			OR = {
+				has_game_rule = pantheon_notices_all
+				AND = {
+					has_game_rule = pantheon_notices_gifts
+					always = $GIFT$
+				}
+			}
+		}
+		save_temporary_scope_as = pantheon_faded
+		var:pantheon_blessed_by = {
+			send_interface_toast = {
+				type = event_toast_effect_neutral
+				title = pantheon_expired_$KIND$_t
+				left_icon = scope:pantheon_faded
+			}
+		}
+	}
+}
+
+# Divine Conception: a god fathers a child on a follower; a goddess bears a follower's child. Root is the god.
+# The child is born a Demigod through pantheon_on_birth_child (the god is a real parent).
+pantheon_grant_conception_effect = {
+	if = {
+		limit = { pantheon_can_conceive_trigger = yes }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+		if = {
+			limit = { is_female = no }
+			scope:pantheon_target = { make_pregnant = { father = root } }
+		}
+		else = {
+			make_pregnant = { father = scope:pantheon_target }
+		}
+		# An honour, not a sin: neither parent carries adultery or fornication for a god's child
+		root = { add_to_temporary_list = pantheon_parents }
+		scope:pantheon_target = { add_to_temporary_list = pantheon_parents }
+		every_in_list = {
+			list = pantheon_parents
+			if = {
+				limit = { has_trait = adulterer }
+				remove_trait = adulterer
+			}
+			if = {
+				limit = { has_trait = fornicator }
+				remove_trait = fornicator
+			}
+		}
+		scope:pantheon_target = {
+			add_piety = 200
+			if = {
+				limit = { NOT = { this = root } }
+				add_opinion = {
+					target = root
+					modifier = pantheon_bore_god_child_opinion
+				}
+			}
+		}
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_conceived_t
+			left_icon = scope:pantheon_target
+		}
+		pantheon_bless_opinion_effect = yes
+	}
+	else = {
+		# Nothing is paid; say why
+		send_interface_toast = {
+			type = event_toast_effect_bad
+			title = pantheon_conception_refused_t
+			left_icon = scope:pantheon_target
+			if = {
+				limit = { has_character_modifier = pantheon_forsworn }
+				custom_tooltip = pantheon_conception_forsworn_tt
+			}
+			if = {
+				limit = { scope:pantheon_target = { NOT = { sex_opposite_of = root } } }
+				custom_tooltip = pantheon_conception_opposite_sex_tt
+			}
+			if = {
+				limit = { scope:pantheon_target = { is_adult = no } }
+				custom_tooltip = pantheon_conception_adult_tt
+			}
+			if = {
+				limit = {
+					OR = {
+						scope:pantheon_target = { is_pregnant = yes }
+						AND = {
+							is_female = yes
+							is_pregnant = yes
+						}
+					}
+				}
+				custom_tooltip = pantheon_conception_pregnant_tt
+			}
+		}
+	}
+}
+
+# Make a god's child an honour, not a scandal. Root is the mother; var:pantheon_child_father is the real father.
+# Run a day after vanilla's pregnancy-reveal and birth events, which brand adultery, create the affair and
+# parentage secrets, and anger the spouse AFTER Pantheon's own hooks have run (third 1.2 test).
+pantheon_sanctify_union_effect = {
+	add_to_temporary_list = pantheon_union
+	var:pantheon_child_father ?= { add_to_temporary_list = pantheon_union }
+	every_in_list = {
+		list = pantheon_union
+		if = {
+			limit = { has_trait = adulterer }
+			remove_trait = adulterer
+		}
+		if = {
+			limit = { has_trait = fornicator }
+			remove_trait = fornicator
+		}
+		# Nothing left to expose: the affair between them, and the child's parentage
+		every_secret = {
+			limit = {
+				OR = {
+					AND = {
+						secret_type = secret_lover
+						secret_target ?= { is_in_list = pantheon_union }
+					}
+					secret_type = secret_disputed_heritage
+					secret_type = secret_unmarried_illegitimate_child
+				}
+			}
+			remove_secret = yes
+		}
+		# Their spouses are honoured, not wronged
+		every_spouse = {
+			limit = { NOT = { is_in_list = pantheon_union } }
+			every_in_list = {
+				list = pantheon_union
+				save_temporary_scope_as = pantheon_union_member
+				prev = {
+					remove_opinion = { target = scope:pantheon_union_member modifier = slept_with_spouse_exposed_opinion }
+					remove_opinion = { target = scope:pantheon_union_member modifier = slept_with_spouse_discovered_opinion }
+				}
+			}
+			every_in_list = {
+				list = pantheon_union
+				limit = { has_trait = pantheon_divine }
+				save_temporary_scope_as = pantheon_union_god
+				prev = {
+					if = {
+						limit = { NOT = { has_opinion_modifier = { target = scope:pantheon_union_god modifier = pantheon_honoured_spouse_opinion } } }
+						add_opinion = { target = scope:pantheon_union_god modifier = pantheon_honoured_spouse_opinion }
+					}
+				}
+			}
+		}
+		# Freed, if their own spouse imprisoned them for it
+		if = {
+			limit = {
+				is_imprisoned = yes
+				imprisoner ?= { is_spouse_of = prev }
+			}
+			release_from_prison = yes
+		}
+	}
+}

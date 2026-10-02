@@ -1,0 +1,27 @@
+﻿roman_claimant = {
+	category = fame
+
+	birth = 0
+	random_creation = 0
+
+	monthly_prestige = 1.0
+	monthly_influence = 1.0
+	vassal_opinion = 5
+
+	# Claimants recognise each other as serious, even while hating each other.
+	same_opinion = 20
+
+	shown_in_ruler_designer = no
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_roman_claimant_desc
+			}
+			desc = trait_roman_claimant_character_desc
+		}
+	}
+}

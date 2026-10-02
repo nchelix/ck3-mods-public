@@ -1,0 +1,8 @@
+﻿# One Trait wars (1.11) sit in their own group. Every vanilla group bans
+# theocracies, tributaries, herders and (By God Alone) personal pacifists from
+# declaring war; One Trait wars ignore all of that and need only the One Trait.
+one_trait_wars = {
+	allowed_for_character = {
+		has_trait = one_trait
+	}
+}

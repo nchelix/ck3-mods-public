@@ -1,0 +1,29 @@
+﻿# Who can credibly claim Rome. Either descent from the Empire by culture, or
+# possession of a piece of it. A duke in Connacht does not get to be Augustus.
+#
+# Identifiers verified against the installed game (see task-4-report.md):
+#   heritage_byzantine, heritage_latin       -- common/culture/pillars/*.txt
+#   world_europe_south, world_europe_west_iberia -- map_data/geographical_regions/geographical_region.txt
+#   highest_held_title_tier, any_held_county, title_province, geographical_region
+#       -- all confirmed in common/casus_belli_types/00_dejure_war.txt and
+#          common/decisions/00_holy_order_decisions.txt among others.
+can_claim_rome_trigger = {
+	is_ruler = yes
+	is_landed = yes
+	highest_held_title_tier >= tier_kingdom
+	NOT = { has_trait = roman_claimant }
+	NOR = {
+		has_title = title:h_roman_empire
+		has_title = title:h_eastern_roman_empire
+	}
+	OR = {
+		culture = { has_cultural_pillar = heritage_byzantine }
+		culture = { has_cultural_pillar = heritage_latin }
+		any_held_county = {
+			OR = {
+				title_province = { geographical_region = world_europe_south }
+				title_province = { geographical_region = world_europe_west_iberia }
+			}
+		}
+	}
+}

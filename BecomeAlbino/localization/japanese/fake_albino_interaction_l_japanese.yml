@@ -1,0 +1,12 @@
+﻿l_japanese:
+# Untranslated placeholder: English strings. Replace with a real japanese translation.
+ become_albino_interaction:0 "Make Albino"
+ become_albino_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will take on an albino appearance. It will not pass to their children.\n\nPale skin, white hair, eyes like a winter sunrise. Let the court make of it what they will."
+ become_albino_bloodline_interaction:0 "Found an Albino Bloodline"
+ become_albino_bloodline_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will take on an albino appearance, and every child born to them afterwards will inherit it."
+ become_true_albino_interaction:0 "Grant True Albinism"
+ become_true_albino_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will gain the game's own albino trait, with all of its effects. It is genetic, so the game will pass it down in its own way."
+ albino_children_interaction:0 "Make Their Children Albino"
+ albino_children_interaction_desc:0 "Every child [recipient.GetShortUINameNoTooltip] already has will be given the albino bloodline."
+ remove_albino_interaction:0 "Remove Albino"
+ remove_albino_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will return to their original appearance.\n\nIt was a striking look, but it has run its course. Time to look like myself again."

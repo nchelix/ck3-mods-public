@@ -1,0 +1,110 @@
+﻿# What happens to a pretender's cause when the lineage is exposed, and (Task 7)
+# when the pretender becomes a claimant or dies.
+#
+# every_ruler + add_opinion: RenovatioImperii renovatio_world_reacts_effect.
+
+pretender_exposed_effect = {
+	save_scope_as = exposed_pretender
+	if = {
+		# Landed: a Caesar in fact now. Embarrassment, not ruin (spec §1:
+		# prestige and opinion only; roman_claimant stays).
+		limit = { is_landed = yes }
+		add_prestige = -500
+		every_ruler = {
+			limit = {
+				NOT = { this = scope:exposed_pretender }
+				any_sub_realm_county = {
+					title_province = { geographical_region = custom_roman_full_borders }
+				}
+			}
+			add_opinion = {
+				modifier = pretender_exposed_fraud_opinion
+				target = scope:exposed_pretender
+			}
+		}
+	}
+	else_if = {
+		limit = { pretender_legend_trigger = yes }
+		add_prestige = -300
+		every_in_list = {
+			variable = pretender_supported_counties
+			add_to_temporary_list = shaken_counties
+		}
+		every_in_list = {
+			list = shaken_counties
+			pretender_lower_support_effect = { COUNTY = this }
+		}
+	}
+	else = {
+		add_prestige = -300
+		every_in_list = {
+			variable = pretender_supported_counties
+			add_to_temporary_list = lost_counties
+		}
+		every_in_list = {
+			list = lost_counties
+			pretender_clear_support_effect = { COUNTY = this }
+		}
+		pretender_break_all_pledges_effect = { PRETENDER = scope:exposed_pretender }
+		every_ruler = {
+			limit = {
+				NOT = { this = scope:exposed_pretender }
+				any_sub_realm_county = {
+					title_province = { geographical_region = custom_roman_full_borders }
+				}
+			}
+			add_opinion = {
+				modifier = pretender_exposed_fraud_opinion
+				target = scope:exposed_pretender
+			}
+		}
+	}
+	trigger_event = pretender.0020
+}
+
+# The claim carries across: a pretender who holds land becomes Renovatio's
+# roman_claimant. Idempotent. The people and the pledges have done their work
+# and are released.
+pretender_becomes_claimant_effect = {
+	if = {
+		limit = { has_trait = roman_pretender }
+		save_scope_as = new_claimant
+		remove_trait = roman_pretender
+		add_trait = roman_claimant
+		pretender_break_all_pledges_effect = { PRETENDER = scope:new_claimant }
+		every_in_list = {
+			variable = pretender_supported_counties
+			add_to_temporary_list = released_counties
+		}
+		every_in_list = {
+			list = released_counties
+			pretender_clear_support_effect = { COUNTY = this }
+		}
+		trigger_event = pretender.0030
+	}
+}
+
+# A landless pretender died; their camp's heir inherits the claim and the risk.
+# Pledges were personal and end. The old secret dies with its owner
+# (secret_types/_secret_types.info: no living owner removes it), so the heir
+# receives a fresh one; whoever knew the old one must find it again.
+pretender_inherit_claim_effect = {
+	$HEIR$ = {
+		save_scope_as = new_pretender
+		add_trait = roman_pretender
+		set_variable = { name = forgery_quality value = $PREDECESSOR$.var:forgery_quality }
+		set_variable = { name = pretender_ancestor value = $PREDECESSOR$.var:pretender_ancestor }
+		add_secret = { type = secret_forged_lineage }
+	}
+	pretender_break_all_pledges_effect = { PRETENDER = $PREDECESSOR$ }
+	$PREDECESSOR$ = {
+		every_in_list = {
+			variable = pretender_supported_counties
+			set_variable = { name = pretender_backer value = scope:new_pretender }
+			scope:new_pretender = {
+				add_to_variable_list = { name = pretender_supported_counties target = prev }
+			}
+		}
+		clear_variable_list = pretender_supported_counties
+	}
+}

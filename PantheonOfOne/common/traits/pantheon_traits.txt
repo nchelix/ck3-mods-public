@@ -1,0 +1,74 @@
+﻿# Pantheon of One. The god's own trait, then the four divine boons (one at a time per follower).
+
+pantheon_divine = {
+	immortal = yes
+	health = 10
+	diplomacy = 30
+	martial = 30
+	stewardship = 30
+	intrigue = 30
+	learning = 30
+	prowess = 100
+	# Proven in the prototype: no hostile scheme against the god can succeed
+	enemy_hostile_scheme_success_chance_max_add = -100
+	no_prowess_loss_from_age = yes
+	# A god does not fret
+	stress_gain_mult = -1
+	# Taking the throne makes the realm theocratic, which uses a domain limit
+	domain_limit = 25
+	domain_limit_max = 25
+	# A god does not pay to remake religion (One Trait's Chosen of God perks)
+	faith_conversion_piety_cost_mult = -1
+	rite_creation_piety_cost_mult = -1
+	holy_order_hire_cost_mult = -1
+	character_spiritual_fulfillment_gain_mult = 5
+	character_spiritual_fulfillment_loss_mult = -1
+	personal_tenet_slot_add = 3
+	# The faithful adore their god
+	clergy_opinion = 100
+	zealot_opinion = 100
+	religious_vassal_opinion = 100
+	same_faith_opinion = 50
+	shown_in_ruler_designer = no
+}
+
+pantheon_champion = {
+	prowess = 50
+	knight_effectiveness_mult = 2
+	shown_in_ruler_designer = no
+}
+
+pantheon_warlord = {
+	martial = 10
+	advantage = 20
+	army_damage_mult = 0.5
+	shown_in_ruler_designer = no
+}
+
+pantheon_sovereign = {
+	diplomacy = 10
+	stewardship = 10
+	vassal_opinion = 50
+	monthly_income_mult = 0.5
+	shown_in_ruler_designer = no
+}
+
+pantheon_sage = {
+	learning = 10
+	intrigue = 10
+	owned_hostile_scheme_success_chance_add = 30
+	owned_scheme_secrecy_add = 30
+	shown_in_ruler_designer = no
+}
+
+# A child of the god (Divine Offspring, 1.1): gifted, but mortal. There is only one god.
+pantheon_demigod = {
+	diplomacy = 5
+	martial = 5
+	stewardship = 5
+	intrigue = 5
+	learning = 5
+	prowess = 20
+	health = 2
+	shown_in_ruler_designer = no
+}

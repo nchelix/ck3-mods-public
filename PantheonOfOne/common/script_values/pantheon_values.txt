@@ -1,0 +1,96 @@
+﻿# Pantheon of One: every number in one place. The Sandbox rule pays 5x, charges 1/4, and doubles durations.
+
+pantheon_worship_per_county = {
+	value = 1
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 5
+	}
+}
+
+pantheon_worship_per_ruler = {
+	value = 5
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 5
+	}
+}
+
+# The god's income each quarter, in the god's scope. Devout rulers (piety level 3+) count twice.
+pantheon_quarterly_worship = {
+	value = faith.num_county_followers
+	multiply = pantheon_worship_per_county
+	every_ruler = {
+		limit = { faith = root.faith }
+		add = pantheon_worship_per_ruler
+		if = {
+			limit = { piety_level >= 3 }
+			add = pantheon_worship_per_ruler
+		}
+	}
+}
+
+pantheon_cost_host = {
+	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.25
+	}
+}
+
+pantheon_cost_trait = {
+	value = 300
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.25
+	}
+}
+
+pantheon_cost_realm = {
+	value = 200
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.25
+	}
+}
+
+pantheon_cost_life = {
+	value = 200
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.25
+	}
+}
+
+pantheon_trait_years = {
+	value = 5
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 2
+	}
+}
+
+pantheon_blessing_years = {
+	value = 10
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 2
+	}
+}
+
+pantheon_host_stacks = {
+	value = 5
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 2
+	}
+}
+
+# Enough to found a faith at once.
+pantheon_ascend_piety = {
+	value = 3000
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 2
+	}
+}

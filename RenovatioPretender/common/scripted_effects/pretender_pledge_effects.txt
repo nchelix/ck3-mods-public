@@ -1,0 +1,57 @@
+﻿# Noble pledges. The pretender keeps variable list pretender_pledges; the
+# pledger carries pretender_pledged_modifier and var:pledged_to_pretender.
+
+pretender_add_pledge_effect = {
+	$PRETENDER$ = {
+		add_to_variable_list = { name = pretender_pledges target = $PLEDGER$ }
+	}
+	$PLEDGER$ = {
+		add_character_modifier = pretender_pledged_modifier
+		set_variable = { name = pledged_to_pretender value = $PRETENDER$ }
+		add_opinion = {
+			modifier = pretender_pledge_opinion
+			target = $PRETENDER$
+		}
+	}
+}
+
+pretender_break_pledge_effect = {
+	$PRETENDER$ = {
+		remove_list_variable = { name = pretender_pledges target = $PLEDGER$ }
+	}
+	$PLEDGER$ = {
+		if = {
+			limit = { has_character_modifier = pretender_pledged_modifier }
+			remove_character_modifier = pretender_pledged_modifier
+		}
+		if = {
+			limit = { has_variable = pledged_to_pretender }
+			remove_variable = pledged_to_pretender
+		}
+		if = {
+			limit = {
+				has_opinion_modifier = {
+					modifier = pretender_pledge_opinion
+					target = $PRETENDER$
+				}
+			}
+			remove_opinion = {
+				modifier = pretender_pledge_opinion
+				target = $PRETENDER$
+			}
+		}
+	}
+}
+
+pretender_break_all_pledges_effect = {
+	$PRETENDER$ = {
+		every_in_list = {
+			variable = pretender_pledges
+			add_to_temporary_list = pledges_to_break
+		}
+		every_in_list = {
+			list = pledges_to_break
+			pretender_break_pledge_effect = { PRETENDER = $PRETENDER$ PLEDGER = this }
+		}
+	}
+}

@@ -1,0 +1,10 @@
+﻿l_spanish:
+# Untranslated placeholder: English strings. Replace with a real spanish translation.
+ create_alliance_interaction:0 "Create Alliance"
+ create_alliance_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will become your ally, landed or not."
+ inherit_alliances_interaction:0 "Inherit Their Alliances"
+ inherit_alliances_interaction_desc:0 "Every ally of [recipient.GetShortUINameNoTooltip] will become your ally as well."
+ isolate_character_interaction:0 "Isolate Them"
+ isolate_character_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will lose every alliance they have, and stand alone."
+ break_alliance_interaction:0 "Remove Alliance"
+ break_alliance_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will no longer be your ally."

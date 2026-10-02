@@ -1,0 +1,323 @@
+﻿# Interactions for pretenders.
+#
+# Verified against the installed game (1.19):
+# - interaction skeleton, ai_accept with base/modifier/opinion_modifier:
+#   common/character_interactions/00_religious_interactions.txt (ask_for_conversion)
+#   and 00_alliance.txt:623 (opinion_modifier who/opinion_target/multiplier/desc)
+# - hook send_option (has_usable_hook, flag = hook, GENERIC_SPEND_A_HOOK) and
+#   scope:hook / use_hook in on_accept: 00_alliance.txt:1295-1346
+# - ai_recipients for landless actors (domicile_location_*): 06_ep3_interactions.txt:401-408
+# - pay_short_term_gold = { target gold }: 800+ vanilla uses
+# - any_sub_realm_county: 800+ vanilla uses
+
+seek_pretender_pledge_interaction = {
+	category = interaction_category_diplomacy
+	desc = seek_pretender_pledge_interaction_desc
+
+	is_shown = {
+		scope:actor = { has_trait = roman_pretender }
+		NOT = { scope:actor = scope:recipient }
+		scope:recipient = {
+			is_ruler = yes
+			is_landed = yes
+			any_sub_realm_county = {
+				title_province = { geographical_region = custom_roman_full_borders }
+			}
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			custom_tooltip = {
+				text = pretender_already_pledged_tt
+				NOT = { has_variable = pledged_to_pretender }
+			}
+		}
+	}
+
+	send_option = {
+		is_valid = {
+			scope:actor = { gold >= 100 }
+		}
+		flag = gold
+		localization = pretender_offer_gold
+	}
+	send_option = {
+		is_valid = {
+			scope:actor = { has_usable_hook = scope:recipient }
+		}
+		flag = hook
+		localization = GENERIC_SPEND_A_HOOK
+	}
+	send_options_exclusive = no
+
+	ai_accept = {
+		base = -40
+		opinion_modifier = {
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 1.0
+			desc = AI_OPINION_REASON
+		}
+		modifier = {
+			add = { value = scope:actor.prestige_level multiply = 8 }
+			desc = pretender_reason_prestige
+		}
+		modifier = {
+			scope:gold = yes
+			add = 25
+			desc = pretender_reason_gold
+		}
+		modifier = {
+			scope:hook = yes
+			add = 100
+			desc = SCHEME_WEAK_HOOK_USED
+		}
+		modifier = {
+			scope:recipient.culture = scope:actor.culture
+			add = 10
+			desc = pretender_reason_culture
+		}
+		modifier = {
+			scope:recipient.faith = scope:actor.faith
+			add = 10
+			desc = pretender_reason_faith
+		}
+		modifier = {
+			scope:recipient = {
+				exists = liege
+				NOT = { liege = this }
+				opinion = { target = liege value < 0 }
+			}
+			add = 20
+			desc = pretender_reason_grudge
+		}
+		modifier = {
+			scope:recipient = {
+				OR = {
+					has_trait = ambitious
+					has_trait = greedy
+				}
+			}
+			add = 15
+			desc = pretender_reason_ambitious
+		}
+		modifier = {
+			scope:recipient = {
+				OR = {
+					has_trait = content
+					has_trait = loyal
+				}
+			}
+			add = -25
+			desc = pretender_reason_loyal
+		}
+		modifier = {
+			scope:actor = {
+				has_variable = pretender_ancestor
+				var:pretender_ancestor = flag:augustus
+			}
+			add = 15
+			desc = pretender_reason_augustus
+		}
+	}
+
+	ai_min_reply_days = 1
+	ai_max_reply_days = 5
+
+	on_accept = {
+		scope:actor = {
+			if = {
+				limit = { scope:gold = yes }
+				pay_short_term_gold = { target = scope:recipient gold = 100 }
+			}
+			if = {
+				limit = {
+					scope:hook = yes
+					has_usable_hook = scope:recipient
+				}
+				use_hook = scope:recipient
+			}
+		}
+		pretender_add_pledge_effect = { PRETENDER = scope:actor PLEDGER = scope:recipient }
+	}
+
+	on_decline = {
+		scope:actor = {
+			send_interface_toast = {
+				type = event_toast_effect_bad
+				title = seek_pretender_pledge_interaction_declined
+				right_icon = scope:recipient
+			}
+		}
+	}
+
+	ai_targets = {
+		ai_recipients = domicile_location_top_ruler
+		ai_recipients = domicile_location_top_realm_vassals
+		ai_recipients = domicile_location_neighboring_top_rulers
+	}
+	ai_frequency = 24
+
+	ai_potential = {
+		has_trait = roman_pretender
+	}
+
+	ai_will_do = {
+		base = 50
+	}
+}
+
+# Receive the Patrimony: a pledger with two or more counties grants one (never
+# their capital) and takes the pretender as a vassal, with a strong hook and an
+# oath. Grant mechanics from ep3_laamps.5045
+# (events/dlc/ep3/ep3_laamp_events.txt:6853-6877). ordered_held_title and
+# capital_county: 40+ and 3000+ vanilla uses.
+receive_patrimony_interaction = {
+	category = interaction_category_diplomacy
+	desc = receive_patrimony_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			has_trait = roman_pretender
+			is_landless_adventurer = yes
+			is_target_in_variable_list = { name = pretender_pledges target = scope:recipient }
+		}
+	}
+
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			custom_tooltip = {
+				text = pretender_patron_needs_two_counties_tt
+				any_held_county = { count >= 2 }
+			}
+		}
+		scope:actor = {
+			custom_tooltip = {
+				text = pretender_patrimony_gold_tt
+				gold >= 300
+			}
+		}
+	}
+
+	send_option = {
+		is_valid = {
+			scope:actor = { has_usable_hook = scope:recipient }
+		}
+		flag = hook
+		localization = GENERIC_SPEND_A_HOOK
+	}
+	send_options_exclusive = no
+
+	ai_accept = {
+		base = -100
+		opinion_modifier = {
+			who = scope:recipient
+			opinion_target = scope:actor
+			multiplier = 0.75
+			desc = AI_OPINION_REASON
+		}
+		modifier = {
+			add = { value = scope:actor.prestige_level multiply = 10 }
+			desc = pretender_reason_prestige
+		}
+		modifier = {
+			scope:hook = yes
+			add = 100
+			desc = SCHEME_WEAK_HOOK_USED
+		}
+		modifier = {
+			scope:recipient = {
+				OR = {
+					has_trait = ambitious
+					has_trait = greedy
+				}
+			}
+			add = 25
+			desc = pretender_reason_ambitious
+		}
+		modifier = {
+			scope:recipient = { has_trait = content }
+			add = -25
+			desc = pretender_reason_loyal
+		}
+		modifier = {
+			scope:recipient = {
+				exists = liege
+				NOT = { liege = this }
+				opinion = { target = liege value < 0 }
+			}
+			add = 20
+			desc = pretender_reason_grudge
+		}
+	}
+
+	ai_min_reply_days = 1
+	ai_max_reply_days = 5
+
+	on_accept = {
+		scope:recipient = {
+			ordered_held_title = {
+				limit = {
+					tier = tier_county
+					NOT = { this = scope:recipient.capital_county }
+				}
+				order_by = {
+					value = development_level
+					multiply = -1
+				}
+				save_scope_as = patrimony
+			}
+		}
+		scope:actor = {
+			pay_short_term_gold = { target = scope:recipient gold = 300 }
+			if = {
+				limit = {
+					scope:hook = yes
+					has_usable_hook = scope:recipient
+				}
+				use_hook = scope:recipient
+			}
+			create_title_and_vassal_change = {
+				type = granted
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			change_liege = {
+				liege = scope:recipient
+				change = scope:change
+			}
+			scope:patrimony = {
+				change_title_holder = {
+					holder = scope:actor
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+			set_variable = { name = pretender_patron value = scope:recipient }
+			add_character_modifier = {
+				modifier = pretender_bound_by_oath_modifier
+				years = 10
+			}
+		}
+		scope:recipient = {
+			add_hook = {
+				target = scope:actor
+				type = strong_obligation_hook
+			}
+		}
+		scope:actor = {
+			pretender_becomes_claimant_effect = yes
+		}
+	}
+
+	on_decline = {
+		scope:actor = {
+			send_interface_toast = {
+				type = event_toast_effect_bad
+				title = receive_patrimony_interaction_declined
+				right_icon = scope:recipient
+			}
+		}
+	}
+}

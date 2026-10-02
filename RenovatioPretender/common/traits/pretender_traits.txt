@@ -1,0 +1,28 @@
+﻿# The landless counterpart of Renovatio's roman_claimant. Shape copied from
+# RenovatioImperii/common/traits/renovatio_traits.txt (roman_claimant).
+roman_pretender = {
+	category = fame
+
+	birth = 0
+	random_creation = 0
+
+	monthly_prestige = 0.5
+	diplomacy = 1
+
+	# Pretenders take each other seriously, as rivals.
+	same_opinion = 10
+
+	shown_in_ruler_designer = no
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_roman_pretender_desc
+			}
+			desc = trait_roman_pretender_character_desc
+		}
+	}
+}

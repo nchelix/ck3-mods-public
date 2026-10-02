@@ -1,0 +1,16 @@
+﻿l_french:
+# Untranslated placeholder: English strings. Replace with a real french translation.
+ nc_open_mask_menu:0 "Open Mask Menu"
+ open_mask_menu_desc:0 "Opens the Mask Menu"
+ nc_close_mask_menu:0 "Close Mask Menu"
+ close_mask_menu_desc:0 "Closes the Mask Menu"
+ wear_mask_interaction:0 "Wear the Mask"
+ wear_mask_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will wear the mask.\n\nNobody cared who I was before I put on the mask."
+ wear_bandaged_face_interaction:0 "Wrap Their Face"
+ wear_bandaged_face_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will bind their face in linen. The same disguise, a rather different impression."
+ wear_dread_mask_interaction:0 "Wear the Dread Mask"
+ wear_dread_mask_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will wear the Dread Mask, and fear will start to gather around them.\n\nThe mask will terrify them, the mask will make them tremble."
+ wear_very_dread_mask_interaction:0 "Wear the Mask of Extreme Dread"
+ wear_very_dread_mask_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will wear the Mask of Extreme Dread. Terrified vassals will pay and serve far more generously.\n\nPeople will tremble at the sounds in the shadows. They should. They will never see your face again, but they will know you were there."
+ remove_mask_interaction:0 "Remove the Mask"
+ remove_mask_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will remove their mask.\n\nYou're a big guy now."

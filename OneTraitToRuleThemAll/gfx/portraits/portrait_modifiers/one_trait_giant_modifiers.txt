@@ -1,0 +1,22 @@
+﻿visual_traits_one_trait_giant = {
+	usage = game
+
+	one_trait_giant = {
+		dna_modifiers = {
+			morph = {
+				mode = add
+				gene = gene_height
+				template = giant_height
+				value = 1.0
+			}
+		}
+
+		weight = {
+			base = 0
+			modifier = {
+				add = 100
+				has_trait = one_trait_giant
+			}
+		}
+	}
+}

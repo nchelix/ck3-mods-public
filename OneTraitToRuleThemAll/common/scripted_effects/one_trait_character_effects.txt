@@ -1,0 +1,176 @@
+﻿# One Trait character editor (1.4). Called from one_trait_menu.0110 / .0120.
+#
+# Every trait key below is checked by tools/validate_mod.py against the
+# installed game, so a patch that renames a trait fails validation rather than
+# silently doing nothing. When that happens, this file is the one place to fix.
+
+# Guards. Vanilla never add/removes a named trait unguarded
+# (see remove_all_bastard_traits); neither do we.
+one_trait_remove_if_present = {
+	if = {
+		limit = { has_trait = $TRAIT$ }
+		remove_trait = $TRAIT$
+	}
+}
+
+one_trait_add_if_absent = {
+	if = {
+		limit = { NOT = { has_trait = $TRAIT$ } }
+		add_trait = $TRAIT$
+	}
+}
+
+# Bundle 1. Giant and albino are deliberately untouched: neither is plainly
+# good or bad, and each has its own cheat.
+one_trait_perfect_genetics_effect = {
+	one_trait_remove_if_present = { TRAIT = beauty_bad_1 }
+	one_trait_remove_if_present = { TRAIT = beauty_bad_2 }
+	one_trait_remove_if_present = { TRAIT = beauty_bad_3 }
+	one_trait_remove_if_present = { TRAIT = intellect_bad_1 }
+	one_trait_remove_if_present = { TRAIT = intellect_bad_2 }
+	one_trait_remove_if_present = { TRAIT = intellect_bad_3 }
+	one_trait_remove_if_present = { TRAIT = physique_bad_1 }
+	one_trait_remove_if_present = { TRAIT = physique_bad_2 }
+	one_trait_remove_if_present = { TRAIT = physique_bad_3 }
+	one_trait_remove_if_present = { TRAIT = clubfooted }
+	one_trait_remove_if_present = { TRAIT = hunchbacked }
+	one_trait_remove_if_present = { TRAIT = lisping }
+	one_trait_remove_if_present = { TRAIT = stuttering }
+	one_trait_remove_if_present = { TRAIT = dwarf }
+	one_trait_remove_if_present = { TRAIT = inbred }
+	one_trait_remove_if_present = { TRAIT = weak }
+	one_trait_remove_if_present = { TRAIT = dull }
+	one_trait_remove_if_present = { TRAIT = impotent }
+	one_trait_remove_if_present = { TRAIT = spindly }
+	one_trait_remove_if_present = { TRAIT = scaly }
+	one_trait_remove_if_present = { TRAIT = wheezing }
+	one_trait_remove_if_present = { TRAIT = bleeder }
+	one_trait_remove_if_present = { TRAIT = infertile }
+	# Lower good tiers first, so tier 3 replaces rather than stacks.
+	one_trait_remove_if_present = { TRAIT = beauty_good_1 }
+	one_trait_remove_if_present = { TRAIT = beauty_good_2 }
+	one_trait_remove_if_present = { TRAIT = intellect_good_1 }
+	one_trait_remove_if_present = { TRAIT = intellect_good_2 }
+	one_trait_remove_if_present = { TRAIT = physique_good_1 }
+	one_trait_remove_if_present = { TRAIT = physique_good_2 }
+	one_trait_add_if_absent = { TRAIT = beauty_good_3 }
+	one_trait_add_if_absent = { TRAIT = intellect_good_3 }
+	one_trait_add_if_absent = { TRAIT = physique_good_3 }
+	one_trait_add_if_absent = { TRAIT = pure_blooded }
+	one_trait_add_if_absent = { TRAIT = fecund }
+	one_trait_add_if_absent = { TRAIT = strong }
+	one_trait_add_if_absent = { TRAIT = shrewd }
+}
+
+# Bundle 2. Scarred, eunuchs and every *_genetic variant are deliberately
+# untouched; the genetic ones are what bundle 1 is for.
+one_trait_cleanse_effect = {
+	# Diseases
+	one_trait_remove_if_present = { TRAIT = ill }
+	one_trait_remove_if_present = { TRAIT = pneumonic }
+	one_trait_remove_if_present = { TRAIT = great_pox }
+	one_trait_remove_if_present = { TRAIT = early_great_pox }
+	one_trait_remove_if_present = { TRAIT = lovers_pox }
+	one_trait_remove_if_present = { TRAIT = leper }
+	one_trait_remove_if_present = { TRAIT = consumption }
+	one_trait_remove_if_present = { TRAIT = cancer }
+	one_trait_remove_if_present = { TRAIT = typhus }
+	one_trait_remove_if_present = { TRAIT = bubonic_plague }
+	one_trait_remove_if_present = { TRAIT = smallpox }
+	one_trait_remove_if_present = { TRAIT = measles }
+	one_trait_remove_if_present = { TRAIT = dysentery }
+	one_trait_remove_if_present = { TRAIT = ergotism }
+	one_trait_remove_if_present = { TRAIT = gout_ridden }
+	# Wounds and injuries
+	one_trait_remove_if_present = { TRAIT = wounded_1 }
+	one_trait_remove_if_present = { TRAIT = wounded_2 }
+	one_trait_remove_if_present = { TRAIT = wounded_3 }
+	one_trait_remove_if_present = { TRAIT = maimed }
+	one_trait_remove_if_present = { TRAIT = one_eyed }
+	one_trait_remove_if_present = { TRAIT = one_legged }
+	one_trait_remove_if_present = { TRAIT = disfigured }
+	one_trait_remove_if_present = { TRAIT = blind }
+	one_trait_remove_if_present = { TRAIT = incapable }
+	# Non-genetic mental illness
+	one_trait_remove_if_present = { TRAIT = depressed_1 }
+	one_trait_remove_if_present = { TRAIT = lunatic_1 }
+	one_trait_remove_if_present = { TRAIT = possessed_1 }
+	# Ageing
+	one_trait_remove_if_present = { TRAIT = infirm }
+	one_trait_remove_if_present = { TRAIT = withering_mind }
+	one_trait_remove_if_present = { TRAIT = clouded_eyes }
+	one_trait_remove_if_present = { TRAIT = faltering_heart }
+	one_trait_remove_if_present = { TRAIT = fragile_bones }
+}
+
+# Bundle 4. The healthy coping traits (journaller, confider, athletic) are
+# deliberately kept.
+one_trait_clear_coping_effect = {
+	one_trait_remove_if_present = { TRAIT = drunkard }
+	one_trait_remove_if_present = { TRAIT = hashishiyah }
+	one_trait_remove_if_present = { TRAIT = rakish }
+	one_trait_remove_if_present = { TRAIT = reclusive }
+	one_trait_remove_if_present = { TRAIT = irritable }
+	one_trait_remove_if_present = { TRAIT = flagellant }
+	one_trait_remove_if_present = { TRAIT = profligate }
+	one_trait_remove_if_present = { TRAIT = improvident }
+	one_trait_remove_if_present = { TRAIT = contrite }
+	one_trait_remove_if_present = { TRAIT = comfort_eater }
+	one_trait_remove_if_present = { TRAIT = inappetetic }
+}
+
+# Bundle 3. Enumerates by category rather than by list, so it survives patches
+# that add personality traits -- the pattern is vanilla's, from
+# events/dlc/bp2/bp2_yearly_2.txt. Clearing the receiver first means opposite
+# traits cannot collide; the giver's own set is already consistent.
+# The list is filled before anything is removed: never mutate the collection
+# being iterated.
+one_trait_copy_personality_effect = {
+	$RECEIVER$ = {
+		every_character_trait = {
+			limit = { has_trait_category = personality }
+			add_to_temporary_list = one_trait_old_personality
+		}
+	}
+	every_in_list = {
+		list = one_trait_old_personality
+		save_temporary_scope_as = one_trait_trait_to_remove
+		$RECEIVER$ = { remove_trait = scope:one_trait_trait_to_remove }
+	}
+	$GIVER$ = {
+		every_character_trait = {
+			limit = { has_trait_category = personality }
+			save_temporary_scope_as = one_trait_trait_to_copy
+			$RECEIVER$ = { add_trait = scope:one_trait_trait_to_copy }
+		}
+	}
+}
+
+# There is no random-name effect in 1.19. A donor of the same culture, faith
+# and sex gets a culture-appropriate name from the engine; we copy it and the
+# donor disappears silently (vanilla's own effect). The donor's location is the
+# player's, which always exists. One dead, unremarkable character is left in
+# history; accepted in the spec.
+one_trait_reroll_name_effect = {
+	save_temporary_scope_as = one_trait_rename_target
+	create_character = {
+		gender_female_chance = {
+			if = {
+				limit = { scope:one_trait_rename_target = { is_female = yes } }
+				add = 100
+			}
+		}
+		culture = scope:one_trait_rename_target.culture
+		faith = scope:one_trait_rename_target.faith
+		age = 20
+		dynasty = none
+		location = root.location
+		save_scope_as = one_trait_name_donor # vanilla never uses the temporary form here
+	}
+	scope:one_trait_rename_target = {
+		change_first_name = { template_character = scope:one_trait_name_donor }
+	}
+	scope:one_trait_name_donor = {
+		silent_disappearance_effect = yes
+	}
+}

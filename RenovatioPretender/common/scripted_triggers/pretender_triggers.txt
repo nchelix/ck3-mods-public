@@ -1,0 +1,35 @@
+﻿# The legend has outgrown the lie: enough Fervent counties that exposure no
+# longer breaks the movement.
+pretender_legend_trigger = {
+	any_in_list = {
+		variable = pretender_supported_counties
+		var:pretender_support >= 3
+		count >= 3
+	}
+}
+
+# Enough of the people in the camp's duchy, and enough nobles, to rise.
+# domicile_location.county.duchy: link chain as in 07_ep3_wars.txt
+# (scope:new_capital = { duchy = { ... } }).
+pretender_can_rise_trigger = {
+	has_trait = roman_pretender
+	is_landless_adventurer = yes
+	custom_tooltip = {
+		text = pretender_needs_pledges_tt
+		variable_list_size = { name = pretender_pledges value >= 2 }
+	}
+	custom_tooltip = {
+		text = pretender_needs_counties_tt
+		domicile ?= {
+			domicile_location.county.duchy = {
+				any_in_de_jure_hierarchy = {
+					tier = tier_county
+					has_variable = pretender_backer
+					var:pretender_backer = root
+					var:pretender_support >= 2
+					count >= 3
+				}
+			}
+		}
+	}
+}

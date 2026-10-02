@@ -1,0 +1,14 @@
+﻿# One Trait wars (1.11). Both are read in the defender's scope.
+
+# Ransom of the One: five years of the defender's income, and at least 100.
+one_trait_ransom_value = {
+	value = yearly_character_income
+	multiply = 5
+	min = 100
+}
+
+# Conquest and Blitz of the One: half the gold the defender holds.
+one_trait_war_half_gold_value = {
+	value = gold
+	multiply = 0.5
+}

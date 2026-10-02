@@ -1,0 +1,44 @@
+﻿# on_birthday is real (common/on_action/birthday.txt) and already carries only
+# on_actions; a second file's `events` list merges additively
+# (common/on_action/_on_actions.info MODDING INFO). RenovatioImperii uses the
+# same hook the same way (renovatio_on_actions.txt). on_yearly_playable is not
+# used: it fires for count-and-above only, and pretenders are landless.
+on_birthday = {
+	events = {
+		pretender.0010
+	}
+}
+
+# on_title_gain: root = new holder, scope:title, scope:previous_holder
+# (common/on_action/title_on_actions.txt:183-187). Vanilla already has an
+# effect block on it, and _on_actions.info forbids a second effect block, so we
+# hang our own on_action off its on_actions list, which merges additively.
+on_title_gain = {
+	on_actions = {
+		pretender_on_title_gain
+	}
+}
+
+pretender_on_title_gain = {
+	effect = {
+		if = {
+			limit = {
+				has_trait = roman_pretender
+				is_landed = yes
+			}
+			pretender_becomes_claimant_effect = yes
+		}
+		else_if = {
+			limit = {
+				NOT = { has_trait = roman_pretender }
+				is_landless_adventurer = yes
+				exists = scope:previous_holder
+				scope:previous_holder = {
+					has_trait = roman_pretender
+					is_alive = no
+				}
+			}
+			pretender_inherit_claim_effect = { HEIR = root PREDECESSOR = scope:previous_holder }
+		}
+	}
+}

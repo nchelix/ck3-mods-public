@@ -1,0 +1,126 @@
+﻿# One Trait 2.1: step whichever authority law group the realm has (root
+# scope: the player). CHANGE is 1 or -1; LIMIT is maximum or minimum.
+# The limit triggers take the law GROUP, not one of its laws.
+one_trait_authority_change_effect = {
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = crown_authority_0
+				has_realm_law = crown_authority_1
+				has_realm_law = crown_authority_2
+				has_realm_law = crown_authority_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = crown_authority }
+		}
+		change_realm_law_level = {
+			law_group = crown_authority
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = tribal_authority_0
+				has_realm_law = tribal_authority_1
+				has_realm_law = tribal_authority_2
+				has_realm_law = tribal_authority_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = tribal_authority }
+		}
+		change_realm_law_level = {
+			law_group = tribal_authority
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = church_authority_0
+				has_realm_law = church_authority_1
+				has_realm_law = church_authority_2
+				has_realm_law = church_authority_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = church_authority }
+		}
+		change_realm_law_level = {
+			law_group = church_authority
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = imperial_bureaucracy_0
+				has_realm_law = imperial_bureaucracy_1
+				has_realm_law = imperial_bureaucracy_2
+				has_realm_law = imperial_bureaucracy_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = imperial_bureaucracy }
+		}
+		change_realm_law_level = {
+			law_group = imperial_bureaucracy
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = nomadic_authority_1
+				has_realm_law = nomadic_authority_2
+				has_realm_law = nomadic_authority_3
+				has_realm_law = nomadic_authority_4
+				has_realm_law = nomadic_authority_5
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = nomadic_authority }
+		}
+		change_realm_law_level = {
+			law_group = nomadic_authority
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = celestial_bureaucracy_0
+				has_realm_law = celestial_bureaucracy_1
+				has_realm_law = celestial_bureaucracy_2
+				has_realm_law = celestial_bureaucracy_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = celestial_bureaucracy }
+		}
+		change_realm_law_level = {
+			law_group = celestial_bureaucracy
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = meritocratic_bureaucracy_0
+				has_realm_law = meritocratic_bureaucracy_1
+				has_realm_law = meritocratic_bureaucracy_2
+				has_realm_law = meritocratic_bureaucracy_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = meritocratic_bureaucracy }
+		}
+		change_realm_law_level = {
+			law_group = meritocratic_bureaucracy
+			change = $CHANGE$
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_realm_law = japanese_bureaucracy_0
+				has_realm_law = japanese_bureaucracy_1
+				has_realm_law = japanese_bureaucracy_2
+				has_realm_law = japanese_bureaucracy_3
+			}
+			NOT = { realm_law_group_at_$LIMIT$_level = japanese_bureaucracy }
+		}
+		change_realm_law_level = {
+			law_group = japanese_bureaucracy
+			change = $CHANGE$
+		}
+	}
+}

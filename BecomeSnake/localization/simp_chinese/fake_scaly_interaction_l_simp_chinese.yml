@@ -1,0 +1,12 @@
+﻿l_simp_chinese:
+# Untranslated placeholder: English strings. Replace with a real simp_chinese translation.
+ become_scaly_interaction:0 "Become A Snake"
+ become_scaly_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will become a snake, in appearance at least. It will not pass to their children.\n\nDon't step on snek."
+ become_serpent_interaction:0 "Become Fully A Snake"
+ become_serpent_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will go all the way: heavy scales, no lashes, milk-pale eyes. Requires disturbing portrait modifiers to be switched on."
+ become_scaly_bloodline_interaction:0 "Found a Snake Bloodline"
+ become_scaly_bloodline_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will become a snake, and every child born to them afterwards will be one too."
+ scaly_children_interaction:0 "Make Their Children Snakes"
+ scaly_children_interaction_desc:0 "Every child [recipient.GetShortUINameNoTooltip] already has will join the snake bloodline."
+ remove_scaly_interaction:0 "No More Snake"
+ remove_scaly_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will stop being a snake.\n\nSnakes are weird. I have decided I am not a reptile after all."

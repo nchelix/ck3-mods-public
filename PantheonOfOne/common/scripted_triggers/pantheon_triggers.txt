@@ -1,0 +1,32 @@
+﻿# Pantheon of One scripted triggers.
+
+# Does this follower still carry any boon? (Each boon's variable expires with it.)
+pantheon_has_any_boon_trigger = {
+	OR = {
+		has_variable = pantheon_boon_trait
+		has_variable = pantheon_boon_harvest
+		has_variable = pantheon_boon_walls
+		has_variable = pantheon_boon_warding
+		has_variable = pantheon_boon_vigor
+		has_variable = pantheon_boon_fertility
+		has_variable = pantheon_boon_lineage
+	}
+}
+
+# May the god conceive a child with this follower? Root is the god; scope:pantheon_target the follower.
+pantheon_can_conceive_trigger = {
+	NOT = { has_character_modifier = pantheon_forsworn }
+	# Pregnancy is asked only of women (asked of a man, it made the menu option vanish in game)
+	trigger_if = {
+		limit = { is_female = yes }
+		is_pregnant = no
+	}
+	scope:pantheon_target = {
+		is_adult = yes
+		sex_opposite_of = root
+		trigger_if = {
+			limit = { is_female = yes }
+			is_pregnant = no
+		}
+	}
+}

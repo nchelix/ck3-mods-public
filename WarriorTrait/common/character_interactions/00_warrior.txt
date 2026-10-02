@@ -1,0 +1,125 @@
+﻿# Warrior Trait interactions.
+# The two traits are mutually exclusive: a character is either earning their
+# reputation or has been handed it outright.
+
+become_warrior_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 62
+	icon = icon_combat
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = become_warrior_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			NOR = {
+				has_trait = warrior
+				has_trait = god_warrior
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = warrior
+		}
+	}
+
+	auto_accept = yes
+}
+
+remove_warrior_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 61
+	icon = icon_combat
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = remove_warrior_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			has_trait = warrior
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			remove_trait = warrior
+		}
+	}
+
+	auto_accept = yes
+}
+
+become_god_warrior_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 60
+	icon = icon_combat
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = become_god_warrior_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			NOR = {
+				has_trait = warrior
+				has_trait = god_warrior
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = god_warrior
+		}
+	}
+
+	auto_accept = yes
+}
+
+remove_god_warrior_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 59
+	icon = icon_combat
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = remove_god_warrior_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			has_trait = god_warrior
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			remove_trait = god_warrior
+		}
+	}
+
+	auto_accept = yes
+}

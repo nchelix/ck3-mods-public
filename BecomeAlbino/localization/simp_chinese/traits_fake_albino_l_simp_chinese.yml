@@ -1,0 +1,8 @@
+﻿l_simp_chinese:
+# Untranslated placeholder: English strings. Replace with a real simp_chinese translation.
+ trait_fake_albino:0 "Albino Appearance"
+ trait_fake_albino_desc:0 "Pale skin, white hair and red eyes."
+ trait_fake_albino_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] has the pale skin, white hair and red eyes of an albino."
+ trait_fake_albino_bloodline:0 "Albino Bloodline"
+ trait_fake_albino_bloodline_desc:0 "Pale skin, white hair and red eyes, passed reliably from parent to child."
+ trait_fake_albino_bloodline_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] carries the albino bloodline, and their children will carry it too."

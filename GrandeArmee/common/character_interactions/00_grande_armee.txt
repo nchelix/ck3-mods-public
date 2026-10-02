@@ -1,0 +1,142 @@
+﻿# La Grande Armee interactions.
+# Kept behind a menu toggle, the same pattern the other mods in this collection
+# use, so a right-click stays short until you ask for it.
+
+ga_open_menu = {
+	category = interaction_category_diplomacy
+	interface_priority = 70
+	icon = ga_menu
+	desc = ga_open_menu_desc
+	common_interaction = yes
+
+	auto_accept = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			NOT = { has_character_flag = ga_menu_open }
+		}
+	}
+
+	on_send = {
+		scope:actor = {
+			add_character_flag = ga_menu_open
+		}
+	}
+}
+
+ga_close_menu = {
+	category = interaction_category_diplomacy
+	interface_priority = 69
+	icon = ga_menu
+	desc = ga_close_menu_desc
+	common_interaction = yes
+
+	auto_accept = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_character_flag = ga_menu_open
+		}
+	}
+
+	on_send = {
+		scope:actor = {
+			remove_character_flag = ga_menu_open
+		}
+	}
+}
+
+ga_proclaim_revolution = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 68
+	icon = ga_revolution
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = ga_proclaim_revolution_desc
+
+	is_shown = {
+		scope:actor = { has_character_flag = ga_menu_open }
+		scope:recipient = {
+			culture = {
+				NOT = { has_innovation = innovation_gunpowder }
+			}
+		}
+	}
+
+	on_accept = {
+		# Granted to the culture, not the character, so the base game's own
+		# innovation spread carries it outward to neighbours over time. The head
+		# start is decades, not forever.
+		scope:recipient = {
+			culture = {
+				add_innovation = innovation_gunpowder
+				add_innovation = innovation_standing_armies
+				add_innovation = innovation_royal_armory
+				add_innovation = innovation_plate_armor
+				add_innovation = innovation_sappers
+			}
+		}
+	}
+
+	auto_accept = yes
+}
+
+ga_grant_doctrine = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 67
+	icon = ga_doctrine
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = ga_grant_doctrine_desc
+
+	is_shown = {
+		scope:actor = { has_character_flag = ga_menu_open }
+		scope:recipient = {
+			NOT = { has_trait = grande_armee_doctrine }
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = grande_armee_doctrine
+		}
+	}
+
+	auto_accept = yes
+}
+
+ga_remove_doctrine = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 66
+	icon = ga_doctrine
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = ga_remove_doctrine_desc
+
+	is_shown = {
+		scope:actor = { has_character_flag = ga_menu_open }
+		scope:recipient = {
+			has_trait = grande_armee_doctrine
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			remove_trait = grande_armee_doctrine
+		}
+	}
+
+	auto_accept = yes
+}

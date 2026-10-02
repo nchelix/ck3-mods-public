@@ -1,0 +1,725 @@
+﻿# Pantheon of One: the Divine Will menu. Entered from pantheon_divine_will_interaction.
+# scope:pantheon_target is the right-clicked follower. Root is the god.
+# No trait names appear here (the 2.0 icon-flood rule): boons are tracked with timed variables.
+namespace = pantheon_menu
+
+pantheon_menu.0001 = {
+	type = character_event
+	title = pantheon_menu.0001.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:pantheon_target = root }
+				desc = pantheon_menu.0001.desc_self
+			}
+			desc = pantheon_menu.0001.desc
+		}
+		desc = pantheon_menu.0001.worship
+	}
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+
+	# ---- The god's own options (on yourself only)
+
+	option = {
+		name = pantheon_menu.0001.throne
+		trigger = {
+			scope:pantheon_target = root
+			NOT = { has_variable = pantheon_enthroned }
+			is_landed = yes
+		}
+		custom_tooltip = pantheon_menu.0001.throne.tt
+		hidden_effect = { pantheon_take_throne_effect = yes }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0001.proclaim
+		trigger = {
+			scope:pantheon_target = root
+			NOT = { rite = faith.main_rite }
+		}
+		custom_tooltip = pantheon_menu.0001.proclaim.tt
+		hidden_effect = { pantheon_proclaim_effect = yes }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0001.forswear
+		trigger = {
+			scope:pantheon_target = root
+			NOT = { has_character_modifier = pantheon_forsworn }
+		}
+		custom_tooltip = pantheon_menu.0001.forswear.tt
+		hidden_effect = { add_character_modifier = pantheon_forsworn }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0001.embrace
+		trigger = {
+			scope:pantheon_target = root
+			has_character_modifier = pantheon_forsworn
+		}
+		custom_tooltip = pantheon_menu.0001.embrace.tt
+		hidden_effect = { remove_character_modifier = pantheon_forsworn }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0001.blessed
+		trigger = {
+			scope:pantheon_target = root
+			has_variable_list = pantheon_blessed
+		}
+		trigger_event = pantheon_menu.0400
+	}
+
+	# ---- Boons (Worship flows only once you are enthroned)
+
+	option = {
+		name = pantheon_menu.0001.traits
+		trigger = {
+			root = { has_variable = pantheon_enthroned }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_trait } }
+		}
+		trigger_event = pantheon_menu.0100
+	}
+
+	option = {
+		name = pantheon_menu.0001.realm
+		trigger = {
+			root = { has_variable = pantheon_enthroned }
+			scope:pantheon_target = { is_landed = yes }
+		}
+		trigger_event = pantheon_menu.0200
+	}
+
+	option = {
+		name = pantheon_menu.0001.life
+		trigger = {
+			root = { has_variable = pantheon_enthroned }
+		}
+		trigger_event = pantheon_menu.0300
+	}
+
+	option = {
+		name = pantheon_menu.0001.host
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_host_tt var:pantheon_worship >= pantheon_cost_host }
+			root = { has_variable = pantheon_enthroned }
+			scope:pantheon_target = {
+				is_landed = yes
+				is_at_war = yes
+				any_character_war = { NOT = { has_variable = pantheon_host_called } }
+			}
+		}
+		show_as_unavailable = {
+			root = { has_variable = pantheon_enthroned }
+			scope:pantheon_target = {
+				is_landed = yes
+				is_at_war = yes
+				any_character_war = { NOT = { has_variable = pantheon_host_called } }
+			}
+		}
+		custom_tooltip = pantheon_menu.0001.host.tt
+		hidden_effect = { pantheon_call_host_effect = yes }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0001.close
+	}
+}
+
+pantheon_menu.0100 = {
+	type = character_event
+	title = pantheon_menu.0100.t
+	desc = pantheon_menu.0100.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+
+	option = {
+		name = pantheon_menu.0100.champion
+		trigger = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_trait
+		}
+		custom_tooltip = pantheon_menu.0100.champion.tt
+		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_champion } }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0100.warlord
+		trigger = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_trait
+		}
+		custom_tooltip = pantheon_menu.0100.warlord.tt
+		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_warlord } }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0100.sovereign
+		trigger = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_trait
+		}
+		custom_tooltip = pantheon_menu.0100.sovereign.tt
+		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_sovereign } }
+		trigger_event = pantheon_menu.0001
+	}
+
+	option = {
+		name = pantheon_menu.0100.sage
+		trigger = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_trait
+		}
+		custom_tooltip = pantheon_menu.0100.sage.tt
+		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_sage } }
+		trigger_event = pantheon_menu.0001
+	}
+
+	# Not enough Worship: one greyed notice instead of every blessing (CK3 shows at most three
+	# unavailable options; Gifts and Life have four priced ones)
+	option = {
+		name = pantheon_menu.0100.poor
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_trait_tt always = no }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship < pantheon_cost_trait
+		}
+	}
+
+	option = {
+		name = pantheon_menu.0100.back
+		trigger_event = pantheon_menu.0001
+	}
+}
+
+pantheon_menu.0200 = {
+	type = character_event
+	title = pantheon_menu.0200.t
+	desc = pantheon_menu.0200.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+
+	option = {
+		name = pantheon_menu.0200.harvest
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_harvest } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_realm
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_harvest } }
+		}
+		custom_tooltip = pantheon_menu.0200.harvest.tt
+		hidden_effect = { pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest } }
+		trigger_event = pantheon_menu.0200
+	}
+
+	option = {
+		name = pantheon_menu.0200.walls
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_walls } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_realm
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_walls } }
+		}
+		custom_tooltip = pantheon_menu.0200.walls.tt
+		hidden_effect = { pantheon_grant_realm_effect = { KEY = walls MODIFIER = pantheon_walls } }
+		trigger_event = pantheon_menu.0200
+	}
+
+	option = {
+		name = pantheon_menu.0200.warding
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_warding } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_realm
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_warding } }
+		}
+		custom_tooltip = pantheon_menu.0200.warding.tt
+		hidden_effect = { pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding } }
+		trigger_event = pantheon_menu.0200
+	}
+
+	# Not enough Worship: one greyed notice instead of every blessing (CK3 shows at most three
+	# unavailable options; Gifts and Life have four priced ones)
+	option = {
+		name = pantheon_menu.0200.poor
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_realm_tt always = no }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship < pantheon_cost_realm
+		}
+	}
+
+	option = {
+		name = pantheon_menu.0200.back
+		trigger_event = pantheon_menu.0001
+	}
+}
+
+pantheon_menu.0300 = {
+	type = character_event
+	title = pantheon_menu.0300.t
+	desc = pantheon_menu.0300.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+
+	option = {
+		name = pantheon_menu.0300.vigor
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_vigor } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_life
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_vigor } }
+		}
+		custom_tooltip = pantheon_menu.0300.vigor.tt
+		hidden_effect = { pantheon_grant_vigor_effect = yes }
+		trigger_event = pantheon_menu.0300
+	}
+
+	option = {
+		name = pantheon_menu.0300.fertility
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_fertility } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_life
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_fertility } }
+		}
+		custom_tooltip = pantheon_menu.0300.fertility.tt
+		hidden_effect = { pantheon_grant_fertility_effect = yes }
+		trigger_event = pantheon_menu.0300
+	}
+
+	option = {
+		name = pantheon_menu.0300.lineage
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_lineage } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_life
+			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_lineage } }
+		}
+		custom_tooltip = pantheon_menu.0300.lineage.tt
+		hidden_effect = { pantheon_grant_lineage_effect = yes }
+		trigger_event = pantheon_menu.0300
+	}
+
+	# Clickable whenever affordable; eligibility is checked on click (costs nothing and says why when refused).
+	# Greying it with reasons kept making the option vanish in game, however it was written.
+	option = {
+		name = pantheon_menu.0300.conception
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
+			scope:pantheon_target = { NOT = { has_variable = pantheon_enthroned } }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship >= pantheon_cost_life
+			scope:pantheon_target = { NOT = { has_variable = pantheon_enthroned } }
+		}
+		custom_tooltip = pantheon_menu.0300.conception.tt
+		hidden_effect = { pantheon_grant_conception_effect = yes }
+		trigger_event = pantheon_menu.0300
+	}
+
+	# Not enough Worship: one greyed notice instead of every blessing (CK3 shows at most three
+	# unavailable options; Gifts and Life have four priced ones)
+	option = {
+		name = pantheon_menu.0300.poor
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_life_tt always = no }
+		}
+		show_as_unavailable = {
+			var:pantheon_worship < pantheon_cost_life
+		}
+	}
+
+	option = {
+		name = pantheon_menu.0300.back
+		trigger_event = pantheon_menu.0001
+	}
+}
+
+# Your Blessed: up to five followers carrying your boons, most recently blessed first, with end years.
+pantheon_menu.0400 = {
+	type = character_event
+	title = pantheon_menu.0400.t
+	desc = {
+		desc = pantheon_menu.0400.desc
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_trait }
+			}
+			desc = pantheon_menu.0400.trait_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_harvest }
+			}
+			desc = pantheon_menu.0400.harvest_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_walls }
+			}
+			desc = pantheon_menu.0400.walls_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_warding }
+			}
+			desc = pantheon_menu.0400.warding_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_vigor }
+			}
+			desc = pantheon_menu.0400.vigor_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_fertility }
+			}
+			desc = pantheon_menu.0400.fertility_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_lineage }
+			}
+			desc = pantheon_menu.0400.lineage_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_trait }
+			}
+			desc = pantheon_menu.0400.trait_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_harvest }
+			}
+			desc = pantheon_menu.0400.harvest_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_walls }
+			}
+			desc = pantheon_menu.0400.walls_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_warding }
+			}
+			desc = pantheon_menu.0400.warding_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_vigor }
+			}
+			desc = pantheon_menu.0400.vigor_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_fertility }
+			}
+			desc = pantheon_menu.0400.fertility_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_lineage }
+			}
+			desc = pantheon_menu.0400.lineage_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_trait }
+			}
+			desc = pantheon_menu.0400.trait_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_harvest }
+			}
+			desc = pantheon_menu.0400.harvest_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_walls }
+			}
+			desc = pantheon_menu.0400.walls_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_warding }
+			}
+			desc = pantheon_menu.0400.warding_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_vigor }
+			}
+			desc = pantheon_menu.0400.vigor_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_fertility }
+			}
+			desc = pantheon_menu.0400.fertility_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_lineage }
+			}
+			desc = pantheon_menu.0400.lineage_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_trait }
+			}
+			desc = pantheon_menu.0400.trait_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_harvest }
+			}
+			desc = pantheon_menu.0400.harvest_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_walls }
+			}
+			desc = pantheon_menu.0400.walls_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_warding }
+			}
+			desc = pantheon_menu.0400.warding_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_vigor }
+			}
+			desc = pantheon_menu.0400.vigor_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_fertility }
+			}
+			desc = pantheon_menu.0400.fertility_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_lineage }
+			}
+			desc = pantheon_menu.0400.lineage_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_trait }
+			}
+			desc = pantheon_menu.0400.trait_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_harvest }
+			}
+			desc = pantheon_menu.0400.harvest_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_walls }
+			}
+			desc = pantheon_menu.0400.walls_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_warding }
+			}
+			desc = pantheon_menu.0400.warding_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_vigor }
+			}
+			desc = pantheon_menu.0400.vigor_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_fertility }
+			}
+			desc = pantheon_menu.0400.fertility_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_lineage }
+			}
+			desc = pantheon_menu.0400.lineage_5
+		}
+	}
+	theme = faith
+	left_portrait = {
+		trigger = { exists = scope:pantheon_blessed_1 }
+		character = scope:pantheon_blessed_1
+		animation = personality_zealous
+	}
+	right_portrait = {
+		trigger = { exists = scope:pantheon_blessed_2 }
+		character = scope:pantheon_blessed_2
+		animation = personality_zealous
+	}
+	lower_center_portrait = {
+		trigger = { exists = scope:pantheon_blessed_3 }
+		character = scope:pantheon_blessed_3
+		animation = personality_zealous
+	}
+	immediate = {
+		# Saved scopes persist down the page chain: clear before saving again.
+		# ordered_in_list repeats the last entry past the end of the list, so each slot checks the size.
+		if = {
+			limit = { exists = scope:pantheon_blessed_1 }
+			clear_saved_scope = pantheon_blessed_1
+		}
+		if = {
+			limit = { exists = scope:pantheon_blessed_2 }
+			clear_saved_scope = pantheon_blessed_2
+		}
+		if = {
+			limit = { exists = scope:pantheon_blessed_3 }
+			clear_saved_scope = pantheon_blessed_3
+		}
+		if = {
+			limit = { exists = scope:pantheon_blessed_4 }
+			clear_saved_scope = pantheon_blessed_4
+		}
+		if = {
+			limit = { exists = scope:pantheon_blessed_5 }
+			clear_saved_scope = pantheon_blessed_5
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_blessed value >= 1 }
+			}
+			ordered_in_list = {
+				variable = pantheon_blessed
+				order_by = var:pantheon_blessed_year
+				position = 0
+				save_scope_as = pantheon_blessed_1
+			}
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_blessed value >= 2 }
+			}
+			ordered_in_list = {
+				variable = pantheon_blessed
+				order_by = var:pantheon_blessed_year
+				position = 1
+				save_scope_as = pantheon_blessed_2
+			}
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_blessed value >= 3 }
+			}
+			ordered_in_list = {
+				variable = pantheon_blessed
+				order_by = var:pantheon_blessed_year
+				position = 2
+				save_scope_as = pantheon_blessed_3
+			}
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_blessed value >= 4 }
+			}
+			ordered_in_list = {
+				variable = pantheon_blessed
+				order_by = var:pantheon_blessed_year
+				position = 3
+				save_scope_as = pantheon_blessed_4
+			}
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_blessed value >= 5 }
+			}
+			ordered_in_list = {
+				variable = pantheon_blessed
+				order_by = var:pantheon_blessed_year
+				position = 4
+				save_scope_as = pantheon_blessed_5
+			}
+		}
+	}
+
+	option = {
+		name = pantheon_menu.0400.back
+		trigger_event = pantheon_menu.0001
+	}
+}

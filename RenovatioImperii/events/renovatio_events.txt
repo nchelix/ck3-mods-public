@@ -1,0 +1,392 @@
+﻿# Events one and two: the proclamation itself, and Constantinople's reply.
+#
+# Verified against the installed game (1.19.0.6 "Scribe") at
+# C:\Program Files (x86)\Steam\steamapps\common\Crusader Kings III\game:
+#
+# - game/events/_events.info documents `opening = <loc key or dynamic desc
+#   block>` for letter events. There is no `opening_default` field anywhere
+#   in the schema or in any shipped event file (checked: zero hits for
+#   `opening_default` under game/events or game/common). The brief's
+#   `opening_default = dear_squire` does not exist; renovatio.0002 below uses
+#   `opening` instead, exactly as every real letter_event does.
+# - Scanning all 600 vanilla `type = letter_event` blocks for a *top-level*
+#   `title` key (not one nested inside e.g. send_interface_message) found it
+#   in only 2 of them. The dominant, verified convention is opening+desc with
+#   no separate title, e.g. events/councillor_task_events/steward_task_events.txt
+#   steward_task.2006, and events/decisions_events/east_europe_events.txt
+#   east_europe.0112 (which even reuses the ".t" suffix for its opening key,
+#   the convention followed here). renovatio.0002 has no `title` field.
+# - `theme = realm` is a real key in common/event_themes/00_event_themes.txt
+#   (line 472).
+# - `any_ruler` and `random_ruler` are both real global iterators, usable
+#   with `limit`/`save_scope_as` from any scope: common/culture/traditions/
+#   00_realm_traditions.txt (any_ruler, boolean form as seen in
+#   common/council_tasks/00_court_chaplain_tasks.txt) and
+#   common/customizable_localization/00_travel.txt (random_ruler +
+#   save_scope_as).
+# - `trigger_event = { id = x days = { a b } }` (ranged delay) is real:
+#   events/yearly_events/yearly_events_5.txt and dozens of others use exactly
+#   this form.
+# - `has_title = title:e_byzantium` / `title:h_eastern_roman_empire` are both
+#   real landed titles: common/landed_titles/00_landed_titles.txt lines 8040
+#   and 24.
+# - `add_opinion = { modifier = X target = Y }` without an explicit `opinion =`
+#   override is valid when the modifier itself declares a fixed `opinion =`
+#   value, which renovatio_presumption_opinion does (opinion = -10, years =
+#   20, decaying = yes -- the same shape as vanilla's exposed_my_secret_opinion,
+#   00_opinion_modifiers.txt line 522). Confirmed by vanilla add_opinion calls
+#   that omit `opinion =` for exactly that modifier, e.g.
+#   events/activities/pilgrimage_activity/pilgrimage_events.txt line 8142.
+# - `option = { name = ... }` plus bare `add_prestige = N` / `add_piety = N`
+#   inside an option body is the standard, verified pattern (e.g.
+#   events/bookmark_events.txt).
+#
+# Deviation from the brief beyond the opening_default/title fix: both the
+# trigger and the immediate of renovatio.0002 add `NOT = { this = root }` to
+# the any_ruler/random_ruler checks. Without it, a claimant who personally
+# holds e_byzantium or h_eastern_roman_empire would send Constantinople's
+# reply to themselves. Task 5's renovatio_world_reacts_effect already
+# excludes the claimant from its own every_ruler pass the same way
+# (`NOT = { this = scope:claimant }`), so this keeps the same convention.
+#
+# renovatio.0003 does not exist yet -- it is Task 7's job. Option b of
+# renovatio.0001 below queues it anyway, per the brief's own draft. Until
+# Task 7 lands, loading this mod and picking option b would produce a
+# "no such event" error in the game's own error.log; validate_mod.py cannot
+# see this because it only checks that *defined* event ids match a declared
+# namespace, not that *referenced* ids resolve. This is a static-analysis
+# blind spot, not a fix -- flagging it rather than silently dropping the
+# reference, since removing it would depart from the brief without being
+# asked to.
+
+namespace = renovatio
+
+# The proclamation itself. How it is framed decides the first reactions.
+renovatio.0001 = {
+	type = character_event
+	title = renovatio.0001.t
+	desc = renovatio.0001.desc
+	theme = realm
+
+	immediate = {
+		renovatio_world_reacts_effect = yes
+	}
+
+	option = {
+		name = renovatio.0001.a
+		add_prestige = 200
+		trigger_event = { id = renovatio.0002 days = { 30 90 } }
+	}
+
+	option = {
+		name = renovatio.0001.b
+		add_piety = 200
+		trigger_event = { id = renovatio.0003 days = { 60 150 } }
+	}
+}
+
+# The eastern emperor is unimpressed, and says so at length.
+renovatio.0002 = {
+	type = letter_event
+	opening = renovatio.0002.t
+	desc = renovatio.0002.desc
+	sender = scope:basileus
+
+	trigger = {
+		has_trait = roman_claimant
+		any_ruler = {
+			NOT = { this = root }
+			OR = {
+				has_title = title:e_byzantium
+				has_title = title:h_eastern_roman_empire
+			}
+		}
+	}
+
+	immediate = {
+		random_ruler = {
+			limit = {
+				NOT = { this = root }
+				OR = {
+					has_title = title:e_byzantium
+					has_title = title:h_eastern_roman_empire
+				}
+			}
+			save_scope_as = basileus
+		}
+	}
+
+	option = {
+		name = renovatio.0002.a
+		add_prestige = 100
+	}
+
+	option = {
+		name = renovatio.0002.b
+		scope:basileus = {
+			add_opinion = {
+				modifier = renovatio_presumption_opinion
+				target = root
+			}
+		}
+		add_piety = 100
+	}
+}
+
+
+# Task 7 verification notes, against the installed game (1.19.0.6 "Scribe")
+# at C:\Program Files (x86)\Steam\steamapps\common\Crusader Kings III\game:
+#
+# - `theme = faith` and `theme = learning` are both real:
+#   common/event_themes/00_event_themes.txt lines 646 and 274.
+# - `religion_tag = christianity_religion` is the correct, real form:
+#   `grep -rho "religion_tag = [a-zA-Z_]*" common | sort -u` lists it exactly
+#   as written -- no fix needed here, the brief was right.
+# - `faith.religious_head` is a real scope link, used at root scope exactly
+#   as here (`exists = faith.religious_head`, `faith.religious_head = { ... }`):
+#   events/activities/coronation_activity/coronation_events.txt lines 3181,
+#   3182, 3324.
+# - The brief's `learned_character` template does not exist -- there is no
+#   common/character_templates/ directory at all in 1.19; character
+#   templates now live under common/scripted_character_templates/. Of those,
+#   `scholar_character` (common/scripted_character_templates/00_scholar_template.txt)
+#   is real and widely used exactly as drafted, e.g.
+#   events/decisions_events/major_decisions_events.txt line 1366
+#   (`create_character = { employer = root template = scholar_character
+#   save_scope_as = new_courtier }`). It fits an antiquarian far better than
+#   the invented name would have, so it replaces `learned_character`
+#   in renovatio.0004 rather than triggering the brief's escape hatch
+#   (drop the option for a prestige + lifestyle-xp award). `location =
+#   capital_province` (bare, no root. prefix) is also independently verified:
+#   events/dlc/fp3/fp3_misc_decision_events.txt lines 59 and 77 use exactly
+#   that form inside create_character.
+# - `set_employer = root` on a freshly created character is a real, standard
+#   idiom: events/activities/chariot_race_activity/chariot_race_ongoing_events.txt
+#   line 1198, events/activities/hold_court_activity/hold_court_events_general.txt
+#   line 13851.
+#
+# Deviation from the brief's draft: renovatio.0003's trigger adds
+# `NOT = { this = faith.religious_head }`, following this repo's
+# established house convention (renovatio.0002 above; renovatio_world_reacts_effect
+# in Task 5) of never letting the claimant react to themselves. Without it, a
+# claimant who is themselves the head of their own faith would resolve
+# scope:pontiff to root and add opinion of themselves toward themselves. The
+# comparison form `this = faith.religious_head` (rather than
+# `faith.religious_head = root`) matches the exact idiom vanilla uses for
+# this same self-comparison: common/scripted_triggers/00_diarchy_scripted_triggers.txt
+# line 331 (`scope:actor.faith.religious_head = scope:recipient.faith.religious_head`)
+# and events/activities/coronation_activity/coronation_events.txt line 3037
+# (`this = faith.religious_head`).
+
+# The Pope crowned emperors. He would like it remembered that this is his to give.
+renovatio.0003 = {
+	type = character_event
+	title = renovatio.0003.t
+	desc = renovatio.0003.desc
+	theme = faith
+
+	trigger = {
+		has_trait = roman_claimant
+		faith = { religion_tag = christianity_religion }
+		exists = faith.religious_head
+		NOT = { this = faith.religious_head }
+	}
+
+	immediate = {
+		faith.religious_head = { save_scope_as = pontiff }
+	}
+
+	option = {
+		name = renovatio.0003.a
+		add_piety = 300
+		scope:pontiff = {
+			add_opinion = {
+				modifier = renovatio_papal_approval_opinion
+				target = root
+			}
+		}
+		add_prestige = -200
+	}
+
+	option = {
+		name = renovatio.0003.b
+		add_prestige = 300
+		scope:pontiff = {
+			add_opinion = {
+				modifier = renovatio_rival_claimant_opinion
+				target = root
+			}
+		}
+	}
+}
+
+# People turn up wanting to serve the restored Rome. Some of them are genuine.
+renovatio.0004 = {
+	type = character_event
+	title = renovatio.0004.t
+	desc = renovatio.0004.desc
+	theme = learning
+
+	trigger = {
+		has_trait = roman_claimant
+		NOT = { has_character_flag = had_event_renovatio_0004 }
+	}
+
+	immediate = {
+		add_character_flag = had_event_renovatio_0004
+	}
+
+	option = {
+		name = renovatio.0004.a
+		create_character = {
+			location = capital_province
+			template = scholar_character
+			save_scope_as = antiquarian
+		}
+		scope:antiquarian = {
+			set_employer = root
+		}
+	}
+
+	option = {
+		name = renovatio.0004.b
+		# add_gold rejects negative values; remove_short_term_gold is vanilla's idiom.
+		remove_short_term_gold = 100
+		add_prestige = 50
+	}
+}
+
+# Task 8 verification notes and repeat-firing design, against the installed
+# game (1.19.0.6 "Scribe") at
+# C:\Program Files (x86)\Steam\steamapps\common\Crusader Kings III\game:
+#
+# - `on_birthday` is a real on_action: common/on_action/birthday.txt line 3
+#   ("character having its birthday in root scope"). The brief's fallback
+#   name, `yearly_playable_pulse`, does not exist anywhere in 1.19 (zero
+#   hits under common/on_action); the real once-a-year-per-character hook
+#   documented in common/on_action/_on_actions.info's own comment block is
+#   `on_yearly_playable`, not needed here since on_birthday checked out.
+# - `highest_held_title_tier`, `prestige_level`, `factor = 0` in an
+#   ai_will_do modifier, and the `value =`/`base =` fix are all verified in
+#   renovatio_decisions.txt's own comment above its ai_will_do block.
+# - The `desc = { first_valid = { triggered_desc = { trigger = ... desc =
+#   ... } triggered_desc = { ... } desc = fallback } } }` shape used below in
+#   renovatio.0006 is the exact, real vanilla idiom for a description that
+#   depends on state, fallback included: events/decisions_events/
+#   major_decisions_events.txt lines 96-109 (major_decisions.0100) uses this
+#   precise structure, two triggered_desc entries followed by a bare `desc =`
+#   fallback.
+# - `theme = war` is real: common/event_themes/00_event_themes.txt line 532.
+#
+# Repeat-firing (the brief did not address this, and left unbounded it is
+# wrong): on_birthday fires every year on the claimant's birthday for as
+# long as they hold the trait. All three scheduled events
+# (renovatio.0004/0005/0006) had only `trigger = { has_trait = roman_claimant
+# ... }`, so without a guard each would fire in full, every year, forever,
+# for every claimant. Vanilla avoids exactly this in two ways, both used
+# here for different reasons:
+#
+#   1. A one-time character flag: `NOT = { has_character_flag = X }` in the
+#      trigger, `add_character_flag = X` in immediate (never
+#      `set_character_flag`, which does not exist as an effect in 1.19 --
+#      zero hits searched across events/). This is vanilla's own idiom for
+#      "this only ever happens once" on a recurring pulse:
+#      events/yearly_events/bp1_yearly_james.txt line 59
+#      (`NOT = { has_character_flag = had_event_bp1_yearly_9001 }`) paired
+#      with line 108 (`add_character_flag = had_event_bp1_yearly_9001`) in
+#      the same event's immediate. renovatio.0004 above uses this: people
+#      turning up to serve reads as a one-off milestone, not an annual
+#      event, so it now fires at most once per claimant, ever.
+#
+#   2. `cooldown = { years = N }`, a documented top-level event field
+#      (events/_events.info: "If you have a cooldown, the recipient root
+#      gets a saved variable with that duration ... Trigger legality checks
+#      include cooldown."). Used on renovatio.0005 and renovatio.0006 below,
+#      because both are legitimately recurring -- a rival can change over
+#      the years, and the claim's fortunes can shift from pretender to
+#      powerful to restored -- so a permanent one-shot flag would be wrong
+#      for them, but firing every single year is still spam. 5 years and 10
+#      years are both common vanilla cooldown lengths (403 and 638 uses
+#      respectively across events/); 5 is used for the rival notice (a
+#      shorter-fuse social reaction) and 10, the single most common vanilla
+#      cooldown value, for the judgement (a slow, occasional status check).
+
+# Someone else has had the same idea, and they are not asking permission
+# either.
+renovatio.0005 = {
+	type = character_event
+	title = renovatio.0005.t
+	desc = renovatio.0005.d
+	theme = war
+
+	cooldown = { years = 5 }
+
+	trigger = {
+		has_trait = roman_claimant
+		any_ruler = {
+			has_trait = roman_claimant
+			NOT = { this = root }
+		}
+	}
+
+	immediate = {
+		random_ruler = {
+			limit = {
+				has_trait = roman_claimant
+				NOT = { this = root }
+			}
+			save_scope_as = rival
+		}
+	}
+
+	option = {
+		name = renovatio.0005.a
+		scope:rival = {
+			add_opinion = {
+				modifier = renovatio_rival_claimant_opinion
+				target = root
+			}
+		}
+		add_prestige = 100
+	}
+
+	option = {
+		name = renovatio.0005.b
+		add_piety = 100
+	}
+}
+
+# Whether any of it came to anything.
+renovatio.0006 = {
+	type = character_event
+	title = renovatio.0006.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					OR = {
+						has_title = title:h_roman_empire
+						has_title = title:h_eastern_roman_empire
+					}
+				}
+				desc = renovatio.0006.d_restored
+			}
+			triggered_desc = {
+				trigger = { highest_held_title_tier >= tier_empire }
+				desc = renovatio.0006.d_powerful
+			}
+			desc = renovatio.0006.d_pretender
+		}
+	}
+	theme = realm
+
+	cooldown = { years = 10 }
+
+	trigger = {
+		has_trait = roman_claimant
+	}
+
+	option = {
+		name = renovatio.0006.a
+	}
+}

@@ -1,0 +1,146 @@
+﻿# One Trait 1.7 -- On/Off for each Sanctum power, shown in the story's
+# Situations info line (ONE_TRAIT_SANCTUM_STATUS) as [Story.Custom('<name>')].
+# Scope: the story, which holds the power_<name> switches.
+
+OneTraitSanctumBuilder = {
+	type = all
+	text = {
+		trigger = { has_variable = power_builder }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumGoldenAge = {
+	type = all
+	text = {
+		trigger = { has_variable = power_golden_age }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumOneFaith = {
+	type = all
+	text = {
+		trigger = { has_variable = power_one_faith }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumOnePeople = {
+	type = all
+	text = {
+		trigger = { has_variable = power_one_people }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumAllSeeing = {
+	type = all
+	text = {
+		trigger = { has_variable = power_all_seeing }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumLeash = {
+	type = all
+	text = {
+		trigger = { has_variable = power_leash }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumNoDissent = {
+	type = all
+	text = {
+		trigger = { has_variable = power_no_dissent }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumRelicForge = {
+	type = all
+	text = {
+		trigger = { has_variable = power_relic_forge }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumChampions = {
+	type = all
+	text = {
+		trigger = { has_variable = power_champions }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumLevies = {
+	type = all
+	text = {
+		trigger = { has_variable = power_levies }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}
+
+OneTraitSanctumTribute = {
+	type = all
+	text = {
+		trigger = { has_variable = power_tribute }
+		localization_key = one_trait_sanctum_status_on
+	}
+	text = {
+		trigger = { always = no }
+		fallback = yes
+		localization_key = one_trait_sanctum_status_off
+	}
+}

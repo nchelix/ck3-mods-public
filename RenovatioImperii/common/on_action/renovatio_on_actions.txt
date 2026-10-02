@@ -1,0 +1,36 @@
+﻿# The chain continues on its own once the claim is made.
+#
+# Verified against the installed game (1.19.0.6 "Scribe") at
+# C:\Program Files (x86)\Steam\steamapps\common\Crusader Kings III\game:
+#
+# - `on_birthday` is real: common/on_action/birthday.txt line 3
+#   ("character having its birthday in root scope"). It already carries
+#   `on_actions = { ... }` (no `events` block of its own), so adding an
+#   `events = { ... }` block for it here, in a second file, merges
+#   additively rather than conflicting. Proof: common/on_action/
+#   _on_actions.info's own "=== MODDING INFO ===" section states plainly
+#   that "you can declare data for on-actions in multiple files, however,
+#   you cannot have multiple triggers or effect blocks for a given named
+#   on-action" -- `events` is conspicuously not on that exclusion list.
+#   Vanilla itself relies on exactly this: common/on_action/
+#   yearly_on_actions.txt defines `three_year_playable_pulse` twice (lines
+#   1975 and 2915), each contributing its own separate `events` list, with
+#   no trigger/effect collision between them.
+# - The brief's suggested fallback on_action, `yearly_playable_pulse`, does
+#   not exist under 1.19's common/on_action at all (zero hits). It was not
+#   needed since on_birthday checked out, but for the record, the real
+#   once-per-character-per-year hook documented in _on_actions.info's header
+#   comment is `on_yearly_playable`.
+#
+# Repeat-firing is handled per-event in events/renovatio_events.txt (a
+# one-time character flag on renovatio.0004, `cooldown` on renovatio.0005
+# and renovatio.0006) rather than here, since on_birthday itself has no
+# sensible way to limit how often it fires for a given character -- see
+# that file's comments for the full reasoning.
+on_birthday = {
+	events = {
+		renovatio.0004
+		renovatio.0005
+		renovatio.0006
+	}
+}

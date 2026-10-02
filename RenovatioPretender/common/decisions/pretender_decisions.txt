@@ -1,0 +1,219 @@
+﻿# Decisions for landless pretenders.
+#
+# Verified against the installed game (1.19):
+# - is_landless_adventurer = yes: common/casus_belli_types/00_claim.txt
+# - picture ep3_decision_roman_restoration.dds: RenovatioImperii's decision uses it,
+#   and vanilla restore_roman_empire_decision (common/decisions/80_major_decisions_roman.txt)
+# - cost = { gold prestige }, ai_will_do opening with base: every vanilla decision
+#   (see RenovatioImperii/common/decisions/renovatio_decisions.txt notes)
+
+commission_julian_genealogy_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_roman_restoration.dds"
+	}
+
+	desc = commission_julian_genealogy_decision_desc
+	selection_tooltip = commission_julian_genealogy_decision_tooltip
+	confirm_text = commission_julian_genealogy_decision_confirm
+
+	is_shown = {
+		is_landless_adventurer = yes
+		NOT = { has_trait = roman_pretender }
+		NOT = { has_trait = roman_claimant }
+		NOT = { has_character_flag = pretender_genealogy_in_progress }
+	}
+
+	is_valid = {
+		prestige_level >= 1
+	}
+
+	cost = {
+		gold = 150
+		prestige = 300
+	}
+
+	effect = {
+		add_character_flag = pretender_genealogy_in_progress
+		set_variable = { name = forgery_quality value = 20 }
+		trigger_event = pretender.0001
+	}
+
+	ai_check_interval = 120
+	ai_will_do = {
+		base = 0
+		modifier = {
+			add = 10
+			has_trait = ambitious
+		}
+		modifier = {
+			add = 5
+			prestige_level >= 2
+		}
+		modifier = {
+			add = 5
+			domicile ?= {
+				domicile_location = { geographical_region = custom_roman_full_borders }
+			}
+		}
+		modifier = {
+			# At most two AI pretenders alive at once (spec §5), after
+			# Renovatio's one-AI-claimant rule.
+			factor = 0
+			any_living_character = {
+				is_ai = yes
+				OR = {
+					has_trait = roman_pretender
+					has_character_flag = pretender_genealogy_in_progress
+				}
+				count >= 2
+			}
+		}
+	}
+}
+
+# Bread and Games: gold for support where the camp stands, and some spill-over.
+# cooldown = { years = N }: 2400+ vanilla uses. every_neighboring_county:
+# events (20 uses). domicile.domicile_location.county: 95 vanilla uses.
+bread_and_games_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_roman_restoration.dds"
+	}
+	desc = bread_and_games_decision_desc
+	selection_tooltip = bread_and_games_decision_tooltip
+
+	is_shown = {
+		has_trait = roman_pretender
+		is_landless_adventurer = yes
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = pretender_camp_in_roman_lands_tt
+			domicile ?= {
+				domicile_location = { geographical_region = custom_roman_full_borders }
+			}
+		}
+	}
+
+	cooldown = { years = 1 }
+
+	cost = {
+		gold = 50
+	}
+
+	effect = {
+		domicile.domicile_location.county = {
+			save_scope_as = camp_county
+		}
+		pretender_raise_support_effect = { COUNTY = scope:camp_county PRETENDER = root }
+		scope:camp_county = {
+			every_neighboring_county = {
+				random = {
+					chance = 50
+					modifier = {
+						add = 25
+						root = {
+							has_variable = pretender_ancestor
+							var:pretender_ancestor = flag:caesar
+						}
+					}
+					pretender_raise_support_effect = { COUNTY = this PRETENDER = root }
+				}
+			}
+		}
+	}
+
+	ai_check_interval = 60
+	ai_will_do = {
+		base = 0
+		modifier = {
+			add = 50
+			gold >= 200
+		}
+	}
+}
+
+# Speak in the Forum: prestige for a smaller gain, camp county only.
+speak_in_the_forum_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_roman_restoration.dds"
+	}
+	desc = speak_in_the_forum_decision_desc
+	selection_tooltip = speak_in_the_forum_decision_tooltip
+
+	is_shown = {
+		has_trait = roman_pretender
+		is_landless_adventurer = yes
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = pretender_camp_in_roman_lands_tt
+			domicile ?= {
+				domicile_location = { geographical_region = custom_roman_full_borders }
+			}
+		}
+	}
+
+	cooldown = { years = 1 }
+
+	cost = {
+		prestige = 150
+	}
+
+	effect = {
+		pretender_raise_support_effect = { COUNTY = domicile.domicile_location.county PRETENDER = root }
+	}
+
+	ai_check_interval = 60
+	ai_will_do = {
+		base = 0
+		modifier = {
+			add = 40
+			prestige >= 600
+		}
+	}
+}
+
+# Raise the Standard: mark the camp duchy's supportive counties for the
+# uprising. The war itself is then declared from the target's character, as
+# with vanilla's landless peasant war.
+raise_the_standard_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_roman_restoration.dds"
+	}
+	desc = raise_the_standard_decision_desc
+	selection_tooltip = raise_the_standard_decision_tooltip
+
+	is_shown = {
+		has_trait = roman_pretender
+		is_landless_adventurer = yes
+	}
+
+	is_valid = {
+		pretender_can_rise_trigger = yes
+	}
+
+	effect = {
+		clear_variable_list = pretender_uprising_counties
+		domicile.domicile_location.county.duchy = {
+			every_in_de_jure_hierarchy = {
+				limit = {
+					tier = tier_county
+					has_variable = pretender_backer
+					var:pretender_backer = root
+					var:pretender_support >= 2
+				}
+				root = {
+					add_to_variable_list = { name = pretender_uprising_counties target = prev }
+				}
+			}
+		}
+		custom_tooltip = raise_the_standard_decision_effect_tt
+	}
+
+	ai_check_interval = 60
+	ai_will_do = {
+		base = 100
+	}
+}

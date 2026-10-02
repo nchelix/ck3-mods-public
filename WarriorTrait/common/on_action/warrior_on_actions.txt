@@ -1,0 +1,25 @@
+﻿# Grants Warrior experience for winning a battle in person.
+# Five per victory, so the track reaches its final tier after twenty wins.
+#
+# Vanilla on_combat_end_winner already has an effect block, and an on_action
+# may only have one; so hook in through on_actions instead of adding an effect.
+
+on_combat_end_winner = {
+	on_actions = { warrior_on_combat_end_winner }
+}
+
+warrior_on_combat_end_winner = {
+	effect = {
+		side_commander ?= {
+			if = {
+				limit = {
+					has_trait = warrior
+				}
+				add_trait_xp = {
+					trait = warrior
+					value = 5
+				}
+			}
+		}
+	}
+}

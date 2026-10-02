@@ -1,0 +1,20 @@
+﻿# One Trait 2.0: could any Puppets page option apply to this character
+# (the scope)? root is the player. Hides the Puppets button for, say, an
+# unlanded lay courtier, whose Puppets page would be empty.
+one_trait_can_be_my_puppet_trigger = {
+	OR = {
+		AND = { # Secular Ruler Puppet
+			is_landed = yes
+			is_ruler = yes
+			NOR = {
+				has_trait = incapable
+				is_clergy = yes
+			}
+		}
+		AND = { # Clerical Ruler or Realm Priest Puppet
+			is_clergy = yes
+			NOT = { has_trait = incapable }
+		}
+		puppeteer ?= root # Release
+	}
+}

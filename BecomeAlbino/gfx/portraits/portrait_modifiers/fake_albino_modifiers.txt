@@ -1,0 +1,72 @@
+﻿visual_traits_fake_albino = {
+
+	fake_albino = {
+
+		dna_modifiers = {
+			color = {
+				gene = skin_color
+				# template = skin_color
+				#mode = add			#not supported for color genes
+				#mode = replace		#overwrite this gene with palette coordinates specified here
+				#mode = modify		#adds x and y to the dna-gene's values
+				mode = modify
+				
+				x = -1.0
+				y = -1.0
+			}
+			color = {
+				gene = hair_color
+				# template = hair_color
+				#mode = add			#not supported for color genes
+				#mode = replace		#overwrite this gene with palette coordinates specified here
+				#mode = modify		#adds x and y to the dna-gene's values
+				mode = modify
+					
+				x = -1.0
+				y = -1.0
+			}
+			color = {
+				gene = eye_color
+				# template = hair_color
+				#mode = add			#not supported for color genes
+				#mode = replace		#overwrite this gene with palette coordinates specified here
+				#mode = modify		#adds x and y to the dna-gene's values
+				mode = modify
+					
+				x = -1.0
+				y = 0.0
+			}
+			morph = {
+				#mode = add			#add this as an extra gene
+				#mode = replace	#overwrite this gene in the dna with the specified template and value
+				#mode = modify		#modify this gene in the dna. if the template matches the gene in the dna (or template is left empty), value will be added to the dna-gene's strength
+				mode = modify_multiply
+				
+				gene = gene_eyebrows_shape
+				# template = 
+				value = 0.3
+			}
+			morph = {
+				#mode = add			#add this as an extra gene
+				#mode = replace	#overwrite this gene in the dna with the specified template and value
+				#mode = modify		#modify this gene in the dna. if the template matches the gene in the dna (or template is left empty), value will be added to the dna-gene's strength
+				mode = modify_multiply
+				
+				gene = gene_eyebrows_fullness
+				# template = 
+				value = 0.3
+			}
+		}
+
+		weight = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					has_trait = fake_albino
+					has_trait = fake_albino_bloodline
+				}
+			}
+		}
+	}
+}

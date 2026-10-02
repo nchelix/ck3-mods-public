@@ -1,0 +1,131 @@
+﻿# One Trait 1.9 -- the Army of the One: three elite regiments, recruitable free
+# by anyone with the One Trait (Men-at-Arms panel) or granted from the One
+# Trait menu (Army page). Art: icons/regimenttypes and illustrations/
+# men_at_arms_big|small, all named after the key.
+#
+# The old one_army type (onearmy_regiment_types.txt) stays for saves.
+
+one_trait_legion = {
+	type = heavy_infantry
+
+	# Cannot be killed; takes castles.
+	damage = 400
+	toughness = 2000
+	pursuit = 100
+	screen = 1000
+	siege_tier = 4
+	siege_value = 4
+
+	terrain_bonus = {
+		hills = { toughness = 500 }
+		mountains = { toughness = 500 }
+		forest = { toughness = 500 }
+	}
+
+	counters = {
+		archers = 10
+		skirmishers = 10
+		pikemen = 10
+		heavy_infantry = 10
+		light_cavalry = 10
+		heavy_cavalry = 10
+		archer_cavalry = 10
+		camel_cavalry = 10
+		elephant_cavalry = 10
+		gunpowder = 10
+		nomadic_horde = 10
+	}
+
+	can_recruit = {
+		has_trait = one_trait
+	}
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+
+	stack = 500
+	allowed_in_hired_troops = no
+	ai_quality = { value = -10000 }
+}
+
+one_trait_bowmen = {
+	type = archers
+
+	# The most raw damage in the game.
+	damage = 2000
+	toughness = 400
+	pursuit = 300
+	screen = 400
+
+	terrain_bonus = {
+		hills = { damage = 500 }
+		forest = { damage = 500 }
+		jungle = { damage = 500 }
+	}
+
+	counters = {
+		archers = 10
+		skirmishers = 10
+		pikemen = 10
+		heavy_infantry = 10
+		light_cavalry = 10
+		heavy_cavalry = 10
+		archer_cavalry = 10
+		camel_cavalry = 10
+		elephant_cavalry = 10
+		gunpowder = 10
+		nomadic_horde = 10
+	}
+
+	can_recruit = {
+		has_trait = one_trait
+	}
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+
+	stack = 500
+	allowed_in_hired_troops = no
+	ai_quality = { value = -10000 }
+}
+
+one_trait_riders = {
+	type = heavy_cavalry
+
+	# Annihilates anything that flees.
+	damage = 1200
+	toughness = 800
+	pursuit = 3000
+	screen = 800
+
+	terrain_bonus = {
+		plains = { damage = 500 }
+		steppe = { damage = 500 }
+		drylands = { damage = 500 }
+	}
+
+	counters = {
+		archers = 10
+		skirmishers = 10
+		pikemen = 10
+		heavy_infantry = 10
+		light_cavalry = 10
+		heavy_cavalry = 10
+		archer_cavalry = 10
+		camel_cavalry = 10
+		elephant_cavalry = 10
+		gunpowder = 10
+		nomadic_horde = 10
+	}
+
+	can_recruit = {
+		has_trait = one_trait
+	}
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+
+	stack = 500
+	allowed_in_hired_troops = no
+	ai_quality = { value = -10000 }
+}

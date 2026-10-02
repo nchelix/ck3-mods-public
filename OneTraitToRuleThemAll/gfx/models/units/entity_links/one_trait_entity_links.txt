@@ -1,0 +1,20 @@
+﻿# One Trait 1.9 -- a quality-5 army (see common/defines/one_trait_defines.txt)
+# marches as the gilded host, whatever its culture. Experimental.
+
+one_trait_gilded_army_chinese = { type = army quality = 5 graphical_cultures = { chinese_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_eastern = { type = army quality = 5 graphical_cultures = { eastern_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_emishi = { type = army quality = 5 graphical_cultures = { emishi_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_iberian_christian = { type = army quality = 5 graphical_cultures = { iberian_christian_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_iberian_muslim = { type = army quality = 5 graphical_cultures = { iberian_muslim_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_indian = { type = army quality = 5 graphical_cultures = { indian_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_iranian = { type = army quality = 5 graphical_cultures = { iranian_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_japanese = { type = army quality = 5 graphical_cultures = { japanese_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_mena = { type = army quality = 5 graphical_cultures = { mena_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_mongol = { type = army quality = 5 graphical_cultures = { mongol_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_norse = { type = army quality = 5 graphical_cultures = { norse_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_northern = { type = army quality = 5 graphical_cultures = { northern_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_sub_sahran = { type = army quality = 5 graphical_cultures = { sub_sahran_unit_gfx } entity = one_trait_gilded_infantry_entity }
+one_trait_gilded_army_western = { type = army quality = 5 graphical_cultures = { western_unit_gfx } entity = one_trait_gilded_infantry_entity }
+
+# Cultures outside the list above.
+one_trait_gilded_army_fallback = { type = army quality_fallback = 5 entity = one_trait_gilded_infantry_entity }

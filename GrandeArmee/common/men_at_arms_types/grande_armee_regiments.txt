@@ -1,0 +1,170 @@
+﻿# La Grande Armee regiments.
+#
+# Recruited and paid for like any other men-at-arms, not conjured. They sit
+# above the best the medieval world can field -- gendarmes and cataphracts top
+# out around 125 damage, and the median unit in the game is 30 -- without
+# reaching the absurd. A large enough coalition can still grind them down.
+
+ga_ligne = {
+	type = gunpowder
+
+	damage = 150
+	toughness = 70
+	pursuit = 0
+	screen = 20
+
+	# The doctrine is the gate. Without it these regiments do not appear.
+	can_recruit = {
+		has_trait = grande_armee_doctrine
+	}
+
+	counters = {
+		heavy_infantry = 1
+		pikemen = 1
+		skirmishers = 1
+	}
+
+	terrain_bonus = {
+		wetlands = { damage = -40 }
+		forest = { damage = -20 }
+		jungle = { damage = -20 }
+	}
+
+	siege_tier = 1
+	siege_value = 0.2
+
+	buy_cost = { gold = ga_recruitment_cost }
+	low_maintenance_cost = { gold = ga_low_maint_cost }
+	high_maintenance_cost = { gold = ga_high_maint_cost }
+
+	stack = 100
+	icon = handgonne
+}
+
+ga_vieille_garde = {
+	type = heavy_infantry
+
+	damage = 170
+	toughness = 130
+	pursuit = 10
+	screen = 40
+
+	# The doctrine is the gate. Without it these regiments do not appear.
+	can_recruit = {
+		has_trait = grande_armee_doctrine
+	}
+
+	counters = {
+		heavy_infantry = 1
+		archers = 1
+		skirmishers = 1
+	}
+
+	siege_tier = 2
+	siege_value = 0.5
+
+	buy_cost = { gold = ga_recruitment_cost }
+	low_maintenance_cost = { gold = ga_low_maint_cost }
+	high_maintenance_cost = { gold = ga_high_maint_cost }
+
+	stack = 100
+	icon = varangian_guard
+}
+
+ga_cuirassiers = {
+	type = heavy_cavalry
+
+	damage = 175
+	toughness = 80
+	pursuit = 120
+	screen = 30
+
+	# The doctrine is the gate. Without it these regiments do not appear.
+	can_recruit = {
+		has_trait = grande_armee_doctrine
+	}
+
+	counters = {
+		archers = 1
+		skirmishers = 1
+		light_cavalry = 1
+	}
+
+	terrain_bonus = {
+		plains = { damage = 40 }
+		farmlands = { damage = 30 }
+		mountains = { damage = -50 }
+		forest = { damage = -40 }
+	}
+
+	siege_tier = 1
+	siege_value = 0.2
+
+	buy_cost = { gold = ga_recruitment_cost }
+	low_maintenance_cost = { gold = ga_low_maint_cost }
+	high_maintenance_cost = { gold = ga_high_maint_cost }
+
+	stack = 100
+	icon = black_armor_cavalry
+}
+
+ga_foot_artillery = {
+	type = siege_weapon
+
+	damage = 130
+	toughness = 30
+	pursuit = 0
+	screen = 0
+
+	# The doctrine is the gate. Without it these regiments do not appear.
+	can_recruit = {
+		has_trait = grande_armee_doctrine
+	}
+
+	counters = {
+		heavy_infantry = 1
+		pikemen = 1
+	}
+
+	fights_in_main_phase = yes
+
+	siege_tier = 5
+	siege_value = 4
+
+	buy_cost = { gold = ga_recruitment_cost }
+	low_maintenance_cost = { gold = ga_low_maint_cost }
+	high_maintenance_cost = { gold = ga_high_maint_cost }
+
+	stack = 100
+	icon = cannon
+}
+
+ga_horse_artillery = {
+	type = archer_cavalry
+
+	damage = 140
+	toughness = 45
+	pursuit = 60
+	screen = 15
+
+	# The doctrine is the gate. Without it these regiments do not appear.
+	can_recruit = {
+		has_trait = grande_armee_doctrine
+	}
+
+	counters = {
+		heavy_infantry = 1
+		pikemen = 1
+		archers = 1
+	}
+
+	siege_tier = 3
+	siege_value = 2
+
+	buy_cost = { gold = ga_recruitment_cost }
+	low_maintenance_cost = { gold = ga_low_maint_cost }
+	high_maintenance_cost = { gold = ga_high_maint_cost }
+
+	stack = 100
+	icon = bombard
+}

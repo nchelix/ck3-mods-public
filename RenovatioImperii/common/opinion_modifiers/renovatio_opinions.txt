@@ -1,0 +1,25 @@
+﻿renovatio_usurper_opinion = {
+	opinion = -40
+	decaying = no
+}
+
+renovatio_rival_claimant_opinion = {
+	opinion = -30
+	decaying = no
+}
+
+renovatio_papal_approval_opinion = {
+	opinion = 25
+	decaying = no
+}
+
+renovatio_restorer_opinion = {
+	opinion = 15
+	decaying = no
+}
+
+renovatio_presumption_opinion = {
+	opinion = -10
+	years = 20
+	decaying = yes
+}

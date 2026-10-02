@@ -1,0 +1,102 @@
+﻿visual_traits_fake_scaly = {
+	usage = game
+
+	# Scales are mild enough to stand alongside a freckle or a birthmark, so this
+	# tier is not hidden behind the disturbing portrait modifiers setting. Players
+	# who had that switched off previously saw this mod do nothing at all.
+	fake_scaly = {
+		dna_modifiers = {
+			morph = {
+				mode = add
+				gene = gene_scaly
+				value = 1.0
+				template = scaly
+			}
+			color = {
+				gene = skin_color
+				mode = modify
+				x = 0.0
+				y = -0.1
+			}
+			accessory = {
+				mode = modify
+				gene = eye_accessory
+				template = bloodshot_eyes
+				value = 0.5
+			}
+			morph = {
+				mode = modify
+				gene = gene_eyebrows_shape
+				template = no_eyebrows
+				value = 0.5
+			}
+			morph = {
+				mode = modify
+				gene = gene_eyebrows_fullness
+				template = no_eyebrows
+				value = 0.5
+			}
+		}
+		weight = {
+			base = 0
+			modifier = {
+				add = 100
+				OR = {
+					has_trait = fake_scaly
+					has_trait = fake_scaly_bloodline
+				}
+			}
+		}
+	}
+
+	# The full reptile stays gated behind the disturbing portrait setting, the
+	# same way the base game gates leprosy and plague sores.
+	fake_scaly_serpent = {
+		dna_modifiers = {
+			morph = {
+				mode = add
+				gene = gene_scaly
+				value = 1.0
+				template = scaly
+			}
+			color = {
+				gene = skin_color
+				mode = modify
+				x = 0.0
+				y = -0.25
+			}
+			color = {
+				gene = eye_color
+				mode = modify
+				x = 0.4
+				y = -0.3
+			}
+			accessory = {
+				mode = add
+				gene = eye_accessory
+				template = blind_eyes
+				value = 1.0
+			}
+			morph = {
+				mode = add
+				gene = gene_eyebrows_shape
+				template = no_eyebrows
+				value = 1.0
+			}
+			morph = {
+				mode = add
+				gene = gene_eyebrows_fullness
+				template = no_eyebrows
+				value = 1.0
+			}
+		}
+		weight = {
+			base = 0
+			modifier = {
+				add = 100
+				has_trait = fake_scaly_serpent
+				should_show_disturbing_portrait_modifiers = yes
+			}
+		}
+	}
+}

@@ -1,0 +1,52 @@
+﻿# Pantheon of One. County modifiers (the Holy Seat and the realm boons), then character modifiers.
+
+pantheon_holy_seat = {
+	icon = county_modifier_control_positive
+	fort_level = 20
+	garrison_size = 10
+}
+
+pantheon_harvest = {
+	icon = county_modifier_control_positive
+	tax_mult = 1
+	levy_size = 1
+	development_growth_factor = 1
+}
+
+pantheon_walls = {
+	icon = county_modifier_control_positive
+	fort_level = 10
+	garrison_size = 5
+}
+
+pantheon_warding = {
+	icon = county_modifier_control_positive
+	epidemic_resistance = 100
+}
+
+pantheon_vigor = {
+	icon = health_positive
+	health = 5
+}
+
+pantheon_fertility = {
+	icon = health_positive
+	fertility = 1
+}
+
+# Divine Offspring: a god who forswears mortal offspring has none.
+pantheon_forsworn = {
+	icon = health_negative
+	fertility = -1
+}
+
+# Visible markers on a blessed follower (1.2). A timed modifier shows its countdown in its tooltip.
+pantheon_gift_marker = {
+	icon = piety_positive
+	monthly_piety = 0.1
+}
+
+pantheon_lineage_marker = {
+	icon = health_positive
+	fertility = 0.1
+}

@@ -1,0 +1,25 @@
+﻿# One Trait 2.0: Puppet Master. Run from the Puppets page, where
+# scope:one_trait_target is the character being made a puppet and root is the
+# player.
+
+# Stealing: set_puppet refuses anyone who already has a puppeteer, so free
+# them from anyone else first.
+one_trait_puppet_steal_effect = {
+	scope:one_trait_target = {
+		if = {
+			limit = {
+				exists = puppeteer
+				NOT = { puppeteer = root }
+			}
+			clear_puppet_status = yes
+		}
+	}
+}
+
+# set_puppet also refuses if you already have a puppet of that type, so your
+# current one of that type is released: the new puppet replaces it.
+one_trait_puppet_free_slot_effect = {
+	root.puppet:$TYPE$ ?= {
+		clear_puppet_status = yes
+	}
+}

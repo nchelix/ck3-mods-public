@@ -1,0 +1,9 @@
+﻿l_english:
+# \regiment_types
+ one_army:0 "The Army of the One Trait"
+ one_trait_legion:0 "Legion of the One"
+ one_trait_legion_flavor:0 "#F The One Trait's own infantry, in white enamel and gold. No blow breaks their shield wall, and no castle wall stands long before them.#!"
+ one_trait_bowmen:0 "Bowmen of the One"
+ one_trait_bowmen_flavor:0 "#F Archers of the One Trait, whose gold-fletched volleys darken the sky. Nothing on any field hits harder.#!"
+ one_trait_riders:0 "Riders of the One"
+ one_trait_riders_flavor:0 "#F The One Trait's heavy horse. Their charge breaks any line, and nothing that flees from them survives the pursuit.#!"

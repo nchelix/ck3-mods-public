@@ -1,0 +1,18 @@
+﻿l_simp_chinese:
+# Untranslated placeholder: English strings. Replace with a real simp_chinese translation.
+ open_optroop_menu:0 "Open Immortal Army Menu"
+ open_optroop_menu_desc:0 "[recipient.GetShortUINameNoTooltip|U] will get Immortal Army Options"
+ close_optroop_menu:0 "Close Immortal Army Menu"
+ close_optroop_menu_desc:0 "[recipient.GetShortUINameNoTooltip|U] will close Immortal Army Options"
+ inheritable_optroop_interaction:0 "Spawn 500 Inheritable Immortal Soldiers"
+ inheritable_optroop_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will receive 500 Immortal Soldiers that will be passed down to their heirs.\n\nAre you ready to take over the world with an army of unkillable machines?"
+ non_inheritable_optroop_interaction:0 "Spawn 500 Uninherited Immortal Soldiers"
+ non_inheritable_optroop_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will receive 500 Immortal Soldiers only for their use.\n\nThese troops are loyal only to you and will not be inherited."
+ inheritable_optroop_cavalry_interaction:0 "Spawn 500 Inheritable Immortal Riders"
+ inheritable_optroop_cavalry_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will receive 500 Immortal Riders that will be passed down to their heirs."
+ non_inheritable_optroop_cavalry_interaction:0 "Spawn 500 Uninherited Immortal Riders"
+ non_inheritable_optroop_cavalry_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will receive 500 Immortal Riders only for their use."
+ inheritable_optroop_archers_interaction:0 "Spawn 500 Inheritable Immortal Bowmen"
+ inheritable_optroop_archers_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will receive 500 Immortal Bowmen that will be passed down to their heirs."
+ non_inheritable_optroop_archers_interaction:0 "Spawn 500 Uninherited Immortal Bowmen"
+ non_inheritable_optroop_archers_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will receive 500 Immortal Bowmen only for their use."

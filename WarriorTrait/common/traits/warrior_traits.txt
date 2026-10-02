@@ -1,0 +1,144 @@
+﻿# Warrior Trait
+#
+# Two traits, deliberately different in character:
+#
+#   warrior      - the default. Starts as a genuinely good fighter and grows
+#                  towards unbeatable as its bearer wins battles, using the
+#                  level track system CK3 added in 1.9.
+#   god_warrior  - the original flat cheat, unchanged in spirit and granted in
+#                  full the moment it is applied. Now also covers the systems
+#                  the 2020 version predates: knights, travel, legitimacy and
+#                  accolades.
+
+warrior = {
+	physical = yes
+
+	# Never appear naturally.
+	birth = 0
+	random_creation = 0
+
+	# What you get immediately: a very capable commander, not a demigod.
+	martial = 5
+	prowess = 10
+	advantage = 5
+	knight_effectiveness_mult = 0.25
+
+	# Earned by winning battles in person. Five experience per victory, so the
+	# track tops out at twenty commanded victories.
+	track = {
+		25 = {
+			martial = 5
+			prowess = 15
+			advantage = 10
+			knight_effectiveness_mult = 0.25
+			enemy_terrain_advantage = -0.25
+			movement_speed = 0.15
+		}
+		50 = {
+			martial = 10
+			prowess = 25
+			advantage = 20
+			knight_effectiveness_mult = 0.5
+			hard_casualty_modifier = -0.25
+			retreat_losses = -0.5
+			supply_duration = 1
+		}
+		75 = {
+			martial = 15
+			prowess = 35
+			advantage = 35
+			knight_effectiveness_mult = 1
+			min_combat_roll = 5
+			siege_phase_time = -0.25
+			no_water_crossing_penalty = yes
+		}
+		100 = {
+			martial = 25
+			prowess = 50
+			advantage = 50
+			defender_advantage = 50
+			knight_effectiveness_mult = 2
+			min_combat_roll = 10
+			max_combat_roll = 20
+			no_prowess_loss_from_age = yes
+			hostile_county_attrition = -0.5
+		}
+	}
+
+	shown_in_ruler_designer = yes
+	ruler_designer_cost = 150
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_warrior_desc
+			}
+			desc = trait_warrior_character_desc
+		}
+	}
+}
+
+god_warrior = {
+	physical = yes
+
+	birth = 0
+	random_creation = 0
+
+	# Attributes
+	martial = 50
+	prowess = 100
+	no_prowess_loss_from_age = yes
+
+	# Battle
+	advantage = 100
+	defender_advantage = 100
+	min_combat_roll = 20
+	max_combat_roll = 40
+	hard_casualty_modifier = -1
+	enemy_hard_casualty_modifier = 1
+	retreat_losses = -1
+
+	# Terrain and movement
+	enemy_terrain_advantage = -1
+	movement_speed = 1
+	naval_movement_speed_mult = 1
+	no_water_crossing_penalty = yes
+	raid_speed = 1
+
+	# Sieges
+	siege_phase_time = -1
+	siege_morale_loss = 1
+	siege_weapon_max_size_mult = 3
+
+	# Supply and attrition
+	supply_duration = 10
+	supply_limit_mult = 1
+	supply_capacity_mult = 1
+	hostile_county_attrition = -1
+
+	# Systems the 2020 version predates
+	knight_effectiveness_mult = 5
+	knight_limit = 10
+	men_at_arms_cap = 10
+	travel_danger = -100
+	legitimacy_gain_mult = 1
+	accolade_glory_gain_mult = 1
+
+	shown_in_ruler_designer = yes
+	ruler_designer_cost = 500
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_god_warrior_desc
+			}
+			desc = trait_god_warrior_character_desc
+		}
+	}
+}

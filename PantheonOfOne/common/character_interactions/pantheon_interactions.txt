@@ -1,0 +1,28 @@
+﻿# Pantheon of One: right-click a follower (or yourself) to open the Divine Will menu.
+pantheon_divine_will_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = pantheon_divine_will_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+		}
+		# Yourself from the moment you Ascend; your followers once you are enthroned
+		OR = {
+			scope:recipient = scope:actor
+			AND = {
+				scope:actor = { has_variable = pantheon_enthroned }
+				scope:recipient = { faith = scope:actor.faith }
+			}
+		}
+	}
+	on_accept = {
+		scope:recipient = { save_scope_as = pantheon_target }
+		scope:actor = { trigger_event = pantheon_menu.0001 }
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}

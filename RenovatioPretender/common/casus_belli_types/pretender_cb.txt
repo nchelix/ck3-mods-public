@@ -1,0 +1,308 @@
+﻿# Adapted from vanilla ep3_laamp_peasant_war
+# (common/casus_belli_types/07_ep3_wars.txt:5852). Differences:
+# - allowed_for_character: roman_pretender + our own list
+#   (pretender_uprising_counties), so vanilla's CB never sees our counties.
+# - levies come from our support tiers (Supportive 750, Fervent 2000, matching
+#   vanilla's medium/high revolt investment), plus a detachment per pledger.
+# - the attacker always takes the land; the remain-landless branch is dropped.
+# - an all-Fervent de jure duchy is granted outright; otherwise, as vanilla, a
+#   dynamic duchy is created.
+# - defeat/white peace spend support, and defeat breaks pledges inside the
+#   defender's realm; victory hands off to Renovatio.
+pretender_uprising_cb = {
+	icon = invasion
+	group = invasion
+	combine_into_one = yes
+	should_show_war_goal_subview = no
+	allow_hostages = no
+	target_de_jure_regions_above = yes
+	ignore_effect = change_title_holder
+
+	allowed_for_character = {
+		has_trait = roman_pretender
+		has_variable_list = pretender_uprising_counties
+	}
+
+	allowed_against_character = {
+		scope:attacker = {
+			any_in_list = {
+				variable = pretender_uprising_counties
+				holder = {
+					OR = {
+						this = scope:defender
+						any_liege_or_above = { this = scope:defender }
+					}
+				}
+			}
+		}
+	}
+	target_top_liege_if_outside_realm = yes
+
+	on_declaration = {
+		scope:attacker = {
+			every_in_list = {
+				variable = pretender_uprising_counties
+				save_temporary_scope_as = rising_county
+				if = {
+					limit = { var:pretender_support >= 3 }
+					set_variable = { name = pretender_rising_levies value = 2000 }
+				}
+				else = {
+					set_variable = { name = pretender_rising_levies value = 750 }
+				}
+				scope:attacker = {
+					spawn_army = {
+						name = pretender_uprising_troops
+						levies = scope:rising_county.var:pretender_rising_levies
+						location = scope:rising_county.title_province
+						war = scope:war
+					}
+				}
+				remove_variable = pretender_rising_levies
+			}
+			ordered_in_list = {
+				variable = pretender_uprising_counties
+				order_by = development_level
+				save_scope_as = rally_county
+			}
+			every_in_list = {
+				variable = pretender_pledges
+				limit = {
+					is_alive = yes
+					NOT = { this = scope:defender }
+				}
+				save_temporary_scope_as = pledger
+				if = {
+					limit = { highest_held_title_tier >= tier_kingdom }
+					set_variable = { name = pretender_detachment value = 1500 }
+				}
+				else_if = {
+					limit = { highest_held_title_tier >= tier_duchy }
+					set_variable = { name = pretender_detachment value = 500 }
+				}
+				else = {
+					set_variable = { name = pretender_detachment value = 200 }
+				}
+				scope:attacker = {
+					spawn_army = {
+						name = pretender_pledged_detachment
+						levies = scope:pledger.var:pretender_detachment
+						location = scope:rally_county.title_province
+						war = scope:war
+					}
+				}
+				remove_variable = pretender_detachment
+			}
+		}
+		scope:defender = {
+			add_opinion = {
+				modifier = peasant_revolt_opinion
+				target = scope:attacker
+			}
+		}
+	}
+
+	on_victory_desc = county_conquest_cb_victory_desc_attacker
+	on_victory = {
+		scope:attacker = {
+			ordered_in_list = {
+				variable = pretender_uprising_counties
+				order_by = development_level
+				save_scope_as = new_capital
+			}
+			primary_title = { save_scope_as = old_title }
+			show_pow_release_message_effect = yes
+			# Vanilla's flag: suppresses the keep-playing-landless prompt.
+			set_variable = became_landed_through_separatist_uprising_var
+		}
+		# Decide the duchy NOW. The first county changing hands fires
+		# on_title_gain -> pretender_becomes_claimant_effect (Task 7), which
+		# clears every county's support; checking after that would always fail.
+		scope:new_capital.duchy = { save_scope_as = uprising_duchy }
+		if = {
+			# Every county of the de jure duchy was Fervent for us: take the duchy.
+			limit = {
+				scope:uprising_duchy = {
+					NOT = {
+						any_in_de_jure_hierarchy = {
+							tier = tier_county
+							NOT = {
+								AND = {
+									has_variable = pretender_backer
+									var:pretender_backer = scope:attacker
+									var:pretender_support >= 3
+								}
+							}
+						}
+					}
+					OR = {
+						NOT = { exists = holder }
+						holder = scope:defender
+						holder = { target_is_liege_or_above = scope:defender }
+					}
+				}
+			}
+			scope:attacker = {
+				set_variable = pretender_takes_whole_duchy
+			}
+		}
+		create_title_and_vassal_change = {
+			type = conquest
+			add_claim_on_loss = yes
+			save_scope_as = change
+		}
+		scope:attacker = {
+			every_in_list = {
+				variable = pretender_uprising_counties
+				limit = {
+					holder ?= {
+						OR = {
+							this = scope:defender
+							target_is_liege_or_above = scope:defender
+						}
+					}
+				}
+				change_title_holder = {
+					holder = scope:attacker
+					change = scope:change
+					take_baronies = yes
+				}
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+
+		if = {
+			limit = {
+				scope:attacker = { has_variable = pretender_takes_whole_duchy }
+			}
+			scope:attacker = { remove_variable = pretender_takes_whole_duchy }
+			create_title_and_vassal_change = {
+				type = conquest
+				add_claim_on_loss = yes
+				save_scope_as = change
+			}
+			scope:uprising_duchy = {
+				change_title_holder = {
+					holder = scope:attacker
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		else = {
+			# As vanilla: a new duchy wearing the adventurer's colours.
+			create_dynamic_title = {
+				tier = duchy
+				name = ADVENTURER_PEASANT_LEADER_DUCHY_NAME
+				adj = ADVENTURER_PEASANT_LEADER_DUCHY_NAME_adj
+			}
+			create_title_and_vassal_change = {
+				type = conquest
+				save_scope_as = change
+				add_claim_on_loss = yes
+			}
+			scope:new_title = {
+				change_title_holder = {
+					holder = scope:attacker
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+			hidden_effect = {
+				scope:new_title = {
+					set_coa = scope:old_title
+					set_color_from_title = scope:new_capital
+					set_capital_county = scope:new_capital
+				}
+			}
+		}
+
+		scope:attacker = {
+			every_in_list = {
+				variable = pretender_uprising_counties
+				change_county_control = 100
+				add_county_modifier = {
+					modifier = ep3_peasant_leader_modifier
+					years = 10
+				}
+			}
+			clear_variable_list = pretender_uprising_counties
+			pretender_becomes_claimant_effect = yes
+		}
+		scope:defender = {
+			faction_war_end_defeat_legitimacy_effect = yes
+		}
+	}
+
+	on_white_peace_desc = county_conquest_cb_white_peace_desc
+	on_white_peace = {
+		scope:attacker = {
+			show_pow_release_message_effect = yes
+			clear_variable_list = pretender_uprising_counties
+			every_in_list = {
+				variable = pretender_supported_counties
+				add_to_temporary_list = cooled_counties
+			}
+			every_in_list = {
+				list = cooled_counties
+				pretender_lower_support_effect = { COUNTY = this }
+			}
+		}
+	}
+
+	on_defeat_desc = county_conquest_cb_defeat_desc
+	on_defeat = {
+		scope:attacker = {
+			show_pow_release_message_effect = yes
+			every_in_list = {
+				variable = pretender_uprising_counties
+				add_to_temporary_list = crushed_counties
+			}
+			every_in_list = {
+				list = crushed_counties
+				pretender_clear_support_effect = { COUNTY = this }
+			}
+			clear_variable_list = pretender_uprising_counties
+			every_in_list = {
+				variable = pretender_pledges
+				limit = {
+					OR = {
+						this = scope:defender
+						target_is_liege_or_above = scope:defender
+					}
+				}
+				add_to_temporary_list = fled_pledgers
+			}
+			every_in_list = {
+				list = fled_pledgers
+				pretender_break_pledge_effect = { PRETENDER = scope:attacker PLEDGER = this }
+			}
+		}
+		scope:defender = {
+			if = {
+				limit = {
+					scope:attacker = { is_imprisoned = no }
+				}
+				imprison = {
+					target = scope:attacker
+					type = dungeon
+				}
+			}
+		}
+	}
+
+	on_invalidated_desc = msg_invalidate_war_title
+	on_primary_attacker_death = invalidate
+	on_primary_defender_death = inherit
+	transfer_behavior = transfer
+	attacker_allies_inherit = no
+	defender_allies_inherit = yes
+
+	war_name = "PRETENDER_UPRISING_WAR_NAME"
+	interface_priority = 80
+	use_de_jure_wargoal_only = yes
+	attacker_wargoal_percentage = 0.8
+	max_attacker_score_from_battles = 100
+	max_defender_score_from_battles = 50
+	max_ai_diplo_distance_to_title = 500
+}

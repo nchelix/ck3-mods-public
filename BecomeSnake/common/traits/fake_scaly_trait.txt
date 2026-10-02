@@ -1,0 +1,79 @@
+﻿# Become the Snake
+#
+# Three traits:
+#
+#   fake_scaly          - scales and a colder colouring. The original look.
+#   fake_scaly_serpent  - the full reptile: heavier scaling, milky serpent eyes,
+#                         no lashes.
+#   fake_scaly_bloodline- the scaled look, inherited by the character's children.
+
+fake_scaly = {
+	physical = yes
+
+	birth = 0
+	random_creation = 0
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_fake_scaly_desc
+			}
+			desc = trait_fake_scaly_character_desc
+		}
+	}
+}
+
+fake_scaly_serpent = {
+	physical = yes
+
+	birth = 0
+	random_creation = 0
+
+	opposites = {
+		fake_scaly
+		fake_scaly_bloodline
+	}
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_fake_scaly_serpent_desc
+			}
+			desc = trait_fake_scaly_serpent_character_desc
+		}
+	}
+}
+
+fake_scaly_bloodline = {
+	physical = yes
+
+	birth = 0
+	random_creation = 0
+
+	# Not genetic, because genetic traits cannot declare an inheritance chance.
+	# Same shape the base game uses for pure_blooded.
+	inherit_chance = 100
+	both_parent_has_trait_inherit_chance = 100
+
+	opposites = {
+		fake_scaly
+	}
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_fake_scaly_bloodline_desc
+			}
+			desc = trait_fake_scaly_bloodline_character_desc
+		}
+	}
+}

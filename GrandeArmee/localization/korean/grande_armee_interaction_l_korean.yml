@@ -1,0 +1,12 @@
+﻿l_korean:
+# Untranslated placeholder: English strings. Replace with a real korean translation.
+ ga_open_menu:0 "Open Grande Armee Menu"
+ ga_open_menu_desc:0 "Opens the Grande Armee options."
+ ga_close_menu:0 "Close Grande Armee Menu"
+ ga_close_menu_desc:0 "Closes the Grande Armee options."
+ ga_proclaim_revolution:0 "Proclaim the Military Revolution"
+ ga_proclaim_revolution_desc:0 "[recipient.GetShortUINameNoTooltip|U]'s culture will learn gunpowder, standing armies, the royal armory, plate armour and sapping, centuries before anyone else.\n\nThis is granted to the culture, not the person, so it will spread. Your neighbours will have muskets eventually. The advantage is a head start, not a monopoly."
+ ga_grant_doctrine:0 "Teach the Grande Armee Doctrine"
+ ga_grant_doctrine_desc:0 "[recipient.GetShortUINameNoTooltip|U] will learn to make war the modern way, and may raise the regiments of the Grande Armee."
+ ga_remove_doctrine:0 "Unlearn the Grande Armee Doctrine"
+ ga_remove_doctrine_desc:0 "[recipient.GetShortUINameNoTooltip|U] will return to making war like everyone else. Regiments already raised will remain."

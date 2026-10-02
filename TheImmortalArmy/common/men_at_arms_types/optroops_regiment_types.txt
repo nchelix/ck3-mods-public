@@ -1,0 +1,138 @@
+﻿# The Immortal Army
+#
+# Three regiments, identical in absurdity but built on different base types, so
+# the game counters them differently and they behave differently on the field.
+# None can be bought; they exist only through this mod's decisions and
+# interactions.
+
+op_troops = {
+	type = heavy_infantry
+	special_recruit_only = yes
+	damage = 1000
+	toughness = 1000
+	pursuit = 1000
+	screen = 1000
+
+	terrain_bonus = {
+		plains = { damage = 100 }
+		drylands = { damage = 100 }
+		desert = { damage = 100 }
+		hills = { damage = 100 }
+		mountains = { damage = 100 }
+		desert_mountains = { damage = 100 }
+		wetlands = { damage = 100 }
+		forest = { damage = 100 }
+		jungle = { damage = 100 }
+		taiga = { damage = 100 }
+	}
+
+	counters = {
+		archers = 1
+		skirmishers = 1
+		pikemen = 1
+		heavy_infantry = 1
+		light_cavalry = 1
+		heavy_cavalry = 1
+	}
+
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+
+	siege_tier = 4
+	siege_value = 5
+
+	max_sub_regiments = 100
+
+	stack = 500
+	ai_quality = { value = -10000 }
+	icon = heavy_infantry
+}
+
+op_troops_cavalry = {
+	type = heavy_cavalry
+	special_recruit_only = yes
+	damage = 1000
+	toughness = 1000
+	pursuit = 1000
+	screen = 1000
+
+	terrain_bonus = {
+		plains = { damage = 100 }
+		drylands = { damage = 100 }
+		desert = { damage = 100 }
+		hills = { damage = 100 }
+		mountains = { damage = 100 }
+		desert_mountains = { damage = 100 }
+		wetlands = { damage = 100 }
+		forest = { damage = 100 }
+		jungle = { damage = 100 }
+		taiga = { damage = 100 }
+	}
+
+	counters = {
+		archers = 1
+		skirmishers = 1
+		pikemen = 1
+		heavy_infantry = 1
+		light_cavalry = 1
+		heavy_cavalry = 1
+	}
+
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+
+	siege_tier = 4
+	siege_value = 5
+
+	max_sub_regiments = 100
+
+	stack = 500
+	ai_quality = { value = -10000 }
+	icon = heavy_cavalry
+}
+
+op_troops_archers = {
+	type = archers
+	special_recruit_only = yes
+	damage = 1000
+	toughness = 1000
+	pursuit = 1000
+	screen = 1000
+
+	terrain_bonus = {
+		plains = { damage = 100 }
+		drylands = { damage = 100 }
+		desert = { damage = 100 }
+		hills = { damage = 100 }
+		mountains = { damage = 100 }
+		desert_mountains = { damage = 100 }
+		wetlands = { damage = 100 }
+		forest = { damage = 100 }
+		jungle = { damage = 100 }
+		taiga = { damage = 100 }
+	}
+
+	counters = {
+		archers = 1
+		skirmishers = 1
+		pikemen = 1
+		heavy_infantry = 1
+		light_cavalry = 1
+		heavy_cavalry = 1
+	}
+
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+
+	siege_tier = 4
+	siege_value = 5
+
+	max_sub_regiments = 100
+
+	stack = 500
+	ai_quality = { value = -10000 }
+	icon = bowmen
+}

@@ -1,0 +1,14 @@
+﻿l_french:
+# Untranslated placeholder: English strings. Replace with a real french translation.
+ trait_wearing_mask:0 "Wearing the Mask"
+ trait_wearing_mask_desc:0 "This character is wearing the mask, hiding themselves from the world."
+ trait_wearing_mask_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] is wearing the mask, hiding themselves from the world."
+ trait_wearing_bandaged_face:0 "Bandaged Face"
+ trait_wearing_bandaged_face_desc:0 "This character's face is wrapped in linen. Nobody asks why, and nobody is told."
+ trait_wearing_bandaged_face_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip]'s face is wrapped in linen. Nobody asks why, and nobody is told."
+ trait_wearing_dread_mask:0 "Wearing the Dread Mask"
+ trait_wearing_dread_mask_desc:0 "This character is wearing the dread mask, hiding themselves from the world and intimidating everyone around them."
+ trait_wearing_dread_mask_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] is wearing the dread mask, hiding themselves from the world and intimidating everyone around them."
+ trait_wearing_very_dread_mask:0 "Wearing the Mask of Extreme Dread"
+ trait_wearing_very_dread_mask_desc:0 "This character is wearing the mask of extreme dread. They hide from the world not because they are afraid, but to make certain everyone else is."
+ trait_wearing_very_dread_mask_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] hides from the world not because they are afraid, but to make certain everyone else is."

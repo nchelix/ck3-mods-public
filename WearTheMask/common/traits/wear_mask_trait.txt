@@ -1,0 +1,117 @@
+﻿# Trigger Mask
+#
+# Four masks. The first two are pure disguise and differ only in appearance.
+# The last two convert fear into something useful -- dread is worth far more in
+# 1.19 than it was when this mod was written, and these lean on that.
+
+wearing_mask = {
+	physical = yes
+
+	opposites = {
+		wearing_mask
+		wearing_bandaged_face
+		wearing_dread_mask
+		wearing_very_dread_mask
+	}
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_wearing_mask_desc
+			}
+			desc = trait_wearing_mask_character_desc
+		}
+	}
+}
+
+wearing_bandaged_face = {
+	physical = yes
+
+	opposites = {
+		wearing_mask
+		wearing_bandaged_face
+		wearing_dread_mask
+		wearing_very_dread_mask
+	}
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_wearing_bandaged_face_desc
+			}
+			desc = trait_wearing_bandaged_face_character_desc
+		}
+	}
+}
+
+wearing_dread_mask = {
+	physical = yes
+
+	opposites = {
+		wearing_mask
+		wearing_bandaged_face
+		wearing_dread_mask
+		wearing_very_dread_mask
+	}
+
+	dread_baseline_add = 20
+
+	# Fear that builds on its own and is slow to fade.
+	monthly_dread = 1
+	dread_decay_mult = -0.5
+	monthly_prestige_gain_per_dread_add = 0.05
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_wearing_dread_mask_desc
+			}
+			desc = trait_wearing_dread_mask_character_desc
+		}
+	}
+}
+
+wearing_very_dread_mask = {
+	physical = yes
+
+	opposites = {
+		wearing_mask
+		wearing_bandaged_face
+		wearing_dread_mask
+		wearing_very_dread_mask
+	}
+
+	dread_baseline_add = 100
+	dread_loss_mult = -100
+	dread_gain_mult = 10
+
+	# At this tier the fear stops being atmosphere and starts paying rent.
+	monthly_dread = 5
+	dread_decay_mult = -1
+	intimidated_vassal_tax_contribution_mult = 1
+	intimidated_vassal_levy_contribution_mult = 1
+	knight_effectiveness_per_dread = 0.02
+	monthly_prestige_gain_per_dread_add = 0.1
+	tyranny_loss_mult = 2
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_wearing_very_dread_mask_desc
+			}
+			desc = trait_wearing_very_dread_mask_character_desc
+		}
+	}
+}

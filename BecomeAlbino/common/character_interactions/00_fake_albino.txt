@@ -1,0 +1,180 @@
+﻿# Become Albino interactions.
+# The three looks are mutually exclusive; Remove clears whichever is present.
+
+become_albino_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 64
+	icon = icon_personal
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = become_albino_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			NOR = {
+				has_trait = fake_albino
+				has_trait = fake_albino_bloodline
+				has_trait = albino
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = fake_albino
+		}
+	}
+
+	auto_accept = yes
+}
+
+become_albino_bloodline_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 63
+	icon = icon_personal
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = become_albino_bloodline_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			NOR = {
+				has_trait = fake_albino
+				has_trait = fake_albino_bloodline
+				has_trait = albino
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = fake_albino_bloodline
+		}
+	}
+
+	auto_accept = yes
+}
+
+become_true_albino_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 62
+	icon = icon_personal
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = become_true_albino_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			NOR = {
+				has_trait = fake_albino
+				has_trait = fake_albino_bloodline
+				has_trait = albino
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			add_trait = albino
+		}
+	}
+
+	auto_accept = yes
+}
+
+albino_children_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 61
+	icon = icon_personal
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = albino_children_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			any_child = {
+				NOR = {
+					has_trait = fake_albino
+					has_trait = fake_albino_bloodline
+					has_trait = albino
+				}
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			every_child = {
+				limit = {
+					NOR = {
+						has_trait = fake_albino
+						has_trait = fake_albino_bloodline
+						has_trait = albino
+					}
+				}
+				add_trait = fake_albino_bloodline
+			}
+		}
+	}
+
+	auto_accept = yes
+}
+
+remove_albino_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	interface_priority = 60
+	icon = icon_personal
+
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = remove_albino_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			OR = {
+				has_trait = fake_albino
+				has_trait = fake_albino_bloodline
+				has_trait = albino
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			remove_trait = fake_albino
+			remove_trait = fake_albino_bloodline
+			remove_trait = albino
+		}
+	}
+
+	auto_accept = yes
+}

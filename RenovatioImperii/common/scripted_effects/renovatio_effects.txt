@@ -1,0 +1,89 @@
+﻿# Applied once, when a ruler proclaims themselves heir to Rome. Every reaction
+# is an opinion modifier rather than a raw number, so the player can see who
+# resents them and why.
+#
+# The brief's draft ran four separate every_ruler passes. Confirmed vanilla
+# uses every_ruler (common/casus_belli_types/00_religious_war.txt), so the
+# list builder itself is fine, but four full passes over every ruler in the
+# world is unnecessary: the four reactions are collapsed into one every_ruler
+# pass with four independent `if` blocks inside it (not `else_if`), which
+# still lets a single character match more than one condition -- e.g. a
+# Byzantine-culture holder of e_byzantium both resents the claimant as a
+# usurper AND is pulled toward them as a fellow heir of Rome. That stacking
+# is the same outcome as the four-pass version, just in one iteration of the
+# character list instead of four.
+renovatio_world_reacts_effect = {
+	save_scope_as = claimant
+
+	every_ruler = {
+		# Constantinople does not recognise a second Rome.
+		if = {
+			limit = {
+				NOT = { this = scope:claimant }
+				OR = {
+					has_title = title:e_byzantium
+					has_title = title:h_eastern_roman_empire
+				}
+			}
+			add_opinion = {
+				modifier = renovatio_usurper_opinion
+				target = scope:claimant
+			}
+		}
+
+		# Nor does anyone else already claiming the inheritance.
+		if = {
+			limit = {
+				NOT = { this = scope:claimant }
+				OR = {
+					has_title = title:e_hre
+					has_trait = roman_claimant
+				}
+			}
+			add_opinion = {
+				modifier = renovatio_rival_claimant_opinion
+				target = scope:claimant
+			}
+		}
+
+		# Those who see themselves as Rome's children approve.
+		if = {
+			limit = {
+				NOT = { this = scope:claimant }
+				culture = {
+					OR = {
+						has_cultural_pillar = heritage_byzantine
+						has_cultural_pillar = heritage_latin
+					}
+				}
+			}
+			add_opinion = {
+				modifier = renovatio_restorer_opinion
+				target = scope:claimant
+			}
+		}
+
+		# Everyone else thinks it presumptuous, and gets over it.
+		if = {
+			limit = {
+				NOT = { this = scope:claimant }
+				NOR = {
+					has_title = title:e_byzantium
+					has_title = title:h_eastern_roman_empire
+					has_title = title:e_hre
+					has_trait = roman_claimant
+					culture = {
+						OR = {
+							has_cultural_pillar = heritage_byzantine
+							has_cultural_pillar = heritage_latin
+						}
+					}
+				}
+			}
+			add_opinion = {
+				modifier = renovatio_presumption_opinion
+				target = scope:claimant
+			}
+		}
+	}
+}

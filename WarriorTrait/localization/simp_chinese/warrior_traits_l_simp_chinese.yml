@@ -1,0 +1,10 @@
+﻿l_simp_chinese:
+# Untranslated placeholder: English strings. Replace with a real simp_chinese translation.
+ trait_warrior:0 "Warrior"
+ trait_warrior_desc:0 "A fighter of real skill, who grows more dangerous with every battle won."
+ trait_warrior_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] is a warrior. Every battle won leaves them harder to beat."
+ trait_track_warrior:0 "Battles Won"
+ trait_track_warrior_desc:0 "Grows each time this character personally commands a victorious battle. At its height, they cannot be bested."
+ trait_god_warrior:0 "God Warrior"
+ trait_god_warrior_desc:0 "Unmatched in battle from the first moment, and unmatched forever after."
+ trait_god_warrior_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] is a god of war. Their skill is unmatched in battle, and always has been."

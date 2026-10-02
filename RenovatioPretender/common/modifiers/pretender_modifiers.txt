@@ -1,0 +1,29 @@
+﻿# County tiers: the people prefer the pretender to their lord. Icons and
+# county_opinion_add verified against ep3_peasant_leader_modifier in
+# common/modifiers/07_ep3_laamp_flavor_modifiers.txt.
+pretender_support_sympathetic_modifier = {
+	icon = county_modifier_opinion_negative
+	county_opinion_add = -5
+}
+
+pretender_support_supportive_modifier = {
+	icon = county_modifier_opinion_negative
+	county_opinion_add = -10
+}
+
+pretender_support_fervent_modifier = {
+	icon = county_modifier_opinion_negative
+	county_opinion_add = -20
+}
+
+# On a lord who has pledged to a pretender.
+pretender_pledged_modifier = {
+	icon = diplomacy_positive
+	monthly_prestige = 0.2
+}
+
+# On a claimant granted land by a patron (Task 9).
+pretender_bound_by_oath_modifier = {
+	icon = social_negative
+	monthly_prestige = -0.2
+}

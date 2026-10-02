@@ -1,0 +1,67 @@
+# Changelog — Pantheon of One
+
+## [1.2] — 2026-10-01
+
+Divine Conception, and keeping track of your blessed.
+
+### Added
+- **Divine Conception** (Bless Their Life): a god fathers a child on a follower,
+  a goddess bears one. The child is born a Demigod. An ineligible pairing costs
+  nothing and says why.
+- **A god's child is an honour, not a scandal:** no adultery or fornication, no
+  scandalous secrets, no angry or jailing spouse (who is honoured instead), and
+  the mother gains piety and opinion of you. Demigods are legitimate, of the
+  god's house, and born without any negative congenital trait.
+- **Your Blessed** (Divine Will on yourself): who carries your gifts, and until
+  when. A divine gift shows as Gift of the God on the follower, with its
+  countdown.
+- **Expiry notices** when a boon fades, under the new game rule **Boon Expiry
+  Notices** (All, Divine Gifts Only, Off).
+- **Guardians of the Holy Seat:** a permanent regiment of divine guardians when
+  you take your throne.
+
+### Changed
+- A god feels no stress.
+- When you cannot afford a page of boons, one "Not enough Worship" line says so
+  (CK3 shows at most three unavailable options).
+
+## [1.1] — 2026-10-01
+
+Divine Offspring, and a god's own menu.
+
+### Added
+- **Divine Will on yourself**, from the moment you Ascend: Take Your Throne in
+  Heaven, Proclaim Your Divinity, and Divine Offspring all live here. Ascend is
+  the only decision.
+- **Proclaim Your Divinity:** on a branched rite, one click and it becomes a
+  faith of its own, with you as its god. If a rite cannot break free, the game
+  tells you to make your own.
+- **Divine Offspring:** forswear mortal children, or have your children born as
+  **Demigods** (gifted, beautiful and brilliant, but mortal).
+- **A seasonal notification** showing the Worship gained and your total.
+- A god pays nothing to convert, create or reform a rite, or hire holy orders,
+  and has no puppet, holy-site or once-per-life limit on creating rites.
+- The faithful adore their god; +3 personal tenet slots.
+- Icons for Demigod and Divine Will.
+
+### Changed
+- Taking your throne makes you **independent**.
+- Boons you cannot afford say how much Worship they need.
+
+## [1.0] — 2026-10-01
+
+The first release: Foundation and Boons.
+
+### Added
+- **Ascend to Godhood** and **Take Your Throne in Heaven**: become a god and the living Head
+  of your faith, ruling from an impregnable Holy Seat. Founding a new faith in your own name
+  first is optional.
+- **Divine**: immortal, +30 to every skill and +100 prowess. No hostile scheme against you
+  can succeed, and no prison can hold you.
+- **Worship**, earned every season from the counties and rulers of your faith; devout rulers
+  give twice as much.
+- **Divine Will** (right-click a follower): grant them a divine gift (Champion, Warlord,
+  Sovereign or Sage), bless their lands (harvest, walls, warding from plague), bless their
+  life (vigor, fertility, a blessed lineage), or send the Host of Heaven into one of their
+  wars. Every boon fades in time.
+- Game rule **Divine Economy**: Earned Godhood or Sandbox God.

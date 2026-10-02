@@ -1,0 +1,175 @@
+﻿# Create Alliance
+#
+# Instant, unconditional alliances. The base game has had its own negotiated
+# alliance interaction since this mod was written, so this one leans into what
+# vanilla will not do: no reason required, no acceptance roll, no distance, and
+# no requirement that either party hold land.
+#
+# The alliance is a real one. It is held together by perk_negotiated_alliance_opinion,
+# which the game's own is_alliance_valid rule counts as a qualifying bond -- and
+# that rule has no landed or ruler requirement, which is why allying an unlanded
+# adventurer works and persists.
+
+create_alliance_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 60
+	icon = alliance
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = create_alliance_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			NOR = {
+				is_allied_to = scope:recipient
+				this = scope:recipient
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			# This opinion modifier is what keeps the alliance valid; removing it
+			# is how the alliance is later dissolved.
+			add_opinion = {
+				modifier = perk_negotiated_alliance_opinion
+				target = scope:actor
+			}
+		}
+		scope:actor = {
+			allow_alliance = scope:recipient
+			create_alliance = {
+				target = scope:recipient
+				allied_through_owner = scope:actor
+				allied_through_target = scope:recipient
+			}
+		}
+	}
+
+	auto_accept = yes
+	ai_will_do = 0
+}
+
+inherit_alliances_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 59
+	icon = alliance
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = inherit_alliances_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			NOT = { this = scope:recipient }
+		}
+		scope:recipient = {
+			any_ally = {
+				NOR = {
+					this = scope:actor
+					is_allied_to = scope:actor
+				}
+			}
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			every_ally = {
+				limit = {
+					NOR = {
+						this = scope:actor
+						is_allied_to = scope:actor
+					}
+				}
+				save_scope_as = inherited_ally
+				add_opinion = {
+					modifier = perk_negotiated_alliance_opinion
+					target = scope:actor
+				}
+				scope:actor = {
+					allow_alliance = scope:inherited_ally
+					create_alliance = {
+						target = scope:inherited_ally
+						allied_through_owner = scope:actor
+						allied_through_target = scope:inherited_ally
+					}
+				}
+			}
+		}
+	}
+
+	auto_accept = yes
+	ai_will_do = 0
+}
+
+isolate_character_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 58
+	icon = icon_remove_from_bloc
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = isolate_character_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			any_ally = { always = yes }
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			every_ally = {
+				break_alliance = scope:recipient
+			}
+		}
+	}
+
+	auto_accept = yes
+	ai_will_do = 0
+}
+
+break_alliance_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 57
+	icon = alliance
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = break_alliance_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+		scope:recipient = {
+			is_allied_to = scope:actor
+		}
+	}
+
+	on_accept = {
+		scope:actor = {
+			allow_alliance = scope:recipient
+		}
+		scope:recipient = {
+			remove_opinion = {
+				modifier = perk_negotiated_alliance_opinion
+				target = scope:actor
+			}
+		}
+	}
+
+	auto_accept = yes
+	ai_will_do = 0
+}

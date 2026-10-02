@@ -1,0 +1,222 @@
+﻿# Pantheon of One hooks. Appended to vanilla's on_actions, never replacing them.
+
+# Root = the prisoner. No cell can hold a god (proven in the prototype).
+on_imprison = {
+	on_actions = { pantheon_on_imprison }
+}
+
+pantheon_on_imprison = {
+	trigger = { has_trait = pantheon_divine }
+	effect = {
+		release_from_prison = yes
+		trigger_event = pantheon.0001
+	}
+}
+
+# Root = the newborn. A blessed lineage makes the next child a beautiful genius.
+on_birth_child = {
+	on_actions = { pantheon_on_birth_child }
+}
+
+pantheon_on_birth_child = {
+	effect = {
+		# Divine Offspring: a child of a god (who has not forsworn offspring) is born a demigod
+		if = {
+			limit = {
+				OR = {
+					scope:mother ?= {
+						has_trait = pantheon_divine
+						NOT = { has_character_modifier = pantheon_forsworn }
+					}
+					scope:real_father ?= {
+						has_trait = pantheon_divine
+						NOT = { has_character_modifier = pantheon_forsworn }
+					}
+				}
+			}
+			add_trait = pantheon_demigod
+			# Vanilla brands bastardy and adultery after this hook: clean up a day later
+			trigger_event = { id = pantheon.0041 days = 1 }
+			scope:mother = { trigger_event = { id = pantheon.0040 days = 1 } }
+			add_trait = beauty_good_3
+			add_trait = intellect_good_3
+			# Flawless: no negative congenital trait
+			if = {
+				limit = { has_trait = depressed_genetic }
+				remove_trait = depressed_genetic
+			}
+			if = {
+				limit = { has_trait = lunatic_genetic }
+				remove_trait = lunatic_genetic
+			}
+			if = {
+				limit = { has_trait = possessed_genetic }
+				remove_trait = possessed_genetic
+			}
+			if = {
+				limit = { has_trait = beauty_bad_1 }
+				remove_trait = beauty_bad_1
+			}
+			if = {
+				limit = { has_trait = beauty_bad_2 }
+				remove_trait = beauty_bad_2
+			}
+			if = {
+				limit = { has_trait = beauty_bad_3 }
+				remove_trait = beauty_bad_3
+			}
+			if = {
+				limit = { has_trait = intellect_bad_1 }
+				remove_trait = intellect_bad_1
+			}
+			if = {
+				limit = { has_trait = intellect_bad_2 }
+				remove_trait = intellect_bad_2
+			}
+			if = {
+				limit = { has_trait = intellect_bad_3 }
+				remove_trait = intellect_bad_3
+			}
+			if = {
+				limit = { has_trait = physique_bad_1 }
+				remove_trait = physique_bad_1
+			}
+			if = {
+				limit = { has_trait = physique_bad_2 }
+				remove_trait = physique_bad_2
+			}
+			if = {
+				limit = { has_trait = physique_bad_3 }
+				remove_trait = physique_bad_3
+			}
+			if = {
+				limit = { has_trait = clubfooted }
+				remove_trait = clubfooted
+			}
+			if = {
+				limit = { has_trait = hunchbacked }
+				remove_trait = hunchbacked
+			}
+			if = {
+				limit = { has_trait = lisping }
+				remove_trait = lisping
+			}
+			if = {
+				limit = { has_trait = stuttering }
+				remove_trait = stuttering
+			}
+			if = {
+				limit = { has_trait = dwarf }
+				remove_trait = dwarf
+			}
+			if = {
+				limit = { has_trait = spindly }
+				remove_trait = spindly
+			}
+			if = {
+				limit = { has_trait = scaly }
+				remove_trait = scaly
+			}
+			if = {
+				limit = { has_trait = albino }
+				remove_trait = albino
+			}
+			if = {
+				limit = { has_trait = wheezing }
+				remove_trait = wheezing
+			}
+			if = {
+				limit = { has_trait = bleeder }
+				remove_trait = bleeder
+			}
+			if = {
+				limit = { has_trait = infertile }
+				remove_trait = infertile
+			}
+			# A child of a god is no bastard, and belongs to the god's house
+			if = {
+				limit = { has_trait = bastard }
+				remove_trait = bastard
+			}
+			if = {
+				limit = { has_trait = wild_oat }
+				remove_trait = wild_oat
+			}
+			if = {
+				limit = { has_trait = disputed_heritage }
+				remove_trait = disputed_heritage
+			}
+			if = {
+				limit = { scope:real_father ?= { has_trait = pantheon_divine } }
+				set_house = scope:real_father.house
+			}
+			else = {
+				set_house = scope:mother.house
+			}
+			# A god's child is no sin: vanilla may brand the parents when the pregnancy is revealed
+			scope:mother ?= { add_to_temporary_list = pantheon_birth_parents }
+			scope:real_father ?= { add_to_temporary_list = pantheon_birth_parents }
+			every_in_list = {
+				list = pantheon_birth_parents
+				if = {
+					limit = { has_trait = adulterer }
+					remove_trait = adulterer
+				}
+				if = {
+					limit = { has_trait = fornicator }
+					remove_trait = fornicator
+				}
+			}
+		}
+		# Blessed Lineage boon
+		if = {
+			limit = {
+				OR = {
+					scope:mother ?= { has_character_flag = pantheon_lineage }
+					scope:real_father ?= { has_character_flag = pantheon_lineage }
+				}
+			}
+			add_trait = beauty_good_3
+			add_trait = intellect_good_3
+			if = {
+				limit = { scope:mother ?= { has_character_flag = pantheon_lineage } }
+				scope:mother = {
+					remove_character_flag = pantheon_lineage
+					remove_character_modifier = pantheon_lineage_marker
+					remove_variable = pantheon_boon_lineage
+				}
+			}
+			if = {
+				limit = { scope:real_father ?= { has_character_flag = pantheon_lineage } }
+				scope:real_father = {
+					remove_character_flag = pantheon_lineage
+					remove_character_modifier = pantheon_lineage_marker
+					remove_variable = pantheon_boon_lineage
+				}
+			}
+		}
+	}
+}
+
+# Root = the mother, when a pregnancy is revealed. A god's child: sanctify the union once vanilla has reacted.
+on_pregnancy_mother = {
+	on_actions = { pantheon_on_pregnancy_mother }
+}
+
+pantheon_on_pregnancy_mother = {
+	trigger = {
+		OR = {
+			scope:mother ?= { has_trait = pantheon_divine }
+			scope:real_father ?= { has_trait = pantheon_divine }
+		}
+	}
+	effect = {
+		scope:mother = {
+			set_variable = {
+				name = pantheon_child_father
+				value = scope:real_father
+			}
+			trigger_event = { id = pantheon.0040 days = 1 }
+		}
+	}
+}

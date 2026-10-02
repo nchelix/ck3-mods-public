@@ -1,0 +1,9 @@
+﻿# One Trait wars (1.11): may this relative of the defender be taken prisoner?
+one_trait_war_can_capture_trigger = {
+	is_alive = yes
+	is_landed = no
+	is_imprisoned = no
+	NOT = { this = scope:attacker }
+	NOT = { is_spouse_of = scope:attacker }
+	NOT = { is_close_family_of = scope:attacker }
+}

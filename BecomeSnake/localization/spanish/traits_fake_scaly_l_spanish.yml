@@ -1,0 +1,11 @@
+﻿l_spanish:
+# Untranslated placeholder: English strings. Replace with a real spanish translation.
+ trait_fake_scaly:0 "Is a Snake"
+ trait_fake_scaly_desc:0 "This character has chosen the life of a snake. Lots of plastic surgery has given them the appearance, and now they practice the slither."
+ trait_fake_scaly_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] has chosen the life of a snake. Lots of plastic surgery has given them the appearance, and now they practice the slither."
+ trait_fake_scaly_serpent:0 "Is Fully a Snake"
+ trait_fake_scaly_serpent_desc:0 "Whatever this was before, it is a serpent now. Heavy scales, no lashes, and eyes gone milk-pale."
+ trait_fake_scaly_serpent_character_desc:0 "Whatever [ROOT.GetCharacter.GetFirstNameNoTooltip] was before, they are a serpent now. Heavy scales, no lashes, and eyes gone milk-pale."
+ trait_fake_scaly_bloodline:0 "Snake Bloodline"
+ trait_fake_scaly_bloodline_desc:0 "The scales run in the family, and will keep running."
+ trait_fake_scaly_bloodline_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] founded a line of snakes. Their children will be born with the scales."

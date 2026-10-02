@@ -1,0 +1,18 @@
+﻿# Costs for the Grande Armee regiments.
+#
+# These must be static script values. A dynamic value/multiply block is the
+# wrong type for buy_cost and the game falls back to zero, which is how the
+# first release shipped free regiments.
+#
+# Vanilla heavy cavalry, for reference: recruitment 200, low maintenance 0.7,
+# high maintenance 2.1 (low x @high_maint_mult, which is 3). These are double
+# that across the board. A professional standing army is precisely the thing a
+# feudal realm could not afford, and it should feel that way.
+
+@ga_recruitment_cost = 400
+@ga_low_maint_cost = 1.4
+@ga_high_maint_cost = 4.2
+
+ga_recruitment_cost = @[ga_recruitment_cost]
+ga_low_maint_cost = @[ga_low_maint_cost]
+ga_high_maint_cost = @[ga_high_maint_cost]

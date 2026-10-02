@@ -1,0 +1,374 @@
+﻿# The pretender's events.
+#
+# Verified against the installed game (1.19):
+# - character_event / theme / trigger_event = { id days = { a b } }:
+#   RenovatioImperii/events/renovatio_events.txt header notes.
+# - set_variable = { name value = flag:x }: common across events/.
+# - add_secret = { type = x }: common/scripted_effects (secret_murder_attempt).
+# - theme = learning, theme = intrigue: common/event_themes/00_event_themes.txt.
+namespace = pretender
+
+# Choose the ancestor.
+pretender.0001 = {
+	type = character_event
+	title = pretender.0001.t
+	desc = pretender.0001.desc
+	theme = learning
+
+	option = {
+		name = pretender.0001.a
+		set_variable = { name = pretender_ancestor value = flag:caesar }
+		trigger_event = { id = pretender.0002 days = { 90 150 } }
+	}
+
+	option = {
+		name = pretender.0001.b
+		set_variable = { name = pretender_ancestor value = flag:augustus }
+		trigger_event = { id = pretender.0002 days = { 90 150 } }
+	}
+}
+
+# The archive.
+pretender.0002 = {
+	type = character_event
+	title = pretender.0002.t
+	desc = pretender.0002.desc
+	theme = intrigue
+
+	option = {
+		name = pretender.0002.a
+		remove_short_term_gold = 75
+		change_variable = { name = forgery_quality add = 25 }
+		trigger_event = { id = pretender.0003 days = { 90 150 } }
+	}
+
+	option = {
+		name = pretender.0002.b
+		add_prestige = -100
+		change_variable = { name = forgery_quality add = 10 }
+		trigger_event = { id = pretender.0003 days = { 90 150 } }
+	}
+
+	option = {
+		name = pretender.0002.c
+		trigger_event = { id = pretender.0003 days = { 30 60 } }
+	}
+}
+
+# The documents.
+pretender.0003 = {
+	type = character_event
+	title = pretender.0003.t
+	desc = pretender.0003.desc
+	theme = learning
+
+	option = {
+		name = pretender.0003.a
+		trigger = { learning >= 12 }
+		change_variable = { name = forgery_quality add = 25 }
+		trigger_event = { id = pretender.0004 days = { 90 150 } }
+	}
+
+	option = {
+		name = pretender.0003.b
+		remove_short_term_gold = 100
+		change_variable = { name = forgery_quality add = 30 }
+		trigger_event = { id = pretender.0004 days = { 90 150 } }
+	}
+
+	option = {
+		name = pretender.0003.c
+		change_variable = { name = forgery_quality add = 5 }
+		trigger_event = { id = pretender.0004 days = { 30 60 } }
+	}
+}
+
+# The relic.
+pretender.0004 = {
+	type = character_event
+	title = pretender.0004.t
+	desc = pretender.0004.desc
+	theme = intrigue
+
+	option = {
+		name = pretender.0004.a
+		add_prestige = -100
+		change_variable = { name = forgery_quality add = 20 }
+		trigger_event = { id = pretender.0005 days = { 30 60 } }
+	}
+
+	option = {
+		name = pretender.0004.b
+		remove_short_term_gold = 50
+		change_variable = { name = forgery_quality add = 15 }
+		trigger_event = { id = pretender.0005 days = { 30 60 } }
+	}
+
+	option = {
+		name = pretender.0004.c
+		trigger_event = { id = pretender.0005 days = { 30 60 } }
+	}
+}
+
+# The lineage is complete.
+pretender.0005 = {
+	type = character_event
+	title = pretender.0005.t
+	desc = pretender.0005.desc
+	theme = learning
+
+	immediate = {
+		remove_character_flag = pretender_genealogy_in_progress
+		if = {
+			limit = { var:forgery_quality > 100 }
+			set_variable = { name = forgery_quality value = 100 }
+		}
+		add_trait = roman_pretender
+		add_secret = { type = secret_forged_lineage }
+		domicile ?= {
+			domicile_location.county = { save_scope_as = camp_county }
+		}
+		if = {
+			limit = { exists = scope:camp_county }
+			pretender_raise_support_effect = { COUNTY = scope:camp_county PRETENDER = root }
+			if = {
+				limit = { var:forgery_quality >= 70 }
+				pretender_raise_support_effect = { COUNTY = scope:camp_county PRETENDER = root }
+			}
+		}
+	}
+
+	option = {
+		name = pretender.0005.a
+	}
+}
+
+# The yearly pulse. Fired from on_birthday (see pretender_on_actions.txt). Each
+# section is independent; later tasks add their own sections below.
+pretender.0010 = {
+	type = character_event
+	hidden = yes
+
+	trigger = {
+		OR = {
+			has_trait = roman_pretender
+			has_variable = pretender_patron
+		}
+	}
+
+	immediate = {
+		### SUPPORT: decay and renown (Task 4)
+		if = {
+			limit = { has_trait = roman_pretender }
+			domicile ?= {
+				domicile_location.county = { save_scope_as = camp_county }
+			}
+			# Support fades where the camp is not, or near.
+			every_in_list = {
+				variable = pretender_supported_counties
+				limit = {
+					OR = {
+						NOT = { exists = scope:camp_county }
+						AND = {
+							NOT = { this = scope:camp_county }
+							NOT = {
+								any_neighboring_county = { this = scope:camp_county }
+							}
+						}
+					}
+				}
+				add_to_temporary_list = fading_counties
+			}
+			every_in_list = {
+				list = fading_counties
+				random = {
+					chance = 35
+					pretender_lower_support_effect = { COUNTY = this }
+				}
+			}
+			# Renown draws the people: prestige earned from contracts and
+			# tournaments turns into support where the camp stands.
+			if = {
+				limit = { exists = scope:camp_county }
+				random = {
+					chance = 10
+					modifier = {
+						add = { value = root.prestige_level multiply = 15 }
+					}
+					modifier = {
+						add = 15
+						has_variable = pretender_ancestor
+						var:pretender_ancestor = flag:caesar
+					}
+					pretender_raise_support_effect = { COUNTY = scope:camp_county PRETENDER = root }
+				}
+			}
+		}
+		### PLEDGES: drop the dead and the disaffected (Task 5)
+		if = {
+			limit = { has_trait = roman_pretender }
+			every_in_list = {
+				variable = pretender_pledges
+				limit = {
+					OR = {
+						is_alive = no
+						opinion = { target = root value < -10 }
+					}
+				}
+				add_to_temporary_list = lapsed_pledges
+			}
+			every_in_list = {
+				list = lapsed_pledges
+				pretender_break_pledge_effect = { PRETENDER = root PLEDGER = this }
+			}
+		}
+		### DOUBTERS: someone may see through the forgery (Task 6)
+		if = {
+			limit = {
+				has_trait = roman_pretender
+				any_secret = { secret_type = secret_forged_lineage }
+			}
+			random = {
+				chance = 1
+				modifier = {
+					add = {
+						value = 100
+						subtract = root.var:forgery_quality
+						divide = 5
+					}
+				}
+				random_ruler = {
+					limit = {
+						is_ai = yes
+						NOT = { this = root }
+						any_sub_realm_county = {
+							title_province = { geographical_region = custom_roman_full_borders }
+						}
+					}
+					save_scope_as = doubter
+				}
+				random_secret = {
+					limit = {
+						secret_type = secret_forged_lineage
+						exists = scope:doubter
+						NOT = { is_known_by = scope:doubter }
+					}
+					reveal_to = scope:doubter
+					if = {
+						limit = {
+							scope:doubter = {
+								opinion = { target = root value < 0 }
+							}
+						}
+						random = {
+							chance = 50
+							expose_secret = scope:doubter
+						}
+					}
+				}
+			}
+		}
+		### OATH: a granted claimant may not rise against the patron (Task 9)
+		# joined_faction ?= { ... }: common/scripted_triggers/00_faction_triggers.txt:127.
+		# faction_is_type = independence_faction: vanilla (grep faction_is_type).
+		if = {
+			limit = { has_variable = pretender_patron }
+			if = {
+				limit = {
+					OR = {
+						NOT = { has_character_modifier = pretender_bound_by_oath_modifier }
+						var:pretender_patron = { is_alive = no }
+					}
+				}
+				if = {
+					limit = { has_character_modifier = pretender_bound_by_oath_modifier }
+					remove_character_modifier = pretender_bound_by_oath_modifier
+				}
+				remove_variable = pretender_patron
+			}
+			else = {
+				var:pretender_patron = { save_scope_as = patron }
+				if = {
+					limit = {
+						joined_faction ?= {
+							faction_is_type = independence_faction
+							faction_target = { this = scope:patron }
+						}
+					}
+					trigger_event = pretender.0050
+				}
+			}
+		}
+	}
+}
+
+# The lineage has been exposed.
+pretender.0020 = {
+	type = character_event
+	title = pretender.0020.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { is_landed = yes }
+				desc = pretender.0020.desc_landed
+			}
+			triggered_desc = {
+				trigger = { pretender_legend_trigger = yes }
+				desc = pretender.0020.desc_legend
+			}
+			desc = pretender.0020.desc_ruin
+		}
+	}
+	theme = intrigue
+
+	option = {
+		name = pretender.0020.a
+	}
+}
+
+# A Caesar Rises: the claim has carried across into land. The world reacts as
+# it does to a Renovatio proclamation.
+pretender.0030 = {
+	type = character_event
+	title = pretender.0030.t
+	desc = pretender.0030.desc
+	theme = realm
+
+	immediate = {
+		renovatio_world_reacts_effect = yes
+	}
+
+	option = {
+		name = pretender.0030.a
+		add_prestige = 200
+	}
+}
+
+# The oath is broken.
+pretender.0050 = {
+	type = character_event
+	title = pretender.0050.t
+	desc = pretender.0050.desc
+	theme = intrigue
+
+	immediate = {
+		# Scopes saved in the pulse do not carry into a triggered event, so
+		# re-derive the patron here (the desc names them).
+		var:pretender_patron = { save_scope_as = patron }
+		save_scope_as = oathbreaker
+		add_prestige = -750
+		every_ruler = {
+			limit = { NOT = { this = scope:oathbreaker } }
+			add_opinion = {
+				modifier = pretender_oathbreaker_opinion
+				target = scope:oathbreaker
+			}
+		}
+		remove_character_modifier = pretender_bound_by_oath_modifier
+		remove_variable = pretender_patron
+	}
+
+	option = {
+		name = pretender.0050.a
+	}
+}

@@ -1,0 +1,5 @@
+﻿l_russian:
+# Untranslated placeholder: English strings. Replace with a real russian translation.
+ trait_grande_armee_doctrine:0 "Grande Armee Doctrine"
+ trait_grande_armee_doctrine_desc:0 "Corps that march apart and fight together, a professional army paid for out of the treasury rather than owed by oath, and guns heavy enough to make a wall a matter of scheduling."
+ trait_grande_armee_doctrine_character_desc:0 "[ROOT.GetCharacter.GetFirstNameNoTooltip] makes war the way it will be made eight centuries from now: corps that march apart and fight together, a standing army that answers to coin rather than oath, and artillery massed until walls stop mattering."

@@ -1,0 +1,46 @@
+﻿# La Grande Armee
+#
+# One trait. Taking it is what unlocks the regiments -- they check for it in
+# their can_recruit, so the doctrine is the key to the arsenal rather than the
+# arsenal simply existing.
+#
+# The modifiers describe the corps system: formations that march apart and
+# fight together, a professional standing army that is cheap to keep, and guns
+# heavy enough to make walls a scheduling problem.
+
+grande_armee_doctrine = {
+	physical = no
+
+	birth = 0
+	random_creation = 0
+
+	martial = 4
+
+	# March separately, fight together.
+	movement_speed = 0.5
+	advantage = 15
+	supply_limit_mult = 0.5
+
+	# A nation in arms: larger, cheaper, professional.
+	men_at_arms_cap = 5
+	men_at_arms_maintenance = -0.35
+	knight_effectiveness_mult = 0.5
+
+	# The grand battery.
+	siege_phase_time = -0.2
+
+	shown_in_ruler_designer = yes
+	ruler_designer_cost = 300
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_grande_armee_doctrine_desc
+			}
+			desc = trait_grande_armee_doctrine_character_desc
+		}
+	}
+}

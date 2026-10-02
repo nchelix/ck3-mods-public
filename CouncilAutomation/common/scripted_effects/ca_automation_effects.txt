@@ -1,0 +1,137 @@
+﻿# Council Automation: pick the next county for a council task and start it.
+#
+# Ported from Automatic Council Tasks by Hamzah Hayat (MIT licence),
+# https://steamcommunity.com/sharedfiles/filedetails/?id=3604126943
+# Its three per-task effects differed only in the value they sort by, so here
+# they are one effect with parameters.
+#
+# Called from each task's on_cancel_task_county (generated, see
+# ca_council_tasks.txt), which fires when a task finishes or is cancelled.
+#   TRIGGER  county-scope trigger: may this task target the county?
+#   ORDER    county value to prefer, highest first
+#   EVENT    hidden event that starts the task (starting it directly inside
+#            on_cancel_task_county crashes the game)
+#
+# Order of preference:
+#   1. the liege's capital
+#   2. the liege's own counties
+#   3. direct vassals' capitals, highest tier first
+#   4. sub-vassals' capitals, highest tier first
+#   5. any other county in the realm
+
+ca_start_next_task = {
+	scope:councillor_liege = {
+		# 1. The liege's capital
+		if = {
+			limit = {
+				exists = capital_county
+				capital_county = { $TRIGGER$ = yes }
+			}
+			capital_county = {
+				save_scope_as = target_county
+			}
+		}
+
+		# 2. The liege's own counties
+		if = {
+			limit = { NOT = { exists = scope:target_county } }
+			ordered_directly_owned_province = {
+				limit = {
+					county = { $TRIGGER$ = yes }
+				}
+				order_by = county.$ORDER$
+				position = 0
+				county = {
+					save_scope_as = target_county
+				}
+			}
+		}
+
+		# 3. Direct vassals' capitals
+		if = {
+			limit = { NOT = { exists = scope:target_county } }
+			every_vassal = {
+				limit = {
+					exists = capital_county
+					capital_county = { $TRIGGER$ = yes }
+					highest_held_title_tier = tier_empire
+				}
+				alternative_limit = {
+					exists = capital_county
+					capital_county = { $TRIGGER$ = yes }
+					highest_held_title_tier = tier_kingdom
+				}
+				alternative_limit = {
+					exists = capital_county
+					capital_county = { $TRIGGER$ = yes }
+					highest_held_title_tier = tier_duchy
+				}
+				alternative_limit = {
+					exists = capital_county
+					capital_county = { $TRIGGER$ = yes }
+					highest_held_title_tier = tier_county
+				}
+				capital_county = {
+					add_to_temporary_list = ca_possible_counties
+				}
+			}
+			ordered_in_list = {
+				list = ca_possible_counties
+				order_by = $ORDER$
+				position = 0
+				save_scope_as = target_county
+			}
+		}
+
+		# 4. Sub-vassals' capitals
+		if = {
+			limit = { NOT = { exists = scope:target_county } }
+			every_vassal = {
+				every_vassal_or_below = {
+					limit = {
+						exists = capital_county
+						capital_county = { $TRIGGER$ = yes }
+						highest_held_title_tier = tier_kingdom
+					}
+					alternative_limit = {
+						exists = capital_county
+						capital_county = { $TRIGGER$ = yes }
+						highest_held_title_tier = tier_duchy
+					}
+					alternative_limit = {
+						exists = capital_county
+						capital_county = { $TRIGGER$ = yes }
+						highest_held_title_tier = tier_county
+					}
+					capital_county = {
+						add_to_temporary_list = ca_possible_sub_counties
+					}
+				}
+			}
+			ordered_in_list = {
+				list = ca_possible_sub_counties
+				order_by = $ORDER$
+				position = 0
+				save_scope_as = target_county
+			}
+		}
+
+		# 5. Any other county in the realm
+		if = {
+			limit = { NOT = { exists = scope:target_county } }
+			ordered_sub_realm_county = {
+				limit = { $TRIGGER$ = yes }
+				order_by = $ORDER$
+				position = 0
+				save_scope_as = target_county
+			}
+		}
+
+		if = {
+			limit = { exists = scope:target_county }
+			scope:councillor = {
+				trigger_event = $EVENT$
+			}
+		}
+	}
+}

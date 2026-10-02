@@ -1,0 +1,13 @@
+﻿pantheon_blessed_opinion = {
+	opinion = 30
+}
+
+# A mortal who bore the god's child (Divine Conception)
+pantheon_bore_god_child_opinion = {
+	opinion = 50
+}
+
+# The spouse of a mortal who bore the god's child (replaces vanilla's "Slept with My Spouse")
+pantheon_honoured_spouse_opinion = {
+	opinion = 25
+}

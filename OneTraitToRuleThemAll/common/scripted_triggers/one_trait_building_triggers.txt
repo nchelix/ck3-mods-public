@@ -1,0 +1,82 @@
+﻿# One Trait 1.7 -- triggers for the Buildings menu.
+
+# Character scope. Nomads and landless adventurers do not hold baronies the
+# way settled rulers do, so they get no Fill Empty Baronies option.
+one_trait_can_fill_baronies = {
+	is_landed = yes
+	NOR = {
+		government_has_flag = government_is_nomadic
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_herder
+	}
+}
+
+# Character scope. Owns the Sanctum story.
+one_trait_has_sanctum = {
+	any_owned_story = {
+		story_type = story_one_trait_sanctum
+	}
+}
+
+# Character scope. A capital-county barony with a holding and no special
+# building is free for the Sanctum.
+one_trait_can_raise_sanctum = {
+	NOT = { one_trait_has_sanctum = yes }
+	exists = capital_county
+	capital_county = {
+		any_county_province = {
+			has_holding = yes
+			has_special_building = no
+		}
+	}
+}
+
+# Character scope. Could raise it, but every barony already has a wonder.
+one_trait_sanctum_blocked = {
+	NOT = { one_trait_has_sanctum = yes }
+	exists = capital_county
+	capital_county = {
+		NOT = {
+			any_county_province = {
+				has_holding = yes
+				has_special_building = no
+			}
+		}
+	}
+}
+
+# Story scope. The Sanctum still stands and its owner holds its county.
+# Powers pause while this is false.
+one_trait_sanctum_standing = {
+	exists = var:sanctum_province
+	var:sanctum_province = { has_building = one_trait_sanctum_01 }
+	var:sanctum_province.county.holder = story_owner
+}
+
+# Character scope. Is Sanctum power $POWER$ switched on?
+one_trait_sanctum_power_on = {
+	any_owned_story = {
+		story_type = story_one_trait_sanctum
+		has_variable = power_$POWER$
+	}
+}
+
+# Character scope. Owns the Sanctum and at least one of its powers is on.
+one_trait_sanctum_any_power_on = {
+	any_owned_story = {
+		story_type = story_one_trait_sanctum
+		OR = {
+			has_variable = power_builder
+			has_variable = power_golden_age
+			has_variable = power_one_faith
+			has_variable = power_one_people
+			has_variable = power_all_seeing
+			has_variable = power_leash
+			has_variable = power_no_dissent
+			has_variable = power_relic_forge
+			has_variable = power_champions
+			has_variable = power_levies
+			has_variable = power_tribute
+		}
+	}
+}

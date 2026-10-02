@@ -1,0 +1,82 @@
+﻿# The proclamation: gains the claim (roman_claimant), not the empire.
+#
+# decision_war.dds (brief's guess) does not exist in the installed game.
+# Replaced with ep3_decision_roman_restoration.dds, the illustration vanilla's
+# own restore_roman_empire_decision uses (common/decisions/80_major_decisions_roman.txt)
+# -- a real file and thematically the closest match available.
+proclaim_heir_to_rome_decision = {
+	picture = {
+		reference = "gfx/interface/illustrations/decisions/ep3_decision_roman_restoration.dds"
+	}
+
+	desc = proclaim_heir_to_rome_decision_desc
+	selection_tooltip = proclaim_heir_to_rome_decision_tooltip
+	confirm_text = proclaim_heir_to_rome_decision_confirm
+
+	is_shown = {
+		can_claim_rome_trigger = yes
+	}
+
+	is_valid = {
+		prestige_level >= 4
+	}
+
+	cost = {
+		prestige = 1000
+	}
+
+	effect = {
+		add_trait = roman_claimant
+		trigger_event = renovatio.0001
+	}
+
+	ai_check_interval = 60
+	ai_will_do = {
+		# Task 8: weighted so the AI proclaims rarely, and only when it is
+		# plausible. Verified against the installed game (1.19.0.6 "Scribe"):
+		#
+		# - Vanilla ai_will_do blocks open with `base =`, never `value =`.
+		#   Checked every ai_will_do in common/decisions: 357 open with
+		#   `base =` as the first line, zero open with `value =`. The brief's
+		#   draft used `value = 0`; that is wrong and is not used here.
+		# - `highest_held_title_tier >= tier_empire` is real:
+		#   common/achievements/standard_achievements.txt line 868 among
+		#   others.
+		# - `prestige_level >= N` is real: common/activities/activity_types/
+		#   feast.txt line 694 uses `prestige_level >= 4`; the threshold
+		#   itself (5) is just a value, not a separate identifier to verify.
+		# - `culture = { has_cultural_pillar = heritage_byzantine }` is
+		#   already used and verified in can_claim_rome_trigger
+		#   (common/scripted_triggers/renovatio_triggers.txt).
+		# - `factor = 0` inside an ai_will_do modifier is real and used for
+		#   exactly this "zero out the whole weight" purpose in vanilla, e.g.
+		#   common/decisions/00_dynasty_decisions.txt lines 203 and 211
+		#   ("Childless rulers should not found houses" / "Stop stealing
+		#   player's house members").
+		# - `any_ruler` is a global iterator usable from any scope (already
+		#   verified in Task 7's notes below, and reused here unchanged).
+		base = 0
+
+		modifier = {
+			add = 10
+			highest_held_title_tier >= tier_empire
+		}
+		modifier = {
+			add = 5
+			prestige_level >= 5
+		}
+		modifier = {
+			add = 5
+			culture = { has_cultural_pillar = heritage_byzantine }
+		}
+		modifier = {
+			# At most one AI claimant at a time. Rival claimants are an
+			# event (renovatio.0005), not something the AI does en masse.
+			factor = 0
+			any_ruler = {
+				has_trait = roman_claimant
+				NOT = { this = root }
+			}
+		}
+	}
+}

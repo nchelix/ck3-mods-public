@@ -1,0 +1,30 @@
+﻿# One Trait 2.0: the one right-click entry. It opens the menu on whoever you
+# clicked, yourself included; every power lives in the menu's pages.
+one_trait_menu_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+
+	desc = one_trait_menu_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+		}
+	}
+
+	on_accept = {
+		scope:recipient = {
+			save_scope_as = one_trait_target
+		}
+		scope:actor = {
+			trigger_event = one_trait_menu.0001
+		}
+	}
+
+	auto_accept = yes
+	ai_will_do = {
+		base = 0
+	}
+}

@@ -1,0 +1,26 @@
+﻿# Pantheon of One: becoming a god. Ascend is the only decision; everything after it lives in
+# Divine Will (right-click yourself): Take Your Throne, Proclaim Your Divinity, Divine Offspring.
+pantheon_ascend_decision = {
+	picture = { reference = "gfx/interface/illustrations/decisions/decision_activity.dds" }
+	decision_group_type = major
+	is_shown = {
+		is_ai = no
+		NOT = { has_trait = pantheon_divine }
+	}
+	effect = {
+		add_trait = pantheon_divine
+		pantheon_divine_health_effect = yes
+		add_piety = pantheon_ascend_piety
+		# Worship exists from the start, so cost checks never read an unset variable
+		if = {
+			limit = { NOT = { has_variable = pantheon_worship } }
+			set_variable = {
+				name = pantheon_worship
+				value = 0
+			}
+		}
+		custom_tooltip = pantheon_ascend_decision_next_tt
+	}
+	ai_check_interval = 0
+	ai_will_do = { base = 0 }
+}

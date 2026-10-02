@@ -1,0 +1,31 @@
+﻿# The Host of Heaven. Only ever spawned by pantheon_call_host_effect (proven in the prototype).
+pantheon_host_maa = {
+	type = heavy_infantry
+	special_recruit_only = yes
+	damage = 500
+	toughness = 500
+	pursuit = 100
+	screen = 100
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+	provision_cost = 0
+	stack = 100
+	can_recruit = { always = no }
+}
+
+# Guardians of the Holy Seat: the god's own permanent regiment, granted with the throne (1.2).
+pantheon_guardian_maa = {
+	type = heavy_infantry
+	special_recruit_only = yes
+	damage = 500
+	toughness = 500
+	pursuit = 100
+	screen = 100
+	buy_cost = { gold = 0 }
+	low_maintenance_cost = { gold = 0 }
+	high_maintenance_cost = { gold = 0 }
+	provision_cost = 0
+	stack = 100
+	can_recruit = { always = no }
+}

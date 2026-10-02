@@ -1,0 +1,10 @@
+﻿# Pantheon of One: a god may always create (or reform) a rite, with no puppet, holy-site, peace or
+# once-per-life limit. Replaces vanilla's one-line rule (common/scripted_rules/00_rules.txt), still
+# delegating to vanilla for everyone else. Proven in game (1.1 spike); tools/test_pantheon.py fails
+# if Paradox changes the vanilla original.
+can_create_rite = {
+	OR = {
+		has_trait = pantheon_divine
+		can_create_rite_trigger = yes
+	}
+}

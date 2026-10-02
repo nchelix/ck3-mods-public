@@ -1,0 +1,370 @@
+﻿# One Trait 1.7 -- the Sanctum of the One's eleven powers.
+#
+# Story scope (story_one_trait_sanctum). Each one_trait_sanctum_run_<power>
+# runs its power once and, when it actually did something, reports it in the
+# owner's message feed. The story's timers call them; so does the menu's
+# "Invoke every awakened power now" (one_trait_sanctum_invoke_all).
+#
+# Counts travel to the message text as saved scope values ([sanctum_count|V0]),
+# the way vanilla's crypto-faith conversion reports its county count.
+
+# Story scope. Send a Sanctum report to the story owner's message feed: a feed
+# message (event_generic_good_with_text), not a pop-up toast.
+one_trait_sanctum_report = {
+	story_owner = {
+		send_interface_message = {
+			type = event_generic_good_with_text
+			title = one_trait_sanctum_msg_$KEY$.t
+			desc = one_trait_sanctum_msg_$KEY$.desc
+		}
+	}
+}
+
+# --- Builder ------------------------------------------------------------------
+
+# The Realm Builds Itself: every county held directly gains a building, or
+# raises every building one level if it has no free slot.
+one_trait_sanctum_run_builder = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = {
+		every_held_county = {
+			title_province = {
+				if = {
+					limit = { has_free_building_slot = yes }
+					generate_building = yes
+				}
+				else = {
+					one_trait_upgrade_one_step_in_province = yes
+				}
+			}
+			save_scope_value_as = {
+				name = sanctum_count
+				value = { value = scope:sanctum_count add = 1 }
+			}
+		}
+	}
+	if = {
+		limit = { scope:sanctum_count > 0 }
+		one_trait_sanctum_report = { KEY = builder }
+	}
+}
+
+# Golden Age: +1 development in every county held directly.
+one_trait_sanctum_run_golden_age = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = {
+		every_held_county = {
+			change_development_level = 1
+			save_scope_value_as = {
+				name = sanctum_count
+				value = { value = scope:sanctum_count add = 1 }
+			}
+		}
+	}
+	if = {
+		limit = { scope:sanctum_count > 0 }
+		one_trait_sanctum_report = { KEY = golden_age }
+	}
+}
+
+# --- Dominion -----------------------------------------------------------------
+
+# One Faith: every county in the realm takes the owner's faith.
+one_trait_sanctum_run_one_faith = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = {
+		save_scope_as = sanctum_owner
+		every_realm_county = {
+			limit = { NOT = { faith = scope:sanctum_owner.faith } }
+			set_county_faith = scope:sanctum_owner.faith
+			save_scope_value_as = {
+				name = sanctum_count
+				value = { value = scope:sanctum_count add = 1 }
+			}
+		}
+	}
+	if = {
+		limit = { scope:sanctum_count > 0 }
+		one_trait_sanctum_report = { KEY = one_faith }
+	}
+}
+
+# One People: every county in the realm takes the owner's culture.
+one_trait_sanctum_run_one_people = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = {
+		save_scope_as = sanctum_owner
+		every_realm_county = {
+			limit = { NOT = { culture = scope:sanctum_owner.culture } }
+			set_county_culture = scope:sanctum_owner.culture
+			save_scope_value_as = {
+				name = sanctum_count
+				value = { value = scope:sanctum_count add = 1 }
+			}
+		}
+	}
+	if = {
+		limit = { scope:sanctum_count > 0 }
+		one_trait_sanctum_report = { KEY = one_people }
+	}
+}
+
+# --- The Eye ------------------------------------------------------------------
+
+# All-Seeing: every secret of every vassal and courtier is revealed to the
+# owner, and every scheme against the owner is exposed.
+# sanctum_count = secrets revealed, sanctum_count_2 = schemes exposed.
+one_trait_sanctum_run_all_seeing = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	save_scope_value_as = { name = sanctum_count_2 value = 0 }
+	story_owner = {
+		save_scope_as = sanctum_owner
+		every_vassal = {
+			every_secret = {
+				limit = { NOT = { is_known_by = scope:sanctum_owner } }
+				reveal_to = scope:sanctum_owner
+				save_scope_value_as = {
+					name = sanctum_count
+					value = { value = scope:sanctum_count add = 1 }
+				}
+			}
+		}
+		every_courtier = {
+			every_secret = {
+				limit = { NOT = { is_known_by = scope:sanctum_owner } }
+				reveal_to = scope:sanctum_owner
+				save_scope_value_as = {
+					name = sanctum_count
+					value = { value = scope:sanctum_count add = 1 }
+				}
+			}
+		}
+		every_targeting_scheme = {
+			limit = { is_scheme_exposed = no }
+			expose_scheme = yes
+			save_scope_value_as = {
+				name = sanctum_count_2
+				value = { value = scope:sanctum_count_2 add = 1 }
+			}
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				scope:sanctum_count > 0
+				scope:sanctum_count_2 > 0
+			}
+		}
+		one_trait_sanctum_report = { KEY = all_seeing }
+	}
+}
+
+# The Leash: a strong hook on every direct vassal the owner has none on.
+one_trait_sanctum_run_leash = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = {
+		save_scope_as = sanctum_owner
+		every_vassal = {
+			limit = {
+				NOT = { scope:sanctum_owner = { has_hook = prev } }
+			}
+			save_temporary_scope_as = leashed_vassal
+			scope:sanctum_owner = {
+				add_hook = {
+					type = strong_favor_hook
+					target = scope:leashed_vassal
+				}
+			}
+			save_scope_value_as = {
+				name = sanctum_count
+				value = { value = scope:sanctum_count add = 1 }
+			}
+		}
+	}
+	if = {
+		limit = { scope:sanctum_count > 0 }
+		one_trait_sanctum_report = { KEY = leash }
+	}
+}
+
+# No Dissent: every faction targeting the owner dissolves.
+one_trait_sanctum_run_no_dissent = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = {
+		every_targeting_faction = {
+			save_scope_value_as = {
+				name = sanctum_count
+				value = { value = scope:sanctum_count add = 1 }
+			}
+			destroy_faction = yes
+		}
+	}
+	if = {
+		limit = { scope:sanctum_count > 0 }
+		one_trait_sanctum_report = { KEY = no_dissent }
+	}
+}
+
+# --- The Forge ----------------------------------------------------------------
+
+# Relic Forge: a new relic of the One Trait (the 1.3 artifact). The artifact is
+# created inside the message, so the message shows it.
+one_trait_sanctum_run_relic_forge = {
+	story_owner = {
+		send_interface_message = {
+			type = event_generic_good_with_text
+			title = one_trait_sanctum_msg_relic_forge.t
+			desc = one_trait_sanctum_msg_relic_forge.desc
+			create_artifact = {
+				name = one_trait_relic_name
+				description = one_trait_relic_desc
+				type = miscellaneous
+				visuals = trinket_icon
+				rarity = illustrious
+				modifier = one_trait_relic_modifier
+			}
+		}
+	}
+}
+
+# Hall of Champions: a peak-prowess champion joins the court, up to 10 living
+# champions. The message shows the new champion's portrait.
+one_trait_sanctum_run_champions = {
+	story_owner = {
+		save_scope_as = sanctum_owner
+		if = {
+			limit = {
+				NOT = {
+					any_courtier = {
+						count >= 10
+						has_character_flag = one_trait_champion
+					}
+				}
+			}
+			create_character = {
+				age = 25
+				gender_female_chance = 50
+				dynasty = none
+				culture = scope:sanctum_owner.culture
+				faith = scope:sanctum_owner.faith
+				employer = scope:sanctum_owner
+				prowess = 30
+				martial = 14
+				trait = education_martial_4
+				trait = brave
+				save_scope_as = new_champion
+			}
+			scope:new_champion = {
+				add_character_flag = one_trait_champion
+			}
+			send_interface_message = {
+				type = event_generic_good_with_text
+				title = one_trait_sanctum_msg_champions.t
+				desc = one_trait_sanctum_msg_champions.desc
+				left_icon = scope:new_champion
+			}
+		}
+	}
+}
+
+# Eternal Levies: every men-at-arms regiment refilled. A regiment that can
+# still grow is grown by one and reinforced (vanilla's conqueror form); a full
+# one is reinforced with size = 0. Deliberately silent: it acts every month.
+one_trait_sanctum_run_levies = {
+	story_owner = {
+		every_maa_regiment = {
+			limit = { is_maa_in_combat = no }
+			if = {
+				limit = { can_upgrade_maa = yes }
+				change_maa_regiment_size = {
+					size = 1
+					reinforce = yes
+				}
+			}
+			else = {
+				change_maa_regiment_size = {
+					size = 0
+					reinforce = yes
+				}
+			}
+		}
+	}
+}
+
+# --- Tribute ------------------------------------------------------------------
+
+# World Tribute: every other independent ruler with an income pays the owner a
+# tenth of it, and a little prestige. The gold is tallied on the story
+# (tribute_year) and reported once a year by one_trait_sanctum_report_tribute.
+one_trait_sanctum_run_tribute = {
+	save_scope_value_as = { name = sanctum_count value = 0 }
+	story_owner = { save_scope_as = sanctum_owner }
+	every_independent_ruler = {
+		limit = {
+			NOT = { this = scope:sanctum_owner }
+			monthly_character_income > 0
+		}
+		save_temporary_scope_as = tribute_payer
+		save_scope_value_as = {
+			name = sanctum_count
+			value = {
+				value = scope:sanctum_count
+				add = {
+					value = scope:tribute_payer.monthly_character_income
+					multiply = 0.1
+				}
+			}
+		}
+		scope:sanctum_owner = {
+			add_gold = {
+				value = scope:tribute_payer.monthly_character_income
+				multiply = 0.1
+			}
+			add_prestige = 1
+		}
+		add_gold = {
+			value = monthly_character_income
+			multiply = -0.1
+		}
+	}
+	if = {
+		limit = { NOT = { exists = var:tribute_year } }
+		set_variable = { name = tribute_year value = 0 }
+	}
+	change_variable = { name = tribute_year add = scope:sanctum_count }
+}
+
+# Story scope. Report the tribute gathered since the last report, then reset.
+one_trait_sanctum_report_tribute = {
+	if = {
+		limit = {
+			exists = var:tribute_year
+			var:tribute_year > 0
+		}
+		save_scope_value_as = { name = sanctum_count value = var:tribute_year }
+		one_trait_sanctum_report = { KEY = tribute }
+		set_variable = { name = tribute_year value = 0 }
+	}
+}
+
+# --- Invoke -------------------------------------------------------------------
+
+# Story scope. Run every awakened power once, now, if the Sanctum stands and
+# its owner holds it. Tribute collects one month's tithe and reports at once.
+one_trait_sanctum_invoke_all = {
+	if = {
+		limit = { one_trait_sanctum_standing = yes }
+		if = { limit = { has_variable = power_builder } one_trait_sanctum_run_builder = yes }
+		if = { limit = { has_variable = power_golden_age } one_trait_sanctum_run_golden_age = yes }
+		if = { limit = { has_variable = power_one_faith } one_trait_sanctum_run_one_faith = yes }
+		if = { limit = { has_variable = power_one_people } one_trait_sanctum_run_one_people = yes }
+		if = { limit = { has_variable = power_all_seeing } one_trait_sanctum_run_all_seeing = yes }
+		if = { limit = { has_variable = power_leash } one_trait_sanctum_run_leash = yes }
+		if = { limit = { has_variable = power_no_dissent } one_trait_sanctum_run_no_dissent = yes }
+		if = { limit = { has_variable = power_relic_forge } one_trait_sanctum_run_relic_forge = yes }
+		if = { limit = { has_variable = power_champions } one_trait_sanctum_run_champions = yes }
+		if = { limit = { has_variable = power_levies } one_trait_sanctum_run_levies = yes }
+		if = { limit = { has_variable = power_tribute } one_trait_sanctum_run_tribute = yes }
+		one_trait_sanctum_report_tribute = yes
+	}
+}

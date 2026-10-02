@@ -1,0 +1,7 @@
+﻿# One Trait 1.9 -- a fifth army-quality level for the gilded army
+# (experimental). Vanilla's four thresholds are unchanged; vanilla's best
+# troops reach about 130, so only an army made mostly of One Trait regiments
+# crosses 400. See gfx/models/units/entity_links/one_trait_entity_links.txt.
+NCombatInterface = {
+	UNIT_QUALITY_THRESHOLDS = { 25 60 95 130 400 }
+}

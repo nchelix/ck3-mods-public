@@ -1,0 +1,4077 @@
+﻿# One Trait menu graph. Entered from one_trait_menu_interaction.
+# scope:one_trait_target is the right-clicked character and is available in
+# every event below.
+#
+# Re-check on every CK3 patch -- all of the following fail silently rather
+# than erroring if the game changes underneath them:
+#   - The five hardcoded top-tier domicile building ids on 0420.domicile
+#     (camp_main_04, estate_main_05, east_asian_estate_main_05, yurt_main_06,
+#     japanese_manor_main_06) may stop being the top tier if a patch adds a
+#     higher level.
+#   - The is_domicile_type if/else_if chain on 0420.domicile has no final
+#     else, so a new domicile type added by a patch gets no building added
+#     and no warning.
+#   - The two hardcoded struggle ids on 0420.struggle (iberian_struggle,
+#     persian_struggle) would not include a third struggle if one is added.
+
+namespace = one_trait_menu
+
+# Root category list.
+one_trait_menu.0001 = {
+	type = character_event
+	title = one_trait_menu.0001.t
+	desc = one_trait_menu.0001.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0001.traits
+		trigger_event = one_trait_menu.0700
+	}
+
+	option = {
+		name = one_trait_menu.0001.army
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0001.family
+		trigger = { NOT = { scope:one_trait_target = root } }
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0001.puppets
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { one_trait_can_be_my_puppet_trigger = yes }
+		}
+		trigger_event = one_trait_menu.1000
+	}
+
+	option = {
+		name = one_trait_menu.0001.my_puppets
+		trigger = {
+			scope:one_trait_target = root
+			OR = {
+				exists = root.puppet:external_ruler_puppet
+				exists = root.puppet:external_theological_agent_puppet
+				exists = root.puppet:theological_agent_puppet
+				exists = root.puppet:one_trait_external_theological_agent_puppet
+				exists = root.puppet:one_trait_theological_agent_puppet
+			}
+		}
+		trigger_event = one_trait_menu.1100
+	}
+
+	option = {
+		name = one_trait_menu.0001.summon
+		trigger = {
+			scope:one_trait_target = root
+		}
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.0001.titles
+		trigger = { NOT = { scope:one_trait_target = root } }
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.0001.diplomacy
+		trigger = { NOT = { scope:one_trait_target = root } }
+		trigger_event = one_trait_menu.1400
+	}
+
+	option = {
+		name = one_trait_menu.0001.succession
+		trigger = { scope:one_trait_target = root }
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.0001.character
+		trigger_event = one_trait_menu.0100
+	}
+
+	option = {
+		name = one_trait_menu.0001.modern
+		trigger_event = one_trait_menu.0400
+	}
+
+	option = {
+		name = one_trait_menu.0001.buildings
+		trigger_event = one_trait_menu.0600
+	}
+
+	option = {
+		name = one_trait_menu.0001.close
+	}
+}
+
+# Modern Systems -- the hub. Splits so neither page runs long.
+one_trait_menu.0400 = {
+	type = character_event
+	title = one_trait_menu.0400.t
+	desc = one_trait_menu.0400.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0400.character
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0400.realm
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0400.culture
+		trigger_event = one_trait_menu.0430
+	}
+
+	option = {
+		name = one_trait_menu.0400.government
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0400.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+# Modern Systems: the character. Cheats added in Tasks 3 and 4.
+one_trait_menu.0410 = {
+	type = character_event
+	title = one_trait_menu.0410.t
+	desc = one_trait_menu.0410.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0410.grandeur
+		scope:one_trait_target = {
+			change_current_court_grandeur = 100
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.grandeur_reset
+		scope:one_trait_target = {
+			change_current_court_grandeur = -100
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.influence
+		scope:one_trait_target = {
+			change_influence = 10000
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.influence_drain
+		scope:one_trait_target = {
+			change_influence = -10000
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.merit
+		scope:one_trait_target = {
+			change_merit = 10000
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.merit_drain
+		scope:one_trait_target = {
+			change_merit = -10000
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.legitimacy
+		scope:one_trait_target = {
+			add_legitimacy = 10000
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.legitimacy_drain
+		scope:one_trait_target = {
+			add_legitimacy = -10000
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.legend
+		trigger = {
+			scope:one_trait_target = {
+				exists = primary_title
+			}
+		}
+		scope:one_trait_target = {
+			create_legend = {
+				type = heroic
+				quality = mythical
+				chronicle = ancestral_glory
+				properties = {
+					ancestor = scope:one_trait_target
+					title = scope:one_trait_target.primary_title
+				}
+			}
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.glory
+		trigger = {
+			scope:one_trait_target = {
+				is_acclaimed = yes
+			}
+		}
+		scope:one_trait_target = {
+			accolade = {
+				add_glory = 10000
+			}
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.artifact
+		scope:one_trait_target = {
+			create_artifact = {
+				name = one_trait_relic_name
+				description = one_trait_relic_desc
+				type = miscellaneous
+				visuals = trinket_icon
+				rarity = illustrious
+				modifier = one_trait_relic_modifier
+			}
+		}
+		trigger_event = one_trait_menu.0410
+	}
+
+	option = {
+		name = one_trait_menu.0410.back
+		trigger_event = one_trait_menu.0400
+	}
+}
+
+# Modern Systems: the realm.
+one_trait_menu.0420 = {
+	type = character_event
+	title = one_trait_menu.0420.t
+	desc = one_trait_menu.0420.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0420.herd
+		trigger = {
+			scope:one_trait_target = {
+				government_has_flag = government_is_nomadic
+				exists = domicile
+			}
+		}
+		scope:one_trait_target.domicile = {
+			change_herd = 10000
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0420.herd_drain
+		trigger = {
+			scope:one_trait_target = {
+				government_has_flag = government_is_nomadic
+				exists = domicile
+			}
+		}
+		scope:one_trait_target.domicile = {
+			change_herd = -10000
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0420.plague
+		trigger = {
+			exists = scope:one_trait_target.capital_province
+		}
+		scope:one_trait_target.capital_province = {
+			create_epidemic_outbreak = {
+				type = bubonic_plague
+				intensity = major
+			}
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0420.domicile
+		trigger = {
+			exists = scope:one_trait_target.domicile
+		}
+		scope:one_trait_target.domicile = {
+			if = {
+				limit = {
+					is_domicile_type = camp
+				}
+				add_domicile_building = camp_main_04
+			}
+			else_if = {
+				limit = {
+					is_domicile_type = estate
+				}
+				add_domicile_building = estate_main_05
+			}
+			else_if = {
+				limit = {
+					is_domicile_type = east_asian_estate
+				}
+				add_domicile_building = east_asian_estate_main_05
+			}
+			else_if = {
+				limit = {
+					is_domicile_type = yurt
+				}
+				add_domicile_building = yurt_main_06
+			}
+			else_if = {
+				limit = {
+					is_domicile_type = japanese_manor
+				}
+				add_domicile_building = japanese_manor_main_06
+			}
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0420.struggle
+		trigger = {
+			scope:one_trait_target = {
+				any_character_struggle = {
+					always = yes
+				}
+			}
+		}
+		struggle:iberian_struggle ?= {
+			end_struggle = yes
+		}
+		struggle:persian_struggle ?= {
+			end_struggle = yes
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0420.tributary
+		trigger = {
+			scope:one_trait_target = {
+				any_tributary = {
+					always = yes
+				}
+			}
+		}
+		scope:one_trait_target = {
+			every_tributary = {
+				end_tributary = yes
+			}
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	# Starts vanilla's conquest: conqueror.0001 adds the trait and the
+	# story_conqueror story, whose variable unlocks the armies, gifts and CBs.
+	# Its trigger needs an independent landed ruler, so this option does too.
+	# It fires on the target, because the event adds the trait to its root, and
+	# does not re-fire the menu: the conqueror window replaces it.
+	option = {
+		name = one_trait_menu.0420.conqueror
+		trigger = {
+			scope:one_trait_target = {
+				top_liege = this
+				is_landed = yes
+				NOR = {
+					has_trait = conqueror
+					any_owned_story = {
+						story_type = story_conqueror
+					}
+				}
+			}
+		}
+		scope:one_trait_target = {
+			add_character_flag = {
+				flag = one_trait_scourge_roll
+				days = 5
+			}
+			trigger_event = conqueror.0001
+			# Scourge of the Gods a day later, after vanilla's story setup (2.4.1)
+			trigger_event = { id = one_trait_menu.0421 days = 1 }
+		}
+	}
+
+	# 2.4.1: as Become a Conqueror, with Scourge of the Gods guaranteed. Vanilla grants
+	# ai_extreme_conqueror_modifier only to AI conquerors.
+	option = {
+		name = one_trait_menu.0420.scourge
+		trigger = {
+			scope:one_trait_target = {
+				top_liege = this
+				is_landed = yes
+				NOR = {
+					has_trait = conqueror
+					any_owned_story = {
+						story_type = story_conqueror
+					}
+				}
+			}
+		}
+		scope:one_trait_target = {
+			add_character_flag = {
+				flag = one_trait_scourge_sure
+				days = 5
+			}
+			trigger_event = conqueror.0001
+			# Scourge of the Gods a day later, after vanilla's story setup (2.4.1)
+			trigger_event = { id = one_trait_menu.0421 days = 1 }
+		}
+	}
+
+	# Ends the conquest with no penalty. Vanilla's conqueror.0002 is the FAILED
+	# ending (-2 prestige levels, -50 opinion from glory hounds); ending the
+	# story directly runs its on_end, which removes the trait and modifiers.
+	option = {
+		name = one_trait_menu.0420.conqueror_end
+		trigger = {
+			scope:one_trait_target = {
+				any_owned_story = {
+					story_type = story_conqueror
+				}
+			}
+		}
+		scope:one_trait_target = {
+			every_owned_story = {
+				limit = {
+					story_type = story_conqueror
+				}
+				end_story = yes
+			}
+		}
+		trigger_event = one_trait_menu.0420
+	}
+
+	option = {
+		name = one_trait_menu.0420.back
+		trigger_event = one_trait_menu.0400
+	}
+}
+
+# 2.4.1: a day after a conquest starts, Scourge of the Gods (ai_extreme_conqueror_modifier). Root is the
+# conqueror. Guaranteed from the Scourge option; otherwise, for a player, the Conqueror Bonuses rule's odds as
+# vanilla rolls them for AI conquerors (an AI target already had vanilla's own roll) (default and none: never; random 5%; reduced 0.5%; extreme: always).
+one_trait_menu.0421 = {
+	type = character_event
+	hidden = yes
+	trigger = {
+		any_owned_story = { story_type = story_conqueror }
+		NOT = { has_character_modifier = ai_extreme_conqueror_modifier }
+	}
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					has_character_flag = one_trait_scourge_sure
+					AND = {
+						is_ai = no
+						has_game_rule = extreme_conquerors_bonuses
+					}
+				}
+			}
+			save_scope_value_as = { name = one_trait_scourge value = yes }
+		}
+		else_if = {
+			limit = { is_ai = no has_game_rule = random_conquerors_bonuses }
+			random_list = {
+				95 = { }
+				5 = { save_scope_value_as = { name = one_trait_scourge value = yes } }
+			}
+		}
+		else_if = {
+			limit = { is_ai = no has_game_rule = reduced_random_conquerors_bonuses }
+			random_list = {
+				995 = { }
+				5 = { save_scope_value_as = { name = one_trait_scourge value = yes } }
+			}
+		}
+		if = {
+			limit = { exists = scope:one_trait_scourge }
+			add_character_modifier = {
+				modifier = ai_extreme_conqueror_modifier
+			}
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = one_trait_scourge_toast
+				left_icon = root
+			}
+		}
+		remove_character_flag = one_trait_scourge_roll
+		remove_character_flag = one_trait_scourge_sure
+	}
+}
+
+# Character editor (1.4) -- the hub.
+one_trait_menu.0100 = {
+	type = character_event
+	title = one_trait_menu.0100.t
+	desc = one_trait_menu.0100.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0100.identity
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0100.traits
+		trigger_event = one_trait_menu.0120
+	}
+
+	option = {
+		name = one_trait_menu.0100.body
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0100.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+# Character editor: identity. root is the player, scope:one_trait_target the
+# right-clicked character. Culture and faith change the character only, never
+# their counties -- land conversion is area 3. Each option hides once it would
+# do nothing, so an option vanishing after a click is the confirmation.
+one_trait_menu.0110 = {
+	type = character_event
+	title = one_trait_menu.0110.t
+	desc = one_trait_menu.0110.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0110.culture_give
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { NOT = { has_culture = root.culture } }
+		}
+		scope:one_trait_target = { set_culture = root.culture }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.culture_take
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			NOT = { has_culture = scope:one_trait_target.culture }
+		}
+		set_culture = scope:one_trait_target.culture
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.culture_own_capital
+		trigger = {
+			scope:one_trait_target = {
+				exists = capital_county
+				NOT = { has_culture = capital_county.culture }
+			}
+		}
+		scope:one_trait_target = { set_culture = capital_county.culture }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.culture_my_capital
+		trigger = {
+			exists = root.capital_county
+			scope:one_trait_target = { NOT = { has_culture = root.capital_county.culture } }
+		}
+		scope:one_trait_target = { set_culture = root.capital_county.culture }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.faith_give
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { NOT = { has_faith = root.faith } }
+		}
+		scope:one_trait_target = { set_character_faith = root.faith }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.faith_take
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			NOT = { has_faith = scope:one_trait_target.faith }
+		}
+		set_character_faith = scope:one_trait_target.faith
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.faith_own_capital
+		trigger = {
+			scope:one_trait_target = {
+				exists = capital_county
+				NOT = { has_faith = capital_county.faith }
+			}
+		}
+		scope:one_trait_target = { set_character_faith = capital_county.faith }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.faith_my_capital
+		trigger = {
+			exists = root.capital_county
+			scope:one_trait_target = { NOT = { has_faith = root.capital_county.faith } }
+		}
+		scope:one_trait_target = { set_character_faith = root.capital_county.faith }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.name_reroll
+		scope:one_trait_target = { one_trait_reroll_name_effect = yes }
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.name_give
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+		}
+		scope:one_trait_target = {
+			change_first_name = { template_character = root }
+		}
+		trigger_event = one_trait_menu.0110
+	}
+
+	option = {
+		name = one_trait_menu.0110.back
+		trigger_event = one_trait_menu.0100
+	}
+}
+
+# Character editor: traits. Four curated bundles; see
+# common/scripted_effects/one_trait_character_effects.txt for exactly what each
+# touches. Personality copy is adults-only on both sides: children carry
+# childhood traits instead, and an adult with no personality is broken.
+one_trait_menu.0120 = {
+	type = character_event
+	title = one_trait_menu.0120.t
+	desc = one_trait_menu.0120.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0120.genetics
+		custom_tooltip = one_trait_menu.0120.genetics.tt
+		# Hidden: every trait it touches would be an icon on the button
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_perfect_genetics_effect = yes }
+		}
+		trigger_event = one_trait_menu.0120
+	}
+
+	option = {
+		name = one_trait_menu.0120.cleanse
+		custom_tooltip = one_trait_menu.0120.cleanse.tt
+		# Hidden: every trait it touches would be an icon on the button
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_cleanse_effect = yes }
+		}
+		trigger_event = one_trait_menu.0120
+	}
+
+	option = {
+		name = one_trait_menu.0120.personality_give
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			is_adult = yes
+			scope:one_trait_target = { is_adult = yes }
+		}
+		custom_tooltip = one_trait_menu.0120.personality_give.tt
+		# Hidden: every trait it touches would be an icon on the button
+		hidden_effect = {
+			one_trait_copy_personality_effect = {
+				GIVER = root
+				RECEIVER = scope:one_trait_target
+			}
+		}
+		trigger_event = one_trait_menu.0120
+	}
+
+	option = {
+		name = one_trait_menu.0120.personality_take
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			is_adult = yes
+			scope:one_trait_target = { is_adult = yes }
+		}
+		custom_tooltip = one_trait_menu.0120.personality_take.tt
+		# Hidden: every trait it touches would be an icon on the button
+		hidden_effect = {
+			one_trait_copy_personality_effect = {
+				GIVER = scope:one_trait_target
+				RECEIVER = root
+			}
+		}
+		trigger_event = one_trait_menu.0120
+	}
+
+	option = {
+		name = one_trait_menu.0120.coping
+		custom_tooltip = one_trait_menu.0120.coping.tt
+		# Hidden: every trait it touches would be an icon on the button
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_clear_coping_effect = yes }
+		}
+		trigger_event = one_trait_menu.0120
+	}
+
+	option = {
+		name = one_trait_menu.0120.back
+		trigger_event = one_trait_menu.0100
+	}
+}
+
+# Character editor: body. set_age bypasses birthday on-actions (engine doc
+# string), and coming of age at 16 is where education and sexuality are
+# assigned. So a child may only be made 16, and that option fires the
+# coming-of-age on_action by hand. is_adult is read before set_age runs.
+one_trait_menu.0130 = {
+	type = character_event
+	title = one_trait_menu.0130.t
+	desc = one_trait_menu.0130.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0130.age_16
+		trigger = {
+			scope:one_trait_target = { NOT = { age = 16 } }
+		}
+		scope:one_trait_target = {
+			if = {
+				limit = { is_adult = no }
+				set_age = 16
+				trigger_event = { on_action = on_16th_birthday }
+			}
+			else = {
+				set_age = 16
+			}
+		}
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0130.age_25
+		trigger = {
+			scope:one_trait_target = {
+				is_adult = yes
+				NOT = { age = 25 }
+			}
+		}
+		scope:one_trait_target = { set_age = 25 }
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0130.age_40
+		trigger = {
+			scope:one_trait_target = {
+				is_adult = yes
+				NOT = { age = 40 }
+			}
+		}
+		scope:one_trait_target = { set_age = 40 }
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0130.age_60
+		trigger = {
+			scope:one_trait_target = {
+				is_adult = yes
+				NOT = { age = 60 }
+			}
+		}
+		scope:one_trait_target = { set_age = 60 }
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0130.looks_give
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+		}
+		scope:one_trait_target = { copy_inheritable_appearance_from = root }
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0130.looks_take
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+		}
+		copy_inheritable_appearance_from = scope:one_trait_target
+		trigger_event = one_trait_menu.0130
+	}
+
+	option = {
+		name = one_trait_menu.0130.back
+		trigger_event = one_trait_menu.0100
+	}
+}
+
+# Buildings (1.7) -- the hub.
+one_trait_menu.0600 = {
+	type = character_event
+	title = one_trait_menu.0600.t
+	desc = one_trait_menu.0600.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0600.construction
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0600.sanctum
+		trigger_event = one_trait_menu.0620
+	}
+
+	option = {
+		name = one_trait_menu.0600.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+# Buildings: Construction. Every option acts on the right-clicked character's
+# lands and re-fires this page.
+one_trait_menu.0610 = {
+	type = character_event
+	title = one_trait_menu.0610.t
+	desc = one_trait_menu.0610.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0610.capital
+		trigger = {
+			exists = scope:one_trait_target.capital_county
+		}
+		scope:one_trait_target.capital_county = {
+			one_trait_max_county_buildings = yes
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0610.domain
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		scope:one_trait_target = {
+			every_held_county = {
+				one_trait_max_county_buildings = yes
+			}
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	# Thousands of building changes on a large empire: expect a short pause.
+	option = {
+		name = one_trait_menu.0610.realm
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		scope:one_trait_target = {
+			every_realm_county = {
+				one_trait_max_county_buildings = yes
+			}
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0610.baronies
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_can_fill_baronies = yes
+				any_held_county = {
+					any_county_province = { has_holding = no }
+				}
+			}
+		}
+		scope:one_trait_target = {
+			one_trait_fill_empty_baronies = yes
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	# Vanilla's extra_building_slot stacks, so this can be taken repeatedly.
+	option = {
+		name = one_trait_menu.0610.slot
+		trigger = {
+			exists = scope:one_trait_target.capital_province
+		}
+		scope:one_trait_target.capital_province = {
+			add_province_modifier = extra_building_slot
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0610.duchy
+		trigger = {
+			scope:one_trait_target = {
+				any_held_title = { tier = tier_duchy }
+			}
+		}
+		scope:one_trait_target = {
+			every_held_county = {
+				every_county_province = {
+					limit = { has_holding = yes }
+					one_trait_max_duchy_capital_building_in_province = yes
+				}
+			}
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0610.great_projects
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		every_great_project = {
+			limit = { great_project_owner = scope:one_trait_target }
+			complete_great_project = this
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0610.rebuild
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		scope:one_trait_target = {
+			every_held_county = {
+				every_county_province = {
+					limit = { has_ruined_great_building = yes }
+					rebuild_great_building = yes
+				}
+			}
+		}
+		trigger_event = one_trait_menu.0610
+	}
+
+	option = {
+		name = one_trait_menu.0610.back
+		trigger_event = one_trait_menu.0600
+	}
+}
+
+# Buildings: The Sanctum of the One. Raise or tear it down; its eleven powers
+# are switched on and off on one page per school (.0621-.0623), because
+# all 22 toggles on one page ran off the bottom of the event window.
+one_trait_menu.0620 = {
+	type = character_event
+	title = one_trait_menu.0620.t
+	desc = one_trait_menu.0620.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0620.raise
+		trigger = {
+			scope:one_trait_target = { one_trait_can_raise_sanctum = yes }
+		}
+		scope:one_trait_target = {
+			one_trait_raise_sanctum = yes
+		}
+		trigger_event = one_trait_menu.0620
+	}
+
+	option = {
+		name = one_trait_menu.0620.raise_blocked
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_blocked = yes }
+		}
+		trigger_event = one_trait_menu.0620
+	}
+
+	option = {
+		name = one_trait_menu.0620.teardown
+		trigger = {
+			scope:one_trait_target = { one_trait_has_sanctum = yes }
+		}
+		scope:one_trait_target = {
+			one_trait_tear_down_sanctum = yes
+		}
+		trigger_event = one_trait_menu.0620
+	}
+
+
+	option = {
+		name = one_trait_menu.0620.builder_page
+		trigger = {
+			scope:one_trait_target = { one_trait_has_sanctum = yes }
+		}
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0620.eye_page
+		trigger = {
+			scope:one_trait_target = { one_trait_has_sanctum = yes }
+		}
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0620.forge_page
+		trigger = {
+			scope:one_trait_target = { one_trait_has_sanctum = yes }
+		}
+		trigger_event = one_trait_menu.0623
+	}
+
+	# Runs every awakened power once, right now, each reporting in the message
+	# feed. The normal yearly and monthly rhythm carries on.
+	option = {
+		name = one_trait_menu.0620.invoke
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_any_power_on = yes }
+		}
+		scope:one_trait_target = {
+			random_owned_story = {
+				limit = { story_type = story_one_trait_sanctum }
+				one_trait_sanctum_invoke_all = yes
+			}
+		}
+		trigger_event = one_trait_menu.0620
+	}
+
+	option = {
+		name = one_trait_menu.0620.back
+		trigger_event = one_trait_menu.0600
+	}
+}
+
+# The Sanctum: Builder and Dominion.
+one_trait_menu.0621 = {
+	type = character_event
+	title = one_trait_menu.0621.t
+	desc = one_trait_menu.0621.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0621.builder_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = builder } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = builder } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.builder_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = builder } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = builder } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.golden_age_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = golden_age } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = golden_age } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.golden_age_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = golden_age } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = golden_age } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.one_faith_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = one_faith } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = one_faith } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.one_faith_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = one_faith } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = one_faith } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.one_people_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = one_people } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = one_people } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.one_people_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = one_people } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = one_people } }
+		trigger_event = one_trait_menu.0621
+	}
+
+	option = {
+		name = one_trait_menu.0621.back
+		trigger_event = one_trait_menu.0620
+	}
+}
+
+# The Sanctum: The Eye.
+one_trait_menu.0622 = {
+	type = character_event
+	title = one_trait_menu.0622.t
+	desc = one_trait_menu.0622.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0622.all_seeing_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = all_seeing } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = all_seeing } }
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0622.all_seeing_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = all_seeing } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = all_seeing } }
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0622.leash_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = leash } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = leash } }
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0622.leash_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = leash } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = leash } }
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0622.no_dissent_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = no_dissent } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = no_dissent } }
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0622.no_dissent_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = no_dissent } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = no_dissent } }
+		trigger_event = one_trait_menu.0622
+	}
+
+	option = {
+		name = one_trait_menu.0622.back
+		trigger_event = one_trait_menu.0620
+	}
+}
+
+# The Sanctum: The Forge and Tribute.
+one_trait_menu.0623 = {
+	type = character_event
+	title = one_trait_menu.0623.t
+	desc = one_trait_menu.0623.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0623.relic_forge_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = relic_forge } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = relic_forge } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.relic_forge_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = relic_forge } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = relic_forge } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.champions_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = champions } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = champions } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.champions_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = champions } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = champions } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.levies_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = levies } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = levies } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.levies_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = levies } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = levies } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.tribute_on
+		trigger = {
+			scope:one_trait_target = {
+				one_trait_has_sanctum = yes
+				NOT = { one_trait_sanctum_power_on = { POWER = tribute } }
+			}
+		}
+		scope:one_trait_target = { one_trait_sanctum_set_power = { POWER = tribute } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.tribute_off
+		trigger = {
+			scope:one_trait_target = { one_trait_sanctum_power_on = { POWER = tribute } }
+		}
+		scope:one_trait_target = { one_trait_sanctum_clear_power = { POWER = tribute } }
+		trigger_event = one_trait_menu.0623
+	}
+
+	option = {
+		name = one_trait_menu.0623.back
+		trigger_event = one_trait_menu.0620
+	}
+}
+
+# Traits (1.8) -- traits granted from the menu rather than a right-click
+# interaction, because the right-click list is at its practical limit.
+one_trait_menu.0700 = {
+	type = character_event
+	title = one_trait_menu.0700.t
+	desc = one_trait_menu.0700.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	# Decided here, not in Remove-every's trigger: a trigger that checks
+	# traits puts an icon on the button for each one the character has.
+	immediate = {
+		if = {
+			limit = {
+				scope:one_trait_target = {
+					OR = {
+						has_trait = one_trait_health
+						has_trait = one_trait_immortality
+						has_trait = one_trait_giant
+						has_trait = one_trait_fertility
+						has_trait = one_trait_celibate
+						has_trait = one_trait_stress
+						has_trait = one_trait_stats
+						has_trait = one_trait_xp
+						has_trait = one_trait
+						has_trait = one_trait_wealth
+						has_trait = one_trait_fame
+						has_trait = one_trait_faith
+						has_trait = one_trait_charisma
+						has_trait = one_trait_dread
+						has_trait = one_trait_manager
+						has_trait = one_trait_builder
+						has_trait = one_trait_domain
+						has_trait = one_trait_commander
+						has_trait = one_trait_scheme
+						has_trait = one_trait_steppe
+						has_trait = one_trait_wanderer
+					}
+				}
+			}
+			save_scope_value_as = {
+				name = one_trait_target_has_any
+				value = yes
+			}
+		}
+		# Always set, never just when true: saved values travel down the chain
+		# of menu pages, so a stale yes would keep the button after removal.
+		else = {
+			save_scope_value_as = {
+				name = one_trait_target_has_any
+				value = no
+			}
+		}
+	}
+
+	option = {
+		name = one_trait_menu.0700.body
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0700.riches
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0700.rule
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0700.remove_all
+		trigger = { scope:one_trait_target_has_any = yes }
+		custom_tooltip = one_trait_menu.0700.remove_all.tt
+		# Hidden: 21 trait icons on the button crushed its label to "..."
+		hidden_effect = {
+			scope:one_trait_target = {
+				remove_trait = one_trait_health
+				remove_trait = one_trait_immortality
+				remove_trait = one_trait_giant
+				remove_trait = one_trait_fertility
+				remove_trait = one_trait_celibate
+				remove_trait = one_trait_stress
+				remove_trait = one_trait_stats
+				remove_trait = one_trait_xp
+				remove_trait = one_trait
+				remove_trait = one_trait_wealth
+				remove_trait = one_trait_fame
+				remove_trait = one_trait_faith
+				remove_trait = one_trait_charisma
+				remove_trait = one_trait_dread
+				remove_trait = one_trait_manager
+				remove_trait = one_trait_builder
+				remove_trait = one_trait_domain
+				remove_trait = one_trait_commander
+				remove_trait = one_trait_scheme
+				remove_trait = one_trait_steppe
+				remove_trait = one_trait_wanderer
+			}
+		}
+		trigger_event = one_trait_menu.0700
+	}
+
+	option = {
+		name = one_trait_menu.0700.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.0710 = {
+	type = character_event
+	title = one_trait_menu.0710.t
+	desc = one_trait_menu.0710.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0710.health
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_health }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_health
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.health_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_health
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_health
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.immortality
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_immortality }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_immortality
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.immortality_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_immortality
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_immortality
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.giant
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_giant }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_giant
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.giant_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_giant
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_giant
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.fertility
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_fertility }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_fertility
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.fertility_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_fertility
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_fertility
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.celibate
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_celibate }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_celibate
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.celibate_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_celibate
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_celibate
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.stress
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_stress }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_stress
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.stress_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_stress
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_stress
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.stats
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_stats }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_stats
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.stats_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_stats
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_stats
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.xp
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_xp }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_xp
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.xp_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_xp
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_xp
+		}
+		trigger_event = one_trait_menu.0710
+	}
+
+	option = {
+		name = one_trait_menu.0710.back
+		trigger_event = one_trait_menu.0700
+	}
+}
+
+one_trait_menu.0720 = {
+	type = character_event
+	title = one_trait_menu.0720.t
+	desc = one_trait_menu.0720.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0720.one_trait
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.one_trait_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.wealth
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_wealth }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_wealth
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.wealth_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_wealth
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_wealth
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.fame
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_fame }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_fame
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.fame_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_fame
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_fame
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.faith
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_faith }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_faith
+			# Straight to the top: the meter stops at +100
+			change_spiritual_fulfillment = 200
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.faith_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_faith
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_faith
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.charisma
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_charisma }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_charisma
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.charisma_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_charisma
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_charisma
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.dread
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_dread }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_dread
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.dread_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_dread
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_dread
+		}
+		trigger_event = one_trait_menu.0720
+	}
+
+	option = {
+		name = one_trait_menu.0720.back
+		trigger_event = one_trait_menu.0700
+	}
+}
+
+one_trait_menu.0730 = {
+	type = character_event
+	title = one_trait_menu.0730.t
+	desc = one_trait_menu.0730.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0730.manager
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_manager }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_manager
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.manager_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_manager
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_manager
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.builder
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_builder }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_builder
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.builder_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_builder
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_builder
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.domain
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_domain }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_domain
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.domain_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_domain
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_domain
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.commander
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_commander }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_commander
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.commander_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_commander
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_commander
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.scheme
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_scheme }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_scheme
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.scheme_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_scheme
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_scheme
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.steppe
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_steppe }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_steppe
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.steppe_revoke
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_steppe
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_steppe
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.wanderer
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = one_trait_wanderer }
+			}
+		}
+		scope:one_trait_target = {
+			add_trait = one_trait_wanderer
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.wanderer_revoke
+		trigger = {
+			scope:one_trait_target = {
+				has_trait = one_trait_wanderer
+			}
+		}
+		scope:one_trait_target = {
+			remove_trait = one_trait_wanderer
+		}
+		trigger_event = one_trait_menu.0730
+	}
+
+	option = {
+		name = one_trait_menu.0730.back
+		trigger_event = one_trait_menu.0700
+	}
+}
+
+# Army (1.9) -- the Army of the One: grant a full regiment (10 sub-regiments,
+# 5,000 men) of any of the three elite types, or disband them all. They are
+# also recruitable, free, from the Men-at-Arms panel by anyone with the One
+# Trait.
+one_trait_menu.0800 = {
+	type = character_event
+	title = one_trait_menu.0800.t
+	desc = one_trait_menu.0800.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0800.legion
+		scope:one_trait_target = {
+			create_maa_regiment = {
+				type = one_trait_legion
+				size = 10
+				check_can_recruit = no
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.bowmen
+		scope:one_trait_target = {
+			create_maa_regiment = {
+				type = one_trait_bowmen
+				size = 10
+				check_can_recruit = no
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.riders
+		scope:one_trait_target = {
+			create_maa_regiment = {
+				type = one_trait_riders
+				size = 10
+				check_can_recruit = no
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.disband
+		trigger = {
+			scope:one_trait_target = {
+				any_maa_regiment = {
+					OR = {
+						is_maa_type = one_trait_legion
+						is_maa_type = one_trait_bowmen
+						is_maa_type = one_trait_riders
+					}
+				}
+			}
+		}
+		scope:one_trait_target = {
+			every_maa_regiment = {
+				limit = {
+					OR = {
+						is_maa_type = one_trait_legion
+						is_maa_type = one_trait_bowmen
+						is_maa_type = one_trait_riders
+					}
+				}
+				destroy_maa_regiment = yes
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.knights
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_character_modifier = supreme_knights }
+			}
+		}
+		scope:one_trait_target = {
+			add_character_modifier = {
+				modifier = supreme_knights
+				days = -1
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.knights_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_character_modifier = supreme_knights
+			}
+		}
+		scope:one_trait_target = {
+			remove_character_modifier = supreme_knights
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.unlimited_knights
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_character_modifier = unlimited_knights }
+			}
+		}
+		scope:one_trait_target = {
+			add_character_modifier = {
+				modifier = unlimited_knights
+				days = -1
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.unlimited_knights_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_character_modifier = unlimited_knights
+			}
+		}
+		scope:one_trait_target = {
+			remove_character_modifier = unlimited_knights
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.menatarms
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_character_modifier = unlimited_menatarms }
+			}
+		}
+		scope:one_trait_target = {
+			add_character_modifier = {
+				modifier = unlimited_menatarms
+				days = -1
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.menatarms_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_character_modifier = unlimited_menatarms
+			}
+		}
+		scope:one_trait_target = {
+			remove_character_modifier = unlimited_menatarms
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.free_menatarms
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_character_modifier = free_menatarms }
+			}
+		}
+		scope:one_trait_target = {
+			add_character_modifier = {
+				modifier = free_menatarms
+				days = -1
+			}
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.free_menatarms_remove
+		trigger = {
+			scope:one_trait_target = {
+				has_character_modifier = free_menatarms
+			}
+		}
+		scope:one_trait_target = {
+			remove_character_modifier = free_menatarms
+		}
+		trigger_event = one_trait_menu.0800
+	}
+
+	option = {
+		name = one_trait_menu.0800.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+
+
+
+# Family page.
+one_trait_menu.0900 = {
+	type = character_event
+	title = one_trait_menu.0900.t
+	desc = one_trait_menu.0900.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0900.heir
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			NOT = { designated_heir ?= scope:one_trait_target }
+		}
+		set_designated_heir = scope:one_trait_target
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.adopt
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			NOT = { scope:one_trait_target = { is_child_of = root } }
+		}
+		scope:one_trait_target = {
+			if = {
+				limit = { root = { is_female = no } }
+				set_father = root
+			}
+			else = {
+				set_mother = root
+			}
+			if = {
+				limit = { exists = root.house }
+				set_house = root.house
+			}
+		}
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.disown
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { is_lowborn = no }
+		}
+		scope:one_trait_target = {
+			set_to_lowborn = yes
+		}
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.court
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = {
+				is_landed = no
+				NOT = { is_courtier_of = root }
+				NOT = { is_foreign_court_guest_of = root }
+			}
+		}
+		add_courtier = scope:one_trait_target
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.marry
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			root = {
+				is_married = no
+				is_betrothed = no
+				is_adult = yes
+			}
+			scope:one_trait_target = {
+				is_married = no
+				is_betrothed = no
+				is_adult = yes
+			}
+		}
+		root = {
+			marry = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.betroth
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			root = {
+				is_married = no
+				is_betrothed = no
+			}
+			scope:one_trait_target = {
+				is_married = no
+				is_betrothed = no
+			}
+			OR = {
+				root = { is_adult = no }
+				scope:one_trait_target = { is_adult = no }
+			}
+		}
+		root = {
+			create_betrothal = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.marry_heir
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			exists = player_heir
+			NOT = { player_heir = scope:one_trait_target }
+			player_heir = {
+				is_married = no
+				is_betrothed = no
+				is_adult = yes
+			}
+			scope:one_trait_target = {
+				is_married = no
+				is_betrothed = no
+				is_adult = yes
+			}
+		}
+		player_heir = {
+			marry = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.betroth_heir
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			exists = player_heir
+			NOT = { player_heir = scope:one_trait_target }
+			player_heir = {
+				is_married = no
+				is_betrothed = no
+			}
+			scope:one_trait_target = {
+				is_married = no
+				is_betrothed = no
+			}
+			OR = {
+				player_heir = { is_adult = no }
+				scope:one_trait_target = { is_adult = no }
+			}
+		}
+		player_heir = {
+			create_betrothal = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.0900
+	}
+
+	option = {
+		name = one_trait_menu.0900.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.1000 = {
+	type = character_event
+	title = one_trait_menu.1000.t
+	desc = one_trait_menu.1000.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1000.secular
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = {
+				is_landed = yes
+				is_ruler = yes
+				NOR = {
+					has_trait = incapable
+					is_clergy = yes
+				}
+				NOT = { puppeteer ?= root }
+			}
+		}
+		one_trait_puppet_steal_effect = yes
+		one_trait_puppet_free_slot_effect = { TYPE = external_ruler_puppet }
+		set_puppet = {
+			target = scope:one_trait_target
+			type = external_ruler_puppet
+		}
+		trigger_event = one_trait_menu.1000
+	}
+
+	option = {
+		name = one_trait_menu.1000.clerical
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = {
+				is_clergy = yes
+				NOT = { has_trait = incapable }
+				NOT = { puppeteer ?= root }
+			}
+		}
+		one_trait_puppet_steal_effect = yes
+		one_trait_puppet_free_slot_effect = { TYPE = one_trait_external_theological_agent_puppet }
+		set_puppet = {
+			target = scope:one_trait_target
+			type = one_trait_external_theological_agent_puppet
+		}
+		trigger_event = one_trait_menu.1000
+	}
+
+	option = {
+		name = one_trait_menu.1000.realm_priest
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = {
+				is_clergy = yes
+				NOT = { has_trait = incapable }
+				NOT = { puppeteer ?= root }
+			}
+		}
+		one_trait_puppet_steal_effect = yes
+		one_trait_puppet_free_slot_effect = { TYPE = one_trait_theological_agent_puppet }
+		set_puppet = {
+			target = scope:one_trait_target
+			type = one_trait_theological_agent_puppet
+		}
+		trigger_event = one_trait_menu.1000
+	}
+
+	option = {
+		name = one_trait_menu.1000.release
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { puppeteer ?= root }
+		}
+		scope:one_trait_target = {
+			clear_puppet_status = yes
+		}
+		trigger_event = one_trait_menu.1000
+	}
+
+	option = {
+		name = one_trait_menu.1000.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.1100 = {
+	type = character_event
+	title = one_trait_menu.1100.t
+	desc = one_trait_menu.1100.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	# Saved so the release labels can name each puppet
+	immediate = {
+		root.puppet:external_ruler_puppet ?= { save_scope_as = one_trait_puppet_secular }
+		root.puppet:external_theological_agent_puppet ?= { save_scope_as = one_trait_puppet_clerical }
+		root.puppet:theological_agent_puppet ?= { save_scope_as = one_trait_puppet_realm_priest }
+		root.puppet:one_trait_external_theological_agent_puppet ?= { save_scope_as = one_trait_puppet_ot_clerical }
+		root.puppet:one_trait_theological_agent_puppet ?= { save_scope_as = one_trait_puppet_ot_realm_priest }
+	}
+
+	option = {
+		name = one_trait_menu.1100.release_secular
+		trigger = { exists = root.puppet:external_ruler_puppet }
+		root.puppet:external_ruler_puppet = { clear_puppet_status = yes }
+		trigger_event = one_trait_menu.1100
+	}
+
+	option = {
+		name = one_trait_menu.1100.release_clerical
+		trigger = { exists = root.puppet:external_theological_agent_puppet }
+		root.puppet:external_theological_agent_puppet = { clear_puppet_status = yes }
+		trigger_event = one_trait_menu.1100
+	}
+
+	option = {
+		name = one_trait_menu.1100.release_realm_priest
+		trigger = { exists = root.puppet:theological_agent_puppet }
+		root.puppet:theological_agent_puppet = { clear_puppet_status = yes }
+		trigger_event = one_trait_menu.1100
+	}
+
+	option = {
+		name = one_trait_menu.1100.release_ot_clerical
+		trigger = { exists = root.puppet:one_trait_external_theological_agent_puppet }
+		root.puppet:one_trait_external_theological_agent_puppet = { clear_puppet_status = yes }
+		trigger_event = one_trait_menu.1100
+	}
+
+	option = {
+		name = one_trait_menu.1100.release_ot_realm_priest
+		trigger = { exists = root.puppet:one_trait_theological_agent_puppet }
+		root.puppet:one_trait_theological_agent_puppet = { clear_puppet_status = yes }
+		trigger_event = one_trait_menu.1100
+	}
+
+	option = {
+		name = one_trait_menu.1100.release_all
+		trigger = {
+			OR = {
+				exists = root.puppet:external_ruler_puppet
+				exists = root.puppet:external_theological_agent_puppet
+				exists = root.puppet:theological_agent_puppet
+				exists = root.puppet:one_trait_external_theological_agent_puppet
+				exists = root.puppet:one_trait_theological_agent_puppet
+			}
+		}
+		root.puppet:external_ruler_puppet ?= { clear_puppet_status = yes }
+		root.puppet:external_theological_agent_puppet ?= { clear_puppet_status = yes }
+		root.puppet:theological_agent_puppet ?= { clear_puppet_status = yes }
+		root.puppet:one_trait_external_theological_agent_puppet ?= { clear_puppet_status = yes }
+		root.puppet:one_trait_theological_agent_puppet ?= { clear_puppet_status = yes }
+		trigger_event = one_trait_menu.0001
+	}
+
+	option = {
+		name = one_trait_menu.1100.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.1200 = {
+	type = character_event
+	title = one_trait_menu.1200.t
+	desc = one_trait_menu.1200.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	# Your titles to give, highest first. Cleared each opening: saved scopes
+	# travel down the chain of pages, so a slot could otherwise go stale.
+	immediate = {
+		clear_saved_scope = one_trait_give_0
+		clear_saved_scope = one_trait_give_1
+		clear_saved_scope = one_trait_give_2
+		ordered_held_title = {
+			limit = {
+				tier > tier_barony
+				NOT = { this = root.primary_title }
+			}
+			order_by = tier
+			position = 0
+			check_range_bounds = no
+			save_scope_as = one_trait_give_0
+		}
+		ordered_held_title = {
+			limit = {
+				tier > tier_barony
+				NOT = { this = root.primary_title }
+			}
+			order_by = tier
+			position = 1
+			check_range_bounds = no
+			save_scope_as = one_trait_give_1
+		}
+		ordered_held_title = {
+			limit = {
+				tier > tier_barony
+				NOT = { this = root.primary_title }
+			}
+			order_by = tier
+			position = 2
+			check_range_bounds = no
+			save_scope_as = one_trait_give_2
+		}
+	}
+
+	option = {
+		name = one_trait_menu.1200.take_primary
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_target.primary_title = {
+			change_title_holder_include_vassals = {
+				holder = root
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.take_all
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_target = {
+			every_held_title = {
+				change_title_holder_include_vassals = {
+					holder = root
+					change = scope:change
+				}
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.take_realm
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		custom_tooltip = one_trait_menu.1200.take_realm.tt
+		# Hidden: the tooltip would list every title
+		hidden_effect = {
+			create_title_and_vassal_change = {
+				type = conquest
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			scope:one_trait_target = {
+				every_sub_realm_title = {
+					limit = { tier > tier_barony }
+					change_title_holder_include_vassals = {
+						holder = root
+						change = scope:change
+					}
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.destroy_primary
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		scope:one_trait_target = {
+			destroy_title = primary_title
+		}
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.claims
+		trigger = {
+			scope:one_trait_target = { is_landed = yes }
+		}
+		custom_tooltip = one_trait_menu.1200.claims.tt
+		# Hidden: the tooltip would list every title
+		hidden_effect = {
+			scope:one_trait_target = {
+				every_held_title = {
+					save_temporary_scope_as = one_trait_claim_title
+					root = { add_pressed_claim = scope:one_trait_claim_title }
+				}
+			}
+		}
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.give_0
+		trigger = {
+			exists = scope:one_trait_give_0
+			scope:one_trait_give_0 = { holder = root }
+			root = { NOT = { liege ?= scope:one_trait_target } }
+		}
+		create_title_and_vassal_change = {
+			type = granted
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_give_0 = {
+			change_title_holder_include_vassals = {
+				holder = scope:one_trait_target
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.give_1
+		trigger = {
+			exists = scope:one_trait_give_1
+			scope:one_trait_give_1 = { holder = root }
+			root = { NOT = { liege ?= scope:one_trait_target } }
+		}
+		create_title_and_vassal_change = {
+			type = granted
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_give_1 = {
+			change_title_holder_include_vassals = {
+				holder = scope:one_trait_target
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.give_2
+		trigger = {
+			exists = scope:one_trait_give_2
+			scope:one_trait_give_2 = { holder = root }
+			root = { NOT = { liege ?= scope:one_trait_target } }
+		}
+		create_title_and_vassal_change = {
+			type = granted
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_give_2 = {
+			change_title_holder_include_vassals = {
+				holder = scope:one_trait_target
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1200
+	}
+
+	option = {
+		name = one_trait_menu.1200.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.1300 = {
+	type = character_event
+	title = one_trait_menu.1300.t
+	desc = one_trait_menu.1300.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1300.laws
+		trigger = {
+			OR = {
+				government_has_flag = government_is_feudal
+				government_has_flag = government_is_tribal
+			}
+		}
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1300.gender
+		trigger_event = one_trait_menu.1320
+	}
+
+	option = {
+		name = one_trait_menu.1300.heir_everything
+		add_realm_law_skip_effects = single_heir_succession_law
+		every_held_title = {
+			if = {
+				limit = { has_title_law = feudal_elective_succession_law }
+				remove_title_law = feudal_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = princely_elective_succession_law }
+				remove_title_law = princely_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = saxon_elective_succession_law }
+				remove_title_law = saxon_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = scandinavian_elective_succession_law }
+				remove_title_law = scandinavian_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = gaelic_elective_succession_law }
+				remove_title_law = gaelic_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = tribal_elective_succession_law }
+				remove_title_law = tribal_elective_succession_law
+			}
+		}
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.1300.authority_up
+		trigger = {
+			one_trait_authority_can_change_trigger = { LIMIT = maximum }
+		}
+		one_trait_authority_change_effect = { CHANGE = 1 LIMIT = maximum }
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.1300.authority_down
+		trigger = {
+			one_trait_authority_can_change_trigger = { LIMIT = minimum }
+		}
+		one_trait_authority_change_effect = { CHANGE = -1 LIMIT = minimum }
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.1300.crowned
+		trigger = {
+			NOR = {
+				has_realm_law = crowned_king
+				has_realm_law = crowned_emperor
+			}
+		}
+		add_realm_law_skip_effects = crowned_king
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.1300.anointed
+		trigger = {
+			NOT = { has_realm_law = crowned_emperor }
+		}
+		add_realm_law_skip_effects = crowned_emperor
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.1300.create_titles
+		trigger = {
+			any_alert_creatable_title = { count >= 1 }
+		}
+		custom_tooltip = one_trait_menu.1300.create_titles.tt
+		# Hidden: the tooltip would list every title
+		hidden_effect = {
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			every_alert_creatable_title = {
+				change_title_holder = {
+					holder = root
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+		trigger_event = one_trait_menu.1300
+	}
+
+	option = {
+		name = one_trait_menu.1300.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.1310 = {
+	type = character_event
+	title = one_trait_menu.1310.t
+	desc = one_trait_menu.1310.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1310.partition
+		trigger = {
+			NOT = { has_realm_law = partition_succession_law }
+		}
+		add_realm_law_skip_effects = partition_succession_law
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1310.high_partition
+		trigger = {
+			NOT = { has_realm_law = high_partition_succession_law }
+		}
+		add_realm_law_skip_effects = high_partition_succession_law
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1310.confederate_partition
+		trigger = {
+			NOT = { has_realm_law = confederate_partition_succession_law }
+		}
+		add_realm_law_skip_effects = confederate_partition_succession_law
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1310.primogeniture
+		trigger = {
+			NOT = { has_realm_law = single_heir_succession_law }
+		}
+		add_realm_law_skip_effects = single_heir_succession_law
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1310.ultimogeniture
+		trigger = {
+			NOT = { has_realm_law = single_heir_succession_law_youngest }
+		}
+		add_realm_law_skip_effects = single_heir_succession_law_youngest
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1310.house_seniority
+		trigger = {
+			NOT = { has_realm_law = single_heir_dynasty_house }
+		}
+		add_realm_law_skip_effects = single_heir_dynasty_house
+		trigger_event = one_trait_menu.1310
+	}
+
+	option = {
+		name = one_trait_menu.1310.back
+		trigger_event = one_trait_menu.1300
+	}
+}
+
+one_trait_menu.1320 = {
+	type = character_event
+	title = one_trait_menu.1320.t
+	desc = one_trait_menu.1320.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1320.male_only
+		trigger = {
+			NOT = { has_realm_law = male_only_law }
+		}
+		add_realm_law_skip_effects = male_only_law
+		trigger_event = one_trait_menu.1320
+	}
+
+	option = {
+		name = one_trait_menu.1320.male_preference
+		trigger = {
+			NOT = { has_realm_law = male_preference_law }
+		}
+		add_realm_law_skip_effects = male_preference_law
+		trigger_event = one_trait_menu.1320
+	}
+
+	option = {
+		name = one_trait_menu.1320.equal
+		trigger = {
+			NOT = { has_realm_law = equal_law }
+		}
+		add_realm_law_skip_effects = equal_law
+		trigger_event = one_trait_menu.1320
+	}
+
+	option = {
+		name = one_trait_menu.1320.female_preference
+		trigger = {
+			NOT = { has_realm_law = female_preference_law }
+		}
+		add_realm_law_skip_effects = female_preference_law
+		trigger_event = one_trait_menu.1320
+	}
+
+	option = {
+		name = one_trait_menu.1320.female_only
+		trigger = {
+			NOT = { has_realm_law = female_only_law }
+		}
+		add_realm_law_skip_effects = female_only_law
+		trigger_event = one_trait_menu.1320
+	}
+
+	option = {
+		name = one_trait_menu.1320.back
+		trigger_event = one_trait_menu.1300
+	}
+}
+
+one_trait_menu.1400 = {
+	type = character_event
+	title = one_trait_menu.1400.t
+	desc = one_trait_menu.1400.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1400.alliances
+		trigger_event = one_trait_menu.1410
+	}
+
+	option = {
+		name = one_trait_menu.1400.vassals
+		trigger_event = one_trait_menu.1420
+	}
+
+	option = {
+		name = one_trait_menu.1400.war
+		trigger_event = one_trait_menu.1430
+	}
+
+	option = {
+		name = one_trait_menu.1400.relations
+		trigger_event = one_trait_menu.1440
+	}
+
+	option = {
+		name = one_trait_menu.1400.hostility
+		trigger_event = one_trait_menu.1450
+	}
+
+	option = {
+		name = one_trait_menu.1400.back
+		trigger_event = one_trait_menu.0001
+	}
+}
+
+one_trait_menu.1410 = {
+	type = character_event
+	title = one_trait_menu.1410.t
+	desc = one_trait_menu.1410.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1410.create
+		trigger = {
+			NOT = { is_allied_to = scope:one_trait_target }
+		}
+		scope:one_trait_target = {
+			add_opinion = {
+				modifier = perk_negotiated_alliance_opinion
+				target = root
+			}
+		}
+		allow_alliance = scope:one_trait_target
+		create_alliance = {
+			target = scope:one_trait_target
+			allied_through_owner = root
+			allied_through_target = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.1410
+	}
+
+	option = {
+		name = one_trait_menu.1410.inherit
+		trigger = {
+			scope:one_trait_target = {
+				any_ally = {
+					NOR = {
+						this = root
+						is_allied_to = root
+					}
+				}
+			}
+		}
+		scope:one_trait_target = {
+			every_ally = {
+				limit = {
+					NOR = {
+						this = root
+						is_allied_to = root
+					}
+				}
+				save_temporary_scope_as = one_trait_inherited_ally
+				add_opinion = {
+					modifier = perk_negotiated_alliance_opinion
+					target = root
+				}
+				root = {
+					allow_alliance = scope:one_trait_inherited_ally
+					create_alliance = {
+						target = scope:one_trait_inherited_ally
+						allied_through_owner = root
+						allied_through_target = scope:one_trait_inherited_ally
+					}
+				}
+			}
+		}
+		trigger_event = one_trait_menu.1410
+	}
+
+	option = {
+		name = one_trait_menu.1410.isolate
+		trigger = {
+			scope:one_trait_target = { any_ally = { always = yes } }
+		}
+		scope:one_trait_target = {
+			every_ally = {
+				break_alliance = scope:one_trait_target
+			}
+		}
+		trigger_event = one_trait_menu.1410
+	}
+
+	option = {
+		name = one_trait_menu.1410.end
+		trigger = {
+			is_allied_to = scope:one_trait_target
+			scope:one_trait_target = { NOT = { has_character_flag = one_trait_ending_alliance } }
+		}
+		# The alliance ends at the next daily tick: hide the option until then.
+		custom_tooltip = one_trait_menu.1410.end.tt
+		scope:one_trait_target = {
+			add_character_flag = {
+				flag = one_trait_ending_alliance
+				days = 1
+			}
+		}
+		allow_alliance = scope:one_trait_target
+		scope:one_trait_target = {
+			remove_opinion = {
+				modifier = perk_negotiated_alliance_opinion
+				target = root
+			}
+		}
+		trigger_event = one_trait_menu.1410
+	}
+
+	option = {
+		name = one_trait_menu.1410.back
+		trigger_event = one_trait_menu.1400
+	}
+}
+
+one_trait_menu.1420 = {
+	type = character_event
+	title = one_trait_menu.1420.t
+	desc = one_trait_menu.1420.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1420.vassalize
+		trigger = {
+			is_landed = yes
+			NOT = { target_is_liege_or_above = scope:one_trait_target }
+			scope:one_trait_target = {
+				is_landed = yes
+				NOT = { is_vassal_of = root }
+				highest_held_title_tier < root.highest_held_title_tier
+			}
+		}
+		create_title_and_vassal_change = {
+			type = swear_fealty
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_target = {
+			change_liege = {
+				liege = root
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1420
+	}
+
+	option = {
+		name = one_trait_menu.1420.release
+		trigger = {
+			scope:one_trait_target = { is_vassal_of = root }
+		}
+		create_title_and_vassal_change = {
+			type = independency
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_target = {
+			becomes_independent = {
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+		trigger_event = one_trait_menu.1420
+	}
+
+	option = {
+		name = one_trait_menu.1420.tributary
+		trigger = {
+			is_independent_ruler = yes
+			scope:one_trait_target = {
+				is_independent_ruler = yes
+				is_landed = yes
+				NOT = { is_tributary_of = root }
+			}
+		}
+		save_scope_value_as = {
+			name = high_obligations
+			value = yes
+		}
+		start_tributary_interaction_effect = {
+			TRIBUTARY = scope:one_trait_target
+			SUZERAIN = root
+		}
+		trigger_event = one_trait_menu.1420
+	}
+
+	option = {
+		name = one_trait_menu.1420.free
+		trigger = {
+			scope:one_trait_target = {
+				is_tributary_of = root
+				NOT = { has_character_flag = one_trait_ending_tribute }
+			}
+		}
+		# Tribute ends at the next daily tick: hide the option until then.
+		custom_tooltip = one_trait_menu.1420.free.tt
+		scope:one_trait_target = {
+			add_character_flag = {
+				flag = one_trait_ending_tribute
+				days = 1
+			}
+			end_tributary = yes
+		}
+		trigger_event = one_trait_menu.1420
+	}
+
+	option = {
+		name = one_trait_menu.1420.back
+		trigger_event = one_trait_menu.1400
+	}
+}
+
+one_trait_menu.1430 = {
+	type = character_event
+	title = one_trait_menu.1430.t
+	desc = one_trait_menu.1430.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1430.white_peace
+		trigger = {
+			scope:one_trait_target = { is_at_war = yes }
+		}
+		scope:one_trait_target = {
+			every_character_war = {
+				end_war = white_peace
+			}
+		}
+		trigger_event = one_trait_menu.1430
+	}
+
+	option = {
+		name = one_trait_menu.1430.win
+		trigger = {
+			any_character_war = {
+				OR = {
+					AND = {
+						is_attacker = root
+						is_defender = scope:one_trait_target
+					}
+					AND = {
+						is_defender = root
+						is_attacker = scope:one_trait_target
+					}
+				}
+			}
+		}
+		every_character_war = {
+			limit = {
+				OR = {
+					AND = {
+						is_attacker = root
+						is_defender = scope:one_trait_target
+					}
+					AND = {
+						is_defender = root
+						is_attacker = scope:one_trait_target
+					}
+				}
+			}
+			if = {
+				limit = { is_attacker = root }
+				end_war = attacker
+			}
+			else = {
+				end_war = defender
+			}
+		}
+		trigger_event = one_trait_menu.1430
+	}
+
+	option = {
+		name = one_trait_menu.1430.truce
+		trigger = {
+			NOR = {
+				has_truce = scope:one_trait_target
+				scope:one_trait_target = { has_truce = root }
+			}
+		}
+		add_truce_both_ways = {
+			character = scope:one_trait_target
+			days = 1825
+			name = one_trait_truce # a truce without a war needs a name
+		}
+		trigger_event = one_trait_menu.1430
+	}
+
+	option = {
+		name = one_trait_menu.1430.erase_truces
+		trigger = {
+			OR = {
+				has_truce = scope:one_trait_target
+				scope:one_trait_target = { has_truce = root }
+			}
+		}
+		cancel_truce_both_ways = scope:one_trait_target
+		trigger_event = one_trait_menu.1430
+	}
+
+	option = {
+		name = one_trait_menu.1430.back
+		trigger_event = one_trait_menu.1400
+	}
+}
+
+one_trait_menu.1440 = {
+	type = character_event
+	title = one_trait_menu.1440.t
+	desc = one_trait_menu.1440.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1440.hook
+		trigger = {
+			NOT = { has_strong_hook = scope:one_trait_target }
+		}
+		add_hook = {
+			type = strong_obligation_hook
+			target = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.1440
+	}
+
+	option = {
+		name = one_trait_menu.1440.friend
+		trigger = {
+			NOT = { has_relation_friend = scope:one_trait_target }
+		}
+		set_relation_friend = {
+			reason = one_trait_relation_reason
+			target = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.1440
+	}
+
+	option = {
+		name = one_trait_menu.1440.best_friend
+		trigger = {
+			NOT = { has_relation_best_friend = scope:one_trait_target }
+		}
+		set_relation_best_friend = {
+			reason = one_trait_relation_reason
+			target = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.1440
+	}
+
+	option = {
+		name = one_trait_menu.1440.end_rivalry
+		trigger = {
+			OR = {
+				has_relation_rival = scope:one_trait_target
+				has_relation_nemesis = scope:one_trait_target
+			}
+		}
+		if = {
+			limit = { has_relation_nemesis = scope:one_trait_target }
+			remove_relation_nemesis = scope:one_trait_target
+		}
+		if = {
+			limit = { has_relation_rival = scope:one_trait_target }
+			remove_relation_rival = scope:one_trait_target
+		}
+		trigger_event = one_trait_menu.1440
+	}
+
+	option = {
+		name = one_trait_menu.1440.adore
+		trigger = {
+			scope:one_trait_target = {
+				NOT = {
+					has_opinion_modifier = {
+						modifier = one_trait_adoration
+						target = root
+					}
+				}
+			}
+		}
+		scope:one_trait_target = {
+			add_opinion = {
+				modifier = one_trait_adoration
+				target = root
+			}
+		}
+		trigger_event = one_trait_menu.1440
+	}
+
+	option = {
+		name = one_trait_menu.1440.back
+		trigger_event = one_trait_menu.1400
+	}
+}
+
+one_trait_menu.1450 = {
+	type = character_event
+	title = one_trait_menu.1450.t
+	desc = one_trait_menu.1450.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1450.strike
+		trigger = {
+			NOT = { root.player_heir ?= scope:one_trait_target }
+		}
+		# No killer: no murder secret, tyranny or crime. Closes the
+		# menu, since every page acts on the target, now dead
+		scope:one_trait_target = {
+			death = {
+				death_reason = death_mysterious
+			}
+		}
+	}
+
+	option = {
+		name = one_trait_menu.1450.imprison
+		trigger = {
+			scope:one_trait_target = { is_imprisoned = no }
+		}
+		imprison = {
+			target = scope:one_trait_target
+			type = dungeon
+		}
+		trigger_event = one_trait_menu.1450
+	}
+
+	option = {
+		name = one_trait_menu.1450.free
+		trigger = {
+			scope:one_trait_target = { is_imprisoned = yes }
+		}
+		scope:one_trait_target = {
+			release_from_prison = yes
+		}
+		trigger_event = one_trait_menu.1450
+	}
+
+	option = {
+		name = one_trait_menu.1450.banish
+		trigger = {
+			scope:one_trait_target = {
+				is_landed = no
+				OR = {
+					is_courtier_of = root
+					is_foreign_court_guest_of = root
+				}
+			}
+		}
+		remove_courtier_or_guest = scope:one_trait_target
+		trigger_event = one_trait_menu.1450
+	}
+
+	option = {
+		name = one_trait_menu.1450.excommunicate
+		trigger = {
+			scope:one_trait_target = {
+				NOT = { has_trait = excommunicated }
+				exists = faith.religious_head
+			}
+		}
+		scope:one_trait_target = {
+			add_excommunication_actual_effect = yes
+		}
+		trigger_event = one_trait_menu.1450
+	}
+
+	option = {
+		name = one_trait_menu.1450.lift
+		trigger = {
+			scope:one_trait_target = { has_trait = excommunicated }
+		}
+		scope:one_trait_target = {
+			remove_trait = excommunicated
+			clear_excommunication_tracking_effect = yes
+		}
+		trigger_event = one_trait_menu.1450
+	}
+
+	option = {
+		name = one_trait_menu.1450.back
+		trigger_event = one_trait_menu.1400
+	}
+}
+
+one_trait_menu.0430 = {
+	type = character_event
+	title = one_trait_menu.0430.t
+	desc = one_trait_menu.0430.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0430.innovations_era
+		custom_tooltip = one_trait_menu.0430.innovations_era.tt
+		# Hidden: the tooltip would list every innovation
+		hidden_effect = {
+			scope:one_trait_target.culture = {
+				one_trait_unlock_innovations_effect = { UP_TO_ERA = yes }
+			}
+		}
+		trigger_event = one_trait_menu.0430
+	}
+
+	option = {
+		name = one_trait_menu.0430.innovations_all
+		custom_tooltip = one_trait_menu.0430.innovations_all.tt
+		# Hidden: the tooltip would list every innovation
+		hidden_effect = {
+			scope:one_trait_target.culture = {
+				one_trait_unlock_innovations_effect = { UP_TO_ERA = no }
+			}
+		}
+		trigger_event = one_trait_menu.0430
+	}
+
+	option = {
+		name = one_trait_menu.0430.acceptance
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			NOT = { scope:one_trait_target.culture = root.culture }
+		}
+		root.culture = {
+			change_cultural_acceptance = {
+				target = scope:one_trait_target.culture
+				value = 100
+				desc = one_trait_cultural_acceptance
+			}
+		}
+		scope:one_trait_target.culture = {
+			change_cultural_acceptance = {
+				target = root.culture
+				value = 100
+				desc = one_trait_cultural_acceptance
+			}
+		}
+		trigger_event = one_trait_menu.0430
+	}
+
+	option = {
+		name = one_trait_menu.0430.back
+		trigger_event = one_trait_menu.0400
+	}
+}
+
+one_trait_menu.0440 = {
+	type = character_event
+	title = one_trait_menu.0440.t
+	desc = one_trait_menu.0440.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0440.feudal
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = feudal_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_feudal_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.clan
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = clan_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_clan_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.tribal
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = tribal_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_tribal_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.nomad
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = nomad_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_nomad_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.administrative
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = administrative_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_administrative_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.ecclesiastical
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = ecclesiastical_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_ecclesiastical_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.republic
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { NOT = { has_government = republic_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_republic_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.theocracy
+		trigger = {
+			NOT = { scope:one_trait_target = root }
+			scope:one_trait_target = { NOT = { has_government = theocracy_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_theocracy_effect = yes }
+		}
+		trigger_event = one_trait_menu.0440
+	}
+
+	option = {
+		name = one_trait_menu.0440.regional
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0440.back
+		trigger_event = one_trait_menu.0400
+	}
+}
+
+one_trait_menu.0450 = {
+	type = character_event
+	title = one_trait_menu.0450.t
+	desc = one_trait_menu.0450.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.0450.celestial
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = celestial_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_celestial_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.meritocratic
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = meritocratic_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_meritocratic_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.japan_administrative
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = japan_administrative_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_japan_administrative_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.japan_feudal
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = japan_feudal_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_japan_feudal_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.mandala
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = mandala_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_mandala_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.wanua
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = wanua_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_wanua_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.steppe_admin
+		trigger = {
+			scope:one_trait_target = { NOT = { has_government = steppe_admin_government } }
+		}
+		# Hidden: the tooltip would list every holding and vassal
+		custom_tooltip = one_trait_menu.0440.switch.tt
+		hidden_effect = {
+			scope:one_trait_target = { one_trait_government_steppe_admin_effect = yes }
+		}
+		trigger_event = one_trait_menu.0450
+	}
+
+	option = {
+		name = one_trait_menu.0450.back
+		trigger_event = one_trait_menu.0440
+	}
+}
+
+one_trait_menu.1500 = {
+	type = character_event
+	title = one_trait_menu.1500.t
+	desc = one_trait_menu.1500.desc
+	theme = default
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	option = {
+		name = one_trait_menu.1500.chancellor
+		custom_tooltip = one_trait_menu.1500.chancellor.tt
+		hidden_effect = { one_trait_summon_chancellor_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.marshal
+		custom_tooltip = one_trait_menu.1500.marshal.tt
+		hidden_effect = { one_trait_summon_marshal_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.steward
+		custom_tooltip = one_trait_menu.1500.steward.tt
+		hidden_effect = { one_trait_summon_steward_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.spymaster
+		custom_tooltip = one_trait_menu.1500.spymaster.tt
+		hidden_effect = { one_trait_summon_spymaster_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.chaplain
+		custom_tooltip = one_trait_menu.1500.chaplain.tt
+		hidden_effect = { one_trait_summon_chaplain_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.champion
+		custom_tooltip = one_trait_menu.1500.champion.tt
+		hidden_effect = { one_trait_summon_champion_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.spouse
+		custom_tooltip = one_trait_menu.1500.spouse.tt
+		hidden_effect = { one_trait_summon_spouse_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.ward
+		custom_tooltip = one_trait_menu.1500.ward.tt
+		hidden_effect = { one_trait_summon_ward_effect = yes }
+		trigger_event = one_trait_menu.1500
+	}
+
+	option = {
+		name = one_trait_menu.1500.back
+		trigger_event = one_trait_menu.0001
+	}
+}

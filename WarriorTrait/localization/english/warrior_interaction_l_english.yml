@@ -1,0 +1,9 @@
+﻿l_english:
+ become_warrior_interaction:0 "Become A Warrior"
+ become_warrior_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will become a warrior, growing stronger with every battle they win."
+ remove_warrior_interaction:0 "Remove Warrior"
+ remove_warrior_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will no longer be a warrior, and any progress they have made will be lost."
+ become_god_warrior_interaction:0 "Become A God Warrior"
+ become_god_warrior_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will become a god of war immediately. Cannot be bested in battle."
+ remove_god_warrior_interaction:0 "Remove God Warrior"
+ remove_god_warrior_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will no longer be a god of war."

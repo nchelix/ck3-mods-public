@@ -1,0 +1,55 @@
+﻿# Become Albino
+#
+# Two traits, plus a route to the base game's own albino trait:
+#
+#   fake_albino           - pure appearance. No modifiers, no inheritance.
+#   fake_albino_bloodline - the same look, but children inherit it.
+#   albino                - the base game's trait, granted by interaction. That
+#                           one is genetic and carries real gameplay weight.
+
+fake_albino = {
+	physical = yes
+
+	birth = 0
+	random_creation = 0
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_fake_albino_desc
+			}
+			desc = trait_fake_albino_character_desc
+		}
+	}
+}
+
+fake_albino_bloodline = {
+	physical = yes
+
+	birth = 0
+	random_creation = 0
+
+	# Not genetic, because genetic traits cannot set an inheritance chance.
+	# This is the same shape the base game uses for pure_blooded.
+	inherit_chance = 100
+	both_parent_has_trait_inherit_chance = 100
+
+	opposites = {
+		fake_albino
+	}
+
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					NOT = { exists = this }
+				}
+				desc = trait_fake_albino_bloodline_desc
+			}
+			desc = trait_fake_albino_bloodline_character_desc
+		}
+	}
+}

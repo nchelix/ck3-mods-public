@@ -1,0 +1,41 @@
+﻿# The Sanctum of the One -- a special building that exists only through the
+# One Trait menu (Buildings -> The Sanctum). Never offered in the build menu.
+# Its powers are run by story_one_trait_sanctum, not by this file.
+one_trait_sanctum_01 = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_one_trait_sanctum.dds"
+
+	asset = {
+		type = pdxmesh
+		name = "building_special_trosky_castle_01_mesh"
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	flag = one_trait_sanctum
+
+	# An impregnable capital.
+	province_modifier = {
+		fort_level = 10
+		garrison_size = 9
+		hostile_raid_time = 1
+	}
+
+	county_modifier = {
+		development_growth_factor = 1
+		monthly_county_control_growth_add = 5
+		county_opinion_add = 50
+	}
+
+	character_modifier = {
+		monthly_prestige = 5
+		monthly_dynasty_prestige = 2
+	}
+
+	ai_value = {
+		base = 0
+	}
+}

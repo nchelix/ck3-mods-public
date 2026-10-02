@@ -1,0 +1,105 @@
+﻿# One Trait 1.7 -- effects for the Buildings menu.
+# The per-province upgrade effects are generated: see
+# one_trait_building_upgrades.txt and tools/gen_building_upgrades.py.
+
+# County scope. Max every building in every barony of the county that has a
+# holding: fill free slots, then every building to the top of its chain.
+one_trait_max_county_buildings = {
+	every_county_province = {
+		limit = { has_holding = yes }
+		one_trait_max_buildings_in_province = yes
+	}
+}
+
+# Character scope. Every empty barony in the character's domain gets a
+# holding that suits their government.
+one_trait_fill_empty_baronies = {
+	save_temporary_scope_as = barony_lord
+	every_held_county = {
+		every_county_province = {
+			limit = { has_holding = no }
+			if = {
+				limit = { scope:barony_lord = { government_has_flag = government_is_tribal } }
+				set_holding_type = tribal_holding
+			}
+			else_if = {
+				limit = { scope:barony_lord = { government_has_flag = government_is_republic } }
+				set_holding_type = city_holding
+			}
+			else_if = {
+				limit = { scope:barony_lord = { government_has_flag = government_is_theocracy } }
+				set_holding_type = church_holding
+			}
+			else = {
+				set_holding_type = castle_holding
+			}
+		}
+	}
+}
+
+# Character scope. Raise the Sanctum in the capital barony, or, if that barony
+# already has a special building (Constantinople's Hagia Sophia, say), in
+# another barony of the capital county that has none. Never replaces a wonder.
+one_trait_raise_sanctum = {
+	if = {
+		limit = {
+			capital_province = {
+				has_holding = yes
+				has_special_building = no
+			}
+		}
+		capital_province = { save_scope_as = sanctum_site }
+	}
+	else = {
+		capital_county = {
+			random_county_province = {
+				limit = {
+					has_holding = yes
+					has_special_building = no
+				}
+				save_scope_as = sanctum_site
+			}
+		}
+	}
+	scope:sanctum_site = {
+		add_special_building = one_trait_sanctum_01
+	}
+	set_variable = {
+		name = one_trait_sanctum_site
+		value = scope:sanctum_site
+	}
+	create_story = story_one_trait_sanctum
+}
+
+# Character scope. Remove the Sanctum and end its story.
+one_trait_tear_down_sanctum = {
+	random_owned_story = {
+		limit = { story_type = story_one_trait_sanctum }
+		if = {
+			limit = {
+				exists = var:sanctum_province
+				var:sanctum_province = { has_building = one_trait_sanctum_01 }
+			}
+			var:sanctum_province = {
+				remove_building = one_trait_sanctum_01
+			}
+		}
+		end_story = yes
+	}
+}
+
+# Character scope. Switch Sanctum power $POWER$ on / off. The switch lives on
+# the story, so it passes to the heir with it.
+one_trait_sanctum_set_power = {
+	random_owned_story = {
+		limit = { story_type = story_one_trait_sanctum }
+		set_variable = power_$POWER$
+	}
+}
+
+one_trait_sanctum_clear_power = {
+	random_owned_story = {
+		limit = { story_type = story_one_trait_sanctum }
+		remove_variable = power_$POWER$
+	}
+}

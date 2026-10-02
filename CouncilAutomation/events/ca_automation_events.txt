@@ -1,0 +1,38 @@
+﻿# Council Automation: start the next council task.
+# Fired on the councillor by ca_start_next_task with scope:target_county
+# saved. Hidden; nothing is shown to the player.
+
+namespace = council_automation
+
+# Court Chaplain: Convert Faith
+council_automation.0001 = {
+	hidden = yes
+	immediate = {
+		set_council_task = {
+			task_type = task_conversion
+			target = scope:target_county.title_province
+		}
+	}
+}
+
+# Steward: Promote Culture
+council_automation.0002 = {
+	hidden = yes
+	immediate = {
+		set_council_task = {
+			task_type = task_promote_culture
+			target = scope:target_county.title_province
+		}
+	}
+}
+
+# Marshal: Increase Control
+council_automation.0003 = {
+	hidden = yes
+	immediate = {
+		set_council_task = {
+			task_type = task_increase_control
+			target = scope:target_county.title_province
+		}
+	}
+}

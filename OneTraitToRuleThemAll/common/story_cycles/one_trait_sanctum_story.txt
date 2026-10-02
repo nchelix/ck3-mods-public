@@ -1,0 +1,222 @@
+﻿# The Sanctum of the One. Raising the building starts this story on its owner;
+# each power is an effect_group gated on a story variable (power_<name>) that
+# the menu's Buildings -> The Sanctum pages turn on and off. Toggles live on
+# the story, so they pass to the heir with it.
+#
+# The work of each power is in common/scripted_effects/one_trait_sanctum_powers.txt
+# (one_trait_sanctum_run_<power>), shared with the menu's "Invoke now".
+story_one_trait_sanctum = {
+	visible = yes
+
+	icon = {
+		trigger = { always = yes }
+		reference = "gfx/interface/icons/story_cycles/story_icon_one_trait_sanctum.dds"
+	}
+	background = {
+		reference = "gfx/interface/illustrations/event_scenes/fp1_throneroom_nontribal.dds"
+	}
+
+	# The info line in the Situations list: where it stands, which powers are
+	# on. Entries there are display-only by the game's design.
+	visualization = {
+		custom_string_key = "ONE_TRAIT_SANCTUM_STATUS"
+	}
+
+	# one_trait_raise_sanctum leaves the chosen province on the owner; keep it
+	# on the story instead.
+	on_setup = {
+		set_variable = {
+			name = sanctum_province
+			value = story_owner.var:one_trait_sanctum_site
+		}
+		story_owner = {
+			remove_variable = one_trait_sanctum_site
+		}
+	}
+
+	on_end = {
+	}
+
+	on_owner_death = {
+		if = {
+			limit = { exists = story_owner.primary_heir }
+			make_story_owner = story_owner.primary_heir
+		}
+		else = {
+			end_story = yes
+		}
+	}
+
+	# Housekeeping: if the Sanctum is gone (razed, removed), the story ends.
+	effect_group = {
+		days = 30
+		triggered_effect = {
+			trigger = {
+				OR = {
+					NOT = { exists = var:sanctum_province }
+					var:sanctum_province = {
+						NOT = { has_building = one_trait_sanctum_01 }
+					}
+				}
+			}
+			effect = {
+				end_story = yes
+			}
+		}
+	}
+
+	# --- Builder --------------------------------------------------------------
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_builder
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_builder = yes }
+		}
+	}
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_golden_age
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_golden_age = yes }
+		}
+	}
+
+	# --- Dominion -------------------------------------------------------------
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_one_faith
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_one_faith = yes }
+		}
+	}
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_one_people
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_one_people = yes }
+		}
+	}
+
+	# --- The Eye --------------------------------------------------------------
+
+	effect_group = {
+		months = 1
+		trigger = {
+			has_variable = power_all_seeing
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_all_seeing = yes }
+		}
+	}
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_leash
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_leash = yes }
+		}
+	}
+
+	effect_group = {
+		months = 1
+		trigger = {
+			has_variable = power_no_dissent
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_no_dissent = yes }
+		}
+	}
+
+	# --- The Forge ------------------------------------------------------------
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_relic_forge
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_relic_forge = yes }
+		}
+	}
+
+	effect_group = {
+		days = 365
+		trigger = {
+			has_variable = power_champions
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_champions = yes }
+		}
+	}
+
+	effect_group = {
+		months = 1
+		trigger = {
+			has_variable = power_levies
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_levies = yes }
+		}
+	}
+
+	# --- Tribute --------------------------------------------------------------
+
+	effect_group = {
+		months = 1
+		trigger = {
+			has_variable = power_tribute
+			one_trait_sanctum_standing = yes
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_run_tribute = yes }
+		}
+	}
+
+	# The year's tribute, reported once. Not gated on power_tribute, so tribute
+	# gathered before the power was switched off is still reported.
+	effect_group = {
+		days = 365
+		trigger = {
+			exists = var:tribute_year
+		}
+		triggered_effect = {
+			trigger = { always = yes }
+			effect = { one_trait_sanctum_report_tribute = yes }
+		}
+	}
+}

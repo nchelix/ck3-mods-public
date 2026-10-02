@@ -1,0 +1,21 @@
+﻿# Pantheon of One: how fast Worship flows and how much power costs.
+pantheon_divine_economy = {
+	categories = { flavor }
+	default = pantheon_economy_earned
+	pantheon_economy_earned = {
+	}
+	pantheon_economy_sandbox = {
+	}
+}
+
+# Pantheon of One: who hears when a boon fades.
+pantheon_expiry_notices = {
+	categories = { flavor }
+	default = pantheon_notices_all
+	pantheon_notices_all = {
+	}
+	pantheon_notices_gifts = {
+	}
+	pantheon_notices_off = {
+	}
+}
