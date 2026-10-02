@@ -156,7 +156,22 @@ pantheon_take_throne_effect = {
 			value = 0
 		}
 	}
+	if = {
+		limit = { NOT = { has_variable = pantheon_quarter_count } }
+		set_variable = {
+			name = pantheon_quarter_count
+			value = 0
+		}
+	}
+	# 1.3: the faith's rulers start at 50 Devotion the moment the throne is taken (spec, Devotion table, Start).
+	every_ruler = {
+		limit = { faith = scope:pantheon_faith }
+		save_temporary_scope_as = pantheon_target
+		pantheon_ensure_devotion_effect = { START = 50 }
+	}
 	trigger_event = { id = pantheon.0010 days = 91 }
+	set_variable = pantheon_prayer_timer
+	trigger_event = { id = pantheon.0050 days = pantheon_prayer_interval_days }
 }
 
 # ---- Boons. Root is the god; scope:pantheon_target is the follower. Each pays, grants, and schedules its end.
@@ -534,6 +549,7 @@ pantheon_grant_conception_effect = {
 			left_icon = scope:pantheon_target
 		}
 		pantheon_bless_opinion_effect = yes
+		pantheon_change_devotion_effect = { AMOUNT = 10 }
 	}
 	else = {
 		# Nothing is paid; say why
@@ -631,4 +647,118 @@ pantheon_sanctify_union_effect = {
 			release_from_prison = yes
 		}
 	}
+}
+
+# Divine Healing (1.3, a prayer answer): every disease and wound cured. Root is the god.
+pantheon_grant_healing_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = {
+		if = {
+			limit = { has_trait = ill }
+			remove_trait = ill
+		}
+		if = {
+			limit = { has_trait = pneumonic }
+			remove_trait = pneumonic
+		}
+		if = {
+			limit = { has_trait = great_pox }
+			remove_trait = great_pox
+		}
+		if = {
+			limit = { has_trait = early_great_pox }
+			remove_trait = early_great_pox
+		}
+		if = {
+			limit = { has_trait = lovers_pox }
+			remove_trait = lovers_pox
+		}
+		if = {
+			limit = { has_trait = leper }
+			remove_trait = leper
+		}
+		if = {
+			limit = { has_trait = consumption }
+			remove_trait = consumption
+		}
+		if = {
+			limit = { has_trait = cancer }
+			remove_trait = cancer
+		}
+		if = {
+			limit = { has_trait = typhus }
+			remove_trait = typhus
+		}
+		if = {
+			limit = { has_trait = bubonic_plague }
+			remove_trait = bubonic_plague
+		}
+		if = {
+			limit = { has_trait = smallpox }
+			remove_trait = smallpox
+		}
+		if = {
+			limit = { has_trait = measles }
+			remove_trait = measles
+		}
+		if = {
+			limit = { has_trait = dysentery }
+			remove_trait = dysentery
+		}
+		if = {
+			limit = { has_trait = ergotism }
+			remove_trait = ergotism
+		}
+		if = {
+			limit = { has_trait = gout_ridden }
+			remove_trait = gout_ridden
+		}
+		if = {
+			limit = { has_trait = wounded_1 }
+			remove_trait = wounded_1
+		}
+		if = {
+			limit = { has_trait = wounded_2 }
+			remove_trait = wounded_2
+		}
+		if = {
+			limit = { has_trait = wounded_3 }
+			remove_trait = wounded_3
+		}
+	}
+	pantheon_bless_opinion_effect = yes
+}
+
+# A spouse and children (1.3, a prayer answer): a fitting spouse at their court, married at once, and
+# Divine Fertility (which pays the life cost). Root is the god; scope:pantheon_target the follower.
+pantheon_grant_spouse_effect = {
+	if = {
+		limit = { scope:pantheon_target = { is_female = yes } }
+		create_character = {
+			age = scope:pantheon_target.age
+			employer = scope:pantheon_target.court_owner
+			culture = scope:pantheon_target.culture
+			faith = scope:pantheon_target.faith
+			rite = scope:pantheon_target.rite
+			gender_female_chance = 0
+			dynasty = none
+			trait = beauty_good_2
+			save_temporary_scope_as = pantheon_new_spouse
+		}
+	}
+	else = {
+		create_character = {
+			age = scope:pantheon_target.age
+			employer = scope:pantheon_target.court_owner
+			culture = scope:pantheon_target.culture
+			faith = scope:pantheon_target.faith
+			rite = scope:pantheon_target.rite
+			gender_female_chance = 100
+			dynasty = none
+			trait = beauty_good_2
+			save_temporary_scope_as = pantheon_new_spouse
+		}
+	}
+	scope:pantheon_target = { marry = scope:pantheon_new_spouse }
+	pantheon_grant_fertility_effect = yes
 }

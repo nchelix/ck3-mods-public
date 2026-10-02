@@ -1,0 +1,507 @@
+﻿# Pantheon of One 1.3: Devotion and Prayers. Root is the god unless noted.
+
+# ---- Devotion: the second currency. A variable, 0-100, on each follower.
+
+# Make sure scope:pantheon_target has a Devotion variable, starting it at $START$ the first time (the
+# Start row of the Devotion table: 50 normally, 60 for a convert). Root is the god.
+pantheon_ensure_devotion_effect = {
+	if = {
+		limit = { NOT = { scope:pantheon_target = { has_variable = pantheon_devotion } } }
+		scope:pantheon_target = {
+			set_variable = {
+				name = pantheon_devotion
+				value = $START$
+			}
+		}
+		if = {
+			limit = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = pantheon_known
+						target = scope:pantheon_target
+					}
+				}
+			}
+			add_to_variable_list = { name = pantheon_known target = scope:pantheon_target }
+		}
+	}
+}
+
+# Change scope:pantheon_target's Devotion by $AMOUNT$, clamped to 0-100. clamp_variable does not exist in
+# 1.20 (grepped under game/common and game/events): clamp with if/else. Also handles Faltering: the god is
+# told once, when they first drop below 25, until they recover (spec). Root is the god.
+pantheon_change_devotion_effect = {
+	pantheon_ensure_devotion_effect = { START = 50 }
+	scope:pantheon_target = {
+		# The game previews option effects for tooltips without running them, so the variable may not
+		# exist yet: never read it then (thousands of error.log lines in the 1.3 test)
+		if = {
+			limit = { has_variable = pantheon_devotion }
+			change_variable = { name = pantheon_devotion add = $AMOUNT$ }
+			if = {
+				limit = { var:pantheon_devotion > 100 }
+				set_variable = { name = pantheon_devotion value = 100 }
+			}
+			if = {
+				limit = { var:pantheon_devotion < 0 }
+				set_variable = { name = pantheon_devotion value = 0 }
+			}
+			if = {
+				limit = {
+					var:pantheon_devotion < 25
+					NOT = { has_variable = pantheon_faltering }
+				}
+				set_variable = pantheon_faltering
+				root = {
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = pantheon_falters_t
+						left_icon = scope:pantheon_target
+					}
+				}
+			}
+			if = {
+				limit = {
+					var:pantheon_devotion >= 25
+					has_variable = pantheon_faltering
+				}
+				remove_variable = pantheon_faltering
+			}
+		}
+	}
+}
+
+# Yearly: drifts 5 toward 50 (spec, Devotion table). Root is the god; scope:pantheon_target is the follower.
+pantheon_devotion_drift_effect = {
+	pantheon_ensure_devotion_effect = { START = 50 }
+	scope:pantheon_target = {
+		if = {
+			limit = { var:pantheon_devotion > 50 }
+			change_variable = { name = pantheon_devotion subtract = 5 }
+			if = {
+				limit = { var:pantheon_devotion < 50 }
+				set_variable = { name = pantheon_devotion value = 50 }
+			}
+		}
+		else_if = {
+			limit = { var:pantheon_devotion < 50 }
+			change_variable = { name = pantheon_devotion add = 5 }
+			if = {
+				limit = { var:pantheon_devotion > 50 }
+				set_variable = { name = pantheon_devotion value = 50 }
+			}
+		}
+	}
+}
+
+# Leaving the faith: a wavering follower converts with chance (25 - Devotion) * 2% (2% at 24, 50% at 0).
+# Devout followers are never wavering, so they never reach this effect. Root is the god; scope:pantheon_target
+# is the wavering follower.
+pantheon_leave_faith_check_effect = {
+	random = {
+		chance = {
+			value = 25
+			subtract = scope:pantheon_target.var:pantheon_devotion
+			multiply = 2
+		}
+		pantheon_convert_away_effect = yes
+	}
+}
+
+# They take the faith of the neighbouring realm with the most counties not of the god's faith; if there is
+# none (landless, isolated, or every neighbour already shares it), approximate "the most common faith among
+# their neighbours" with a weighted random pick across their bordering counties not of the god's faith (a
+# faith with more borders is proportionally more likely, without a fragile mode calculation). Root is the
+# god; scope:pantheon_target is the follower leaving.
+pantheon_convert_away_effect = {
+	if = {
+		limit = { exists = scope:pantheon_convert_realm }
+		clear_saved_scope = pantheon_convert_realm
+	}
+	if = {
+		limit = { exists = scope:pantheon_convert_county }
+		clear_saved_scope = pantheon_convert_county
+	}
+	if = {
+		limit = { scope:pantheon_target = { is_landed = yes } }
+		scope:pantheon_target = {
+			ordered_neighboring_top_liege_realm_owner = {
+				order_by = {
+					value = 0
+					every_realm_county = {
+						limit = { NOT = { faith = root.faith } }
+						add = 1
+					}
+				}
+				limit = {
+					any_realm_county = { NOT = { faith = root.faith } }
+				}
+				save_temporary_scope_as = pantheon_convert_realm
+			}
+		}
+	}
+	if = {
+		limit = { exists = scope:pantheon_convert_realm }
+		scope:pantheon_target = { set_character_faith = scope:pantheon_convert_realm.faith }
+	}
+	else = {
+		# random_neighboring_county is a county-scope iterator: scope through the capital (a landless
+		# character has none, and this stays a safe no-op for them).
+		scope:pantheon_target = {
+			capital_county = {
+				random_neighboring_county = {
+					limit = { NOT = { faith = root.faith } }
+					save_temporary_scope_as = pantheon_convert_county
+				}
+			}
+		}
+		if = {
+			limit = { exists = scope:pantheon_convert_county }
+			scope:pantheon_target = { set_character_faith = scope:pantheon_convert_county.faith }
+		}
+	}
+	send_interface_toast = {
+		type = event_toast_effect_bad
+		title = pantheon_turned_away_t
+		left_icon = scope:pantheon_target
+	}
+}
+
+# The yearly Devotion pass: a branch of the quarterly Worship tick, once every fourth quarter (events/
+# pantheon_events.txt's pantheon.0010). Scope: the god's faith's rulers and courtiers only (spec, Build
+# section) -- neither scans the whole world. Root is the god.
+pantheon_devotion_yearly_pass_effect = {
+	# A menu may have saved pantheon_target permanently in this chain; a temporary save of the same name errors
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			has_variable = pantheon_devotion
+			var:pantheon_devotion < 25
+		}
+		save_temporary_scope_as = pantheon_target
+		pantheon_leave_faith_check_effect = yes
+	}
+	every_courtier = {
+		limit = {
+			faith = root.faith
+			has_variable = pantheon_devotion
+			var:pantheon_devotion < 25
+		}
+		save_temporary_scope_as = pantheon_target
+		pantheon_leave_faith_check_effect = yes
+	}
+	every_ruler = {
+		limit = { faith = root.faith }
+		save_temporary_scope_as = pantheon_target
+		pantheon_devotion_drift_effect = yes
+	}
+	every_courtier = {
+		limit = { faith = root.faith }
+		save_temporary_scope_as = pantheon_target
+		pantheon_devotion_drift_effect = yes
+	}
+}
+
+# ---- Prayers
+
+# Does this/prev (the candidate) have a need, checked in the spec's order? If so, note which one (1-6) on
+# them and add them to the pool pantheon_pick_follower_prayer_effect and pantheon_pick_stranger_effect build.
+# One entry per character: the pools they gather from can overlap. A need is skipped if they already carry
+# that boon (the need triggers themselves check this, common/scripted_triggers/pantheon_triggers.txt).
+# Root is the god.
+pantheon_add_prayer_candidate_effect = {
+	if = {
+		limit = { NOT = { is_in_list = pantheon_prayer_candidates } }
+		if = {
+			limit = { pantheon_need_host_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 1 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_fertility_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 2 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_spouse_trigger = yes }
+			# A third as often as eligible, so it never drowns the other prayers
+			random = {
+				chance = { value = 33 }
+				set_variable = { name = pantheon_prayer_need value = 8 }
+				add_to_temporary_list = pantheon_prayer_candidates
+			}
+		}
+		else_if = {
+			limit = { pantheon_need_healing_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 7 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_vigor_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 3 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_warding_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 4 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_harvest_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 5 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_gift_trigger = yes }
+			# At most a third as often (spec): two in three otherwise-eligible rulers send no prayer at
+			# all this period, rather than always falling back to a divine gift.
+			random = {
+				chance = { value = 33 }
+				set_variable = { name = pantheon_prayer_need value = 6 }
+				pantheon_pick_gift_effect = yes
+				add_to_temporary_list = pantheon_prayer_candidates
+			}
+		}
+	}
+}
+
+# Gathers every eligible follower with a need -- rulers of the god's faith, the god's own courtiers of the
+# faith, and any follower at 75+ Devotion, never the god, never someone who prayed in the last 3 years --
+# picks one at random, and opens the prayer event on them. Does nothing if no one qualifies. Root is the god.
+pantheon_pick_follower_prayer_effect = {
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
+			NOT = { has_variable = pantheon_prayed_recently }
+		}
+		pantheon_add_prayer_candidate_effect = yes
+	}
+	every_courtier = {
+		limit = {
+			faith = root.faith
+			NOT = { has_variable = pantheon_prayed_recently }
+		}
+		pantheon_add_prayer_candidate_effect = yes
+	}
+	every_in_list = {
+		variable = pantheon_known
+		limit = {
+			NOT = { this = root }
+			var:pantheon_devotion >= 75
+			NOT = { has_variable = pantheon_prayed_recently }
+		}
+		pantheon_add_prayer_candidate_effect = yes
+	}
+	random_in_list = {
+		list = pantheon_prayer_candidates
+		save_temporary_scope_as = pantheon_suppliant
+	}
+	if = {
+		limit = { exists = scope:pantheon_suppliant }
+		scope:pantheon_suppliant = {
+			set_variable = { name = pantheon_prayed_recently value = yes years = 3 }
+		}
+		# A temporary scope is gone by the time the prayer fires: keep the suppliant on the god
+		set_variable = {
+			name = pantheon_suppliant_var
+			value = scope:pantheon_suppliant
+		}
+		trigger_event = { id = pantheon.0060 days = 1 }
+	}
+}
+
+# Gathers independent rulers of another faith, bordering one of the god's faith's rulers, with a need of
+# their own; picks one at random, and opens the prayer event on them ("help me and I will follow you").
+# Root is the god.
+pantheon_pick_stranger_effect = {
+	every_ruler = {
+		limit = { faith = root.faith }
+		every_neighboring_top_liege_realm_owner = {
+			limit = {
+				is_independent_ruler = yes
+				NOT = { faith = root.faith }
+				NOT = { has_variable = pantheon_prayed_recently }
+			}
+			pantheon_add_prayer_candidate_effect = yes
+		}
+	}
+	random_in_list = {
+		list = pantheon_prayer_candidates
+		save_temporary_scope_as = pantheon_suppliant
+	}
+	if = {
+		limit = { exists = scope:pantheon_suppliant }
+		scope:pantheon_suppliant = {
+			set_variable = { name = pantheon_prayed_recently value = yes years = 3 }
+		}
+		# A temporary scope is gone by the time the prayer fires: keep the suppliant on the god
+		set_variable = {
+			name = pantheon_suppliant_var
+			value = scope:pantheon_suppliant
+		}
+		trigger_event = { id = pantheon.0060 days = 1 }
+	}
+}
+
+# pantheon.0050's immediate: about one prayer in eight, if a bordering stranger with a need exists, they
+# pray instead of a follower (spec, Strangers' prayers). Root is the god.
+pantheon_send_prayer_effect = {
+	random_list = {
+		1 = {
+			trigger = { pantheon_has_a_bordering_stranger_trigger = yes }
+			pantheon_pick_stranger_effect = yes
+		}
+		7 = {
+			pantheon_pick_follower_prayer_effect = yes
+		}
+	}
+}
+
+# The gift that suits their best of the five skills (spec, Needs table, "otherwise"). Root is the god;
+# scope:pantheon_target is the follower (set by the caller, pantheon_grant_prayer_effect).
+# The gift chosen when they prayed (pantheon_prayer_gift: 1 Champion, 2 Warlord, 3 Sovereign, 4 Sage).
+pantheon_grant_best_gift_effect = {
+	if = {
+		limit = { scope:pantheon_target = { var:pantheon_prayer_gift = 2 } }
+		pantheon_grant_trait_effect = { TRAIT = pantheon_warlord }
+	}
+	else_if = {
+		limit = { scope:pantheon_target = { var:pantheon_prayer_gift = 3 } }
+		pantheon_grant_trait_effect = { TRAIT = pantheon_sovereign }
+	}
+	else_if = {
+		limit = { scope:pantheon_target = { var:pantheon_prayer_gift = 4 } }
+		pantheon_grant_trait_effect = { TRAIT = pantheon_sage }
+	}
+	else_if = {
+		limit = { scope:pantheon_target = { var:pantheon_prayer_gift = 1 } }
+		pantheon_grant_trait_effect = { TRAIT = pantheon_champion }
+	}
+}
+
+# Choose the gift that suits their best of the five skills, when they pray, so the prayer can name it.
+# In the follower's scope.
+pantheon_pick_gift_effect = {
+	if = {
+		limit = { highest_skill = martial }
+		set_variable = { name = pantheon_prayer_gift value = 2 }
+	}
+	else_if = {
+		limit = { OR = { highest_skill = diplomacy highest_skill = stewardship } }
+		set_variable = { name = pantheon_prayer_gift value = 3 }
+	}
+	else_if = {
+		limit = { OR = { highest_skill = intrigue highest_skill = learning } }
+		set_variable = { name = pantheon_prayer_gift value = 4 }
+	}
+	else = {
+		set_variable = { name = pantheon_prayer_gift value = 1 }
+	}
+}
+
+# pantheon.0060's Grant: calls the existing grant effect (cost, markers, notices, expiry) for whichever
+# need pantheon_prayer_need names, then moves Devotion as the spec's Prayers table says -- +20 for a
+# follower; a stranger converts (set_character_faith) and starts at 60 Devotion instead. Root is the god;
+# scope:pantheon_suppliant is whoever prayed.
+pantheon_grant_prayer_effect = {
+	scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+	if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
+		pantheon_call_host_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 2 } }
+		pantheon_grant_fertility_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 3 } }
+		pantheon_grant_vigor_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 4 } }
+		pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding }
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 5 } }
+		pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest }
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 6 } }
+		pantheon_grant_best_gift_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 7 } }
+		pantheon_grant_healing_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 } }
+		pantheon_grant_spouse_effect = yes
+	}
+	if = {
+		limit = { NOT = { scope:pantheon_suppliant = { faith = root.faith } } }
+		scope:pantheon_suppliant = {
+			set_variable = pantheon_was_stranger
+			set_character_faith = root.faith
+		}
+		pantheon_ensure_devotion_effect = { START = 60 }
+	}
+	else = {
+		pantheon_change_devotion_effect = { AMOUNT = 20 }
+	}
+	if = {
+		limit = { scope:pantheon_suppliant = { has_variable = pantheon_was_stranger } }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_prayer_converted_t
+			left_icon = scope:pantheon_suppliant
+		}
+		scope:pantheon_suppliant = { remove_variable = pantheon_was_stranger }
+	}
+	else = {
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_prayer_granted_t
+			left_icon = scope:pantheon_suppliant
+		}
+	}
+}
+
+# pantheon.0060's Send a sign: a quarter of the boon's cost, rounded, and +5 Devotion. Not offered to a
+# stranger (the event option's own trigger). Root is the god; scope:pantheon_suppliant sent the sign.
+pantheon_sign_prayer_effect = {
+	scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+	change_variable = { name = pantheon_worship subtract = var:pantheon_prayer_sign_now }
+	pantheon_change_devotion_effect = { AMOUNT = 5 }
+	send_interface_toast = {
+		type = event_toast_effect_neutral
+		title = pantheon_prayer_sign_t
+		left_icon = scope:pantheon_suppliant
+	}
+}
+
+# pantheon.0060's Refuse: -15 Devotion and the opinion penalty. Nothing happens for a refused stranger, who
+# was never a follower (spec, Strangers' prayers). Root is the god; scope:pantheon_suppliant was refused.
+pantheon_refuse_prayer_effect = {
+	if = {
+		limit = { scope:pantheon_suppliant = { faith = root.faith } }
+		scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+		pantheon_change_devotion_effect = { AMOUNT = -15 }
+		scope:pantheon_target = {
+			add_opinion = {
+				target = root
+				modifier = pantheon_refused_prayer_opinion
+				years = 5
+			}
+		}
+	}
+	send_interface_toast = {
+		type = event_toast_effect_bad
+		title = pantheon_prayer_refused_t
+		left_icon = scope:pantheon_suppliant
+	}
+}

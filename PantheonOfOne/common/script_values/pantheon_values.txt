@@ -1,4 +1,5 @@
-﻿# Pantheon of One: every number in one place. The Sandbox rule pays 5x, charges 1/4, and doubles durations.
+﻿# Pantheon of One: every number in one place. Boon costs were tripled on Earned in 1.3 (too generous in game);
+# the Sandbox rule pays 5x, keeps the old Sandbox costs (1/12 of Earned's), and doubles durations.
 
 pantheon_worship_per_county = {
 	value = 1
@@ -16,49 +17,54 @@ pantheon_worship_per_ruler = {
 	}
 }
 
-# The god's income each quarter, in the god's scope. Devout rulers (piety level 3+) count twice.
+# The god's income each quarter, in the god's scope. 1.3: Devotion weighting replaces the old piety-level
+# doubling (spec). Wavering rulers (below 25 Devotion) give nothing; a ruler with no Devotion yet counts as
+# Faithful; Devout rulers (75+) count twice.
 pantheon_quarterly_worship = {
 	value = faith.num_county_followers
 	multiply = pantheon_worship_per_county
 	every_ruler = {
 		limit = { faith = root.faith }
-		add = pantheon_worship_per_ruler
 		if = {
-			limit = { piety_level >= 3 }
+			limit = { NOT = { pantheon_wavering_trigger = yes } }
 			add = pantheon_worship_per_ruler
+			if = {
+				limit = { pantheon_devout_trigger = yes }
+				add = pantheon_worship_per_ruler
+			}
 		}
 	}
 }
 
 pantheon_cost_host = {
-	value = 600
+	value = 1800
 	if = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
-		multiply = 0.25
+		multiply = 0.08333
 	}
 }
 
 pantheon_cost_trait = {
-	value = 300
+	value = 900
 	if = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
-		multiply = 0.25
+		multiply = 0.08333
 	}
 }
 
 pantheon_cost_realm = {
-	value = 200
+	value = 600
 	if = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
-		multiply = 0.25
+		multiply = 0.08333
 	}
 }
 
 pantheon_cost_life = {
-	value = 200
+	value = 600
 	if = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
-		multiply = 0.25
+		multiply = 0.08333
 	}
 }
 
@@ -93,4 +99,60 @@ pantheon_ascend_piety = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 2
 	}
+}
+
+# ---- 1.3: Prayers
+
+# How often pantheon.0050 sends a prayer, per the pantheon_prayer_frequency game rule.
+pantheon_prayer_interval_days = {
+	value = 182
+	if = {
+		limit = { has_game_rule = pantheon_prayers_rare }
+		value = 365
+	}
+	else_if = {
+		limit = { has_game_rule = pantheon_prayers_frequent }
+		value = 91
+	}
+}
+
+# The Worship cost of granting whichever need pantheon_prayer_need (1-6, pantheon.0060) names, reusing the
+# existing boon costs so the Sandbox rule scales this too.
+pantheon_prayer_cost = {
+	value = pantheon_cost_trait
+	if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
+		value = pantheon_cost_host
+	}
+	else_if = {
+		limit = {
+			scope:pantheon_suppliant = {
+				OR = {
+					var:pantheon_prayer_need = 2
+					var:pantheon_prayer_need = 3
+					var:pantheon_prayer_need = 7
+					var:pantheon_prayer_need = 8
+				}
+			}
+		}
+		value = pantheon_cost_life
+	}
+	else_if = {
+		limit = {
+			scope:pantheon_suppliant = {
+				OR = {
+					var:pantheon_prayer_need = 4
+					var:pantheon_prayer_need = 5
+				}
+			}
+		}
+		value = pantheon_cost_realm
+	}
+}
+
+# Send a sign: a quarter of the prayer's cost, rounded (spec).
+pantheon_prayer_sign_cost = {
+	value = pantheon_prayer_cost
+	divide = 4
+	round = yes
 }

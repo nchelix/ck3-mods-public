@@ -30,3 +30,132 @@ pantheon_can_conceive_trigger = {
 		}
 	}
 }
+
+# ---- 1.3: Devotion bands and prayer needs. Called on the character being checked.
+
+# Below 25: gives no Worship, and is tested each year for leaving the faith.
+pantheon_wavering_trigger = {
+	has_variable = pantheon_devotion
+	var:pantheon_devotion < 25
+}
+
+# 75 and up: double Worship, and never leaves the faith.
+pantheon_devout_trigger = {
+	has_variable = pantheon_devotion
+	var:pantheon_devotion >= 75
+}
+
+# The same disease traits pantheon_divine_health_effect cures on a god (common/scripted_effects/pantheon_effects.txt).
+pantheon_is_diseased_trigger = {
+	OR = {
+		has_trait = ill
+		has_trait = pneumonic
+		has_trait = great_pox
+		has_trait = early_great_pox
+		has_trait = lovers_pox
+		has_trait = leper
+		has_trait = consumption
+		has_trait = cancer
+		has_trait = typhus
+		has_trait = bubonic_plague
+		has_trait = smallpox
+		has_trait = measles
+		has_trait = dysentery
+		has_trait = ergotism
+		has_trait = gout_ridden
+	}
+}
+
+# At war, and losing it (the war leader with a negative war score). Skipped if the Host is already out.
+pantheon_need_host_trigger = {
+	is_at_war = yes
+	any_character_war = {
+		OR = {
+			AND = { primary_attacker = prev attacker_war_score < 0 }
+			AND = { primary_defender = prev defender_war_score < 0 }
+		}
+		NOT = { has_variable = pantheon_host_called }
+	}
+}
+
+# An adult with no living children.
+pantheon_need_fertility_trigger = {
+	is_adult = yes
+	is_married = yes
+	NOT = { any_child = { always = yes } }
+	NOT = { has_variable = pantheon_boon_fertility }
+}
+
+# Aged 60 or more (the sick pray for Divine Healing).
+pantheon_need_vigor_trigger = {
+	age >= 60
+	NOT = { has_variable = pantheon_boon_vigor }
+}
+
+# Their capital county has an epidemic.
+pantheon_need_warding_trigger = {
+	exists = capital_county
+	capital_county = { has_province_with_epidemic = { intensity = any } }
+	NOT = { has_variable = pantheon_boon_warding }
+}
+
+# Gold below zero, or in debt.
+pantheon_need_harvest_trigger = {
+	OR = {
+		gold < 0
+		is_in_debt = yes
+	}
+	NOT = { has_variable = pantheon_boon_harvest }
+}
+
+# Otherwise: only a landed ruler, and even then at most a third as often (the chance is rolled where this
+# is used, common/scripted_effects/pantheon_devotion_effects.txt's pantheon_add_prayer_candidate_effect).
+pantheon_need_gift_trigger = {
+	is_landed = yes
+	NOT = { has_variable = pantheon_boon_trait }
+}
+
+# Does root have any of the above needs at all? (existence only; the effect that acts on it picks in order)
+pantheon_has_a_need_trigger = {
+	OR = {
+		pantheon_need_host_trigger = yes
+		pantheon_need_fertility_trigger = yes
+		pantheon_need_vigor_trigger = yes
+		pantheon_need_warding_trigger = yes
+		pantheon_need_harvest_trigger = yes
+		pantheon_need_gift_trigger = yes
+	}
+}
+
+# Does an independent ruler of another faith, bordering one of the god's faith's rulers, exist? Root is the god.
+pantheon_has_a_bordering_stranger_trigger = {
+	any_ruler = {
+		faith = root.faith
+		any_neighboring_top_liege_realm_owner = {
+			is_independent_ruler = yes
+			NOT = { faith = root.faith }
+			NOT = { has_variable = pantheon_prayed_recently }
+			pantheon_has_a_need_trigger = yes
+		}
+	}
+}
+
+# Diseased or wounded: they pray for Divine Healing (1.3).
+pantheon_need_healing_trigger = {
+	OR = {
+		pantheon_is_diseased_trigger = yes
+		has_trait = wounded_1
+		has_trait = wounded_2
+		has_trait = wounded_3
+	}
+}
+
+# Unmarried, childless adults may pray for a spouse and children (1.3, the user's idea).
+pantheon_need_spouse_trigger = {
+	is_adult = yes
+	age < 45
+	is_married = no
+	is_betrothed = no
+	NOT = { any_child = { always = yes } }
+	NOT = { has_variable = pantheon_boon_fertility }
+}

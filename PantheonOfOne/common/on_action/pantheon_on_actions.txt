@@ -35,6 +35,8 @@ pantheon_on_birth_child = {
 				}
 			}
 			add_trait = pantheon_demigod
+			add_trait = physique_good_3
+			add_trait = fecund
 			# Vanilla brands bastardy and adultery after this hook: clean up a day later
 			trigger_event = { id = pantheon.0041 days = 1 }
 			scope:mother = { trigger_event = { id = pantheon.0040 days = 1 } }

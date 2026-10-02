@@ -17,6 +17,12 @@ pantheon.0010 = {
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
 		pantheon_divine_health_effect = yes
+		# A god enthroned before 1.3 never started the prayer timer
+		if = {
+			limit = { NOT = { has_variable = pantheon_prayer_timer } }
+			set_variable = pantheon_prayer_timer
+			trigger_event = { id = pantheon.0050 days = 30 }
+		}
 		set_variable = {
 			name = pantheon_last_worship
 			value = pantheon_quarterly_worship
@@ -98,6 +104,14 @@ pantheon.0010 = {
 					target = scope:pantheon_unblessed_one
 				}
 			}
+		}
+		# 1.3: the yearly Devotion pass (drift, faltering, conversion) is a branch of this tick, once every
+		# fourth quarter (spec, Build section).
+		change_variable = { name = pantheon_quarter_count add = 1 }
+		if = {
+			limit = { var:pantheon_quarter_count >= 4 }
+			set_variable = { name = pantheon_quarter_count value = 0 }
+			pantheon_devotion_yearly_pass_effect = yes
 		}
 		trigger_event = { id = pantheon.0010 days = 91 }
 	}

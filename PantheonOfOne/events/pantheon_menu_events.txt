@@ -15,6 +15,31 @@ pantheon_menu.0001 = {
 			desc = pantheon_menu.0001.desc
 		}
 		desc = pantheon_menu.0001.worship
+		triggered_desc = {
+			trigger = {
+				NOT = { scope:pantheon_target = root }
+				scope:pantheon_target = { pantheon_wavering_trigger = yes }
+			}
+			desc = pantheon_menu.0001.devotion_wavering
+		}
+		triggered_desc = {
+			trigger = {
+				NOT = { scope:pantheon_target = root }
+				scope:pantheon_target = {
+					has_variable = pantheon_devotion
+					NOT = { pantheon_wavering_trigger = yes }
+					NOT = { pantheon_devout_trigger = yes }
+				}
+			}
+			desc = pantheon_menu.0001.devotion_faithful
+		}
+		triggered_desc = {
+			trigger = {
+				NOT = { scope:pantheon_target = root }
+				scope:pantheon_target = { pantheon_devout_trigger = yes }
+			}
+			desc = pantheon_menu.0001.devotion_devout
+		}
 	}
 	theme = faith
 	left_portrait = {
@@ -126,7 +151,10 @@ pantheon_menu.0001 = {
 			}
 		}
 		custom_tooltip = pantheon_menu.0001.host.tt
-		hidden_effect = { pantheon_call_host_effect = yes }
+		hidden_effect = {
+			pantheon_call_host_effect = yes
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0001
 	}
 
@@ -152,7 +180,10 @@ pantheon_menu.0100 = {
 			var:pantheon_worship >= pantheon_cost_trait
 		}
 		custom_tooltip = pantheon_menu.0100.champion.tt
-		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_champion } }
+		hidden_effect = {
+			pantheon_grant_trait_effect = { TRAIT = pantheon_champion }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0001
 	}
 
@@ -163,7 +194,10 @@ pantheon_menu.0100 = {
 			var:pantheon_worship >= pantheon_cost_trait
 		}
 		custom_tooltip = pantheon_menu.0100.warlord.tt
-		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_warlord } }
+		hidden_effect = {
+			pantheon_grant_trait_effect = { TRAIT = pantheon_warlord }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0001
 	}
 
@@ -174,7 +208,10 @@ pantheon_menu.0100 = {
 			var:pantheon_worship >= pantheon_cost_trait
 		}
 		custom_tooltip = pantheon_menu.0100.sovereign.tt
-		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_sovereign } }
+		hidden_effect = {
+			pantheon_grant_trait_effect = { TRAIT = pantheon_sovereign }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0001
 	}
 
@@ -185,7 +222,10 @@ pantheon_menu.0100 = {
 			var:pantheon_worship >= pantheon_cost_trait
 		}
 		custom_tooltip = pantheon_menu.0100.sage.tt
-		hidden_effect = { pantheon_grant_trait_effect = { TRAIT = pantheon_sage } }
+		hidden_effect = {
+			pantheon_grant_trait_effect = { TRAIT = pantheon_sage }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0001
 	}
 
@@ -228,7 +268,10 @@ pantheon_menu.0200 = {
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_harvest } }
 		}
 		custom_tooltip = pantheon_menu.0200.harvest.tt
-		hidden_effect = { pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest } }
+		hidden_effect = {
+			pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0200
 	}
 
@@ -243,7 +286,10 @@ pantheon_menu.0200 = {
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_walls } }
 		}
 		custom_tooltip = pantheon_menu.0200.walls.tt
-		hidden_effect = { pantheon_grant_realm_effect = { KEY = walls MODIFIER = pantheon_walls } }
+		hidden_effect = {
+			pantheon_grant_realm_effect = { KEY = walls MODIFIER = pantheon_walls }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0200
 	}
 
@@ -258,7 +304,10 @@ pantheon_menu.0200 = {
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_warding } }
 		}
 		custom_tooltip = pantheon_menu.0200.warding.tt
-		hidden_effect = { pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding } }
+		hidden_effect = {
+			pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0200
 	}
 
@@ -301,7 +350,10 @@ pantheon_menu.0300 = {
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_vigor } }
 		}
 		custom_tooltip = pantheon_menu.0300.vigor.tt
-		hidden_effect = { pantheon_grant_vigor_effect = yes }
+		hidden_effect = {
+			pantheon_grant_vigor_effect = yes
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0300
 	}
 
@@ -316,7 +368,10 @@ pantheon_menu.0300 = {
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_fertility } }
 		}
 		custom_tooltip = pantheon_menu.0300.fertility.tt
-		hidden_effect = { pantheon_grant_fertility_effect = yes }
+		hidden_effect = {
+			pantheon_grant_fertility_effect = yes
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0300
 	}
 
@@ -331,7 +386,10 @@ pantheon_menu.0300 = {
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_lineage } }
 		}
 		custom_tooltip = pantheon_menu.0300.lineage.tt
-		hidden_effect = { pantheon_grant_lineage_effect = yes }
+		hidden_effect = {
+			pantheon_grant_lineage_effect = yes
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
 		trigger_event = pantheon_menu.0300
 	}
 
@@ -621,6 +679,22 @@ pantheon_menu.0400 = {
 			}
 			desc = pantheon_menu.0400.lineage_5
 		}
+		triggered_desc = {
+			trigger = { exists = scope:pantheon_wavering_1 }
+			desc = pantheon_menu.0400.wavering_header
+		}
+		triggered_desc = {
+			trigger = { exists = scope:pantheon_wavering_1 }
+			desc = pantheon_menu.0400.wavering_1
+		}
+		triggered_desc = {
+			trigger = { exists = scope:pantheon_wavering_2 }
+			desc = pantheon_menu.0400.wavering_2
+		}
+		triggered_desc = {
+			trigger = { exists = scope:pantheon_wavering_3 }
+			desc = pantheon_menu.0400.wavering_3
+		}
 	}
 	theme = faith
 	left_portrait = {
@@ -660,6 +734,55 @@ pantheon_menu.0400 = {
 		if = {
 			limit = { exists = scope:pantheon_blessed_5 }
 			clear_saved_scope = pantheon_blessed_5
+		}
+		if = {
+			limit = { exists = scope:pantheon_wavering_1 }
+			clear_saved_scope = pantheon_wavering_1
+		}
+		if = {
+			limit = { exists = scope:pantheon_wavering_2 }
+			clear_saved_scope = pantheon_wavering_2
+		}
+		if = {
+			limit = { exists = scope:pantheon_wavering_3 }
+			clear_saved_scope = pantheon_wavering_3
+		}
+		# 1.3: up to three Wavering followers (below 25 Devotion), lowest first (spec, Seeing it).
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_known value >= 1 }
+			}
+			ordered_in_list = {
+				variable = pantheon_known
+				order_by = var:pantheon_devotion
+				limit = { var:pantheon_devotion < 25 }
+				position = 0
+				save_scope_as = pantheon_wavering_1
+			}
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_known value >= 2 }
+			}
+			ordered_in_list = {
+				variable = pantheon_known
+				order_by = var:pantheon_devotion
+				limit = { var:pantheon_devotion < 25 }
+				position = 1
+				save_scope_as = pantheon_wavering_2
+			}
+		}
+		if = {
+			limit = {
+				variable_list_size = { name = pantheon_known value >= 3 }
+			}
+			ordered_in_list = {
+				variable = pantheon_known
+				order_by = var:pantheon_devotion
+				limit = { var:pantheon_devotion < 25 }
+				position = 2
+				save_scope_as = pantheon_wavering_3
+			}
 		}
 		if = {
 			limit = {

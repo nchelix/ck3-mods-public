@@ -1,5 +1,28 @@
 # Changelog — Pantheon of One
 
+## [1.3] — 2026-10-02
+
+Prayers and Devotion.
+
+### Added
+- **Prayers:** your followers pray to you when in need, and you answer:
+  **Grant** (the boon, +20 Devotion), **Send a sign** (a quarter of the cost,
+  +5) or **Refuse** (-15). They ask for the Host when losing a war, Fertility
+  when married and childless, a spouse and children when alone, Healing when
+  sick or wounded, Vigor when old, Warding in a plague, a Harvest in debt, or a
+  named divine gift. A toast tells you how each answer landed.
+- **Strangers** of other faiths sometimes pray too: help them and they follow you.
+- **Devotion** (0-100) for every follower, shown in Divine Will. Devout
+  followers (75+) give double Worship and never leave; wavering ones (below 25)
+  give none, and may turn to another faith. Your Blessed lists the wavering.
+- Game rule **Prayer Frequency**: Rare, Normal, Frequent or Off.
+- Demigods are born with every best gene: beauty, genius, physique and fecund.
+
+### Changed
+- **Earned Godhood boons cost three times as much** (Host 1800, gift 900,
+  lands and life 600). Sandbox is unchanged.
+- Worship weighting now follows Devotion instead of piety level.
+
 ## [1.2] — 2026-10-01
 
 Divine Conception, and keeping track of your blessed.

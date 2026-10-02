@@ -11,3 +11,8 @@ pantheon_bore_god_child_opinion = {
 pantheon_honoured_spouse_opinion = {
 	opinion = 25
 }
+
+# 1.3: a follower who refused a prayer (pantheon.0060's Refuse).
+pantheon_refused_prayer_opinion = {
+	opinion = -10
+}
