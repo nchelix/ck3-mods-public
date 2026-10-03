@@ -584,6 +584,11 @@ one_trait_menu.0100 = {
 	}
 
 	option = {
+		name = one_trait_menu.0100.canonize
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
 		name = one_trait_menu.0100.back
 		trigger_event = one_trait_menu.0001
 	}
@@ -4073,5 +4078,222 @@ one_trait_menu.1500 = {
 	option = {
 		name = one_trait_menu.1500.back
 		trigger_event = one_trait_menu.0001
+	}
+}
+
+# 2.4.2: Canonize. Make a dead relative of the target a saint of their own faith, through vanilla's
+# pam_canonize_saint_effect (By God Alone): the Saint trait, sainthood in the faith, and relics. Dead
+# characters cannot be right-clicked, so candidates are the target's lineage, named in the options.
+one_trait_menu.0140 = {
+	type = character_event
+	title = one_trait_menu.0140.t
+	desc = one_trait_menu.0140.desc
+	theme = faith
+
+	left_portrait = {
+		character = scope:one_trait_target
+		animation = personality_bold
+	}
+
+	immediate = {
+		# Saved scopes persist down the page chain: clear before saving again
+		if = {
+			limit = { exists = scope:one_trait_canon_father }
+			clear_saved_scope = one_trait_canon_father
+		}
+		if = {
+			limit = { exists = scope:one_trait_canon_mother }
+			clear_saved_scope = one_trait_canon_mother
+		}
+		if = {
+			limit = { exists = scope:one_trait_canon_paternal_grandfather }
+			clear_saved_scope = one_trait_canon_paternal_grandfather
+		}
+		if = {
+			limit = { exists = scope:one_trait_canon_paternal_grandmother }
+			clear_saved_scope = one_trait_canon_paternal_grandmother
+		}
+		if = {
+			limit = { exists = scope:one_trait_canon_maternal_grandfather }
+			clear_saved_scope = one_trait_canon_maternal_grandfather
+		}
+		if = {
+			limit = { exists = scope:one_trait_canon_house_founder }
+			clear_saved_scope = one_trait_canon_house_founder
+		}
+		if = {
+			limit = { exists = scope:one_trait_canon_dynasty_founder }
+			clear_saved_scope = one_trait_canon_dynasty_founder
+		}
+		scope:one_trait_target.father ?= { save_scope_as = one_trait_canon_father }
+		scope:one_trait_target.mother ?= { save_scope_as = one_trait_canon_mother }
+		scope:one_trait_target.father.father ?= { save_scope_as = one_trait_canon_paternal_grandfather }
+		scope:one_trait_target.father.mother ?= { save_scope_as = one_trait_canon_paternal_grandmother }
+		scope:one_trait_target.mother.father ?= { save_scope_as = one_trait_canon_maternal_grandfather }
+		scope:one_trait_target.house.house_founder ?= { save_scope_as = one_trait_canon_house_founder }
+		scope:one_trait_target.dynasty.dynasty_founder ?= { save_scope_as = one_trait_canon_dynasty_founder }
+		if = {
+			limit = { exists = scope:one_trait_canon_place }
+			clear_saved_scope = one_trait_canon_place
+		}
+		if = {
+			limit = { exists = scope:one_trait_target.capital_province }
+			scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+		}
+		else = {
+			root.capital_province = { save_scope_as = one_trait_canon_place }
+		}
+	}
+
+	option = {
+		name = one_trait_menu.0140.father
+		trigger = {
+			exists = scope:one_trait_canon_father
+			scope:one_trait_canon_father = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_father
+				CANDIDATE = scope:one_trait_canon_father
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.mother
+		trigger = {
+			exists = scope:one_trait_canon_mother
+			scope:one_trait_canon_mother = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_mother
+				CANDIDATE = scope:one_trait_canon_mother
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.paternal_grandfather
+		trigger = {
+			exists = scope:one_trait_canon_paternal_grandfather
+			scope:one_trait_canon_paternal_grandfather = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_paternal_grandfather
+				CANDIDATE = scope:one_trait_canon_paternal_grandfather
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.paternal_grandmother
+		trigger = {
+			exists = scope:one_trait_canon_paternal_grandmother
+			scope:one_trait_canon_paternal_grandmother = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_paternal_grandmother
+				CANDIDATE = scope:one_trait_canon_paternal_grandmother
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.maternal_grandfather
+		trigger = {
+			exists = scope:one_trait_canon_maternal_grandfather
+			scope:one_trait_canon_maternal_grandfather = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_maternal_grandfather
+				CANDIDATE = scope:one_trait_canon_maternal_grandfather
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.house_founder
+		trigger = {
+			exists = scope:one_trait_canon_house_founder
+			scope:one_trait_canon_house_founder = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_house_founder
+				CANDIDATE = scope:one_trait_canon_house_founder
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.dynasty_founder
+		trigger = {
+			exists = scope:one_trait_canon_dynasty_founder
+			scope:one_trait_canon_dynasty_founder = {
+				is_alive = no
+				NOT = { has_trait = saint }
+			}
+		}
+		custom_tooltip = one_trait_menu.0140.tt
+		hidden_effect = {
+			pam_canonize_saint_effect = {
+				CANONIZER = scope:one_trait_canon_dynasty_founder
+				CANDIDATE = scope:one_trait_canon_dynasty_founder
+				CONSECRATION_PROVINCE = scope:one_trait_canon_place
+				PRESET = no
+			}
+		}
+		trigger_event = one_trait_menu.0140
+	}
+
+	option = {
+		name = one_trait_menu.0140.back
+		trigger_event = one_trait_menu.0100
 	}
 }

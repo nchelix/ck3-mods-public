@@ -1,5 +1,16 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.4.2] — 2026-10-02
+
+Canonize.
+
+### Added
+- **Canonize a relative** (Character Editor): make any of the right-clicked
+  character's departed kin a saint of their own faith: father, mother,
+  grandparents, house founder or dynasty founder. Uses the game's own
+  canonization (By God Alone): the Saint trait, sainthood in the faith, and
+  relics from their remains.
+
 ## [2.4.1] — 2026-10-01
 
 Scourge of the Gods.
