@@ -159,3 +159,154 @@ pantheon_need_spouse_trigger = {
 	NOT = { any_child = { always = yes } }
 	NOT = { has_variable = pantheon_boon_fertility }
 }
+
+# ---- 1.4 Wrath. In each trigger below, this is the candidate and $GOD$ the god. Pass GOD as a saved scope
+# or root, never `this`: inside a nested block `this` changes, and $GOD$.faith would read the wrong faith.
+
+# Never the god, a god's child, or one of the god's devout (spec, Rules for all wraths).
+pantheon_wrath_protected_trigger = {
+	OR = {
+		this = $GOD$
+		has_trait = pantheon_divine
+		has_trait = pantheon_demigod
+		AND = {
+			faith = $GOD$.faith
+			pantheon_devout_trigger = yes
+		}
+	}
+}
+
+# Another faith, and either at war with a follower of the god's faith or holding a county with one of its
+# holy sites. In a war scope, prev is the candidate.
+pantheon_enemy_trigger = {
+	NOT = { faith = $GOD$.faith }
+	OR = {
+		any_character_war = {
+			OR = {
+				AND = {
+					is_attacker = prev
+					any_war_defender = { faith = $GOD$.faith }
+				}
+				AND = {
+					is_defender = prev
+					any_war_attacker = { faith = $GOD$.faith }
+				}
+			}
+		}
+		any_held_county = {
+			any_county_province = {
+				barony = { is_holy_site_of = $GOD$.faith }
+			}
+		}
+	}
+}
+
+# A follower carrying a trait the god's rite counts as a crime (proven in the prototype: vanilla's
+# trait_is_criminal_in_rite_trigger, one has_trait check per crime trait).
+pantheon_criminal_trigger = {
+	faith = $GOD$.faith
+	OR = {
+		AND = {
+			has_trait = kinslayer_1
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:kinslayer_1 GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = kinslayer_2
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:kinslayer_2 GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = kinslayer_3
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:kinslayer_3 GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = adulterer
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:adulterer GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = fornicator
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:fornicator GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = sodomite
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:sodomite GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = incestuous
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:incestuous GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = deviant
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:deviant GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = witch
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:witch GENDER_CHARACTER = this }
+		}
+		AND = {
+			has_trait = cannibal
+			trait_is_criminal_in_rite_trigger = { RITE = $GOD$.rite TRAIT = trait:cannibal GENDER_CHARACTER = this }
+		}
+	}
+}
+
+# A follower who is Wavering, or carries a trait the god's rite counts as a sin (proven: num_sinful_traits).
+pantheon_sinner_trigger = {
+	faith = $GOD$.faith
+	OR = {
+		pantheon_wavering_trigger = yes
+		num_sinful_traits = {
+			value > 0
+			target = $GOD$.rite
+		}
+	}
+}
+
+# A sin weighs less than a crime (user, 2026-10-03): only Curse or Maim, and -25 Devotion rather than 0.
+pantheon_sin_only_trigger = {
+	pantheon_sinner_trigger = { GOD = $GOD$ }
+	NOT = { pantheon_criminal_trigger = { GOD = $GOD$ } }
+}
+
+# Who Pass Judgement shows on: enemies, apostates, criminals, sinners; never the protected.
+# pantheon_debug_enemy is set only by the local PantheonOfOneDebug mod.
+pantheon_judgement_target_trigger = {
+	is_alive = yes
+	NOT = { pantheon_wrath_protected_trigger = { GOD = $GOD$ } }
+	OR = {
+		pantheon_enemy_trigger = { GOD = $GOD$ }
+		has_variable = pantheon_apostate
+		pantheon_criminal_trigger = { GOD = $GOD$ }
+		pantheon_sinner_trigger = { GOD = $GOD$ }
+		has_variable = pantheon_debug_enemy
+	}
+}
+
+# Divine Retribution: a war on the god (by anyone), or by someone of another faith on a devout follower or
+# over a holy site of the god's faith (user, 2026-10-05: followers' own quarrels stay mortal business).
+pantheon_retribution_war_trigger = {
+	NOT = { scope:attacker = $GOD$ }
+	OR = {
+		scope:defender = $GOD$
+		AND = {
+			NOT = { scope:attacker = { faith = $GOD$.faith } }
+			OR = {
+				scope:defender = {
+					faith = $GOD$.faith
+					pantheon_devout_trigger = yes
+				}
+				scope:war = {
+					casus_belli = {
+						any_target_title = {
+							any_in_de_jure_hierarchy = {
+								tier = tier_county
+								any_county_province = {
+									barony = { is_holy_site_of = $GOD$.faith }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -160,6 +160,13 @@ pantheon_convert_away_effect = {
 			scope:pantheon_target = { set_character_faith = scope:pantheon_convert_county.faith }
 		}
 	}
+	# 1.4: whoever has left the god may be judged as an apostate
+	scope:pantheon_target = {
+		if = {
+			limit = { NOT = { faith = root.faith } }
+			set_variable = pantheon_apostate
+		}
+	}
 	send_interface_toast = {
 		type = event_toast_effect_bad
 		title = pantheon_turned_away_t
@@ -171,7 +178,9 @@ pantheon_convert_away_effect = {
 # pantheon_events.txt's pantheon.0010). Scope: the god's faith's rulers and courtiers only (spec, Build
 # section) -- neither scans the whole world. Root is the god.
 pantheon_devotion_yearly_pass_effect = {
-	# A menu may have saved pantheon_target permanently in this chain; a temporary save of the same name errors
+	# A menu may have saved pantheon_target permanently in this chain, and a delayed chain inherits it where
+	# clear_saved_scope cannot remove it, so the loops below save it permanently too (they overwrite; 1.4
+	# in-game error.log).
 	if = {
 		limit = { exists = scope:pantheon_target }
 		clear_saved_scope = pantheon_target
@@ -182,7 +191,7 @@ pantheon_devotion_yearly_pass_effect = {
 			has_variable = pantheon_devotion
 			var:pantheon_devotion < 25
 		}
-		save_temporary_scope_as = pantheon_target
+		save_scope_as = pantheon_target
 		pantheon_leave_faith_check_effect = yes
 	}
 	every_courtier = {
@@ -191,17 +200,17 @@ pantheon_devotion_yearly_pass_effect = {
 			has_variable = pantheon_devotion
 			var:pantheon_devotion < 25
 		}
-		save_temporary_scope_as = pantheon_target
+		save_scope_as = pantheon_target
 		pantheon_leave_faith_check_effect = yes
 	}
 	every_ruler = {
 		limit = { faith = root.faith }
-		save_temporary_scope_as = pantheon_target
+		save_scope_as = pantheon_target
 		pantheon_devotion_drift_effect = yes
 	}
 	every_courtier = {
 		limit = { faith = root.faith }
-		save_temporary_scope_as = pantheon_target
+		save_scope_as = pantheon_target
 		pantheon_devotion_drift_effect = yes
 	}
 }
@@ -292,6 +301,8 @@ pantheon_pick_follower_prayer_effect = {
 		variable = pantheon_known
 		limit = {
 			NOT = { this = root }
+			is_alive = yes
+			has_variable = pantheon_devotion
 			var:pantheon_devotion >= 75
 			NOT = { has_variable = pantheon_prayed_recently }
 		}
@@ -447,6 +458,11 @@ pantheon_grant_prayer_effect = {
 		scope:pantheon_suppliant = {
 			set_variable = pantheon_was_stranger
 			set_character_faith = root.faith
+			# 1.4: a returning apostate is forgiven
+			if = {
+				limit = { has_variable = pantheon_apostate }
+				remove_variable = pantheon_apostate
+			}
 		}
 		pantheon_ensure_devotion_effect = { START = 60 }
 	}
@@ -504,4 +520,31 @@ pantheon_refuse_prayer_effect = {
 		title = pantheon_prayer_refused_t
 		left_icon = scope:pantheon_suppliant
 	}
+}
+
+# Forget the dead: a purged character left in one of the god's lists errors on every read (1.4 in-game
+# error.log). Rebuilt rather than removed mid-iteration. Root is the god; run quarterly from pantheon.0010.
+pantheon_forget_the_dead_effect = {
+	every_in_list = {
+		variable = pantheon_blessed
+		limit = { is_alive = yes }
+		root = { add_to_variable_list = { name = pantheon_blessed_alive target = prev } }
+	}
+	clear_variable_list = pantheon_blessed
+	every_in_list = {
+		variable = pantheon_blessed_alive
+		root = { add_to_variable_list = { name = pantheon_blessed target = prev } }
+	}
+	clear_variable_list = pantheon_blessed_alive
+	every_in_list = {
+		variable = pantheon_known
+		limit = { is_alive = yes }
+		root = { add_to_variable_list = { name = pantheon_known_alive target = prev } }
+	}
+	clear_variable_list = pantheon_known
+	every_in_list = {
+		variable = pantheon_known_alive
+		root = { add_to_variable_list = { name = pantheon_known target = prev } }
+	}
+	clear_variable_list = pantheon_known_alive
 }

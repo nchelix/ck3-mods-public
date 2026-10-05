@@ -166,7 +166,7 @@ pantheon_take_throne_effect = {
 	# 1.3: the faith's rulers start at 50 Devotion the moment the throne is taken (spec, Devotion table, Start).
 	every_ruler = {
 		limit = { faith = scope:pantheon_faith }
-		save_temporary_scope_as = pantheon_target
+		save_scope_as = pantheon_target
 		pantheon_ensure_devotion_effect = { START = 50 }
 	}
 	trigger_event = { id = pantheon.0010 days = 91 }

@@ -1,0 +1,286 @@
+﻿namespace = pantheon
+
+# Pantheon of One 1.4: Wrath. Root is the god; var:pantheon_wrath_target the one judged. At most three
+# options per page may grey out (show_as_unavailable); a fourth would vanish (memory ck3-event-option-visibility).
+
+# Pass Judgement: navigation only.
+pantheon.0070 = {
+	type = character_event
+	title = pantheon.0070.t
+	desc = pantheon.0070.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_victim
+		animation = fear
+	}
+	trigger = {
+		exists = var:pantheon_wrath_target
+		var:pantheon_wrath_target = { is_alive = yes }
+	}
+	immediate = { pantheon_wrath_open_page_effect = yes }
+
+	option = {
+		name = pantheon.0070.person
+		trigger_event = pantheon.0071
+	}
+
+	# Hidden (not greyed) for a sin-only sinner
+	option = {
+		name = pantheon.0070.lands
+		trigger = {
+			NOT = { has_variable = pantheon_wrath_light }
+			scope:pantheon_victim = { any_held_county = { always = yes } }
+		}
+		trigger_event = pantheon.0073
+	}
+
+	option = {
+		name = pantheon.0070.stay
+	}
+}
+
+# Strike the person.
+pantheon.0071 = {
+	type = character_event
+	title = pantheon.0071.t
+	desc = pantheon.0071.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_victim
+		animation = fear
+	}
+	trigger = {
+		exists = var:pantheon_wrath_target
+		var:pantheon_wrath_target = { is_alive = yes }
+	}
+	immediate = { pantheon_wrath_open_page_effect = yes }
+
+	option = {
+		name = pantheon.0071.strike
+		trigger = {
+			NOT = { has_variable = pantheon_wrath_light }
+			custom_tooltip = { text = pantheon_needs_worship_strike_tt var:pantheon_worship >= pantheon_cost_strike }
+		}
+		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
+		custom_tooltip = pantheon.0071.strike.tt
+		hidden_effect = { pantheon_wrath_strike_effect = yes }
+	}
+
+	option = {
+		name = pantheon.0071.maim
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim }
+		}
+		show_as_unavailable = { always = yes }
+		trigger_event = pantheon.0072
+	}
+
+	option = {
+		name = pantheon.0071.curse
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_curse_tt var:pantheon_worship >= pantheon_cost_curse }
+		}
+		show_as_unavailable = { always = yes }
+		custom_tooltip = pantheon.0071.curse.tt
+		hidden_effect = { pantheon_wrath_curse_effect = yes }
+	}
+
+	option = {
+		name = pantheon.0071.back
+		trigger_event = pantheon.0070
+	}
+}
+
+# Maim: the god picks the wound.
+pantheon.0072 = {
+	type = character_event
+	title = pantheon.0072.t
+	desc = pantheon.0072.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_victim
+		animation = fear
+	}
+	trigger = {
+		exists = var:pantheon_wrath_target
+		var:pantheon_wrath_target = { is_alive = yes }
+	}
+	immediate = { pantheon_wrath_open_page_effect = yes }
+
+	option = {
+		name = pantheon.0072.maimed
+		trigger = {
+			scope:pantheon_victim = { NOT = { has_trait = maimed } }
+			custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim }
+		}
+		show_as_unavailable = { scope:pantheon_victim = { NOT = { has_trait = maimed } } }
+		hidden_effect = { pantheon_wrath_maim_effect = { TRAIT = maimed } }
+	}
+
+	option = {
+		name = pantheon.0072.blind
+		trigger = {
+			scope:pantheon_victim = { NOT = { has_trait = blind } }
+			custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim }
+		}
+		show_as_unavailable = { scope:pantheon_victim = { NOT = { has_trait = blind } } }
+		hidden_effect = { pantheon_wrath_maim_effect = { TRAIT = blind } }
+	}
+
+	option = {
+		name = pantheon.0072.wound
+		trigger = {
+			scope:pantheon_victim = { NOT = { has_trait = wounded_3 } }
+			custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim }
+		}
+		show_as_unavailable = { scope:pantheon_victim = { NOT = { has_trait = wounded_3 } } }
+		hidden_effect = { pantheon_wrath_maim_effect = { TRAIT = wounded_3 } }
+	}
+
+	option = {
+		name = pantheon.0072.back
+		trigger_event = pantheon.0071
+	}
+}
+
+# Strike their lands.
+pantheon.0073 = {
+	type = character_event
+	title = pantheon.0073.t
+	desc = pantheon.0073.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_victim
+		animation = fear
+	}
+	trigger = {
+		exists = var:pantheon_wrath_target
+		var:pantheon_wrath_target = { is_alive = yes }
+	}
+	immediate = { pantheon_wrath_open_page_effect = yes }
+
+	option = {
+		name = pantheon.0073.pestilence
+		trigger = {
+			NOT = { has_variable = pantheon_wrath_light }
+			custom_tooltip = { text = pantheon_needs_worship_pestilence_tt var:pantheon_worship >= pantheon_cost_pestilence }
+		}
+		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
+		custom_tooltip = pantheon.0073.pestilence.tt
+		hidden_effect = { pantheon_wrath_plague_effect = { INTENSITY = minor COST = pantheon_cost_pestilence } }
+	}
+
+	option = {
+		name = pantheon.0073.great_dying
+		trigger = {
+			NOT = { has_variable = pantheon_wrath_light }
+			custom_tooltip = { text = pantheon_needs_worship_great_dying_tt var:pantheon_worship >= pantheon_cost_great_dying }
+		}
+		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
+		custom_tooltip = pantheon.0073.great_dying.tt
+		hidden_effect = { pantheon_wrath_plague_effect = { INTENSITY = major COST = pantheon_cost_great_dying } }
+	}
+
+	option = {
+		name = pantheon.0073.disaster
+		trigger = {
+			NOT = { has_variable = pantheon_wrath_light }
+			custom_tooltip = { text = pantheon_needs_worship_disaster_tt var:pantheon_worship >= pantheon_cost_disaster }
+		}
+		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
+		custom_tooltip = pantheon.0073.disaster.tt
+		hidden_effect = { pantheon_wrath_disaster_effect = yes }
+	}
+
+	option = {
+		name = pantheon.0073.back
+		trigger_event = pantheon.0070
+	}
+}
+
+# Divine Retribution: someone has attacked the god, a devout follower, or a holy site. The aggressor is open to
+# every wrath (no sin-only limit), but the protection rules and the cooldown still hold.
+pantheon.0080 = {
+	type = character_event
+	title = pantheon.0080.t
+	desc = pantheon.0080.desc
+	theme = war
+	left_portrait = {
+		character = scope:pantheon_victim
+		animation = war_attacker
+	}
+	right_portrait = {
+		character = scope:pantheon_defender
+		animation = war_defender
+	}
+	trigger = {
+		exists = var:pantheon_wrath_target
+		exists = var:pantheon_retribution_defender
+		var:pantheon_wrath_target = { is_alive = yes }
+	}
+	immediate = {
+		pantheon_wrath_open_page_effect = yes
+		if = {
+			limit = { exists = scope:pantheon_defender }
+			clear_saved_scope = pantheon_defender
+		}
+		var:pantheon_retribution_defender = { save_scope_as = pantheon_defender }
+		if = {
+			limit = { has_variable = pantheon_wrath_light }
+			remove_variable = pantheon_wrath_light
+		}
+	}
+
+	option = {
+		name = pantheon.0080.smite
+		trigger = {
+			scope:pantheon_victim = {
+				custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
+				custom_tooltip = { text = pantheon_wrath_protected_tt NOT = { pantheon_wrath_protected_trigger = { GOD = root } } }
+			}
+			custom_tooltip = { text = pantheon_needs_worship_curse_tt var:pantheon_worship >= pantheon_cost_curse }
+		}
+		show_as_unavailable = { always = yes }
+		set_variable = { name = pantheon_wrath_target value = scope:pantheon_victim }
+		trigger_event = pantheon.0071
+	}
+
+	option = {
+		name = pantheon.0080.curse_lands
+		trigger = {
+			scope:pantheon_victim = {
+				custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
+				custom_tooltip = { text = pantheon_wrath_protected_tt NOT = { pantheon_wrath_protected_trigger = { GOD = root } } }
+			}
+			custom_tooltip = { text = pantheon_needs_worship_disaster_tt var:pantheon_worship >= pantheon_cost_disaster }
+		}
+		show_as_unavailable = { always = yes }
+		hidden_effect = { pantheon_wrath_disaster_effect = yes }
+	}
+
+	option = {
+		name = pantheon.0080.host
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_host_tt var:pantheon_worship >= pantheon_cost_host }
+			scope:pantheon_defender = {
+				is_landed = yes
+				is_at_war = yes
+				any_character_war = { NOT = { has_variable = pantheon_host_called } }
+			}
+		}
+		show_as_unavailable = {
+			scope:pantheon_defender = {
+				is_landed = yes
+				is_at_war = yes
+				any_character_war = { NOT = { has_variable = pantheon_host_called } }
+			}
+		}
+		hidden_effect = { pantheon_retribution_host_effect = yes }
+	}
+
+	option = {
+		name = pantheon.0080.mortals
+		custom_tooltip = pantheon.0080.mortals.tt
+		hidden_effect = { pantheon_retribution_mortals_effect = yes }
+	}
+}

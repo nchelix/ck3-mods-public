@@ -26,3 +26,42 @@ pantheon_divine_will_interaction = {
 	auto_accept = yes
 	ai_will_do = { base = 0 }
 }
+
+# 1.4 Wrath: right-click an enemy, apostate, criminal or sinner to Pass Judgement (pantheon.0070).
+pantheon_judgement_interaction = {
+	category = interaction_category_hostile
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = pantheon_judgement_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = { pantheon_judgement_target_trigger = { GOD = scope:actor } }
+	}
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
+		}
+	}
+	on_accept = {
+		scope:actor = {
+			set_variable = { name = pantheon_wrath_target value = scope:recipient }
+			# A sin weighs less than a crime: the pages hide the heavier wraths
+			if = {
+				limit = { scope:recipient = { pantheon_sin_only_trigger = { GOD = scope:actor } } }
+				set_variable = pantheon_wrath_light
+			}
+			else_if = {
+				limit = { has_variable = pantheon_wrath_light }
+				remove_variable = pantheon_wrath_light
+			}
+			trigger_event = pantheon.0070
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}

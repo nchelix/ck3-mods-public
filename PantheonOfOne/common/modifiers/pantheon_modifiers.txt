@@ -50,3 +50,35 @@ pantheon_lineage_marker = {
 	icon = health_positive
 	fertility = 0.1
 }
+
+# 1.4 Wrath. A curse lasts 10 years; on a ruler, their vassals think less of them too.
+pantheon_cursed = {
+	icon = health_negative
+	health = -1
+	fertility = -0.5
+	monthly_prestige_gain_mult = -0.25
+	stress_gain_mult = 0.25
+	vassal_opinion = -15
+}
+
+# A Disaster: the kind follows the capital's terrain, and the effect is the same for all three.
+pantheon_disaster_flood = {
+	icon = county_modifier_development_negative
+	development_growth_factor = -0.5
+	tax_mult = -0.5
+	levy_size = -0.5
+}
+
+pantheon_disaster_quake = {
+	icon = county_modifier_development_negative
+	development_growth_factor = -0.5
+	tax_mult = -0.5
+	levy_size = -0.5
+}
+
+pantheon_disaster_famine = {
+	icon = county_modifier_development_negative
+	development_growth_factor = -0.5
+	tax_mult = -0.5
+	levy_size = -0.5
+}

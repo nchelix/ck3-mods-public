@@ -156,3 +156,52 @@ pantheon_prayer_sign_cost = {
 	divide = 4
 	round = yes
 }
+
+# 1.4 Wrath: what each wrath costs (spec, The wraths). Sandbox pays 1/12, like every boon.
+pantheon_cost_strike = {
+	value = 2400
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_maim = {
+	value = 1200
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_curse = {
+	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_pestilence = {
+	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_great_dying = {
+	value = 2400
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_disaster = {
+	value = 1200
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}

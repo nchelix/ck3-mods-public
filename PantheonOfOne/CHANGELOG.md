@@ -1,5 +1,31 @@
 # Changelog — Pantheon of One
 
+## [1.4] — 2026-10-05
+
+Wrath.
+
+### Added
+- **Pass Judgement** (right-click): turn your wrath on enemies of your faith,
+  apostates who left you, and sinners and criminals among your followers.
+  - **Strike the person:** strike them down, maim them (a limb, their sight,
+    or a grievous wound), or curse them for ten years.
+  - **Strike their lands:** Pestilence (a minor plague), The Great Dying (a
+    great plague that will spread, perhaps to your own faithful), or a
+    Disaster (flood, earthquake or famine by terrain, and a building falls).
+  - A sin weighs less than a crime: sinners can only be cursed or maimed.
+    Gods, demigods and your devout are never judged; one wrath per target
+    every five years.
+- **Divine Retribution:** when someone of another faith makes war on a devout
+  follower or on one of your holy sites, or anyone makes war on you: smite the
+  aggressor, curse their lands, send the Host, or let mortals settle it.
+- **Devotion answers your wrath:** strike an enemy and your followers are in
+  awe; strike one of your own and the faithful fear you while the wavering
+  resent it.
+
+### Fixed
+- Error-log noise from the yearly Devotion pass, and from characters who died
+  while on your Blessed or prayer lists.
+
 ## [1.3] — 2026-10-02
 
 Prayers and Devotion.

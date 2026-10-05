@@ -17,6 +17,8 @@ pantheon.0010 = {
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
 		pantheon_divine_health_effect = yes
+		pantheon_forget_the_dead_effect = yes
+		pantheon_plague_devotion_effect = yes
 		# A god enthroned before 1.3 never started the prayer timer
 		if = {
 			limit = { NOT = { has_variable = pantheon_prayer_timer } }

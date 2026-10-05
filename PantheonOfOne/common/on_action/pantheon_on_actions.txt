@@ -222,3 +222,31 @@ pantheon_on_pregnancy_mother = {
 		}
 	}
 }
+
+# 1.4 Divine Retribution. Scopes proven in the Phase 3 prototype: scope:attacker, scope:defender, scope:war.
+# The god is saved, not passed as `this`: inside the trigger's nested blocks `this` would change.
+on_war_started = {
+	on_actions = { pantheon_on_war_started }
+}
+
+pantheon_on_war_started = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = { pantheon_retribution_war_trigger = { GOD = scope:pantheon_god } }
+				set_variable = { name = pantheon_wrath_target value = scope:attacker }
+				set_variable = { name = pantheon_retribution_defender value = scope:defender }
+				trigger_event = pantheon.0080
+			}
+		}
+	}
+}

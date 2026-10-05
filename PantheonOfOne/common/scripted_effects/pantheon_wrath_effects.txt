@@ -1,0 +1,318 @@
+﻿# Pantheon of One 1.4: Wrath. Root is the god; scope:pantheon_victim is the one struck (saved by the page,
+# see pantheon_wrath_open_page_effect). Each wrath charges, lands (cooldown, toasts, Devotion), then strikes.
+
+# Every wrath, as it lands: the 5-year cooldown, a toast for each side, and Devotion (spec, Devotion after a
+# wrath). Called BEFORE the wrath itself, so a target about to be struck down is still alive to be judged.
+pantheon_wrath_landed_effect = {
+	scope:pantheon_victim = {
+		set_variable = { name = pantheon_wrath_cooldown value = yes years = 5 }
+		send_interface_toast = {
+			type = event_toast_effect_bad
+			title = pantheon_wrath_struck_t
+			left_icon = root
+		}
+	}
+	send_interface_toast = {
+		type = event_toast_effect_neutral
+		title = $TOAST$
+		left_icon = scope:pantheon_victim
+	}
+	pantheon_wrath_devotion_effect = yes
+}
+
+pantheon_wrath_strike_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_strike }
+	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_strike_t }
+	scope:pantheon_victim = {
+		death = { death_reason = death_pantheon_smitten killer = root }
+	}
+}
+
+# $TRAIT$: maimed, blind or wounded_3 (the god picks on pantheon.0072)
+pantheon_wrath_maim_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_maim }
+	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_maim_t }
+	scope:pantheon_victim = { add_trait = $TRAIT$ }
+}
+
+pantheon_wrath_curse_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_curse }
+	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_curse_t }
+	scope:pantheon_victim = {
+		add_character_modifier = { modifier = pantheon_cursed years = 10 }
+	}
+}
+
+# Pestilence (INTENSITY = minor) and The Great Dying (major). Proven: major swept Britain, minor stayed
+# contained. pantheon_plague_sent lets the quarterly tick charge followers it reaches (-5, once each).
+pantheon_wrath_plague_effect = {
+	change_variable = { name = pantheon_worship subtract = $COST$ }
+	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_plague_t }
+	scope:pantheon_victim.capital_province ?= {
+		create_epidemic_outbreak = { type = bubonic_plague intensity = $INTENSITY$ }
+	}
+	set_variable = { name = pantheon_plague_sent value = yes years = 3 }
+}
+
+# The kind follows the capital's terrain (proven): a flood on coasts and rivers, an earthquake in hills and
+# mountains, a famine elsewhere. Only the target's own counties are struck.
+pantheon_wrath_disaster_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_disaster }
+	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_disaster_t }
+	if = {
+		limit = {
+			scope:pantheon_victim.capital_province ?= {
+				OR = {
+					is_coastal = yes
+					is_riverside_province = yes
+				}
+			}
+		}
+		scope:pantheon_victim = {
+			every_held_county = { add_county_modifier = { modifier = pantheon_disaster_flood years = 5 } }
+		}
+	}
+	else_if = {
+		limit = {
+			scope:pantheon_victim.capital_province ?= {
+				OR = {
+					terrain = hills
+					terrain = mountains
+				}
+			}
+		}
+		scope:pantheon_victim = {
+			every_held_county = { add_county_modifier = { modifier = pantheon_disaster_quake years = 5 } }
+		}
+	}
+	else = {
+		scope:pantheon_victim = {
+			every_held_county = { add_county_modifier = { modifier = pantheon_disaster_famine years = 5 } }
+		}
+	}
+	pantheon_wrath_wreck_building_effect = yes
+}
+
+# A building always falls (user, 2026-10-03): the capital first, then their other counties best-developed
+# first, and if they own no buildings at all the capital loses 2 development. Proven: vanilla's variable
+# effect sets destroyed_building_variable only when a destroyable building exists.
+pantheon_wrath_wreck_building_effect = {
+	if = {
+		limit = { exists = scope:pantheon_wrecked }
+		clear_saved_scope = pantheon_wrecked
+	}
+	scope:pantheon_victim.capital_province ?= {
+		destroy_random_building_variable_effect = yes
+		if = {
+			limit = { has_variable = destroyed_building_variable }
+			destroy_random_building_effect = yes
+			save_scope_as = pantheon_wrecked
+		}
+	}
+	if = {
+		limit = { NOT = { exists = scope:pantheon_wrecked } }
+		scope:pantheon_victim = {
+			ordered_held_title = {
+				limit = { tier = tier_county }
+				order_by = development_level
+				max = 100
+				check_range_bounds = no
+				if = {
+					limit = { NOT = { exists = scope:pantheon_wrecked } }
+					title_province = {
+						destroy_random_building_variable_effect = yes
+						if = {
+							limit = { has_variable = destroyed_building_variable }
+							destroy_random_building_effect = yes
+							save_scope_as = pantheon_wrecked
+						}
+					}
+				}
+			}
+		}
+	}
+	if = {
+		limit = { exists = scope:pantheon_wrecked }
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = pantheon_wrath_wrecked_t
+			left_icon = scope:pantheon_victim
+		}
+	}
+	else = {
+		scope:pantheon_victim.capital_county ?= { change_development_level = -2 }
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = pantheon_wrath_ruin_t
+			left_icon = scope:pantheon_victim
+		}
+	}
+}
+
+# Devotion after a wrath (spec table). One of the god's own: a criminal drops to 0, a sinner loses 25; then
+# the faithful fear and the wavering resent. An apostate: the fear sweep only. Anyone else: the awe sweep.
+pantheon_wrath_devotion_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	if = {
+		limit = { scope:pantheon_victim = { faith = root.faith } }
+		scope:pantheon_victim = { save_scope_as = pantheon_target }
+		if = {
+			limit = { scope:pantheon_victim = { pantheon_criminal_trigger = { GOD = root } } }
+			pantheon_change_devotion_effect = { AMOUNT = -100 }
+		}
+		else = {
+			pantheon_change_devotion_effect = { AMOUNT = -25 }
+		}
+		clear_saved_scope = pantheon_target
+		pantheon_wrath_fear_sweep_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_victim = { has_variable = pantheon_apostate } }
+		pantheon_wrath_fear_sweep_effect = yes
+	}
+	else = {
+		pantheon_wrath_awe_sweep_effect = yes
+	}
+}
+
+# Fear: the faithful +5, the wavering -5. The god's faith's rulers and the god's courtiers only (the yearly
+# pass's scope; no world scans beyond it).
+pantheon_wrath_fear_sweep_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
+			NOT = { this = scope:pantheon_victim }
+		}
+		save_scope_as = pantheon_target
+		if = {
+			limit = { pantheon_wavering_trigger = yes }
+			root = { pantheon_change_devotion_effect = { AMOUNT = -5 } }
+		}
+		else = {
+			root = { pantheon_change_devotion_effect = { AMOUNT = 5 } }
+		}
+	}
+	every_courtier = {
+		limit = {
+			faith = root.faith
+			NOT = { this = scope:pantheon_victim }
+		}
+		save_scope_as = pantheon_target
+		if = {
+			limit = { pantheon_wavering_trigger = yes }
+			root = { pantheon_change_devotion_effect = { AMOUNT = -5 } }
+		}
+		else = {
+			root = { pantheon_change_devotion_effect = { AMOUNT = 5 } }
+		}
+	}
+}
+
+# Awe: followers at war with the one struck, or every follower when it holds one of the faith's holy sites, +15; everyone else +5.
+pantheon_wrath_awe_sweep_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
+		}
+		save_scope_as = pantheon_target
+		if = {
+			limit = {
+				OR = {
+					is_at_war_with = scope:pantheon_victim
+					scope:pantheon_victim = {
+						any_held_county = {
+							any_county_province = {
+								barony = { is_holy_site_of = root.faith }
+							}
+						}
+					}
+				}
+			}
+			root = { pantheon_change_devotion_effect = { AMOUNT = 15 } }
+		}
+		else = {
+			root = { pantheon_change_devotion_effect = { AMOUNT = 5 } }
+		}
+	}
+	every_courtier = {
+		limit = { faith = root.faith }
+		save_scope_as = pantheon_target
+		root = { pantheon_change_devotion_effect = { AMOUNT = 5 } }
+	}
+}
+
+# Quarterly (pantheon.0010): while one of the god's plagues is abroad, a follower whose capital county has an
+# outbreak loses 5 Devotion, once per 3 years. Any outbreak counts: the engine gives no handle on which
+# outbreak is the god's.
+pantheon_plague_devotion_effect = {
+	if = {
+		limit = { has_variable = pantheon_plague_sent }
+		if = {
+			limit = { exists = scope:pantheon_target }
+			clear_saved_scope = pantheon_target
+		}
+		every_ruler = {
+			limit = {
+				faith = root.faith
+				NOT = { this = root }
+				exists = capital_county
+				capital_county = { has_province_with_epidemic = { intensity = any } }
+				NOT = { has_variable = pantheon_plague_hurt }
+			}
+			set_variable = { name = pantheon_plague_hurt value = yes years = 3 }
+			save_scope_as = pantheon_target
+			root = { pantheon_change_devotion_effect = { AMOUNT = -5 } }
+		}
+	}
+}
+
+# Every wrath page and Retribution: the target is saved as scope:pantheon_victim when the chain opens, from the
+# variable on the god. Saved scopes survive trigger_event, so later pages keep the chain's own target even if
+# another Judgement or Retribution has since overwritten the variable (final review, M1).
+pantheon_wrath_open_page_effect = {
+	if = {
+		limit = { NOT = { exists = scope:pantheon_victim } }
+		var:pantheon_wrath_target = { save_scope_as = pantheon_victim }
+	}
+}
+
+# Retribution, Send the Host: the existing Host boon, given to the defender (+10 Devotion, as any unasked boon,
+# unless the defender is the god).
+pantheon_retribution_host_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	scope:pantheon_defender = { save_scope_as = pantheon_target }
+	pantheon_call_host_effect = yes
+	if = {
+		limit = { NOT = { scope:pantheon_defender = root } }
+		pantheon_change_devotion_effect = { AMOUNT = 10 }
+	}
+}
+
+# Retribution, Let mortals settle it: free, but a follower left undefended loses 10 Devotion.
+pantheon_retribution_mortals_effect = {
+	if = {
+		limit = { NOT = { scope:pantheon_defender = root } }
+		if = {
+			limit = { exists = scope:pantheon_target }
+			clear_saved_scope = pantheon_target
+		}
+		scope:pantheon_defender = { save_scope_as = pantheon_target }
+		pantheon_change_devotion_effect = { AMOUNT = -10 }
+	}
+}

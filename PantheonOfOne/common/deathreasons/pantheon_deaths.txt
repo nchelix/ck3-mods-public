@@ -1,0 +1,5 @@
+﻿# Pantheon of One 1.4: Strike down. Proven in the Phase 3 prototype ("Was struck down by you").
+death_pantheon_smitten = {
+	public_knowledge = yes
+	icon = "death_murder.dds"
+}
