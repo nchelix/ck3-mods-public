@@ -302,7 +302,7 @@ task_conversion = {
 			days = 1 # To ensure it does not fire at the same time as the finish message (both cancel and finish are fired on_finish_task_county)
 		}
 
-		# Council Automation: start the same task on the next county
+		# Council Automation: start the same task on the next county, another faith before another rite
 		if = {
 			limit = {
 				scope:councillor_liege = {
@@ -310,7 +310,17 @@ task_conversion = {
 					any_sub_realm_county = { ca_can_target_task_conversion = yes }
 				}
 			}
-			ca_start_next_task = { TRIGGER = ca_can_target_task_conversion ORDER = county_opinion EVENT = council_automation.0001 }
+			if = {
+				limit = {
+					scope:councillor_liege = {
+						any_sub_realm_county = { ca_converts_faith_task_conversion = yes }
+					}
+				}
+				ca_start_next_task = { TRIGGER = ca_converts_faith_task_conversion ORDER = county_opinion EVENT = council_automation.0001 }
+			}
+			else = {
+				ca_start_next_task = { TRIGGER = ca_can_target_task_conversion ORDER = county_opinion EVENT = council_automation.0001 }
+			}
 		}
 	}
 

@@ -1,0 +1,22 @@
+﻿# Council Automation 1.1: would converting this county change its FAITH, not just its rite?
+# The chaplain's conversion hook tries these counties first (user request: rites hardly matter,
+# and converting a rite a local archbishop converts straight back made the chaplain loop).
+#
+# Mirrors vanilla's task_conversion_valid_county_trigger: a county converts into the liege's
+# faith, unless the chaplain is of another faith and the liege has no ministry, in which case it
+# converts into the chaplain's. A county already of that faith only changes rite.
+ca_converts_faith_task_conversion = {
+	ca_can_target_task_conversion = yes
+	faith != scope:councillor_liege.faith
+	trigger_if = {
+		limit = {
+			NOT = {
+				OR = {
+					scope:councillor_liege = { tgp_has_access_to_ministry_trigger = yes }
+					scope:councillor.faith = scope:councillor_liege.faith
+				}
+			}
+		}
+		faith != scope:councillor.faith
+	}
+}

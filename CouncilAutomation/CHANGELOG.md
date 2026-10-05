@@ -1,5 +1,14 @@
 # Changelog — Council Automation
 
+## [1.1] — 2026-10-05
+
+### Changed
+- **Court Chaplain: faith before rite.** The chaplain now converts every county
+  of another faith first, in the usual order of preference, and only turns to
+  same-faith counties of another rite when none are left. Before, he could get
+  stuck converting rites that a local archbishop converted straight back.
+  (Thanks to the player who reported it.)
+
 ## [1.0] — 2026-09-30
 
 First release, for CK3 1.20 "Crozier".
