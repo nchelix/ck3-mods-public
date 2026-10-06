@@ -294,19 +294,62 @@ pantheon_retribution_war_trigger = {
 					faith = $GOD$.faith
 					pantheon_devout_trigger = yes
 				}
-				scope:war = {
-					casus_belli = {
-						any_target_title = {
-							any_in_de_jure_hierarchy = {
-								tier = tier_county
-								any_county_province = {
-									barony = { is_holy_site_of = $GOD$.faith }
+				# Over a holy site, but only against one of the faithful: two infidels fighting over land with
+				# one of your holy sites is not an attack on you (1.5 in-game test, 2026-10-06).
+				# casus_belli ?=: it is sometimes an invalid (weak) object (1.5 Task 0 error.log; vanilla
+				# guards it the same way).
+				AND = {
+					scope:defender = { faith = $GOD$.faith }
+					scope:war = {
+						casus_belli ?= {
+							any_target_title = {
+								any_in_de_jure_hierarchy = {
+									tier = tier_county
+									any_county_province = {
+										barony = { is_holy_site_of = $GOD$.faith }
+									}
 								}
 							}
 						}
 					}
 				}
 			}
+		}
+	}
+}
+
+# ---- 1.5 Great Prayers. In each trigger, this is the character and $GOD$ the god (pass root or a saved
+# scope, never `this`).
+
+# A follower who may hold a grievance: of the god's faith, alive, at 90+ Devotion.
+pantheon_grievance_eligible_trigger = {
+	is_alive = yes
+	faith = $GOD$.faith
+	has_variable = pantheon_devotion
+	var:pantheon_devotion >= 90
+}
+
+# A grievance the god can be asked to answer: still eligible, and the offender alive and not protected.
+pantheon_grievance_valid_trigger = {
+	pantheon_grievance_eligible_trigger = { GOD = $GOD$ }
+	has_variable = pantheon_grievance
+	var:pantheon_grievance_target ?= {
+		is_alive = yes
+		NOT = { pantheon_wrath_protected_trigger = { GOD = $GOD$ } }
+	}
+}
+
+# Root is the god: does any follower hold a valid grievance? The god's faith's rulers and the god's
+# courtiers only, as the prayer pick (no world scans beyond it).
+pantheon_has_a_great_prayer_trigger = {
+	OR = {
+		any_ruler = {
+			faith = root.faith
+			pantheon_grievance_valid_trigger = { GOD = root }
+		}
+		any_courtier = {
+			faith = root.faith
+			pantheon_grievance_valid_trigger = { GOD = root }
 		}
 	}
 }

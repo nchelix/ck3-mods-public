@@ -1,0 +1,230 @@
+﻿# Pantheon of One 1.5: Great Prayers. Root is the god unless noted.
+
+# A follower suffers a wrong: $WHO$ gains a grievance against $OFFENDER$ of $KIND$ (1 murdered kin, 2 lost a
+# war, 3 holy site seized, 4 imprisoned). A newer wrong replaces an older one, except that nothing replaces a
+# torture (kind 5, user 2026-10-05); all three variables fade after 5 years.
+pantheon_give_grievance_effect = {
+	$WHO$ = {
+		if = {
+			limit = { NOT = { AND = { has_variable = pantheon_grievance var:pantheon_grievance_kind = 5 } } }
+			set_variable = { name = pantheon_grievance value = yes years = 5 }
+			set_variable = { name = pantheon_grievance_target value = $OFFENDER$ years = 5 }
+			set_variable = { name = pantheon_grievance_kind value = $KIND$ years = 5 }
+		}
+	}
+}
+
+# Tortured (kind 5): always replaces, even an older torture.
+pantheon_give_torture_grievance_effect = {
+	$WHO$ = {
+		set_variable = { name = pantheon_grievance value = yes years = 5 }
+		set_variable = { name = pantheon_grievance_target value = $OFFENDER$ years = 5 }
+		set_variable = { name = pantheon_grievance_kind value = 5 years = 5 }
+	}
+}
+
+# In the follower's scope: the grievance is answered, refused or broken.
+pantheon_clear_grievance_effect = {
+	if = { limit = { has_variable = pantheon_grievance } remove_variable = pantheon_grievance }
+	if = { limit = { has_variable = pantheon_grievance_target } remove_variable = pantheon_grievance_target }
+	if = { limit = { has_variable = pantheon_grievance_kind } remove_variable = pantheon_grievance_kind }
+}
+
+# Tortured (kind 5). There is no torture hook, so each quarter (pantheon.0010) look at followers newly tortured:
+# vanilla's torture_memory_effect gives the victim recently_tortured and a tortured_memory naming the torturer.
+# The victim and their devout kin hold it against the torturer, whatever the torturer's faith (user,
+# 2026-10-05). Root is the god.
+pantheon_torture_grievance_pass_effect = {
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			has_character_modifier = recently_tortured
+			NOT = { has_variable = pantheon_torture_noted }
+		}
+		pantheon_note_torture_effect = yes
+	}
+	every_courtier = {
+		limit = {
+			faith = root.faith
+			has_character_modifier = recently_tortured
+			NOT = { has_variable = pantheon_torture_noted }
+		}
+		pantheon_note_torture_effect = yes
+	}
+}
+
+# In the victim's scope. Root is the god. Everything happens inside the newest torture memory's torturer: a
+# victim tortured without a memory (some vanilla events add recently_tortured only) gets nothing, rather than
+# the previous victim's torturer from a scope the quarterly chain inherited (1.5 review).
+pantheon_note_torture_effect = {
+	set_variable = { name = pantheon_torture_noted value = yes years = 5 }
+	save_scope_as = pantheon_tortured
+	ordered_memory = {
+		memory_type = tortured_memory
+		order_by = memory_creation_date
+		memory_participant:torturer ?= {
+			save_scope_as = pantheon_torturer
+			scope:pantheon_tortured = {
+				if = {
+					limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+					pantheon_give_torture_grievance_effect = { WHO = this OFFENDER = scope:pantheon_torturer }
+				}
+				every_close_family_member = {
+					limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+					pantheon_give_torture_grievance_effect = { WHO = this OFFENDER = scope:pantheon_torturer }
+				}
+				every_spouse = {
+					limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+					pantheon_give_torture_grievance_effect = { WHO = this OFFENDER = scope:pantheon_torturer }
+				}
+			}
+		}
+	}
+}
+
+# Pick one follower owed vengeance (rulers first, then the god's courtiers) and send their Great Prayer.
+# The suppliant is kept in a variable: the event reads it back.
+# (1.5 review: never tests exists on the suppliant scope, which the prayer timer chain inherits.)
+pantheon_pick_great_prayer_effect = {
+	if = {
+		limit = {
+			any_ruler = {
+				faith = root.faith
+				pantheon_grievance_valid_trigger = { GOD = root }
+			}
+		}
+		random_ruler = {
+			limit = {
+				faith = root.faith
+				pantheon_grievance_valid_trigger = { GOD = root }
+			}
+			save_scope_as = pantheon_great_suppliant
+		}
+	}
+	else = {
+		random_courtier = {
+			limit = {
+				faith = root.faith
+				pantheon_grievance_valid_trigger = { GOD = root }
+			}
+			save_scope_as = pantheon_great_suppliant
+		}
+	}
+	# Only send it if a fresh suppliant was saved this time (an inherited one would be stale): the caller
+	# already checked pantheon_has_a_great_prayer_trigger, so one of the two branches above saved someone.
+	set_variable = { name = pantheon_great_suppliant_var value = scope:pantheon_great_suppliant }
+	trigger_event = pantheon.0065
+}
+
+# Swear vengeance: the sworn state lives on the god (it must survive the Judgement page chain), and Judgement
+# opens at the offender with every wrath on offer (no sin-only limit; the cooldown is not re-checked there).
+pantheon_swear_vengeance_effect = {
+	pantheon_end_oath_effect = yes
+	set_variable = { name = pantheon_great_prayer_active value = yes }
+	set_variable = { name = pantheon_great_prayer_suppliant value = scope:pantheon_great_suppliant }
+	set_variable = { name = pantheon_great_prayer_offender value = scope:pantheon_great_offender }
+	set_variable = { name = pantheon_wrath_target value = scope:pantheon_great_offender }
+	if = { limit = { has_variable = pantheon_wrath_light } remove_variable = pantheon_wrath_light }
+	# A torture is answered only by Strike down or Maim (user, 2026-10-05)
+	if = { limit = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 5 } } set_variable = { name = pantheon_wrath_harsh value = yes } }
+	trigger_event = pantheon.0070
+}
+
+# Refuse a Great Prayer: -30 and the refused-prayer opinion.
+pantheon_refuse_great_prayer_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	scope:pantheon_great_suppliant = { save_scope_as = pantheon_target }
+	pantheon_change_devotion_effect = { AMOUNT = -30 }
+	scope:pantheon_target = {
+		add_opinion = {
+			target = root
+			modifier = pantheon_refused_prayer_opinion
+			years = 5
+		}
+		pantheon_clear_grievance_effect = yes
+	}
+	set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
+	send_interface_toast = {
+		type = event_toast_effect_bad
+		title = pantheon_great_prayer_refused_t
+		left_icon = scope:pantheon_target
+	}
+}
+
+# Swore vengeance, then stayed the hand: a broken oath is worse than a refusal (user, 2026-10-05): -60.
+pantheon_broken_oath_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	var:pantheon_great_prayer_suppliant ?= { if = { limit = { is_alive = yes } save_scope_as = pantheon_target } }
+	if = {
+		limit = { var:pantheon_great_prayer_suppliant ?= { is_alive = yes } }
+		pantheon_change_devotion_effect = { AMOUNT = -60 }
+		scope:pantheon_target = {
+			add_opinion = {
+				target = root
+				modifier = pantheon_refused_prayer_opinion
+				years = 5
+			}
+			pantheon_clear_grievance_effect = yes
+		}
+		send_interface_toast = {
+			type = event_toast_effect_bad
+			title = pantheon_oath_broken_t
+			left_icon = scope:pantheon_target
+		}
+	}
+	set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
+	pantheon_end_oath_effect = yes
+}
+
+# The oath is over (answered, broken, or replaced by a fresh Judgement or Retribution).
+pantheon_end_oath_effect = {
+	if = { limit = { has_variable = pantheon_great_prayer_active } remove_variable = pantheon_great_prayer_active }
+	if = { limit = { has_variable = pantheon_great_prayer_suppliant } remove_variable = pantheon_great_prayer_suppliant }
+	if = { limit = { has_variable = pantheon_great_prayer_offender } remove_variable = pantheon_great_prayer_offender }
+	if = { limit = { has_variable = pantheon_wrath_harsh } remove_variable = pantheon_wrath_harsh }
+}
+
+# A sworn Great Prayer, answered (called from pantheon_wrath_landed_effect, after the 1.4 Devotion sweep and
+# before the wrath itself). The suppliant to 100 and Avenged; a thank-offering of half the wrath's cost; the
+# awe sweep a second time (awe x2) when it applied; then the 2-year cooldown and the oath ends.
+pantheon_great_prayer_answered_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	var:pantheon_great_prayer_suppliant ?= { if = { limit = { is_alive = yes } save_scope_as = pantheon_target } }
+	if = {
+		limit = { var:pantheon_great_prayer_suppliant ?= { is_alive = yes } }
+		pantheon_change_devotion_effect = { AMOUNT = 100 }
+		scope:pantheon_target = {
+			add_character_modifier = { modifier = pantheon_avenged years = 10 }
+			add_opinion = { target = root modifier = pantheon_avenged_opinion years = 10 }
+			pantheon_clear_grievance_effect = yes
+		}
+		set_variable = { name = pantheon_offering value = var:pantheon_last_wrath_cost }
+		change_variable = { name = pantheon_offering multiply = 0.5 }
+		change_variable = { name = pantheon_worship add = var:pantheon_offering }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_great_prayer_answered_t
+			left_icon = scope:pantheon_target
+		}
+	}
+	if = {
+		limit = {
+			scope:pantheon_victim = {
+				NOT = { faith = root.faith }
+				NOT = { has_variable = pantheon_apostate }
+			}
+		}
+		pantheon_wrath_awe_sweep_effect = yes
+	}
+	set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
+	pantheon_end_oath_effect = yes
+}

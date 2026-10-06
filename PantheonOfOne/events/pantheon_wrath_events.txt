@@ -29,6 +29,7 @@ pantheon.0070 = {
 		name = pantheon.0070.lands
 		trigger = {
 			NOT = { has_variable = pantheon_wrath_light }
+			NOT = { has_variable = pantheon_wrath_harsh }
 			scope:pantheon_victim = { any_held_county = { always = yes } }
 		}
 		trigger_event = pantheon.0073
@@ -36,6 +37,11 @@ pantheon.0070 = {
 
 	option = {
 		name = pantheon.0070.stay
+		if = {
+			limit = { has_variable = pantheon_great_prayer_active }
+			custom_tooltip = pantheon.0070.stay_oath.tt
+			hidden_effect = { pantheon_broken_oath_effect = yes }
+		}
 	}
 }
 
@@ -78,9 +84,10 @@ pantheon.0071 = {
 	option = {
 		name = pantheon.0071.curse
 		trigger = {
+			NOT = { has_variable = pantheon_wrath_harsh }
 			custom_tooltip = { text = pantheon_needs_worship_curse_tt var:pantheon_worship >= pantheon_cost_curse }
 		}
-		show_as_unavailable = { always = yes }
+		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_harsh } }
 		custom_tooltip = pantheon.0071.curse.tt
 		hidden_effect = { pantheon_wrath_curse_effect = yes }
 	}
@@ -219,6 +226,7 @@ pantheon.0080 = {
 		var:pantheon_wrath_target = { is_alive = yes }
 	}
 	immediate = {
+		pantheon_end_oath_effect = yes
 		pantheon_wrath_open_page_effect = yes
 		if = {
 			limit = { exists = scope:pantheon_defender }

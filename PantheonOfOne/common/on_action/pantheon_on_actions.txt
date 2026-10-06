@@ -2,7 +2,7 @@
 
 # Root = the prisoner. No cell can hold a god (proven in the prototype).
 on_imprison = {
-	on_actions = { pantheon_on_imprison }
+	on_actions = { pantheon_on_imprison pantheon_on_imprison_grievance }
 }
 
 pantheon_on_imprison = {
@@ -213,12 +213,26 @@ pantheon_on_pregnancy_mother = {
 		}
 	}
 	effect = {
-		scope:mother = {
-			set_variable = {
-				name = pantheon_child_father
-				value = scope:real_father
+		# 1.5: a god who forswore mortal offspring has none. -1 fertility only lowers the odds (the other
+		# parent's fertility still counts; children were still born in the 1.5 test), so end the pregnancy.
+		# Divine Conception already refuses a forsworn god.
+		if = {
+			limit = {
+				OR = {
+					scope:mother ?= { has_trait = pantheon_divine has_character_modifier = pantheon_forsworn }
+					scope:real_father ?= { has_trait = pantheon_divine has_character_modifier = pantheon_forsworn }
+				}
 			}
-			trigger_event = { id = pantheon.0040 days = 1 }
+			scope:mother = { end_pregnancy = yes }
+		}
+		else = {
+			scope:mother = {
+				set_variable = {
+					name = pantheon_child_father
+					value = scope:real_father
+				}
+				trigger_event = { id = pantheon.0040 days = 1 }
+			}
 		}
 	}
 }
@@ -246,6 +260,164 @@ pantheon_on_war_started = {
 				set_variable = { name = pantheon_wrath_target value = scope:attacker }
 				set_variable = { name = pantheon_retribution_defender value = scope:defender }
 				trigger_event = pantheon.0080
+			}
+		}
+	}
+}
+
+# ---- 1.5 Great Prayers: the four wrongs (hooks proven in the 1.5 Task 0 prototype). Each saves the god
+# and names it explicitly: inside nested scopes `prev` is not the god.
+
+# Murdered kin. death_reason cannot be read while the character still lives, so remember the dying and
+# read it a day later (pantheon.0090). Root = the dying character.
+on_death = {
+	on_actions = { pantheon_on_death }
+}
+
+pantheon_on_death = {
+	trigger = { exists = scope:killer }
+	effect = {
+		save_scope_as = pantheon_dying
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			add_to_variable_list = { name = pantheon_recent_dead target = scope:pantheon_dying }
+			trigger_event = { id = pantheon.0090 days = 1 }
+		}
+	}
+}
+
+# Lost a war to an infidel: the losing war leader, if a devout follower, against the winning one.
+on_war_won_attacker = {
+	on_actions = { pantheon_on_war_won_attacker }
+}
+
+on_war_won_defender = {
+	on_actions = { pantheon_on_war_won_defender }
+}
+
+pantheon_on_war_won_attacker = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					scope:defender = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
+					NOT = { scope:attacker = { faith = scope:pantheon_god.faith } }
+				}
+				pantheon_give_grievance_effect = { WHO = scope:defender OFFENDER = scope:attacker KIND = 2 }
+			}
+		}
+	}
+}
+
+pantheon_on_war_won_defender = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					scope:attacker = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
+					NOT = { scope:defender = { faith = scope:pantheon_god.faith } }
+				}
+				pantheon_give_grievance_effect = { WHO = scope:attacker OFFENDER = scope:defender KIND = 2 }
+			}
+		}
+	}
+}
+
+# Holy site seized: a county holding one of the god's holy sites passes to someone of another faith.
+# Every devout ruler of the faith takes it to heart. Root = the new holder.
+on_title_gain = {
+	on_actions = { pantheon_on_title_gain }
+}
+
+pantheon_on_title_gain = {
+	trigger = {
+		scope:title = { tier = tier_county }
+	}
+	effect = {
+		save_scope_as = pantheon_site_taker
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					NOT = { scope:pantheon_site_taker = { faith = scope:pantheon_god.faith } }
+					scope:title = {
+						any_county_province = {
+							barony = { is_holy_site_of = scope:pantheon_god.faith }
+						}
+					}
+				}
+				every_ruler = {
+					limit = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
+					pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_site_taker KIND = 3 }
+				}
+			}
+		}
+	}
+}
+
+# Imprisoned. Root = the prisoner; scope:imprisoner = the jailer. The prisoner, and their devout close kin,
+# hold it against the jailer. (1.0 already hooks on_imprison with pantheon_on_imprison, the god's release:
+# this joins that list, see the top of this file, under its own name.)
+pantheon_on_imprison_grievance = {
+	effect = {
+		save_scope_as = pantheon_prisoner
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					NOT = { scope:imprisoner = { faith = scope:pantheon_god.faith } }
+				}
+				if = {
+					limit = { scope:pantheon_prisoner = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } } }
+					pantheon_give_grievance_effect = { WHO = scope:pantheon_prisoner OFFENDER = scope:imprisoner KIND = 4 }
+				}
+				scope:pantheon_prisoner = {
+					every_close_family_member = {
+						limit = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
+						pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:imprisoner KIND = 4 }
+					}
+					every_spouse = {
+						limit = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
+						pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:imprisoner KIND = 4 }
+					}
+				}
 			}
 		}
 	}

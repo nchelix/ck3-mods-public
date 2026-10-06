@@ -82,3 +82,10 @@ pantheon_disaster_famine = {
 	tax_mult = -0.5
 	levy_size = -0.5
 }
+
+# 1.5: the god answered their Great Prayer.
+pantheon_avenged = {
+	icon = piety_positive
+	monthly_piety_gain_mult = 0.25
+	monthly_prestige_gain_mult = 0.25
+}

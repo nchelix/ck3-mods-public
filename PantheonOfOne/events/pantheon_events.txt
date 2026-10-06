@@ -19,6 +19,7 @@ pantheon.0010 = {
 		pantheon_divine_health_effect = yes
 		pantheon_forget_the_dead_effect = yes
 		pantheon_plague_devotion_effect = yes
+		pantheon_torture_grievance_pass_effect = yes
 		# A god enthroned before 1.3 never started the prayer timer
 		if = {
 			limit = { NOT = { has_variable = pantheon_prayer_timer } }

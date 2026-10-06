@@ -16,3 +16,8 @@ pantheon_honoured_spouse_opinion = {
 pantheon_refused_prayer_opinion = {
 	opinion = -10
 }
+
+# 1.5: the god answered their Great Prayer.
+pantheon_avenged_opinion = {
+	opinion = 30
+}

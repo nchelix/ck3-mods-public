@@ -1,5 +1,29 @@
 # Changelog — Pantheon of One
 
+## [1.5] — 2026-10-06
+
+Great Prayers.
+
+### Added
+- **Great Prayers:** your most devout (90+ Devotion) remember who wronged them:
+  a murdered parent, child, sibling or spouse; a war lost to an unbeliever; a
+  holy site seized; imprisonment; torture. In their next prayer they beg you
+  for vengeance against that one.
+  - **Swear vengeance** and choose your wrath. Answer it and they are yours:
+    Devotion 100, **Avenged by the God** (more piety and prestige) and their
+    love, a thank-offering of half the wrath's cost, and twice the awe across
+    the faith.
+  - **Refuse:** -30 Devotion. **Swear, then stay your hand:** a broken oath,
+    -60.
+  - The tortured want worse: only Strike down or Maim answers them.
+  - At most one Great Prayer every two years; it comes before ordinary prayers.
+- A god travels in perfect safety.
+
+### Fixed
+- A god who forswore mortal offspring no longer has the occasional child.
+- Divine Retribution no longer answers wars between two unbelievers over land
+  holding one of your holy sites, and no longer logs errors for some wars.
+
 ## [1.4] — 2026-10-05
 
 Wrath.

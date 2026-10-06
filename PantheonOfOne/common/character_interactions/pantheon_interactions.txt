@@ -49,6 +49,7 @@ pantheon_judgement_interaction = {
 	}
 	on_accept = {
 		scope:actor = {
+			pantheon_end_oath_effect = yes
 			set_variable = { name = pantheon_wrath_target value = scope:recipient }
 			# A sin weighs less than a crime: the pages hide the heavier wraths
 			if = {

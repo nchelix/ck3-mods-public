@@ -1,0 +1,105 @@
+﻿namespace = pantheon
+
+# Pantheon of One 1.5: Great Prayers. Root is the god.
+
+# Murdered kin, a day after the death: the character is dead now, so death_reason and killer can be read
+# (proven in the 1.5 Task 0 prototype). Their devout kin hold it against the killer.
+pantheon.0090 = {
+	type = character_event
+	hidden = yes
+	trigger = { has_trait = pantheon_divine }
+	immediate = {
+		every_in_list = {
+			variable = pantheon_recent_dead
+			limit = {
+				OR = {
+					death_reason = death_murder
+					death_reason = death_murder_known
+					death_reason = death_murder_feast
+					death_reason = death_execution
+					death_reason = death_execution_blood_eagle
+					death_reason = death_execution_blot
+				}
+				exists = killer
+			}
+			save_scope_as = pantheon_dead
+			every_close_family_member = {
+				limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+				pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_dead.killer KIND = 1 }
+			}
+			every_spouse = {
+				limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+				pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_dead.killer KIND = 1 }
+			}
+		}
+		clear_variable_list = pantheon_recent_dead
+	}
+}
+
+# A Great Prayer: a devout follower begs for vengeance against whoever wronged them. Two options, neither
+# greyed. Swear vengeance opens Judgement (pantheon.0070) at the offender.
+pantheon.0065 = {
+	type = character_event
+	trigger = {
+		exists = var:pantheon_great_suppliant_var
+		var:pantheon_great_suppliant_var = { pantheon_grievance_valid_trigger = { GOD = root } }
+	}
+	immediate = {
+		if = {
+			limit = { exists = scope:pantheon_great_suppliant }
+			clear_saved_scope = pantheon_great_suppliant
+		}
+		var:pantheon_great_suppliant_var = { save_scope_as = pantheon_great_suppliant }
+		if = {
+			limit = { exists = scope:pantheon_great_offender }
+			clear_saved_scope = pantheon_great_offender
+		}
+		scope:pantheon_great_suppliant.var:pantheon_grievance_target = { save_scope_as = pantheon_great_offender }
+	}
+	title = pantheon.0065.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 1 } }
+				desc = pantheon.0065.desc_murder
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 2 } }
+				desc = pantheon.0065.desc_war
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 3 } }
+				desc = pantheon.0065.desc_site
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 4 } }
+				desc = pantheon.0065.desc_prison
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 5 } }
+				desc = pantheon.0065.desc_torture
+			}
+		}
+	}
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_great_suppliant
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:pantheon_great_offender
+		animation = anger
+	}
+
+	option = {
+		name = pantheon.0065.swear
+		custom_tooltip = pantheon.0065.swear.tt
+		hidden_effect = { pantheon_swear_vengeance_effect = yes }
+	}
+
+	option = {
+		name = pantheon.0065.refuse
+		custom_tooltip = pantheon.0065.refuse.tt
+		hidden_effect = { pantheon_refuse_great_prayer_effect = yes }
+	}
+}

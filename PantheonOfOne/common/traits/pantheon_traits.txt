@@ -9,6 +9,9 @@ pantheon_divine = {
 	intrigue = 30
 	learning = 30
 	prowess = 100
+	# 1.5: a god travels in perfect safety (as One Trait's Blessed Wanderer)
+	character_travel_safety = 100
+	travel_danger = -100
 	# Proven in the prototype: no hostile scheme against the god can succeed
 	enemy_hostile_scheme_success_chance_max_add = -100
 	no_prowess_loss_from_age = yes
