@@ -110,6 +110,7 @@ pantheon_menu.0001 = {
 		trigger = {
 			root = { has_variable = pantheon_enthroned }
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_trait } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		trigger_event = pantheon_menu.0100
 	}
@@ -119,6 +120,7 @@ pantheon_menu.0001 = {
 		trigger = {
 			root = { has_variable = pantheon_enthroned }
 			scope:pantheon_target = { is_landed = yes }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		trigger_event = pantheon_menu.0200
 	}
@@ -141,6 +143,7 @@ pantheon_menu.0001 = {
 				is_at_war = yes
 				any_character_war = { NOT = { has_variable = pantheon_host_called } }
 			}
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		show_as_unavailable = {
 			root = { has_variable = pantheon_enthroned }
@@ -149,6 +152,7 @@ pantheon_menu.0001 = {
 				is_at_war = yes
 				any_character_war = { NOT = { has_variable = pantheon_host_called } }
 			}
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		custom_tooltip = pantheon_menu.0001.host.tt
 		hidden_effect = {
@@ -344,10 +348,12 @@ pantheon_menu.0300 = {
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_vigor } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_life
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_vigor } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		custom_tooltip = pantheon_menu.0300.vigor.tt
 		hidden_effect = {
@@ -362,10 +368,12 @@ pantheon_menu.0300 = {
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_fertility } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_life
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_fertility } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		custom_tooltip = pantheon_menu.0300.fertility.tt
 		hidden_effect = {
@@ -380,10 +388,12 @@ pantheon_menu.0300 = {
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_lineage } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_life
 			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_lineage } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		custom_tooltip = pantheon_menu.0300.lineage.tt
 		hidden_effect = {
@@ -400,13 +410,48 @@ pantheon_menu.0300 = {
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life }
 			scope:pantheon_target = { NOT = { has_variable = pantheon_enthroned } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_life
 			scope:pantheon_target = { NOT = { has_variable = pantheon_enthroned } }
+			scope:pantheon_target = { custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } } }
 		}
 		custom_tooltip = pantheon_menu.0300.conception.tt
 		hidden_effect = { pantheon_grant_conception_effect = yes }
+		trigger_event = pantheon_menu.0300
+	}
+
+	# 1.6: Your Children (demigods to lend or wed). Hidden unless the god has a demigod child; never on the god.
+	# A demigod's reach stops at the follower's own household, so the follower must be landed to use this.
+	option = {
+		name = pantheon_menu.0300.children
+		trigger = {
+			OR = {
+				AND = {
+					scope:pantheon_target = { is_landed = yes }
+					custom_tooltip = { text = pantheon_has_demigod_child_tt root = { any_child = { has_trait = pantheon_demigod } } }
+				}
+				scope:pantheon_target = { house ?= { has_variable = pantheon_divine_house NOT = { has_variable = pantheon_divine_revealed } } }
+			}
+			NOT = { scope:pantheon_target = root }
+		}
+		trigger_event = pantheon_menu.0500
+	}
+
+	# 1.6: Divine Will on a lent demigod of yours: call them home (their host loses 10 Devotion). Moved here
+	# rather than pantheon_menu.0001 (full at 10 options; the cap test is MAX_OPTIONS_PER_PAGE).
+	option = {
+		name = pantheon_menu.0300.recall_demigod
+		trigger = {
+			scope:pantheon_target = { has_variable = pantheon_lent_to }
+			root = { NOT = { scope:pantheon_target = root } }
+		}
+		hidden_effect = {
+			scope:pantheon_target = { save_scope_as = pantheon_recall_who }
+			scope:pantheon_target.var:pantheon_lent_to = { save_scope_as = pantheon_target }
+			pantheon_recall_demigod_effect = { WHO = scope:pantheon_recall_who }
+		}
 		trigger_event = pantheon_menu.0300
 	}
 
@@ -844,5 +889,242 @@ pantheon_menu.0400 = {
 	option = {
 		name = pantheon_menu.0400.back
 		trigger_event = pantheon_menu.0001
+	}
+}
+
+# 1.6 Your Children: lend or wed a demigod, recall one, reveal the house's divine blood. scope:pantheon_target
+# is the follower. Two greyable options (lend, wed; for cost); recall and reveal hide when not applicable.
+pantheon_menu.0500 = {
+	type = character_event
+	title = pantheon_menu.0500.t
+	desc = pantheon_menu.0500.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+	immediate = {
+		# 1.6: the host travels in a variable; a prayer-timer chain inherits an old pantheon_target scope
+		set_variable = { name = pantheon_demigod_host value = scope:pantheon_target }
+		pantheon_fill_recall_slots_effect = yes
+		# 1.6: who in this house can wed a free demigod? Worked out with the marriage block lifted (2g).
+		if = { limit = { has_variable = pantheon_wed_possible } remove_variable = pantheon_wed_possible }
+		pantheon_lift_marriage_block_effect = yes
+		pantheon_mark_wed_house_effect = yes
+		if = { limit = { any_child = { has_variable = pantheon_can_wed_here } } set_variable = pantheon_wed_possible }
+		pantheon_restore_marriage_block_effect = yes
+	}
+
+	option = {
+		name = pantheon_menu.0500.lend
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_lend_tt var:pantheon_worship >= pantheon_cost_lend }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt root = { any_child = { pantheon_free_demigod_trigger = { GOD = root } } } }
+			scope:pantheon_target = { is_landed = yes }
+		}
+		show_as_unavailable = {
+			custom_tooltip = { text = pantheon_has_free_demigod_tt root = { any_child = { pantheon_free_demigod_trigger = { GOD = root } } } }
+			scope:pantheon_target = { is_landed = yes }
+		}
+		set_variable = { name = pantheon_demigod_mode value = 1 }
+		trigger_event = pantheon_menu.0510
+	}
+
+	option = {
+		name = pantheon_menu.0500.wed
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_wed_tt var:pantheon_worship >= pantheon_cost_wed }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt has_variable = pantheon_wed_possible }
+			scope:pantheon_target = { is_ruler = yes exists = house }
+		}
+		show_as_unavailable = {
+			custom_tooltip = { text = pantheon_has_free_demigod_tt has_variable = pantheon_wed_possible }
+			scope:pantheon_target = { is_ruler = yes exists = house }
+		}
+		set_variable = { name = pantheon_demigod_mode value = 2 }
+		trigger_event = pantheon_menu.0510
+	}
+
+	option = {
+		name = pantheon_menu.0500.recall_1
+		trigger = { exists = var:pantheon_recall_1 }
+		pantheon_recall_demigod_effect = { WHO = var:pantheon_recall_1 }
+		trigger_event = pantheon_menu.0500
+	}
+
+	option = {
+		name = pantheon_menu.0500.recall_2
+		trigger = { exists = var:pantheon_recall_2 }
+		pantheon_recall_demigod_effect = { WHO = var:pantheon_recall_2 }
+		trigger_event = pantheon_menu.0500
+	}
+
+	option = {
+		name = pantheon_menu.0500.recall_3
+		trigger = { exists = var:pantheon_recall_3 }
+		pantheon_recall_demigod_effect = { WHO = var:pantheon_recall_3 }
+		trigger_event = pantheon_menu.0500
+	}
+
+	option = {
+		name = pantheon_menu.0500.reveal
+		trigger = {
+			scope:pantheon_target = { house ?= { has_variable = pantheon_divine_house NOT = { has_variable = pantheon_divine_revealed } house_head = scope:pantheon_target } }
+		}
+		custom_tooltip = pantheon_menu.0500.reveal.tt
+		hidden_effect = { pantheon_reveal_divine_blood_effect = yes }
+	}
+
+	option = {
+		name = pantheon_menu.0500.back
+		trigger_event = pantheon_menu.0300
+	}
+}
+
+# The demigod picker: up to 6 free demigods, best first (slots refreshed on every open).
+pantheon_menu.0510 = {
+	type = character_event
+	title = pantheon_menu.0510.t
+	desc = pantheon_menu.0510.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+	immediate = {
+		var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+		pantheon_fill_demigod_slots_effect = yes
+	}
+
+	option = {
+		name = pantheon_menu.0510.slot_1
+		trigger = { exists = var:pantheon_slot_1 }
+		custom_tooltip = pantheon_menu.0510.slot.tt
+		hidden_effect = { pantheon_choose_demigod_effect = { N = 1 } }
+	}
+	option = {
+		name = pantheon_menu.0510.slot_2
+		trigger = { exists = var:pantheon_slot_2 }
+		custom_tooltip = pantheon_menu.0510.slot.tt
+		hidden_effect = { pantheon_choose_demigod_effect = { N = 2 } }
+	}
+	option = {
+		name = pantheon_menu.0510.slot_3
+		trigger = { exists = var:pantheon_slot_3 }
+		custom_tooltip = pantheon_menu.0510.slot.tt
+		hidden_effect = { pantheon_choose_demigod_effect = { N = 3 } }
+	}
+	option = {
+		name = pantheon_menu.0510.slot_4
+		trigger = { exists = var:pantheon_slot_4 }
+		custom_tooltip = pantheon_menu.0510.slot.tt
+		hidden_effect = { pantheon_choose_demigod_effect = { N = 4 } }
+	}
+	option = {
+		name = pantheon_menu.0510.slot_5
+		trigger = { exists = var:pantheon_slot_5 }
+		custom_tooltip = pantheon_menu.0510.slot.tt
+		hidden_effect = { pantheon_choose_demigod_effect = { N = 5 } }
+	}
+	option = {
+		name = pantheon_menu.0510.slot_6
+		trigger = { exists = var:pantheon_slot_6 }
+		custom_tooltip = pantheon_menu.0510.slot.tt
+		hidden_effect = { pantheon_choose_demigod_effect = { N = 6 } }
+	}
+
+	option = {
+		name = pantheon_menu.0510.back
+		trigger_event = pantheon_menu.0500
+	}
+}
+
+# Lend: choose the role. Commander only when the follower has an army raised (hidden otherwise).
+pantheon_menu.0520 = {
+	type = character_event
+	title = pantheon_menu.0520.t
+	desc = pantheon_menu.0520.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:pantheon_chosen
+		animation = personality_bold
+	}
+	immediate = {
+		var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+		var:pantheon_chosen_demigod = { save_scope_as = pantheon_chosen }
+	}
+
+	option = {
+		name = pantheon_menu.0520.champion
+		custom_tooltip = pantheon_menu.0520.tt
+		hidden_effect = { pantheon_lend_demigod_effect = { ROLE = champion } }
+	}
+	option = {
+		name = pantheon_menu.0520.councillor
+		custom_tooltip = pantheon_menu.0520.tt
+		hidden_effect = { pantheon_lend_demigod_effect = { ROLE = councillor } }
+	}
+	option = {
+		name = pantheon_menu.0520.commander
+		trigger = { scope:pantheon_target = { any_army = { always = yes } } }
+		custom_tooltip = pantheon_menu.0520.tt
+		hidden_effect = { pantheon_lend_demigod_effect = { ROLE = commander } }
+	}
+	option = {
+		name = pantheon_menu.0520.back
+		trigger_event = pantheon_menu.0510
+	}
+}
+
+# Wed: choose the spouse (the follower, or up to 3 unmarried adult kin of their house).
+pantheon_menu.0530 = {
+	type = character_event
+	title = pantheon_menu.0530.t
+	desc = pantheon_menu.0530.desc
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_target
+		animation = personality_zealous
+	}
+	immediate = {
+		var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+		pantheon_fill_spouse_slots_effect = yes
+	}
+
+	option = {
+		name = pantheon_menu.0530.spouse_1
+		trigger = { exists = var:pantheon_spouse_1 }
+		custom_tooltip = pantheon_menu.0530.tt
+		set_variable = { name = pantheon_chosen_spouse value = var:pantheon_spouse_1 }
+		hidden_effect = { pantheon_wed_demigod_effect = yes }
+	}
+	option = {
+		name = pantheon_menu.0530.spouse_2
+		trigger = { exists = var:pantheon_spouse_2 }
+		custom_tooltip = pantheon_menu.0530.tt
+		set_variable = { name = pantheon_chosen_spouse value = var:pantheon_spouse_2 }
+		hidden_effect = { pantheon_wed_demigod_effect = yes }
+	}
+	option = {
+		name = pantheon_menu.0530.spouse_3
+		trigger = { exists = var:pantheon_spouse_3 }
+		custom_tooltip = pantheon_menu.0530.tt
+		set_variable = { name = pantheon_chosen_spouse value = var:pantheon_spouse_3 }
+		hidden_effect = { pantheon_wed_demigod_effect = yes }
+	}
+	option = {
+		name = pantheon_menu.0530.spouse_4
+		trigger = { exists = var:pantheon_spouse_4 }
+		custom_tooltip = pantheon_menu.0530.tt
+		set_variable = { name = pantheon_chosen_spouse value = var:pantheon_spouse_4 }
+		hidden_effect = { pantheon_wed_demigod_effect = yes }
+	}
+	option = {
+		name = pantheon_menu.0530.back
+		trigger_event = pantheon_menu.0510
 	}
 }

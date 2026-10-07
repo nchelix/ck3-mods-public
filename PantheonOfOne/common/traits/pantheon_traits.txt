@@ -75,3 +75,18 @@ pantheon_demigod = {
 	health = 2
 	shown_in_ruler_designer = no
 }
+
+# 1.6: a demigod's child, once their house's divine blood is revealed.
+pantheon_godsblooded = {
+	health = 1
+	diplomacy = 1
+	martial = 1
+	stewardship = 1
+	intrigue = 1
+	learning = 1
+	prowess = 2
+	fertility = 0.1
+	birth = 0
+	random_creation = 0
+	desc = trait_pantheon_godsblooded_desc
+}

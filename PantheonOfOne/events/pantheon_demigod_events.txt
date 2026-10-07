@@ -1,0 +1,25 @@
+﻿namespace = pantheon
+
+# Pantheon of One 1.6: Demigods.
+
+# The 10-year term is over (on the demigod). Recall, or the quarterly early return in pantheon.0010, counts
+# this (and any other still-pending term's) event as orphaned via pantheon_skip_returns; only once that
+# count is spent does a firing pantheon.0095 actually return the demigod home.
+pantheon.0095 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		if = {
+			limit = { var:pantheon_skip_returns ?= 1 }
+			change_variable = { name = pantheon_skip_returns subtract = 1 }
+		}
+		else_if = {
+			limit = { has_variable = pantheon_skip_returns var:pantheon_skip_returns >= 1 }
+			change_variable = { name = pantheon_skip_returns subtract = 1 }
+		}
+		else_if = {
+			limit = { has_variable = pantheon_lent_to }
+			pantheon_return_demigod_effect = yes
+		}
+	}
+}

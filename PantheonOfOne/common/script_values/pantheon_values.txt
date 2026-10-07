@@ -205,3 +205,29 @@ pantheon_cost_disaster = {
 		multiply = 0.08333
 	}
 }
+
+# 1.6 Demigods: lending a demigod for a 10-year term, and wedding one into a house.
+pantheon_cost_lend = {
+	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_wed = {
+	value = 900
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+# Best demigods first on the picker.
+pantheon_total_skill = {
+	value = diplomacy
+	add = martial
+	add = stewardship
+	add = intrigue
+	add = learning
+}

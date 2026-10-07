@@ -35,6 +35,8 @@ pantheon_on_birth_child = {
 				}
 			}
 			add_trait = pantheon_demigod
+			# 1.6 (user, in-game test): demigods carry vanilla's can_not_marry so no one else may propose.
+			set_variable = can_not_marry
 			add_trait = physique_good_3
 			add_trait = fecund
 			# Vanilla brands bastardy and adultery after this hook: clean up a day later
@@ -135,6 +137,8 @@ pantheon_on_birth_child = {
 				limit = { has_trait = infertile }
 				remove_trait = infertile
 			}
+			if = { limit = { has_trait = sickly } remove_trait = sickly }
+			if = { limit = { has_trait = inbred } remove_trait = inbred }
 			# A child of a god is no bastard, and belongs to the god's house
 			if = {
 				limit = { has_trait = bastard }
@@ -169,6 +173,15 @@ pantheon_on_birth_child = {
 					remove_trait = fornicator
 				}
 			}
+		}
+		# 1.6: a demigod's child is Godsblood (one generation); their house carries divine blood
+		if = {
+			limit = {
+				OR = { scope:mother ?= { has_trait = pantheon_demigod } scope:real_father ?= { has_trait = pantheon_demigod } }
+			}
+			set_variable = pantheon_godsblood
+			house ?= { set_variable = pantheon_divine_house }
+			if = { limit = { house ?= { has_variable = pantheon_divine_revealed } } add_trait = pantheon_godsblooded }
 		}
 		# Blessed Lineage boon
 		if = {

@@ -170,6 +170,8 @@ pantheon_take_throne_effect = {
 		pantheon_ensure_devotion_effect = { START = 50 }
 	}
 	trigger_event = { id = pantheon.0010 days = 91 }
+	set_variable = pantheon_monthly_timer
+	trigger_event = { id = pantheon.0011 days = 1 }
 	set_variable = pantheon_prayer_timer
 	trigger_event = { id = pantheon.0050 days = pantheon_prayer_interval_days }
 }

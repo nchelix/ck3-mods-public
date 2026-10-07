@@ -1,0 +1,370 @@
+﻿# Pantheon of One 1.6: Demigods as instruments. Root is the god; scope:pantheon_target is the follower; the
+# god's variable pantheon_chosen_demigod holds the demigod being placed (picker, pantheon_menu.0510).
+
+# Lend the chosen demigod to scope:pantheon_target's court for 10 years in $ROLE$ (champion, councillor or
+# commander). Proven syntax: spec, 1.6 Task 0.
+pantheon_lend_demigod_effect = {
+	var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+	if = {
+		limit = { var:pantheon_worship >= pantheon_cost_lend }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_lend }
+		var:pantheon_chosen_demigod = { save_scope_as = pantheon_demigod }
+		scope:pantheon_target = {
+			if = {
+				limit = { NOT = { scope:pantheon_demigod = { is_courtier_of = scope:pantheon_target } } }
+				add_courtier = scope:pantheon_demigod
+			}
+		}
+		scope:pantheon_demigod = {
+			# A counter of how many terms this demigod has served (display; also distinguishes an orphaned
+			# pantheon.0095 from the term that is actually ending, see pantheon_orphan_return_effect).
+			set_variable = { name = pantheon_lent_to value = scope:pantheon_target }
+			set_variable = { name = pantheon_lender value = root }
+			set_variable = { name = pantheon_lent_until value = { value = current_year add = 10 } }
+			add_character_modifier = { modifier = pantheon_lent years = 10 }
+			trigger_event = { id = pantheon.0095 years = 10 }
+		}
+		pantheon_demigod_role_$ROLE$_effect = yes
+		pantheon_change_devotion_effect = { AMOUNT = 20 }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_demigod_lent_t
+			left_icon = scope:pantheon_demigod
+			right_icon = scope:pantheon_target
+		}
+	}
+	else = {
+		send_interface_toast = { type = event_toast_effect_bad title = pantheon_not_enough_worship_t left_icon = root }
+	}
+}
+
+pantheon_demigod_role_champion_effect = {
+	scope:pantheon_target = {
+		appoint_court_position = { recipient = scope:pantheon_demigod court_position = champion_court_position }
+	}
+	scope:pantheon_demigod = { set_knight_status = force }
+}
+
+# Fire the holder (if any), then seat the demigod. Root is the god; scope:pantheon_target the liege.
+pantheon_demigod_seat_effect = {
+	scope:pantheon_target = {
+		if = { limit = { exists = cp:councillor_$SEAT$ } fire_councillor = cp:councillor_$SEAT$ }
+		assign_councillor_type = { type = councillor_$SEAT$ target = scope:pantheon_demigod }
+	}
+}
+
+# The council seat that matches their best skill, if they are eligible for it (vanilla's can_be_<seat>_trigger);
+# failing that, any seat they are eligible for, in a fixed order; failing that, champion. Assign only fills an
+# open seat, so each branch fires the current holder first.
+pantheon_demigod_role_councillor_effect = {
+	if = {
+		limit = { scope:pantheon_demigod = { highest_skill = martial can_be_marshal_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = marshal }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { highest_skill = stewardship can_be_steward_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = steward }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { highest_skill = intrigue can_be_spymaster_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = spymaster }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { highest_skill = learning can_be_court_chaplain_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = court_chaplain }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { highest_skill = diplomacy can_be_chancellor_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = chancellor }
+	}
+	# No seat matching their best skill they may hold: any seat they may hold.
+	else_if = {
+		limit = { scope:pantheon_demigod = { can_be_chancellor_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = chancellor }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { can_be_steward_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = steward }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { can_be_marshal_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = marshal }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { can_be_spymaster_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = spymaster }
+	}
+	else_if = {
+		limit = { scope:pantheon_demigod = { can_be_court_chaplain_trigger = { COURT_OWNER = scope:pantheon_target } } }
+		pantheon_demigod_seat_effect = { SEAT = court_chaplain }
+	}
+	else = { pantheon_demigod_role_champion_effect = yes }
+}
+
+
+pantheon_demigod_role_commander_effect = {
+	scope:pantheon_demigod = { set_knight_status = force }
+	scope:pantheon_target = {
+		ordered_army = { order_by = army_size assign_commander = scope:pantheon_demigod }
+	}
+}
+
+# In the demigod's scope: home to the god who lent them; the term is over. The lender is reused only while
+# still alive, not already the demigod's own court (they may have come home already), and not landed (a
+# landed lender has no court position to "come home to" in the sense this grants).
+pantheon_return_demigod_effect = {
+	save_scope_as = pantheon_returning
+	var:pantheon_lender ?= {
+		if = {
+			limit = { is_alive = yes NOT = { scope:pantheon_returning = { is_courtier_of = prev } } scope:pantheon_returning = { is_landed = no } }
+			add_courtier = scope:pantheon_returning
+		}
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = pantheon_demigod_returned_t
+			left_icon = scope:pantheon_returning
+		}
+	}
+	if = { limit = { has_character_modifier = pantheon_lent } remove_character_modifier = pantheon_lent }
+	if = { limit = { has_variable = pantheon_lent_to } remove_variable = pantheon_lent_to }
+	if = { limit = { has_variable = pantheon_lender } remove_variable = pantheon_lender }
+	if = { limit = { has_variable = pantheon_lent_until } remove_variable = pantheon_lent_until }
+	set_knight_status = default
+}
+
+# A term ended early (recall, or the quarterly check in pantheon.0010): its own pantheon.0095 is still
+# pending and must be skipped when it fires, rather than returning the demigod from a future term. In the
+# demigod's scope, before the real return effect.
+pantheon_orphan_return_effect = {
+	if = { limit = { has_variable = pantheon_skip_returns } change_variable = { name = pantheon_skip_returns add = 1 } }
+	else = { set_variable = { name = pantheon_skip_returns value = 1 } }
+}
+
+# Recall early from Divine Will (root the god, scope:pantheon_target the follower, the demigod as $WHO$).
+pantheon_recall_demigod_effect = {
+	$WHO$ = {
+		pantheon_orphan_return_effect = yes
+		pantheon_return_demigod_effect = yes
+	}
+	pantheon_change_devotion_effect = { AMOUNT = -10 }
+	send_interface_toast = {
+		type = event_toast_effect_bad
+		title = pantheon_demigod_recalled_t
+		left_icon = scope:pantheon_target
+	}
+}
+
+# Wed the chosen demigod to the chosen spouse, so their children are of the spouse's house (a man marries
+# matrilineally; proven in 1.6 Task 0). Root is the god; scope:pantheon_target the follower who heads the house.
+pantheon_wed_demigod_effect = {
+	var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+	if = {
+		limit = { var:pantheon_worship >= pantheon_cost_wed }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_wed }
+		var:pantheon_chosen_demigod = { save_scope_as = pantheon_demigod }
+		var:pantheon_chosen_spouse = { save_scope_as = pantheon_spouse }
+		scope:pantheon_demigod = { if = { limit = { has_variable = can_not_marry } remove_variable = can_not_marry } }
+		if = { limit = { scope:pantheon_demigod = { is_male = yes } scope:pantheon_spouse = { is_female = yes } } scope:pantheon_spouse = { marry_matrilineal = scope:pantheon_demigod } }
+		else = { scope:pantheon_spouse = { marry = scope:pantheon_demigod } }
+		scope:pantheon_demigod = { set_variable = pantheon_wed_to_house }
+		scope:pantheon_spouse.house ?= { save_scope_as = pantheon_wed_house }
+		pantheon_change_devotion_effect = { AMOUNT = 30 }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_demigod_wed_t
+			left_icon = scope:pantheon_demigod
+			right_icon = scope:pantheon_spouse
+		}
+	}
+	else = {
+		send_interface_toast = { type = event_toast_effect_bad title = pantheon_not_enough_worship_t left_icon = root }
+	}
+}
+
+# Reveal the divine blood of scope:pantheon_target's house: every living Godsblood of it gains Godsblooded,
+# later Godsblood are born with it (pantheon_on_birth_child), and the dynasty gains 1000 prestige. Once.
+pantheon_reveal_divine_blood_effect = {
+	scope:pantheon_target.house ?= { set_variable = pantheon_divine_revealed every_house_member = { limit = { is_alive = yes has_variable = pantheon_godsblood NOT = { has_trait = pantheon_godsblooded } } add_trait = pantheon_godsblooded } }
+	scope:pantheon_target.dynasty ?= { add_dynasty_prestige = 1000 }
+	send_interface_toast = {
+		type = event_toast_effect_good
+		title = pantheon_divine_blood_revealed_t
+		left_icon = scope:pantheon_target
+	}
+}
+
+# Demigods carry vanilla's can_not_marry so no one else may propose (user, 1.6 test). Lift it while the god's own
+# weddings are worked out, then restore it. Root is the god.
+pantheon_lift_marriage_block_effect = {
+	every_child = {
+		limit = { has_trait = pantheon_demigod has_variable = can_not_marry }
+		remove_variable = can_not_marry
+		set_variable = pantheon_marriage_lifted
+	}
+}
+
+pantheon_restore_marriage_block_effect = {
+	every_child = {
+		limit = { has_variable = pantheon_marriage_lifted }
+		remove_variable = pantheon_marriage_lifted
+		if = { limit = { is_married = no } set_variable = can_not_marry }
+	}
+}
+
+# ---- The pages' slots live in variables on the god, refreshed on every open, with scopes saved from them for
+# the text. A delayed (prayer-timer) chain can inherit old scopes, but never old variables: options test the
+# variables (1.5 lesson).
+
+# Slot $N$ = the free demigod at position $POS$ (best total skill first). Wed modes (2, 4) need them unmarried.
+# ordered_child with check_range_bounds = no repeats the LAST entry past the end of the list (project lesson), so
+# the fill is guarded by an any_child count of the very same limit before the ordered_child ever runs.
+pantheon_fill_one_slot_effect = {
+	if = { limit = { has_variable = pantheon_slot_$N$ } remove_variable = pantheon_slot_$N$ }
+	if = {
+		limit = {
+			any_child = {
+				count >= $COUNT$
+				pantheon_free_demigod_trigger = { GOD = root }
+				trigger_if = { limit = { root = { OR = { var:pantheon_demigod_mode = 2 var:pantheon_demigod_mode = 4 } } } is_married = no }
+				trigger_if = { limit = { root = { OR = { var:pantheon_demigod_mode = 2 var:pantheon_demigod_mode = 4 } } } has_variable = pantheon_can_wed_here }
+			}
+		}
+		ordered_child = {
+			limit = {
+				pantheon_free_demigod_trigger = { GOD = root }
+				trigger_if = { limit = { root = { OR = { var:pantheon_demigod_mode = 2 var:pantheon_demigod_mode = 4 } } } is_married = no }
+				trigger_if = { limit = { root = { OR = { var:pantheon_demigod_mode = 2 var:pantheon_demigod_mode = 4 } } } has_variable = pantheon_can_wed_here }
+			}
+			order_by = pantheon_total_skill
+			position = $POS$
+			check_range_bounds = no
+			root = { set_variable = { name = pantheon_slot_$N$ value = prev } }
+		}
+	}
+	var:pantheon_slot_$N$ ?= { save_scope_as = pantheon_slot_$N$ }
+}
+
+# 1.6: who can wed here (mode 2)? Lift the marriage block for the duration so the checks below see the truth,
+# then work out pantheon_can_wed_here per free unmarried demigod before filling the six slots, then restore it.
+pantheon_fill_demigod_slots_effect = {
+	pantheon_lift_marriage_block_effect = yes
+	# Who may be chosen: someone in the house can wed them (mode 2), or the suppliant can (mode 4, a prayer)
+	if = { limit = { var:pantheon_demigod_mode = 4 } pantheon_mark_wed_spouse_effect = { SPOUSE = scope:pantheon_target } }
+	else = { pantheon_mark_wed_house_effect = yes }
+	pantheon_fill_one_slot_effect = { N = 1 POS = 0 COUNT = 1 }
+	pantheon_fill_one_slot_effect = { N = 2 POS = 1 COUNT = 2 }
+	pantheon_fill_one_slot_effect = { N = 3 POS = 2 COUNT = 3 }
+	pantheon_fill_one_slot_effect = { N = 4 POS = 3 COUNT = 4 }
+	pantheon_fill_one_slot_effect = { N = 5 POS = 4 COUNT = 5 }
+	pantheon_fill_one_slot_effect = { N = 6 POS = 5 COUNT = 6 }
+	pantheon_restore_marriage_block_effect = yes
+}
+
+# A demigod was chosen: remember them, then go where the mode says.
+pantheon_choose_demigod_effect = {
+	set_variable = { name = pantheon_chosen_demigod value = var:pantheon_slot_$N$ }
+	if = { limit = { var:pantheon_demigod_mode = 1 } trigger_event = pantheon_menu.0520 }
+	else_if = { limit = { var:pantheon_demigod_mode = 2 } trigger_event = pantheon_menu.0530 }
+	else_if = { limit = { var:pantheon_demigod_mode = 3 } pantheon_lend_demigod_effect = { ROLE = commander } }
+	else_if = { limit = { var:pantheon_demigod_mode = 4 } set_variable = { name = pantheon_chosen_spouse value = scope:pantheon_target } pantheon_wed_demigod_effect = yes }
+}
+
+# Spouse slots: the follower if they can marry the demigod, then up to 3 unmarried adult kin of their house.
+# Lifted/restored around the god's own check (2d): only the demigod's own wedding ever needs can_not_marry lifted.
+pantheon_fill_spouse_slots_effect = {
+	pantheon_lift_marriage_block_effect = yes
+	var:pantheon_chosen_demigod = { save_scope_as = pantheon_chosen }
+	if = { limit = { has_variable = pantheon_spouse_1 } remove_variable = pantheon_spouse_1 }
+	if = { limit = { has_variable = pantheon_spouse_2 } remove_variable = pantheon_spouse_2 }
+	if = { limit = { has_variable = pantheon_spouse_3 } remove_variable = pantheon_spouse_3 }
+	if = { limit = { has_variable = pantheon_spouse_4 } remove_variable = pantheon_spouse_4 }
+	if = {
+		limit = { scope:pantheon_target = { is_married = no can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } }
+		set_variable = { name = pantheon_spouse_1 value = scope:pantheon_target }
+	}
+	scope:pantheon_target = {
+		# The spec says a child or sibling (not every close family member: that also reaches in-laws).
+		# Each ordered_close_family_member is guarded by an any_close_family_member count of its own limit
+		# (ordered_in_list past the end repeats the last entry, the same project lesson as the demigod picker).
+		if = {
+			limit = { any_close_family_member = { count >= 1 is_adult = yes is_married = no OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target } house = scope:pantheon_target.house can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } }
+			ordered_close_family_member = { limit = { is_adult = yes is_married = no OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target } house = scope:pantheon_target.house can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } order_by = age position = 0 check_range_bounds = no root = { set_variable = { name = pantheon_spouse_2 value = prev } } }
+		}
+		if = {
+			limit = { any_close_family_member = { count >= 2 is_adult = yes is_married = no OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target } house = scope:pantheon_target.house can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } }
+			ordered_close_family_member = { limit = { is_adult = yes is_married = no OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target } house = scope:pantheon_target.house can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } order_by = age position = 1 check_range_bounds = no root = { set_variable = { name = pantheon_spouse_3 value = prev } } }
+		}
+		if = {
+			limit = { any_close_family_member = { count >= 3 is_adult = yes is_married = no OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target } house = scope:pantheon_target.house can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } }
+			ordered_close_family_member = { limit = { is_adult = yes is_married = no OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target } house = scope:pantheon_target.house can_marry_character_trigger = { CHARACTER = scope:pantheon_chosen } } order_by = age position = 2 check_range_bounds = no root = { set_variable = { name = pantheon_spouse_4 value = prev } } }
+		}
+	}
+	var:pantheon_spouse_1 ?= { save_scope_as = pantheon_spouse_1 }
+	var:pantheon_spouse_2 ?= { save_scope_as = pantheon_spouse_2 }
+	var:pantheon_spouse_3 ?= { save_scope_as = pantheon_spouse_3 }
+	var:pantheon_spouse_4 ?= { save_scope_as = pantheon_spouse_4 }
+	pantheon_restore_marriage_block_effect = yes
+}
+
+# Recall slots: up to 3 of the god's demigods serving scope:pantheon_target. Each ordered_child is guarded by an
+# any_child count of its own limit (ordered_in_list past the end repeats the last entry).
+pantheon_fill_recall_slots_effect = {
+	if = { limit = { has_variable = pantheon_recall_1 } remove_variable = pantheon_recall_1 }
+	if = { limit = { has_variable = pantheon_recall_2 } remove_variable = pantheon_recall_2 }
+	if = { limit = { has_variable = pantheon_recall_3 } remove_variable = pantheon_recall_3 }
+	if = {
+		limit = { any_child = { count >= 1 var:pantheon_lent_to ?= scope:pantheon_target } }
+		ordered_child = { limit = { var:pantheon_lent_to ?= scope:pantheon_target } order_by = age position = 0 check_range_bounds = no root = { set_variable = { name = pantheon_recall_1 value = prev } } }
+	}
+	if = {
+		limit = { any_child = { count >= 2 var:pantheon_lent_to ?= scope:pantheon_target } }
+		ordered_child = { limit = { var:pantheon_lent_to ?= scope:pantheon_target } order_by = age position = 1 check_range_bounds = no root = { set_variable = { name = pantheon_recall_2 value = prev } } }
+	}
+	if = {
+		limit = { any_child = { count >= 3 var:pantheon_lent_to ?= scope:pantheon_target } }
+		ordered_child = { limit = { var:pantheon_lent_to ?= scope:pantheon_target } order_by = age position = 2 check_range_bounds = no root = { set_variable = { name = pantheon_recall_3 value = prev } } }
+	}
+	var:pantheon_recall_1 ?= { save_scope_as = pantheon_recall_1 }
+	var:pantheon_recall_2 ?= { save_scope_as = pantheon_recall_2 }
+	var:pantheon_recall_3 ?= { save_scope_as = pantheon_recall_3 }
+}
+
+# Mark (pantheon_can_wed_here, 1 day) each free unmarried demigod someone in scope:pantheon_target's house can
+# wed: the head if unmarried, or an unmarried adult child or sibling of the house. The candidate is a SAVED
+# scope: can_marry_character_trigger pastes CHARACTER into nested blocks, where `prev` would be null (error.log,
+# 1.6 test). Call with the marriage block lifted. Root is the god.
+pantheon_mark_wed_house_effect = {
+	every_child = { limit = { has_variable = pantheon_can_wed_here } remove_variable = pantheon_can_wed_here }
+	every_child = {
+		limit = { pantheon_free_demigod_trigger = { GOD = root } is_married = no }
+		save_scope_as = pantheon_wed_candidate
+		if = {
+			limit = {
+				scope:pantheon_target = {
+					OR = {
+						AND = { is_married = no can_marry_character_trigger = { CHARACTER = scope:pantheon_wed_candidate } }
+						any_close_family_member = {
+							is_adult = yes is_married = no house = scope:pantheon_target.house
+							OR = { is_child_of = scope:pantheon_target is_sibling_of = scope:pantheon_target }
+							can_marry_character_trigger = { CHARACTER = scope:pantheon_wed_candidate }
+						}
+					}
+				}
+			}
+			set_variable = { name = pantheon_can_wed_here value = yes days = 1 }
+		}
+	}
+}
+
+# The same for a single spouse ($SPOUSE$, e.g. a Spouse prayer's suppliant), never themselves.
+pantheon_mark_wed_spouse_effect = {
+	every_child = { limit = { has_variable = pantheon_can_wed_here } remove_variable = pantheon_can_wed_here }
+	every_child = {
+		limit = { pantheon_free_demigod_trigger = { GOD = root } is_married = no NOT = { this = $SPOUSE$ } }
+		save_scope_as = pantheon_wed_candidate
+		if = {
+			limit = { $SPOUSE$ = { can_marry_character_trigger = { CHARACTER = scope:pantheon_wed_candidate } } }
+			set_variable = { name = pantheon_can_wed_here value = yes days = 1 }
+		}
+	}
+}

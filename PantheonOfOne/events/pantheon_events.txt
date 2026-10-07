@@ -17,9 +17,18 @@ pantheon.0010 = {
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
 		pantheon_divine_health_effect = yes
+		if = {
+			limit = { NOT = { has_variable = pantheon_monthly_timer } }
+			set_variable = pantheon_monthly_timer
+			trigger_event = { id = pantheon.0011 days = 1 }
+		}
 		pantheon_forget_the_dead_effect = yes
 		pantheon_plague_devotion_effect = yes
 		pantheon_torture_grievance_pass_effect = yes
+		# 1.6: a lent demigod comes home if their host dies or leaves the faith
+		every_child = { limit = { has_variable = pantheon_lent_to var:pantheon_lent_to ?= { OR = { is_alive = no NOT = { faith = root.faith } } } } pantheon_orphan_return_effect = yes pantheon_return_demigod_effect = yes }
+		# 1.6 (user, in-game test): a demigod from before 1.6 never got vanilla's can_not_marry; mark them now
+		every_child = { limit = { has_trait = pantheon_demigod is_married = no NOT = { has_variable = can_not_marry } } set_variable = can_not_marry }
 		# A god enthroned before 1.3 never started the prayer timer
 		if = {
 			limit = { NOT = { has_variable = pantheon_prayer_timer } }
@@ -214,5 +223,16 @@ pantheon.0041 = {
 			limit = { has_trait = disputed_heritage }
 			remove_trait = disputed_heritage
 		}
+	}
+}
+
+# 1.6: a god carries no ailment for long (a vanilla health event put Aching Bones on a god). Monthly.
+pantheon.0011 = {
+	type = character_event
+	hidden = yes
+	trigger = { has_trait = pantheon_divine }
+	immediate = {
+		pantheon_divine_health_effect = yes
+		trigger_event = { id = pantheon.0011 days = 30 }
 	}
 }

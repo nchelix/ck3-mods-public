@@ -287,6 +287,8 @@ pantheon_pick_follower_prayer_effect = {
 			faith = root.faith
 			NOT = { this = root }
 			NOT = { has_variable = pantheon_prayed_recently }
+			# 1.6 (user): a demigod gets no gifts or prayers of their own.
+			NOT = { has_trait = pantheon_demigod }
 		}
 		pantheon_add_prayer_candidate_effect = yes
 	}
@@ -294,6 +296,7 @@ pantheon_pick_follower_prayer_effect = {
 		limit = {
 			faith = root.faith
 			NOT = { has_variable = pantheon_prayed_recently }
+			NOT = { has_trait = pantheon_demigod }
 		}
 		pantheon_add_prayer_candidate_effect = yes
 	}
@@ -305,6 +308,7 @@ pantheon_pick_follower_prayer_effect = {
 			has_variable = pantheon_devotion
 			var:pantheon_devotion >= 75
 			NOT = { has_variable = pantheon_prayed_recently }
+			NOT = { has_trait = pantheon_demigod }
 		}
 		pantheon_add_prayer_candidate_effect = yes
 	}

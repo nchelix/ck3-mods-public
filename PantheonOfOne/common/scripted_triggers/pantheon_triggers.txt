@@ -84,6 +84,12 @@ pantheon_need_fertility_trigger = {
 	is_married = yes
 	NOT = { any_child = { always = yes } }
 	NOT = { has_variable = pantheon_boon_fertility }
+	# 1.6: not while a child is on the way (theirs or any wife's), and only a couple who can still conceive:
+	# the woman under the engine's childbearing age (fertility alone never reaches 0 with age)
+	trigger_if = { limit = { is_female = yes } is_pregnant = no age < define:NChildbirth|MAX_FEMALE_REPRODUCTION_AGE }
+	NOT = { any_spouse = { is_female = yes is_pregnant = yes } }
+	primary_spouse ?= { trigger_if = { limit = { is_female = yes } age < define:NChildbirth|MAX_FEMALE_REPRODUCTION_AGE } fertility > 0 }
+	fertility > 0
 }
 
 # Aged 60 or more (the sick pray for Divine Healing).
@@ -158,6 +164,7 @@ pantheon_need_spouse_trigger = {
 	is_betrothed = no
 	NOT = { any_child = { always = yes } }
 	NOT = { has_variable = pantheon_boon_fertility }
+	trigger_if = { limit = { is_female = yes } is_pregnant = no }
 }
 
 # ---- 1.4 Wrath. In each trigger below, this is the candidate and $GOD$ the god. Pass GOD as a saved scope
@@ -352,4 +359,17 @@ pantheon_has_a_great_prayer_trigger = {
 			pantheon_grievance_valid_trigger = { GOD = root }
 		}
 	}
+}
+
+# ---- 1.6 Demigods. A demigod the god may lend or wed: their own child, grown, of the faith, unlanded, free.
+pantheon_free_demigod_trigger = {
+	has_trait = pantheon_demigod
+	is_alive = yes
+	is_adult = yes
+	is_child_of = $GOD$
+	faith = $GOD$.faith
+	is_landed = no
+	is_imprisoned = no
+	NOT = { has_variable = pantheon_lent_to }
+	NOT = { has_variable = pantheon_wed_to_house }
 }

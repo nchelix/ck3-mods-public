@@ -89,3 +89,8 @@ pantheon_avenged = {
 	monthly_piety_gain_mult = 0.25
 	monthly_prestige_gain_mult = 0.25
 }
+
+# 1.6: a demigod serving a follower's court for the god; the tooltip shows the end date.
+pantheon_lent = {
+	icon = prestige_positive
+}

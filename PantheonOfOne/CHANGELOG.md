@@ -1,5 +1,35 @@
 # Changelog — Pantheon of One
 
+## [1.6] — 2026-10-07
+
+Demigods as instruments.
+
+### Added
+- **Your children...** (Divine Will on a landed follower, under Bless their life):
+  - **Lend a demigod** to their court for ten years, as their champion, on
+    their council (the seat that fits their best skill) or as commander of
+    their army. 600 Worship; the ruler gains 20 Devotion. Recall them early at
+    the cost of 10 Devotion; they come home if their host dies or converts.
+  - **Wed a demigod into their house:** the ruler, or an unmarried child or
+    sibling of theirs. A son weds matrilineally, so the children are of their
+    house. 900 Worship; the ruler gains 30 Devotion.
+  - **Godsblood:** a demigod's children carry your blood in secret. **Reveal
+    their divine blood** (once per house) and every Godsblood of the house
+    becomes **Godsblooded** (health, every skill, prowess, fertility), and the
+    dynasty gains 1,000 prestige.
+- **Send one of your children** to answer a Host prayer (as commander) or a
+  Spouse prayer (as their spouse), and in Divine Retribution (as the
+  defender's commander).
+- No one else may propose to your demigods; only you decide whom they wed.
+- On a demigod, Divine Will offers only to call them home.
+- **A god wears the saint's halo.**
+
+### Fixed
+- No fertility or spouse prayers while a child is already on the way, and none
+  from couples past childbearing age.
+- Demigods are never born sickly or inbred.
+- A god's ailments now fade within a month, not a season.
+
 ## [1.5] — 2026-10-06
 
 Great Prayers.

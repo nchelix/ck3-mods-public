@@ -286,6 +286,24 @@ pantheon.0080 = {
 		hidden_effect = { pantheon_retribution_host_effect = yes }
 	}
 
+	# 1.6: a free demigod lent to the defender as Commander (600 Worship). Hidden, not greyed: the 3-greyed cap.
+	option = {
+		name = pantheon.0080.send
+		trigger = {
+			NOT = { scope:pantheon_defender = root }
+			scope:pantheon_defender = { is_landed = yes }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt root = { any_child = { pantheon_free_demigod_trigger = { GOD = root } } } }
+			custom_tooltip = { text = pantheon_needs_worship_lend_tt var:pantheon_worship >= pantheon_cost_lend }
+		}
+		custom_tooltip = pantheon.0080.send.tt
+		hidden_effect = {
+			set_variable = { name = pantheon_demigod_host value = scope:pantheon_defender }
+			scope:pantheon_defender = { save_scope_as = pantheon_target }
+			set_variable = { name = pantheon_demigod_mode value = 3 }
+			trigger_event = pantheon_menu.0510
+		}
+	}
+
 	option = {
 		name = pantheon.0080.mortals
 		custom_tooltip = pantheon.0080.mortals.tt

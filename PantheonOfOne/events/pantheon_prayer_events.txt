@@ -32,6 +32,12 @@ pantheon.0060 = {
 			clear_saved_scope = pantheon_suppliant
 		}
 		var:pantheon_suppliant_var = { save_scope_as = pantheon_suppliant }
+		# 1.6: can one of the god's free demigods wed this suppliant? Worked out with the marriage block lifted.
+		if = { limit = { has_variable = pantheon_send_wed_ok } remove_variable = pantheon_send_wed_ok }
+		pantheon_lift_marriage_block_effect = yes
+		pantheon_mark_wed_spouse_effect = { SPOUSE = scope:pantheon_suppliant }
+		if = { limit = { any_child = { has_variable = pantheon_can_wed_here } } set_variable = pantheon_send_wed_ok }
+		pantheon_restore_marriage_block_effect = yes
 		# Costs read the suppliant, which button text cannot: store them now (error.log, 1.3 test)
 		set_variable = {
 			name = pantheon_prayer_cost_now
@@ -141,6 +147,53 @@ pantheon.0060 = {
 		}
 		custom_tooltip = pantheon.0060.sign.tt
 		hidden_effect = { pantheon_sign_prayer_effect = yes }
+	}
+
+	# 1.6: Send one of your children. Host -> a demigod lent as Commander; Spouse -> a demigod wed to them.
+	# Charged at the lend or wed price (its Devotion, once). The third greyable option; Refuse never greys.
+	option = {
+		name = pantheon.0060.send
+		trigger = {
+			scope:pantheon_suppliant = { faith = root.faith }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt root = { any_child = { pantheon_free_demigod_trigger = { GOD = root } } } }
+			OR = {
+				AND = {
+					scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 }
+					custom_tooltip = { text = pantheon_needs_worship_lend_tt var:pantheon_worship >= pantheon_cost_lend }
+				}
+				AND = {
+					scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 }
+					custom_tooltip = { text = pantheon_needs_worship_wed_tt var:pantheon_worship >= pantheon_cost_wed }
+					# A Spouse answer always has someone free to marry (safe weddings, 1.6 final review); worked
+					# out in this event's immediate, with the marriage block lifted (can_not_marry would always fail here).
+					custom_tooltip = { text = pantheon_has_free_demigod_tt has_variable = pantheon_send_wed_ok }
+				}
+			}
+		}
+		show_as_unavailable = {
+			scope:pantheon_suppliant = { faith = root.faith }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt root = { any_child = { pantheon_free_demigod_trigger = { GOD = root } } } }
+			OR = {
+				AND = {
+					scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 }
+				}
+				AND = {
+					scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 }
+					custom_tooltip = { text = pantheon_has_free_demigod_tt has_variable = pantheon_send_wed_ok }
+				}
+			}
+		}
+		custom_tooltip = pantheon.0060.send.tt
+		set_variable = { name = pantheon_demigod_host value = scope:pantheon_suppliant }
+		scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+		if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
+			set_variable = { name = pantheon_demigod_mode value = 3 }
+		}
+		else = {
+			set_variable = { name = pantheon_demigod_mode value = 4 }
+		}
+		trigger_event = pantheon_menu.0510
 	}
 
 	option = {
