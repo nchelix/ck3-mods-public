@@ -1,0 +1,200 @@
+﻿# Pantheon of One 2.0: the Pantheon window's buttons. Called from gui/pantheon_window.gui with
+# GuiScope.SetRoot( GetPlayer.MakeScope ), so root and this are the god. Task 5 appends The God tab's buttons.
+
+# The button by the portrait shows only for a god
+pantheon_ui_is_god = {
+	scope = character
+	is_valid = { has_trait = pantheon_divine }
+}
+
+# Open (rebuilding the lists first) or close the window
+pantheon_ui_toggle = {
+	scope = character
+	is_valid = { has_trait = pantheon_divine }
+	effect = {
+		if = {
+			limit = { has_variable = pantheon_ui_open }
+			remove_variable = pantheon_ui_open
+			# A long-open window can't leave a stale pinned reference behind it (M5)
+			clear_variable_list = pantheon_ui_followers
+			clear_variable_list = pantheon_ui_blessed
+			clear_variable_list = pantheon_ui_demigods
+			clear_variable_list = pantheon_ui_houses
+		}
+		else = {
+			if = { limit = { NOT = { has_variable = pantheon_ui_tab } } set_variable = { name = pantheon_ui_tab value = 1 } }
+			pantheon_ui_rebuild_effect = yes
+			set_variable = pantheon_ui_open
+		}
+	}
+}
+
+# The header's close button (M10): no is_valid, so losing pantheon_divine while the window is open can't trap it.
+pantheon_ui_close = {
+	scope = character
+	effect = {
+		remove_variable = pantheon_ui_open
+		clear_variable_list = pantheon_ui_followers
+		clear_variable_list = pantheon_ui_blessed
+		clear_variable_list = pantheon_ui_demigods
+		clear_variable_list = pantheon_ui_houses
+	}
+}
+
+pantheon_ui_tab_followers = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_tab value = 1 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_tab_children = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_tab value = 2 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_tab_god = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_tab value = 3 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# A row click selects that follower
+pantheon_ui_select = {
+	scope = character
+	saved_scopes = { target }
+	effect = {
+		set_variable = { name = pantheon_ui_target value = scope:target }
+	}
+}
+
+# Followers: everyone, or only those carrying a blessing
+pantheon_ui_blessed_only = {
+	scope = character
+	effect = {
+		if = {
+			limit = { has_variable = pantheon_ui_blessed_only }
+			remove_variable = pantheon_ui_blessed_only
+		}
+		else = { set_variable = pantheon_ui_blessed_only }
+	}
+}
+
+# ---- The God tab (shown only when usable: a scripted GUI has no proven failure-reason tooltip)
+
+pantheon_ui_throne = {
+	scope = character
+	is_valid = {
+		has_trait = pantheon_divine
+		NOT = { has_variable = pantheon_enthroned }
+		is_landed = yes
+	}
+	effect = {
+		pantheon_take_throne_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_proclaim = {
+	scope = character
+	is_valid = {
+		has_trait = pantheon_divine
+		NOT = { rite = faith.main_rite }
+	}
+	effect = { pantheon_proclaim_effect = yes }
+}
+
+pantheon_ui_forswear = {
+	scope = character
+	is_valid = {
+		has_trait = pantheon_divine
+		NOT = { has_character_modifier = pantheon_forsworn }
+	}
+	effect = { trigger_event = pantheon.0109 }
+}
+
+pantheon_ui_embrace = {
+	scope = character
+	is_valid = {
+		has_trait = pantheon_divine
+		has_character_modifier = pantheon_forsworn
+	}
+	effect = { trigger_event = pantheon.0110 }
+}
+
+# In-game round 1: a pinned follower could not be un-pinned
+pantheon_ui_clear = {
+	scope = character
+	effect = {
+		if = { limit = { has_variable = pantheon_ui_target } remove_variable = pantheon_ui_target }
+	}
+}
+
+# Sort the window's lists: Devotion (followers) or total skill (demigods)
+pantheon_ui_sort_0 = {
+	scope = character
+	effect = {
+		if = { limit = { has_variable = pantheon_ui_sort } remove_variable = pantheon_ui_sort }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Sort the window's lists: diplomacy
+pantheon_ui_sort_1 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_sort value = 1 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Sort the window's lists: martial
+pantheon_ui_sort_2 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_sort value = 2 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Sort the window's lists: stewardship
+pantheon_ui_sort_3 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_sort value = 3 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Sort the window's lists: intrigue
+pantheon_ui_sort_4 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_sort value = 4 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Sort the window's lists: learning
+pantheon_ui_sort_5 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_sort value = 5 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Sort the window's lists: prowess
+pantheon_ui_sort_6 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_sort value = 6 }
+		pantheon_ui_rebuild_effect = yes
+	}
+}

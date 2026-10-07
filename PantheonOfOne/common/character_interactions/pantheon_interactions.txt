@@ -1,4 +1,5 @@
-﻿# Pantheon of One: right-click a follower (or yourself) to open the Divine Will menu.
+﻿# Pantheon of One: right-click a follower (or yourself) to open the Pantheon window (2.0; the 1.0-1.6 event pages
+# are no longer reached from here). On yourself it opens The God tab.
 pantheon_divine_will_interaction = {
 	category = interaction_category_religion
 	common_interaction = yes
@@ -20,14 +21,22 @@ pantheon_divine_will_interaction = {
 		}
 	}
 	on_accept = {
-		scope:recipient = { save_scope_as = pantheon_target }
-		scope:actor = { trigger_event = pantheon_menu.0001 }
+		scope:actor = {
+			# The window's own selection; never the god themselves (I3)
+			if = {
+				limit = { NOT = { scope:recipient = scope:actor } }
+				set_variable = { name = pantheon_ui_target value = scope:recipient }
+			}
+			if = { limit = { scope:recipient = scope:actor } set_variable = { name = pantheon_ui_tab value = 3 } }
+			else = { set_variable = { name = pantheon_ui_tab value = 1 } }
+			trigger_event = pantheon.0108
+		}
 	}
 	auto_accept = yes
 	ai_will_do = { base = 0 }
 }
 
-# 1.4 Wrath: right-click an enemy, apostate, criminal or sinner to Pass Judgement (pantheon.0070).
+# 2.0: the person wraths as radio options (the land wraths are pantheon_lands_interaction)
 pantheon_judgement_interaction = {
 	category = interaction_category_hostile
 	common_interaction = yes
@@ -47,20 +56,644 @@ pantheon_judgement_interaction = {
 			custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
 		}
 	}
+	can_send = {
+		custom_tooltip = {
+			text = pantheon_pick_option_tt
+			OR = {
+				scope:pantheon_judge_strike = yes
+				scope:pantheon_judge_maimed = yes
+				scope:pantheon_judge_blind = yes
+				scope:pantheon_judge_wound = yes
+				scope:pantheon_judge_curse = yes
+			}
+		}
+	}
+
+	send_options_exclusive = yes
+	send_option = {
+		flag = pantheon_judge_strike
+		localization = pantheon_judge_opt_strike
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_strike_tt var:pantheon_worship >= pantheon_cost_strike } }
+			scope:recipient = { custom_tooltip = { text = pantheon_judge_sin_only_tt NOT = { pantheon_sin_only_trigger = { GOD = scope:actor } } } }
+		}
+	}
+	send_option = {
+		flag = pantheon_judge_maimed
+		localization = pantheon_judge_opt_maimed
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim } }
+			scope:recipient = { custom_tooltip = { text = pantheon_judge_already_tt NOT = { has_trait = maimed } } }
+		}
+	}
+	send_option = {
+		flag = pantheon_judge_blind
+		localization = pantheon_judge_opt_blind
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim } }
+			scope:recipient = { custom_tooltip = { text = pantheon_judge_already_tt NOT = { has_trait = blind } } }
+		}
+	}
+	send_option = {
+		flag = pantheon_judge_wound
+		localization = pantheon_judge_opt_wound
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim } }
+			scope:recipient = { custom_tooltip = { text = pantheon_judge_already_tt NOT = { has_trait = wounded_3 } } }
+		}
+	}
+	send_option = {
+		flag = pantheon_judge_curse
+		localization = pantheon_judge_opt_curse
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_curse_tt var:pantheon_worship >= pantheon_cost_curse } }
+		}
+	}
+
 	on_accept = {
+		if = { limit = { scope:pantheon_judge_strike = yes } custom_tooltip = pantheon.0071.strike.tt }
+		if = { limit = { scope:pantheon_judge_maimed = yes } custom_tooltip = pantheon_judge_maimed.tt }
+		if = { limit = { scope:pantheon_judge_blind = yes } custom_tooltip = pantheon_judge_blind.tt }
+		if = { limit = { scope:pantheon_judge_wound = yes } custom_tooltip = pantheon_judge_wound.tt }
+		if = { limit = { scope:pantheon_judge_curse = yes } custom_tooltip = pantheon.0071.curse.tt }
+		hidden_effect = {
+			scope:actor = {
+				# A wrath on the sworn offender answers the oath itself: pantheon_wrath_landed_effect must still
+				# see pantheon_great_prayer_active (M9).
+				if = {
+					limit = { NOT = { var:pantheon_great_prayer_offender ?= scope:recipient } }
+					pantheon_end_oath_effect = yes
+				}
+				set_variable = { name = pantheon_wrath_target value = scope:recipient }
+				# A sin weighs less than a crime (the Great Prayer pages still read this)
+				if = {
+					limit = { scope:recipient = { pantheon_sin_only_trigger = { GOD = scope:actor } } }
+					set_variable = pantheon_wrath_light
+				}
+				else_if = {
+					limit = { has_variable = pantheon_wrath_light }
+					remove_variable = pantheon_wrath_light
+				}
+				if = { limit = { scope:pantheon_judge_strike = yes } set_variable = { name = pantheon_ui_choice value = flag:strike } }
+				else_if = { limit = { scope:pantheon_judge_maimed = yes } set_variable = { name = pantheon_ui_choice value = flag:maimed } }
+				else_if = { limit = { scope:pantheon_judge_blind = yes } set_variable = { name = pantheon_ui_choice value = flag:blind } }
+				else_if = { limit = { scope:pantheon_judge_wound = yes } set_variable = { name = pantheon_ui_choice value = flag:wound } }
+				else_if = { limit = { scope:pantheon_judge_curse = yes } set_variable = { name = pantheon_ui_choice value = flag:curse } }
+				trigger_event = pantheon.0106
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Wrath upon their lands. A county switcher (target_type = title, proven in Task 0) picks where the wrath
+# lands: pantheon_wrath_origin_effect reads var:pantheon_wrath_county. Sinners face no land wrath (as 1.4).
+pantheon_lands_interaction = {
+	category = interaction_category_hostile
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_lands_interaction
+	desc = pantheon_lands_interaction_desc
+	target_type = title
+	target_filter = recipient_domain_titles
+	can_be_picked_title = {
+		scope:target = { tier = tier_county }
+	}
+	is_shown = {
 		scope:actor = {
-			pantheon_end_oath_effect = yes
-			set_variable = { name = pantheon_wrath_target value = scope:recipient }
-			# A sin weighs less than a crime: the pages hide the heavier wraths
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = {
+			pantheon_judgement_target_trigger = { GOD = scope:actor }
+			NOT = { pantheon_sin_only_trigger = { GOD = scope:actor } }
+			any_held_county = { always = yes }
+		}
+	}
+	is_valid_showing_failures_only = {
+		scope:recipient = {
+			custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
+		}
+	}
+	can_send = {
+		custom_tooltip = {
+			text = pantheon_pick_option_tt
+			OR = {
+				scope:pantheon_lands_pestilence = yes
+				scope:pantheon_lands_great_dying = yes
+				scope:pantheon_lands_disaster = yes
+			}
+		}
+	}
+
+	send_options_exclusive = yes
+	send_option = {
+		flag = pantheon_lands_pestilence
+		localization = pantheon_lands_opt_pestilence
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_pestilence_tt var:pantheon_worship >= pantheon_cost_pestilence } }
+		}
+	}
+	send_option = {
+		flag = pantheon_lands_great_dying
+		localization = pantheon_lands_opt_great_dying
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_great_dying_tt var:pantheon_worship >= pantheon_cost_great_dying } }
+		}
+	}
+	send_option = {
+		flag = pantheon_lands_disaster
+		localization = pantheon_lands_opt_disaster
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_disaster_tt var:pantheon_worship >= pantheon_cost_disaster } }
+		}
+	}
+
+	on_accept = {
+		if = { limit = { scope:pantheon_lands_pestilence = yes } custom_tooltip = pantheon_lands_pestilence.tt }
+		if = { limit = { scope:pantheon_lands_great_dying = yes } custom_tooltip = pantheon_lands_great_dying.tt }
+		if = { limit = { scope:pantheon_lands_disaster = yes } custom_tooltip = pantheon.0073.disaster.tt }
+		hidden_effect = {
+			scope:actor = {
+				# A wrath on the sworn offender answers the oath itself (M9, as Judgement)
+				if = {
+					limit = { NOT = { var:pantheon_great_prayer_offender ?= scope:recipient } }
+					pantheon_end_oath_effect = yes
+				}
+				set_variable = { name = pantheon_wrath_target value = scope:recipient }
+				set_variable = { name = pantheon_wrath_county value = scope:target }
+				if = { limit = { scope:pantheon_lands_pestilence = yes } set_variable = { name = pantheon_ui_choice value = flag:pestilence } }
+				else_if = { limit = { scope:pantheon_lands_great_dying = yes } set_variable = { name = pantheon_ui_choice value = flag:great_dying } }
+				else_if = { limit = { scope:pantheon_lands_disaster = yes } set_variable = { name = pantheon_ui_choice value = flag:disaster } }
+				trigger_event = pantheon.0107
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Bless, one interaction with a radio option per blessing (radio options, proven in the Task 0 prototype).
+# The work runs in pantheon.0100 on the god; on_accept only previews and records the choice in variables.
+pantheon_bless_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_bless_interaction
+	desc = pantheon_bless_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		OR = {
+			scope:recipient = scope:actor
+			scope:recipient = { faith = scope:actor.faith }
+		}
+		# A demigod never sees an all-grey Bless (I1): life, realm and gift were all closed to them in 1.6
+		NOT = { scope:recipient = { has_trait = pantheon_demigod } }
+	}
+	can_send = {
+		custom_tooltip = {
+			text = pantheon_pick_option_tt
+			OR = {
+				scope:pantheon_bless_champion = yes
+				scope:pantheon_bless_warlord = yes
+				scope:pantheon_bless_sovereign = yes
+				scope:pantheon_bless_sage = yes
+				scope:pantheon_bless_harvest = yes
+				scope:pantheon_bless_walls = yes
+				scope:pantheon_bless_warding = yes
+				scope:pantheon_bless_vigor = yes
+				scope:pantheon_bless_fertility = yes
+				scope:pantheon_bless_lineage = yes
+				scope:pantheon_bless_host = yes
+			}
+		}
+	}
+
+	send_options_exclusive = yes
+	send_option = {
+		flag = pantheon_bless_champion
+		localization = pantheon_bless_opt_champion
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_warlord
+		localization = pantheon_bless_opt_warlord
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_sovereign
+		localization = pantheon_bless_opt_sovereign
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_sage
+		localization = pantheon_bless_opt_sage
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_harvest
+		localization = pantheon_bless_opt_harvest
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_harvest } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_walls
+		localization = pantheon_bless_opt_walls
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_walls } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_warding
+		localization = pantheon_bless_opt_warding
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_warding } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_vigor
+		localization = pantheon_bless_opt_vigor
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_vigor } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_fertility
+		localization = pantheon_bless_opt_fertility
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_fertility } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_lineage
+		localization = pantheon_bless_opt_lineage
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_lineage } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_host
+		localization = pantheon_bless_opt_host
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_host_tt var:pantheon_worship >= pantheon_cost_host } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_not_at_war_tt is_at_war = yes }
+				custom_tooltip = { text = pantheon_bless_host_sent_tt any_character_war = { NOT = { has_variable = pantheon_host_called } } }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+
+	on_accept = {
+		# The preview follows the selected option (the page tooltips of 1.0-1.6)
+		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_menu.0100.champion.tt }
+		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_menu.0100.warlord.tt }
+		if = { limit = { scope:pantheon_bless_sovereign = yes } custom_tooltip = pantheon_menu.0100.sovereign.tt }
+		if = { limit = { scope:pantheon_bless_sage = yes } custom_tooltip = pantheon_menu.0100.sage.tt }
+		if = { limit = { scope:pantheon_bless_harvest = yes } custom_tooltip = pantheon_menu.0200.harvest.tt }
+		if = { limit = { scope:pantheon_bless_walls = yes } custom_tooltip = pantheon_menu.0200.walls.tt }
+		if = { limit = { scope:pantheon_bless_warding = yes } custom_tooltip = pantheon_menu.0200.warding.tt }
+		if = { limit = { scope:pantheon_bless_vigor = yes } custom_tooltip = pantheon_menu.0300.vigor.tt }
+		if = { limit = { scope:pantheon_bless_fertility = yes } custom_tooltip = pantheon_menu.0300.fertility.tt }
+		if = { limit = { scope:pantheon_bless_lineage = yes } custom_tooltip = pantheon_menu.0300.lineage.tt }
+		if = { limit = { scope:pantheon_bless_host = yes } custom_tooltip = pantheon_menu.0001.host.tt }
+		hidden_effect = {
+			scope:actor = {
+				# The handoff to pantheon.0100 (I3); pantheon_ui_target also stays, so the pane keeps showing
+				# the follower just blessed.
+				set_variable = { name = pantheon_act_target value = scope:recipient }
+				set_variable = { name = pantheon_ui_target value = scope:recipient }
+				if = { limit = { scope:pantheon_bless_champion = yes } set_variable = { name = pantheon_ui_choice value = flag:champion } }
+				else_if = { limit = { scope:pantheon_bless_warlord = yes } set_variable = { name = pantheon_ui_choice value = flag:warlord } }
+				else_if = { limit = { scope:pantheon_bless_sovereign = yes } set_variable = { name = pantheon_ui_choice value = flag:sovereign } }
+				else_if = { limit = { scope:pantheon_bless_sage = yes } set_variable = { name = pantheon_ui_choice value = flag:sage } }
+				else_if = { limit = { scope:pantheon_bless_harvest = yes } set_variable = { name = pantheon_ui_choice value = flag:harvest } }
+				else_if = { limit = { scope:pantheon_bless_walls = yes } set_variable = { name = pantheon_ui_choice value = flag:walls } }
+				else_if = { limit = { scope:pantheon_bless_warding = yes } set_variable = { name = pantheon_ui_choice value = flag:warding } }
+				else_if = { limit = { scope:pantheon_bless_vigor = yes } set_variable = { name = pantheon_ui_choice value = flag:vigor } }
+				else_if = { limit = { scope:pantheon_bless_fertility = yes } set_variable = { name = pantheon_ui_choice value = flag:fertility } }
+				else_if = { limit = { scope:pantheon_bless_lineage = yes } set_variable = { name = pantheon_ui_choice value = flag:lineage } }
+				else_if = { limit = { scope:pantheon_bless_host = yes } set_variable = { name = pantheon_ui_choice value = flag:host } }
+				trigger_event = pantheon.0100
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Divine Conception. Eligibility beyond sex and age is checked on accept by the effect, which costs nothing
+# and says why when it refuses (1.2: greying it with reasons made the old page option vanish).
+pantheon_conception_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_conception_interaction
+	desc = pantheon_conception_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = {
+			NOT = { this = scope:actor }
+			faith = scope:actor.faith
+			NOT = { has_trait = pantheon_demigod }
+			NOT = { has_variable = pantheon_enthroned }
+			sex_opposite_of = scope:actor
+			is_adult = yes
+		}
+	}
+	is_valid_showing_failures_only = {
+		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+	}
+	on_accept = {
+		custom_tooltip = pantheon_menu.0300.conception.tt
+		hidden_effect = {
+			scope:actor = {
+				set_variable = { name = pantheon_act_target value = scope:recipient }
+				set_variable = { name = pantheon_ui_target value = scope:recipient }
+				trigger_event = pantheon.0101
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Lend a demigod. The demigod comes from the vanilla picker (secondary actor), the role from a radio option.
+# Picks are required in can_send, never in is_valid (that greys the interaction out of the menu: Task 0).
+pantheon_lend_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_lend_interaction
+	desc = pantheon_lend_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = {
+			NOT = { this = scope:actor }
+			faith = scope:actor.faith
+			is_landed = yes
+		}
+	}
+	populate_actor_list = {
+		scope:actor = {
+			every_child = {
+				limit = { pantheon_free_demigod_trigger = { GOD = scope:actor } }
+				add_to_list = characters
+			}
+		}
+	}
+	is_valid_showing_failures_only = {
+		scope:actor = {
+			custom_tooltip = { text = pantheon_needs_worship_lend_tt var:pantheon_worship >= pantheon_cost_lend }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt any_child = { pantheon_free_demigod_trigger = { GOD = scope:actor } } }
+		}
+	}
+	can_send = {
+		custom_tooltip = { text = pantheon_pick_demigod_tt exists = scope:secondary_actor }
+		custom_tooltip = {
+			text = pantheon_pick_option_tt
+			OR = {
+				scope:pantheon_role_champion = yes
+				scope:pantheon_role_councillor = yes
+				scope:pantheon_role_commander = yes
+			}
+		}
+	}
+
+	send_options_exclusive = yes
+	send_option = {
+		flag = pantheon_role_champion
+		localization = pantheon_menu.0520.champion
+	}
+	send_option = {
+		flag = pantheon_role_councillor
+		localization = pantheon_menu.0520.councillor
+	}
+	send_option = {
+		flag = pantheon_role_commander
+		localization = pantheon_menu.0520.commander
+		is_valid = {
+			scope:recipient = { custom_tooltip = { text = pantheon_no_army_tt any_army = { always = yes } } }
+		}
+	}
+
+	on_accept = {
+		custom_tooltip = pantheon_lend.tt
+		hidden_effect = {
+			scope:actor = {
+				set_variable = { name = pantheon_demigod_host value = scope:recipient }
+				set_variable = { name = pantheon_chosen_demigod value = scope:secondary_actor }
+				if = { limit = { scope:pantheon_role_champion = yes } set_variable = { name = pantheon_ui_choice value = flag:champion } }
+				else_if = { limit = { scope:pantheon_role_councillor = yes } set_variable = { name = pantheon_ui_choice value = flag:councillor } }
+				else_if = { limit = { scope:pantheon_role_commander = yes } set_variable = { name = pantheon_ui_choice value = flag:commander } }
+				trigger_event = pantheon.0102
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Wed a demigod into the house: the demigod (secondary actor) and the spouse (secondary recipient) both come
+# from vanilla pickers. The pair check lives in is_valid_showing_failures_only behind a trigger_if; the engine uses
+# it to show only spouses who can wed the chosen demigod (Task 0).
+pantheon_wed_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_wed_interaction
+	desc = pantheon_wed_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = {
+			NOT = { this = scope:actor }
+			faith = scope:actor.faith
+			is_ruler = yes
+			exists = house
+		}
+	}
+	populate_actor_list = {
+		scope:actor = {
+			every_child = {
+				limit = { pantheon_free_demigod_trigger = { GOD = scope:actor } is_married = no }
+				add_to_list = characters
+			}
+		}
+	}
+	populate_recipient_list = {
+		scope:recipient = {
 			if = {
-				limit = { scope:recipient = { pantheon_sin_only_trigger = { GOD = scope:actor } } }
-				set_variable = pantheon_wrath_light
+				limit = { is_married = no }
+				add_to_list = characters
 			}
-			else_if = {
-				limit = { has_variable = pantheon_wrath_light }
-				remove_variable = pantheon_wrath_light
+			every_close_family_member = {
+				limit = { is_adult = yes is_married = no OR = { is_child_of = scope:recipient is_sibling_of = scope:recipient } house = scope:recipient.house }
+				add_to_list = characters
 			}
-			trigger_event = pantheon.0070
+		}
+	}
+	is_valid_showing_failures_only = {
+		scope:actor = {
+			custom_tooltip = { text = pantheon_needs_worship_wed_tt var:pantheon_worship >= pantheon_cost_wed }
+			custom_tooltip = { text = pantheon_has_free_demigod_tt any_child = { pantheon_free_demigod_trigger = { GOD = scope:actor } is_married = no } }
+		}
+		trigger_if = { limit = { exists = scope:secondary_actor exists = scope:secondary_recipient } scope:secondary_recipient = { custom_tooltip = { text = pantheon_cannot_wed_tt pantheon_could_wed_demigod_trigger = { DEMIGOD = scope:secondary_actor } } } }
+	}
+	can_send = {
+		custom_tooltip = { text = pantheon_pick_demigod_tt exists = scope:secondary_actor }
+		custom_tooltip = { text = pantheon_pick_spouse_tt exists = scope:secondary_recipient }
+	}
+	on_accept = {
+		custom_tooltip = pantheon_wed.tt
+		hidden_effect = {
+			scope:actor = {
+				set_variable = { name = pantheon_demigod_host value = scope:recipient }
+				set_variable = { name = pantheon_chosen_demigod value = scope:secondary_actor }
+				set_variable = { name = pantheon_chosen_spouse value = scope:secondary_recipient }
+				trigger_event = pantheon.0103
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Call home, on a demigod the god has lent out (their host loses 10 Devotion).
+pantheon_call_home_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_call_home_interaction
+	desc = pantheon_call_home_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = {
+			has_variable = pantheon_lent_to
+			var:pantheon_lender ?= scope:actor
+		}
+	}
+	on_accept = {
+		custom_tooltip = pantheon_call_home.tt
+		hidden_effect = {
+			scope:actor = {
+				# Hand off through pantheon_act_target only: this is not the window's selection (I3)
+				set_variable = { name = pantheon_act_target value = scope:recipient }
+				trigger_event = pantheon.0104
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.0: Reveal the divine blood, on the head of a house carrying hidden Godsbloods (once per house).
+pantheon_reveal_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_reveal_interaction
+	desc = pantheon_reveal_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = {
+			faith = scope:actor.faith
+			house ?= { has_variable = pantheon_divine_house NOT = { has_variable = pantheon_divine_revealed } house_head = scope:recipient }
+		}
+	}
+	on_accept = {
+		custom_tooltip = pantheon_menu.0500.reveal.tt
+		hidden_effect = {
+			scope:actor = {
+				# Hand off through pantheon_act_target only: this is not the window's selection (I3)
+				set_variable = { name = pantheon_act_target value = scope:recipient }
+				trigger_event = pantheon.0105
+			}
 		}
 	}
 	auto_accept = yes

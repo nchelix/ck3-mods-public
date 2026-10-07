@@ -1,0 +1,174 @@
+﻿namespace = pantheon
+
+# Pantheon of One 2.0: the work behind the right-click interactions and the Pantheon window. Hidden events on the
+# god, so root is the god as every Pantheon effect expects. Each interaction records its choice in variables on the
+# god (never inherited saved scopes: the 1.6 lesson) and fires one of these.
+
+# Bless: var:pantheon_ui_target is the follower, var:pantheon_ui_choice the blessing.
+pantheon.0100 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_act_target ?= { save_scope_as = pantheon_target }
+		# No branch runs (and no Devotion is paid) unless a choice was actually sent (I1)
+		if = {
+			limit = { exists = var:pantheon_ui_choice }
+			if = { limit = { var:pantheon_ui_choice = flag:champion } pantheon_grant_trait_effect = { TRAIT = pantheon_champion } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:warlord } pantheon_grant_trait_effect = { TRAIT = pantheon_warlord } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:sovereign } pantheon_grant_trait_effect = { TRAIT = pantheon_sovereign } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:sage } pantheon_grant_trait_effect = { TRAIT = pantheon_sage } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:harvest } pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:walls } pantheon_grant_realm_effect = { KEY = walls MODIFIER = pantheon_walls } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:warding } pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:vigor } pantheon_grant_vigor_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:fertility } pantheon_grant_fertility_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:lineage } pantheon_grant_lineage_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:host } pantheon_call_host_effect = yes }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+		}
+		remove_variable = pantheon_ui_choice
+	}
+}
+
+# Divine Conception: var:pantheon_ui_target is the follower.
+pantheon.0101 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_act_target ?= { save_scope_as = pantheon_target }
+		pantheon_grant_conception_effect = yes
+	}
+}
+
+# Lend: vars pantheon_demigod_host and pantheon_chosen_demigod (read by pantheon_lend_demigod_effect itself).
+pantheon.0102 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+		if = { limit = { var:pantheon_ui_choice = flag:champion } pantheon_lend_demigod_effect = { ROLE = champion } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:councillor } pantheon_lend_demigod_effect = { ROLE = councillor } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:commander } pantheon_lend_demigod_effect = { ROLE = commander } }
+		remove_variable = pantheon_ui_choice
+	}
+}
+
+# Wed: vars pantheon_demigod_host, pantheon_chosen_demigod and pantheon_chosen_spouse. The Children tab shows
+# whom the demigod wed (pantheon_wed_spouse), set only if the wedding happened.
+pantheon.0103 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
+		pantheon_wed_demigod_effect = yes
+		var:pantheon_chosen_demigod = {
+			if = {
+				limit = { has_variable = pantheon_wed_to_house }
+				set_variable = { name = pantheon_wed_spouse value = root.var:pantheon_chosen_spouse }
+			}
+		}
+	}
+}
+
+# Call home: var:pantheon_act_target is the lent demigod (as pantheon_menu.0300.recall_demigod did). Never
+# var:pantheon_ui_target: Call home is not the window's own selection (I3).
+pantheon.0104 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_act_target ?= { save_scope_as = pantheon_recall_who }
+		var:pantheon_act_target.var:pantheon_lent_to ?= { save_scope_as = pantheon_target }
+		pantheon_recall_demigod_effect = { WHO = scope:pantheon_recall_who }
+	}
+}
+
+# Reveal: var:pantheon_act_target is the house head (I3, as Call home).
+pantheon.0105 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_act_target ?= { save_scope_as = pantheon_target }
+		pantheon_reveal_divine_blood_effect = yes
+	}
+}
+
+# Pass Judgement: var:pantheon_wrath_target is the judged, var:pantheon_ui_choice the wrath.
+pantheon.0106 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_wrath_target ?= { save_scope_as = pantheon_victim }
+		if = { limit = { var:pantheon_ui_choice = flag:strike } pantheon_wrath_strike_effect = yes }
+		else_if = { limit = { var:pantheon_ui_choice = flag:maimed } pantheon_wrath_maim_effect = { TRAIT = maimed } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:blind } pantheon_wrath_maim_effect = { TRAIT = blind } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:wound } pantheon_wrath_maim_effect = { TRAIT = wounded_3 } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:curse } pantheon_wrath_curse_effect = yes }
+		remove_variable = pantheon_ui_choice
+	}
+}
+
+# Wrath upon their lands: as above, plus var:pantheon_wrath_county (read by pantheon_wrath_origin_effect).
+pantheon.0107 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_wrath_target ?= { save_scope_as = pantheon_victim }
+		if = { limit = { var:pantheon_ui_choice = flag:pestilence } pantheon_wrath_plague_effect = { INTENSITY = minor COST = pantheon_cost_pestilence } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:great_dying } pantheon_wrath_plague_effect = { INTENSITY = major COST = pantheon_cost_great_dying } }
+		else_if = { limit = { var:pantheon_ui_choice = flag:disaster } pantheon_wrath_disaster_effect = yes }
+		remove_variable = pantheon_ui_choice
+		# A send with nothing selected leaves this on the god; never leave it to strike a later, different
+		# victim (I1 scenario B).
+		if = { limit = { has_variable = pantheon_wrath_county } remove_variable = pantheon_wrath_county }
+	}
+}
+
+# Open the Pantheon window (Divine Will): rebuild the lists, then show it.
+pantheon.0108 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		pantheon_ui_rebuild_effect = yes
+		set_variable = pantheon_ui_open
+	}
+}
+
+# The God tab: Forswear mortal offspring, confirmed (it changes the fate of every child to come).
+pantheon.0109 = {
+	type = character_event
+	title = pantheon.0109.t
+	desc = pantheon.0109.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	option = {
+		name = pantheon.0109.confirm
+		custom_tooltip = pantheon_menu.0001.forswear.tt
+		hidden_effect = { add_character_modifier = pantheon_forsworn }
+	}
+	option = {
+		name = pantheon.0109.cancel
+	}
+}
+
+# The God tab: Embrace mortal offspring again, confirmed.
+pantheon.0110 = {
+	type = character_event
+	title = pantheon.0110.t
+	desc = pantheon.0110.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	option = {
+		name = pantheon.0110.confirm
+		custom_tooltip = pantheon_menu.0001.embrace.tt
+		hidden_effect = { remove_character_modifier = pantheon_forsworn }
+	}
+	option = {
+		name = pantheon.0110.cancel
+	}
+}

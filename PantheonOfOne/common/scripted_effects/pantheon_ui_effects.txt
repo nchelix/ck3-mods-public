@@ -1,0 +1,85 @@
+﻿# Pantheon of One 2.0: the Pantheon window's lists, rebuilt on the god whenever the window opens, a tab changes or
+# the sort changes. The window cannot sort a datamodel, so the order lives in the list (pantheon_ui_fill_sorted_effect).
+# The dead are dropped first. Saved scopes, not temporary ones, and never pantheon_target (1.4 lesson).
+pantheon_ui_rebuild_effect = {
+	pantheon_forget_the_dead_effect = yes
+	save_scope_as = pantheon_ui_god
+	# Followers: every living ruler of the god's faith, plus anyone already counted (pantheon_known holds those who
+	# prayed or were blessed, landless or not). In-game round 1: pantheon_known alone left the tab empty until a blessing.
+	every_ruler = {
+		limit = { is_alive = yes faith = scope:pantheon_ui_god.faith NOT = { this = scope:pantheon_ui_god } }
+		add_to_list = pantheon_ui_follower_pool
+	}
+	every_in_list = {
+		variable = pantheon_known
+		limit = { is_alive = yes NOT = { this = scope:pantheon_ui_god } }
+		add_to_list = pantheon_ui_follower_pool
+	}
+	every_in_list = {
+		variable = pantheon_blessed
+		limit = { is_alive = yes NOT = { this = scope:pantheon_ui_god } }
+		add_to_list = pantheon_ui_blessed_pool
+	}
+	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_follower_pool TARGET = pantheon_ui_followers DEFAULT = pantheon_ui_devotion }
+	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_blessed_pool TARGET = pantheon_ui_blessed DEFAULT = pantheon_ui_devotion }
+	# Children tab: the god's living demigods (best total skill first unless a skill is chosen), and the heads of
+	# every house holding a living Godsblood
+	every_child = {
+		limit = { has_trait = pantheon_demigod is_alive = yes }
+		add_to_list = pantheon_ui_demigod_pool
+	}
+	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_demigod_pool TARGET = pantheon_ui_demigods DEFAULT = pantheon_total_skill }
+	clear_variable_list = pantheon_ui_houses
+	every_child = {
+		limit = { has_trait = pantheon_demigod }
+		every_child = {
+			limit = { is_alive = yes has_variable = pantheon_godsblood }
+			house ?= {
+				house_head ?= {
+					save_scope_as = pantheon_ui_row
+					# A house with several living Godsbloods would otherwise be added once per one (M1)
+					scope:pantheon_ui_god = {
+						if = {
+							limit = { NOT = { is_target_in_variable_list = { name = pantheon_ui_houses target = scope:pantheon_ui_row } } }
+							add_to_variable_list = { name = pantheon_ui_houses target = scope:pantheon_ui_row }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+# Copy temporary list $LIST$ into the god's variable list $TARGET$, ordered by the chosen sort (var:pantheon_ui_sort:
+# 1 diplomacy, 2 martial, 3 stewardship, 4 intrigue, 5 learning, 6 prowess), else by the script value $DEFAULT$.
+# Root (the god) is scope:pantheon_ui_god.
+pantheon_ui_fill_sorted_effect = {
+	clear_variable_list = $TARGET$
+	if = {
+		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 1 }
+		ordered_in_list = { list = $LIST$ order_by = diplomacy max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+	else_if = {
+		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 2 }
+		ordered_in_list = { list = $LIST$ order_by = martial max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+	else_if = {
+		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 3 }
+		ordered_in_list = { list = $LIST$ order_by = stewardship max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+	else_if = {
+		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 4 }
+		ordered_in_list = { list = $LIST$ order_by = intrigue max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+	else_if = {
+		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 5 }
+		ordered_in_list = { list = $LIST$ order_by = learning max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+	else_if = {
+		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 6 }
+		ordered_in_list = { list = $LIST$ order_by = prowess max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+	else = {
+		ordered_in_list = { list = $LIST$ order_by = $DEFAULT$ max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+	}
+}

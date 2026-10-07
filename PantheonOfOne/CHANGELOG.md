@@ -1,5 +1,38 @@
 # Changelog — Pantheon of One
 
+## [2.0] — 2026-10-07
+
+The Pantheon window.
+
+### Added
+- **The Pantheon window**, opened by the new button above your portrait, or by
+  Divine Will (on a follower it opens with them selected; on yourself, The God
+  tab):
+  - **Followers:** every ruler of your faith and everyone who has prayed to
+    you, with their skills, Devotion and blessings. Sort by Devotion or any
+    skill, or show only the blessed. Pin one to bless, lend, wed or judge them
+    from the window.
+  - **Children:** your demigods and where each one serves or whom they wed,
+    with Call home; and the houses that carry your blood, with Reveal.
+  - **The God:** Worship and its income, Take the Throne, Proclaim, Forswear
+    and Embrace (now confirmed first), an open oath and a spreading plague.
+- **Your powers are right-click actions** that show every option at once,
+  with its price, and grey out with the reason when it can't be used:
+  **Bless** (all eleven blessings), **Divine Conception**, **Lend a demigod**
+  and **Wed a demigod** (pick your child, and their spouse, from sortable
+  lists), **Call home**, **Reveal the divine blood**, **Pass Judgement** and
+  **Wrath upon their lands**.
+
+### Changed
+- **Wrath upon their lands** strikes the county you choose, not always the
+  capital.
+- Judging the offender of a sworn Great Prayer from the window or a
+  right-click answers the prayer.
+- Divine Will opens the window instead of its old pages.
+
+### Fixed
+- A demigod is only knighted where their faith allows it.
+
 ## [1.6] — 2026-10-07
 
 Demigods as instruments.

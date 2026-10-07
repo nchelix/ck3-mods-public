@@ -1,0 +1,2 @@
+﻿gui/pantheon_window.gui = pantheon_button
+gui/pantheon_window.gui = pantheon_window

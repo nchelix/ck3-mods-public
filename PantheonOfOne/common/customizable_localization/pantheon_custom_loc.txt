@@ -1,0 +1,16 @@
+﻿# Pantheon of One 2.0: a follower's Devotion band, for the Pantheon window ([Character.Custom('pantheon_band')]).
+pantheon_band = {
+	type = character
+	text = {
+		trigger = { pantheon_devout_trigger = yes }
+		localization_key = pantheon_band_devout
+	}
+	text = {
+		trigger = { pantheon_wavering_trigger = yes }
+		localization_key = pantheon_band_wavering
+	}
+	text = {
+		fallback = yes
+		localization_key = pantheon_band_faithful
+	}
+}

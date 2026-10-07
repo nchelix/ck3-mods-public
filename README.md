@@ -7,7 +7,7 @@ Each mod's page explains what it does and how to use it; the [Releases](https://
 | Mod | Version | What it does | Steam |
 |---|---|---|---|
 | [One Trait to Rule Them All](OneTraitToRuleThemAll/) | 2.4.2 | One menu. Twenty trait cheats, a Character Editor, a Modern Systems menu with twenty-three more, and a Buildings menu with a wonder of its own. Everything… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2245233173) |
-| [Pantheon of One](PantheonOfOne/) | 1.6 | Play as a god. Not a king with a halo: a god whose power is the worship of the faithful, and whose gifts to them are overwhelming but never permanent. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3811559970) |
+| [Pantheon of One](PantheonOfOne/) | 2.0 | Play as a god. Not a king with a halo: a god whose power is the worship of the faithful, and whose gifts to them are overwhelming but never permanent. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3811559970) |
 | [Council Automation](CouncilAutomation/) | 1.1 | Stop babysitting your council. When your Court Chaplain, Steward or Marshal finishes converting, promoting culture in, or increasing control over a county,… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3810883437) |
 | [Create Alliance](CreateAlliance/) | 1.2 | An alliance with anyone, anywhere, right now. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2237350746) |
 | [La Grande Armee](GrandeArmee/) | 1.0 | Napoleon arrives in 867. Everyone else is about nine hundred years behind. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806598359) |

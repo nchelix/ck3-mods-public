@@ -231,3 +231,44 @@ pantheon_total_skill = {
 	add = intrigue
 	add = learning
 }
+
+# 2.0: how many of the god's blessings a character carries (the Pantheon window's "Blessed" mark)
+pantheon_ui_boon_count = {
+	value = 0
+	if = { limit = { has_variable = pantheon_boon_trait } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_harvest } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_walls } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_warding } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_vigor } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_fertility } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_lineage } add = 1 }
+}
+
+# 2.0: on a house head, how many living members carry the god's blood (the Children tab)
+pantheon_ui_godsblood_count = {
+	value = 0
+	if = {
+		limit = { exists = house }
+		house = {
+			every_house_member = { limit = { is_alive = yes has_variable = pantheon_godsblood } add = 1 }
+		}
+	}
+}
+
+# 2.0: 1 when this character's house has had its divine blood revealed
+pantheon_ui_house_revealed = {
+	value = 0
+	if = {
+		limit = { house ?= { has_variable = pantheon_divine_revealed } }
+		add = 1
+	}
+}
+
+# 2.0: a follower's Devotion for the window, 50 (the starting value) for a ruler not yet counted
+pantheon_ui_devotion = {
+	value = 50
+	if = {
+		limit = { has_variable = pantheon_devotion }
+		value = var:pantheon_devotion
+	}
+}

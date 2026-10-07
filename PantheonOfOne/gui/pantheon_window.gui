@@ -1,0 +1,667 @@
+﻿# Pantheon of One 2.0: the Pantheon window and the button that opens it. No vanilla file is replaced: both are
+# registered in gui/scripted_widgets/pantheon_widgets.txt. Proven syntax: the spec's Task 0 section.
+
+# The button by the portrait, for gods only (clear of the personal-faith button at { 20 -300 }: Task 0)
+widget = {
+	name = "pantheon_button"
+	# No player yet (loading, main menu): the god check below would error every frame (round 2, error.log), so the
+	# outer widget waits for a valid player and the inner button holds the scripted-GUI check, as Divine Intervention does
+	visible = "[And( GetPlayer.IsValid, And( And( Not( IsPauseMenuShown ), Not( IsObserver ) ), IsDefaultGUIMode ) )]"
+	parentanchor = bottom|left
+	position = { 20 -360 }
+	size = { 44 44 }
+	layer = hud_layer
+
+	button_round = {
+		size = { 44 44 }
+		visible = "[GetScriptedGui('pantheon_ui_is_god').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+		onclick = "[GetScriptedGui('pantheon_ui_toggle').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+		tooltip = "pantheon_ui_button_tt"
+
+		icon = {
+			parentanchor = center
+			alwaystransparent = yes
+			size = { 30 30 }
+			texture = "gfx/interface/icons/character_interactions/pantheon_divine_will_interaction.dds"
+			modify_texture = {
+				texture = "gfx/interface/component_masks/mask_circle.dds"
+				blend_mode = alphamultiply
+			}
+		}
+	}
+}
+
+# The Pantheon window, shown while the god has pantheon_ui_open. Rows follow Divine Intervention's pinned-character
+# list (in-game round 1): portrait, name, coloured skill boxes, then the follower's state underneath.
+window = {
+	name = "pantheon_window"
+	position = { 0 20 }
+	parentanchor = center
+	layer = middle
+	size = { 780 900 }
+	visible = "[And( GetPlayer.IsValid, GetPlayer.MakeScope.Var('pantheon_ui_open').IsSet )]"
+
+	using = Window_Background
+	using = Window_Decoration
+
+	vbox = {
+		margin = { 32 20 }
+		spacing = 8
+		layoutpolicy_horizontal = expanding
+		layoutpolicy_vertical = expanding
+
+		header_pattern = {
+			datacontext = "[GetPlayer]"
+			layoutpolicy_horizontal = expanding
+			size = { 0 50 }
+			blockoverride "header_text" {
+				text = "pantheon_ui_title"
+			}
+			blockoverride "button_close" {
+				onclick = "[GetScriptedGui('pantheon_ui_close').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+			}
+		}
+
+		text_single = {
+			text = "pantheon_ui_worship_line"
+		}
+
+		# The tabs: 1 Followers, 2 Children, 3 The God
+		hbox = {
+			layoutpolicy_horizontal = expanding
+			spacing = 4
+			button_tab = {
+				layoutpolicy_horizontal = expanding
+				size = { 0 40 }
+				onclick = "[GetScriptedGui('pantheon_ui_tab_followers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
+				hbox = {
+					spacing = 6
+					icon = {
+						size = { 28 28 }
+						texture = "gfx/interface/icons/pantheon/pantheon_tab_followers.dds"
+					}
+					text_single = { text = "pantheon_ui_tab_followers" }
+				}
+			}
+			button_tab = {
+				layoutpolicy_horizontal = expanding
+				size = { 0 40 }
+				onclick = "[GetScriptedGui('pantheon_ui_tab_children').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
+				hbox = {
+					spacing = 6
+					icon = {
+						size = { 28 28 }
+						texture = "gfx/interface/icons/traits/pantheon_demigod.dds"
+					}
+					text_single = { text = "pantheon_ui_tab_children" }
+				}
+			}
+			button_tab = {
+				layoutpolicy_horizontal = expanding
+				size = { 0 40 }
+				onclick = "[GetScriptedGui('pantheon_ui_tab_god').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
+				hbox = {
+					spacing = 6
+					icon = {
+						size = { 28 28 }
+						texture = "gfx/interface/icons/traits/pantheon_divine.dds"
+					}
+					text_single = { text = "pantheon_ui_tab_god" }
+				}
+			}
+		}
+
+		# ---- Tab 1: Followers
+		vbox = {
+			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			spacing = 6
+
+			# The selected follower. A vbox, not a widget: a widget does not size to its children, so in round 1 the
+			# pane collapsed under the list and its buttons could not be clicked. Gated on IsAlive (I3).
+			vbox = {
+				visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
+				datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
+				layoutpolicy_horizontal = expanding
+				margin = { 8 8 }
+				spacing = 6
+				background = { using = Background_Area_With_Header }
+
+				hbox = {
+					layoutpolicy_horizontal = expanding
+					spacing = 10
+					portrait_head = {}
+					vbox = {
+						layoutpolicy_horizontal = expanding
+						spacing = 3
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							spacing = 4
+							text_single = {
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "[Character.GetUINameNoTooltip]"
+								using = Font_Size_Medium
+							}
+							hbox_skills_grid_character_model = {}
+							text_single = {
+								minimumsize = { 44 0 }
+								align = center|nobaseline
+								text = "pantheon_ui_prowess"
+							}
+						}
+						text_single = { text = "pantheon_ui_devotion_line" }
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_trait').IsSet]"
+							text = "pantheon_ui_boon_trait"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_harvest').IsSet]"
+							text = "pantheon_ui_boon_harvest"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_walls').IsSet]"
+							text = "pantheon_ui_boon_walls"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_warding').IsSet]"
+							text = "pantheon_ui_boon_warding"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_vigor').IsSet]"
+							text = "pantheon_ui_boon_vigor"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_fertility').IsSet]"
+							text = "pantheon_ui_boon_fertility"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_lineage').IsSet]"
+							text = "pantheon_ui_boon_lineage"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
+							text = "pantheon_ui_grievance_line"
+						}
+					}
+				}
+
+				hbox = {
+					layoutpolicy_horizontal = expanding
+					spacing = 6
+					button_standard = {
+						size = { 110 30 }
+						text = "pantheon_ui_btn_bless"
+						visible = "[Character.IsPlayerInteractionShown('pantheon_bless_interaction')]"
+						enabled = "[Character.IsPlayerInteractionValid('pantheon_bless_interaction')]"
+						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_bless_interaction')]"
+						onclick = "[Character.OpenPlayerInteraction('pantheon_bless_interaction')]"
+					}
+					button_standard = {
+						size = { 110 30 }
+						text = "pantheon_ui_btn_lend"
+						visible = "[Character.IsPlayerInteractionShown('pantheon_lend_interaction')]"
+						enabled = "[Character.IsPlayerInteractionValid('pantheon_lend_interaction')]"
+						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lend_interaction')]"
+						onclick = "[Character.OpenPlayerInteraction('pantheon_lend_interaction')]"
+					}
+					button_standard = {
+						size = { 110 30 }
+						text = "pantheon_ui_btn_wed"
+						visible = "[Character.IsPlayerInteractionShown('pantheon_wed_interaction')]"
+						enabled = "[Character.IsPlayerInteractionValid('pantheon_wed_interaction')]"
+						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_wed_interaction')]"
+						onclick = "[Character.OpenPlayerInteraction('pantheon_wed_interaction')]"
+					}
+					button_standard = {
+						size = { 110 30 }
+						text = "pantheon_ui_btn_judge"
+						visible = "[Character.IsPlayerInteractionShown('pantheon_judgement_interaction')]"
+						enabled = "[Character.IsPlayerInteractionValid('pantheon_judgement_interaction')]"
+						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_judgement_interaction')]"
+						onclick = "[Character.OpenPlayerInteraction('pantheon_judgement_interaction')]"
+					}
+					button_standard = {
+						size = { 110 30 }
+						text = "pantheon_ui_btn_lands"
+						visible = "[Character.IsPlayerInteractionShown('pantheon_lands_interaction')]"
+						enabled = "[Character.IsPlayerInteractionValid('pantheon_lands_interaction')]"
+						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lands_interaction')]"
+						onclick = "[Character.OpenPlayerInteraction('pantheon_lands_interaction')]"
+					}
+					expand = {}
+					button_standard = {
+						size = { 90 30 }
+						text = "pantheon_ui_btn_clear"
+						tooltip = "pantheon_ui_btn_clear_tt"
+						onclick = "[GetScriptedGui('pantheon_ui_clear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					}
+				}
+			}
+
+			# Sort and filter
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 4
+				text_single = { text = "pantheon_ui_sort_by" }
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_sort_devotion"
+					tooltip = "pantheon_ui_sort_devotion_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)0' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_dip"
+					tooltip = "pantheon_ui_sort_dip_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)1' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_mar"
+					tooltip = "pantheon_ui_sort_mar_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)2' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_ste"
+					tooltip = "pantheon_ui_sort_ste_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)3' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_int"
+					tooltip = "pantheon_ui_sort_int_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)4' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_lea"
+					tooltip = "pantheon_ui_sort_lea_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)5' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_prw"
+					tooltip = "pantheon_ui_sort_prw_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)6' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_6').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				expand = {}
+				button_standard = {
+					size = { 200 30 }
+					onclick = "[GetScriptedGui('pantheon_ui_blessed_only').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					# Shows what the click will do next (M7), not a static label
+					text_single = {
+						parentanchor = center
+						visible = "[Not( GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet )]"
+						text = "pantheon_ui_show_blessed"
+					}
+					text_single = {
+						parentanchor = center
+						visible = "[GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet]"
+						text = "pantheon_ui_show_everyone"
+					}
+				}
+			}
+
+			scrollbox = {
+				layoutpolicy_horizontal = expanding
+				layoutpolicy_vertical = expanding
+				blockoverride "scrollbox_empty" {
+					text = "pantheon_ui_no_followers"
+					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_followers') )]"
+				}
+				blockoverride "scrollbox_content" {
+					vbox = {
+						fixedgridbox = {
+							visible = "[Not( GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet )]"
+							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_followers')]"
+							addcolumn = 680
+							addrow = 76
+							setitemsizefromcell = yes
+							item = {
+								button_standard = {
+									datacontext = "[Scope.GetCharacter]"
+									size = { 676 72 }
+									onclick = "[GetScriptedGui('pantheon_ui_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'target', Character.MakeScope ).End )]"
+									hbox = {
+										spacing = 8
+										margin_left = 6
+										margin_right = 10
+										portrait_head_small = {}
+										vbox = {
+											layoutpolicy_horizontal = expanding
+											spacing = 2
+											hbox = {
+												layoutpolicy_horizontal = expanding
+												spacing = 4
+												text_single = {
+													layoutpolicy_horizontal = expanding
+													autoresize = no
+													text = "[Character.GetUINameNoTooltip]"
+												}
+												hbox_skills_grid_character_model = {}
+												text_single = {
+													minimumsize = { 44 0 }
+													align = center|nobaseline
+													text = "pantheon_ui_prowess"
+												}
+											}
+											hbox = {
+												layoutpolicy_horizontal = expanding
+												spacing = 12
+												text_single = { text = "pantheon_ui_devotion_line" }
+												text_single = {
+													visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_boon_count'), '(CFixedPoint)0' )]"
+													text = "pantheon_ui_blessed_mark"
+												}
+												expand = {}
+											}
+										}
+									}
+								}
+							}
+						}
+						fixedgridbox = {
+							visible = "[GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet]"
+							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_blessed')]"
+							addcolumn = 680
+							addrow = 76
+							setitemsizefromcell = yes
+							item = {
+								button_standard = {
+									datacontext = "[Scope.GetCharacter]"
+									size = { 676 72 }
+									onclick = "[GetScriptedGui('pantheon_ui_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'target', Character.MakeScope ).End )]"
+									hbox = {
+										spacing = 8
+										margin_left = 6
+										margin_right = 10
+										portrait_head_small = {}
+										vbox = {
+											layoutpolicy_horizontal = expanding
+											spacing = 2
+											hbox = {
+												layoutpolicy_horizontal = expanding
+												spacing = 4
+												text_single = {
+													layoutpolicy_horizontal = expanding
+													autoresize = no
+													text = "[Character.GetUINameNoTooltip]"
+												}
+												hbox_skills_grid_character_model = {}
+												text_single = {
+													minimumsize = { 44 0 }
+													align = center|nobaseline
+													text = "pantheon_ui_prowess"
+												}
+											}
+											hbox = {
+												layoutpolicy_horizontal = expanding
+												spacing = 12
+												text_single = { text = "pantheon_ui_devotion_line" }
+												expand = {}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		# ---- Tab 2: Children
+		vbox = {
+			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			spacing = 6
+
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 4
+				text_single = { text = "pantheon_ui_children_header" using = Font_Size_Medium }
+				expand = {}
+				text_single = { text = "pantheon_ui_sort_by" }
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_sort_best"
+					tooltip = "pantheon_ui_sort_best_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)0' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_dip"
+					tooltip = "pantheon_ui_sort_dip_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)1' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_mar"
+					tooltip = "pantheon_ui_sort_mar_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)2' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_ste"
+					tooltip = "pantheon_ui_sort_ste_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)3' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_int"
+					tooltip = "pantheon_ui_sort_int_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)4' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_lea"
+					tooltip = "pantheon_ui_sort_lea_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)5' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 44 30 }
+					text = "pantheon_ui_sort_prw"
+					tooltip = "pantheon_ui_sort_prw_tt"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)6' )]"
+					onclick = "[GetScriptedGui('pantheon_ui_sort_6').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+			}
+			scrollbox = {
+				layoutpolicy_horizontal = expanding
+				layoutpolicy_vertical = expanding
+				blockoverride "scrollbox_empty" {
+					text = "pantheon_ui_no_demigods"
+					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_demigods') )]"
+				}
+				blockoverride "scrollbox_content" {
+					fixedgridbox = {
+						datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_demigods')]"
+						addcolumn = 680
+						addrow = 80
+						setitemsizefromcell = yes
+						item = {
+							widget = {
+								datacontext = "[Scope.GetCharacter]"
+								size = { 676 76 }
+								hbox = {
+									spacing = 8
+									margin_left = 6
+									margin_right = 10
+									background = { using = Background_Area_With_Header }
+									portrait_head_small = {}
+									vbox = {
+										layoutpolicy_horizontal = expanding
+										spacing = 2
+										hbox = {
+											layoutpolicy_horizontal = expanding
+											spacing = 4
+											text_single = {
+												layoutpolicy_horizontal = expanding
+												autoresize = no
+												text = "[Character.GetUINameNoTooltip]"
+											}
+											hbox_skills_grid_character_model = {}
+											text_single = {
+												minimumsize = { 44 0 }
+												align = center|nobaseline
+												text = "pantheon_ui_prowess"
+											}
+										}
+										hbox = {
+											layoutpolicy_horizontal = expanding
+											spacing = 8
+											text_single = {
+												visible = "[Character.MakeScope.Var('pantheon_lent_to').IsSet]"
+												text = "pantheon_ui_status_lent"
+											}
+											text_single = {
+												visible = "[Character.MakeScope.Var('pantheon_wed_spouse').IsSet]"
+												text = "pantheon_ui_status_wed"
+											}
+											text_single = {
+												visible = "[And( Character.MakeScope.Var('pantheon_wed_to_house').IsSet, Not( Character.MakeScope.Var('pantheon_wed_spouse').IsSet ) )]"
+												text = "pantheon_ui_status_wed_old"
+											}
+											text_single = {
+												visible = "[And( Not( Character.MakeScope.Var('pantheon_lent_to').IsSet ), Not( Character.MakeScope.Var('pantheon_wed_to_house').IsSet ) )]"
+												text = "pantheon_ui_status_home"
+											}
+											expand = {}
+											button_standard = {
+												size = { 110 28 }
+												text = "pantheon_ui_btn_call_home"
+												visible = "[Character.IsPlayerInteractionShown('pantheon_call_home_interaction')]"
+												tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_call_home_interaction')]"
+												onclick = "[Character.OpenPlayerInteraction('pantheon_call_home_interaction')]"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			text_single = { text = "pantheon_ui_houses_header" using = Font_Size_Medium }
+			scrollbox = {
+				layoutpolicy_horizontal = expanding
+				size = { 0 220 }
+				blockoverride "scrollbox_empty" {
+					text = "pantheon_ui_no_houses"
+					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_houses') )]"
+				}
+				blockoverride "scrollbox_content" {
+					fixedgridbox = {
+						datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_houses')]"
+						addcolumn = 680
+						addrow = 70
+						setitemsizefromcell = yes
+						item = {
+							widget = {
+								datacontext = "[Scope.GetCharacter]"
+								size = { 676 66 }
+								hbox = {
+									spacing = 8
+									margin_left = 6
+									margin_right = 10
+									background = { using = Background_Area_With_Header }
+									portrait_head_small = {}
+									text_single = {
+										layoutpolicy_horizontal = expanding
+										autoresize = no
+										text = "pantheon_ui_house_line"
+									}
+									text_single = {
+										visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_house_revealed'), '(CFixedPoint)0' )]"
+										text = "pantheon_ui_house_revealed"
+									}
+									button_standard = {
+										size = { 110 30 }
+										text = "pantheon_ui_btn_reveal"
+										visible = "[Character.IsPlayerInteractionShown('pantheon_reveal_interaction')]"
+										tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_reveal_interaction')]"
+										onclick = "[Character.OpenPlayerInteraction('pantheon_reveal_interaction')]"
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		# ---- Tab 3: The God
+		vbox = {
+			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			spacing = 8
+			text_single = { text = "pantheon_ui_worship_line" using = Font_Size_Medium }
+			hbox = {
+				spacing = 6
+				button_standard = {
+					size = { 160 32 }
+					text = "pantheon_ui_btn_throne"
+					tooltip = "pantheon_menu.0001.throne.tt"
+					visible = "[GetScriptedGui('pantheon_ui_throne').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					onclick = "[GetScriptedGui('pantheon_ui_throne').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 160 32 }
+					text = "pantheon_ui_btn_proclaim"
+					tooltip = "pantheon_menu.0001.proclaim.tt"
+					visible = "[GetScriptedGui('pantheon_ui_proclaim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					onclick = "[GetScriptedGui('pantheon_ui_proclaim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 160 32 }
+					text = "pantheon_ui_btn_forswear"
+					tooltip = "pantheon_menu.0001.forswear.tt"
+					visible = "[GetScriptedGui('pantheon_ui_forswear').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					onclick = "[GetScriptedGui('pantheon_ui_forswear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 160 32 }
+					text = "pantheon_ui_btn_embrace"
+					tooltip = "pantheon_menu.0001.embrace.tt"
+					visible = "[GetScriptedGui('pantheon_ui_embrace').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+			}
+			text_single = {
+				visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet]"
+				text = "pantheon_ui_oath_line"
+			}
+			text_single = {
+				visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet]"
+				text = "pantheon_ui_cooldown_line"
+			}
+			text_single = {
+				visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
+				text = "pantheon_ui_plague_line"
+			}
+			expand = {}
+		}
+	}
+}

@@ -42,7 +42,7 @@ pantheon_demigod_role_champion_effect = {
 	scope:pantheon_target = {
 		appoint_court_position = { recipient = scope:pantheon_demigod court_position = champion_court_position }
 	}
-	scope:pantheon_demigod = { set_knight_status = force }
+	scope:pantheon_demigod = { if = { limit = { is_potential_knight = yes } set_knight_status = force } }
 }
 
 # Fire the holder (if any), then seat the demigod. Root is the god; scope:pantheon_target the liege.
@@ -103,7 +103,7 @@ pantheon_demigod_role_councillor_effect = {
 
 
 pantheon_demigod_role_commander_effect = {
-	scope:pantheon_demigod = { set_knight_status = force }
+	scope:pantheon_demigod = { if = { limit = { is_potential_knight = yes } set_knight_status = force } }
 	scope:pantheon_target = {
 		ordered_army = { order_by = army_size assign_commander = scope:pantheon_demigod }
 	}
@@ -129,7 +129,7 @@ pantheon_return_demigod_effect = {
 	if = { limit = { has_variable = pantheon_lent_to } remove_variable = pantheon_lent_to }
 	if = { limit = { has_variable = pantheon_lender } remove_variable = pantheon_lender }
 	if = { limit = { has_variable = pantheon_lent_until } remove_variable = pantheon_lent_until }
-	set_knight_status = default
+	if = { limit = { is_potential_knight = yes } set_knight_status = default }
 }
 
 # A term ended early (recall, or the quarterly check in pantheon.0010): its own pantheon.0095 is still

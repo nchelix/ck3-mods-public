@@ -373,3 +373,34 @@ pantheon_free_demigod_trigger = {
 	NOT = { has_variable = pantheon_lent_to }
 	NOT = { has_variable = pantheon_wed_to_house }
 }
+
+# 2.0: could this character (the spouse) wed the god's demigod $DEMIGOD$? Vanilla's can_marry_character_trigger
+# minus the demigod's can_not_marry variable: pantheon_wed_demigod_effect lifts that block itself (proven in the
+# 2.0 Task 0 prototype). Used by the Wed interaction, which the engine also uses to pre-filter the spouse picker.
+pantheon_could_wed_demigod_trigger = {
+	save_temporary_scope_as = pantheon_could_wed_spouse
+	is_adult = yes
+	can_marry_trigger = yes
+	$DEMIGOD$ = {
+		is_alive = yes
+		is_married = no
+		NOT = { has_trait_with_flag = can_not_marry }
+	}
+	trigger_if = {
+		limit = { $DEMIGOD$ = { allowed_to_marry_same_sex_trigger = no } }
+		sex_opposite_of = $DEMIGOD$
+	}
+	NOT = { has_opinion_modifier = { modifier = divorced_me_opinion target = $DEMIGOD$ } }
+	rite = {
+		rite_allows_marriage_consanguinity_trigger = {
+			CHARACTER_1 = scope:pantheon_could_wed_spouse
+			CHARACTER_2 = $DEMIGOD$
+		}
+	}
+	$DEMIGOD$.rite = {
+		rite_allows_marriage_consanguinity_trigger = {
+			CHARACTER_1 = scope:pantheon_could_wed_spouse
+			CHARACTER_2 = $DEMIGOD$
+		}
+	}
+}

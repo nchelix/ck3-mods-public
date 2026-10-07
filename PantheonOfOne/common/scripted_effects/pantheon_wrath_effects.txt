@@ -54,27 +54,44 @@ pantheon_wrath_curse_effect = {
 	}
 }
 
+# 2.0: where a land wrath lands. The county picked in Wrath upon their lands (var:pantheon_wrath_county, used once),
+# otherwise the victim's capital (Great Prayer pages, Retribution). A variable, not a saved scope: timer chains
+# inherit saved scopes (1.5/1.6 lesson). Root is the god.
+pantheon_wrath_origin_effect = {
+	if = { limit = { exists = var:pantheon_wrath_county } set_variable = { name = pantheon_wrath_origin value = var:pantheon_wrath_county.title_province } remove_variable = pantheon_wrath_county }
+	else_if = {
+		limit = { exists = scope:pantheon_victim.capital_province }
+		set_variable = { name = pantheon_wrath_origin value = scope:pantheon_victim.capital_province }
+	}
+	else_if = {
+		limit = { has_variable = pantheon_wrath_origin }
+		remove_variable = pantheon_wrath_origin
+	}
+}
+
 # Pestilence (INTENSITY = minor) and The Great Dying (major). Proven: major swept Britain, minor stayed
 # contained. pantheon_plague_sent lets the quarterly tick charge followers it reaches (-5, once each).
 pantheon_wrath_plague_effect = {
 	change_variable = { name = pantheon_worship subtract = $COST$ }
 	set_variable = { name = pantheon_last_wrath_cost value = $COST$ }
 	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_plague_t }
-	scope:pantheon_victim.capital_province ?= {
+	pantheon_wrath_origin_effect = yes
+	var:pantheon_wrath_origin ?= {
 		create_epidemic_outbreak = { type = bubonic_plague intensity = $INTENSITY$ }
 	}
 	set_variable = { name = pantheon_plague_sent value = yes years = 3 }
 }
 
-# The kind follows the capital's terrain (proven): a flood on coasts and rivers, an earthquake in hills and
-# mountains, a famine elsewhere. Only the target's own counties are struck.
+# The kind follows the terrain where it lands (the chosen county, else the capital): a flood on coasts and
+# rivers, an earthquake in hills and mountains, a famine elsewhere. Only the target's own counties are struck.
 pantheon_wrath_disaster_effect = {
 	change_variable = { name = pantheon_worship subtract = pantheon_cost_disaster }
 	set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_disaster }
 	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_disaster_t }
+	pantheon_wrath_origin_effect = yes
 	if = {
 		limit = {
-			scope:pantheon_victim.capital_province ?= {
+			var:pantheon_wrath_origin ?= {
 				OR = {
 					is_coastal = yes
 					is_riverside_province = yes
@@ -87,7 +104,7 @@ pantheon_wrath_disaster_effect = {
 	}
 	else_if = {
 		limit = {
-			scope:pantheon_victim.capital_province ?= {
+			var:pantheon_wrath_origin ?= {
 				OR = {
 					terrain = hills
 					terrain = mountains
@@ -106,15 +123,16 @@ pantheon_wrath_disaster_effect = {
 	pantheon_wrath_wreck_building_effect = yes
 }
 
-# A building always falls (user, 2026-10-03): the capital first, then their other counties best-developed
-# first, and if they own no buildings at all the capital loses 2 development. Proven: vanilla's variable
-# effect sets destroyed_building_variable only when a destroyable building exists.
+# A building always falls (user, 2026-10-03): where the wrath landed first (the chosen county or the capital),
+# then their other counties best-developed first, and if they own no buildings at all the capital loses 2
+# development. Proven: vanilla's variable effect sets destroyed_building_variable only when a destroyable
+# building exists. The wreck is only reached from the disaster effect, which has already run the helper.
 pantheon_wrath_wreck_building_effect = {
 	if = {
 		limit = { exists = scope:pantheon_wrecked }
 		clear_saved_scope = pantheon_wrecked
 	}
-	scope:pantheon_victim.capital_province ?= {
+	var:pantheon_wrath_origin ?= {
 		destroy_random_building_variable_effect = yes
 		if = {
 			limit = { has_variable = destroyed_building_variable }

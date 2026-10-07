@@ -562,4 +562,13 @@ pantheon_forget_the_dead_effect = {
 		root = { add_to_variable_list = { name = pantheon_known target = prev } }
 	}
 	clear_variable_list = pantheon_known_alive
+	# 2.0: the window's pinned selection outlives nothing else about the follower (I3)
+	if = {
+		limit = { var:pantheon_ui_target ?= { is_alive = no } }
+		remove_variable = pantheon_ui_target
+	}
+	every_child = {
+		limit = { var:pantheon_wed_spouse ?= { is_alive = no } }
+		remove_variable = pantheon_wed_spouse
+	}
 }
