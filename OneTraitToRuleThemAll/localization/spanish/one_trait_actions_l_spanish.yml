@@ -1,0 +1,17 @@
+﻿l_spanish:
+# Untranslated placeholder: English strings. Replace with a real spanish translation.
+ one_trait_give_title_interaction:0 "Give a title"
+ one_trait_give_title_interaction_desc:0 "Give [recipient.GetShortUINameNoTooltip] any title you hold except your primary."
+ one_trait_give_title.tt:0 "They receive the chosen title."
+ one_trait_not_your_liege_tt:0 "You cannot give titles to anyone above you"
+ one_trait_marry_interaction:0 "Marry"
+ one_trait_marry_interaction_desc:0 "Wed one of your family to one of theirs. A child is betrothed instead."
+ one_trait_marry.tt:0 "The two are married, or betrothed if either is a child."
+ one_trait_cannot_marry_tt:0 "These two cannot marry"
+ one_trait_pick_yours_tt:0 "Pick one of your family"
+ one_trait_pick_theirs_tt:0 "Pick one of theirs"
+ one_trait_pick_option_tt:0 "Choose one"
+ one_trait_marry_normal:0 "Marry (betroth a child)"
+ one_trait_marry_matrilineal:0 "Marry matrilineally: children join the bride's house"
+ actor_secondary_one_trait_marry_interaction:0 "Your family"
+ recipient_secondary_one_trait_marry_interaction:0 "Theirs"

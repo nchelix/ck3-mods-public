@@ -1,0 +1,2 @@
+﻿gui/one_trait_panel.gui = one_trait_panel_button
+gui/one_trait_panel.gui = one_trait_panel_window

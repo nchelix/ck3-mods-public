@@ -28,3 +28,104 @@ one_trait_menu_interaction = {
 		base = 0
 	}
 }
+
+# 2.5: Give a title -- any title you hold except your primary, picked with the title switcher (Task 0).
+one_trait_give_title_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = grant_titles_interaction
+	desc = one_trait_give_title_interaction_desc
+	target_type = title
+	target_filter = actor_domain_titles
+	can_be_picked_title = {
+		scope:target = { NOT = { this = scope:actor.primary_title } }
+	}
+	is_shown = {
+		scope:actor = { is_ai = no }
+		NOT = { scope:recipient = scope:actor }
+	}
+	is_valid_showing_failures_only = {
+		# target_is_liege_or_above = X: X is the scope's liege or any liege above it (vanilla 00_distance_triggers)
+		scope:actor = { custom_tooltip = { text = one_trait_not_your_liege_tt NOT = { target_is_liege_or_above = scope:recipient } } }
+	}
+	on_accept = {
+		custom_tooltip = one_trait_give_title.tt
+		hidden_effect = {
+			scope:actor = {
+				set_variable = { name = one_trait_give_title value = scope:target }
+				set_variable = { name = one_trait_give_to value = scope:recipient }
+				trigger_event = one_trait_panel.0001
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
+# 2.5: Marry -- one of your family to one of theirs. The engine shows only pairs who can marry
+# (pair check behind trigger_if, Task 0); a child is betrothed instead.
+one_trait_marry_interaction = {
+	category = interaction_category_friendly
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = icon_marriage
+	desc = one_trait_marry_interaction_desc
+	is_shown = {
+		scope:actor = { is_ai = no }
+		NOT = { scope:recipient = scope:actor }
+	}
+	populate_actor_list = {
+		scope:actor = {
+			if = { limit = { is_married = no is_betrothed = no } add_to_list = characters }
+			primary_heir ?= { if = { limit = { is_married = no is_betrothed = no } add_to_list = characters } }
+			every_close_family_member = {
+				limit = { is_married = no is_betrothed = no OR = { is_child_of = scope:actor is_sibling_of = scope:actor } }
+				add_to_list = characters
+			}
+		}
+	}
+	populate_recipient_list = {
+		scope:recipient = {
+			if = { limit = { is_married = no is_betrothed = no } add_to_list = characters }
+			every_close_family_member = {
+				limit = { is_married = no is_betrothed = no OR = { is_child_of = scope:recipient is_sibling_of = scope:recipient } }
+				add_to_list = characters
+			}
+		}
+	}
+	is_valid_showing_failures_only = {
+		trigger_if = { limit = { exists = scope:secondary_actor exists = scope:secondary_recipient } scope:secondary_recipient = { custom_tooltip = { text = one_trait_cannot_marry_tt can_marry_character_trigger = { CHARACTER = scope:secondary_actor } } } }
+	}
+	can_send = {
+		custom_tooltip = { text = one_trait_pick_yours_tt exists = scope:secondary_actor }
+		custom_tooltip = { text = one_trait_pick_theirs_tt exists = scope:secondary_recipient }
+		custom_tooltip = { text = one_trait_pick_option_tt OR = { scope:one_trait_marry_normal = yes scope:one_trait_marry_matrilineal = yes } }
+	}
+	send_options_exclusive = yes
+	send_option = {
+		flag = one_trait_marry_normal
+		localization = one_trait_marry_normal
+		starts_enabled = { always = yes }
+	}
+	send_option = {
+		flag = one_trait_marry_matrilineal
+		localization = one_trait_marry_matrilineal
+	}
+	on_accept = {
+		custom_tooltip = one_trait_marry.tt
+		hidden_effect = {
+			scope:actor = {
+				set_variable = { name = one_trait_wed_a value = scope:secondary_actor }
+				set_variable = { name = one_trait_wed_b value = scope:secondary_recipient }
+				if = { limit = { scope:one_trait_marry_matrilineal = yes } set_variable = one_trait_wed_matrilineal }
+				else_if = { limit = { has_variable = one_trait_wed_matrilineal } remove_variable = one_trait_wed_matrilineal }
+				trigger_event = one_trait_panel.0002
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}

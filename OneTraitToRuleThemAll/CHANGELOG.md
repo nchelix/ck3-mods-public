@@ -1,5 +1,32 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.5] — 2026-10-07
+
+The One Trait panel.
+
+### Added
+- **The One Trait panel**: a window opened by the new round button beside your
+  portrait (on yourself) or from the menu's first option (on whoever you
+  right-clicked). Four tabs:
+  - **Traits:** all 21 traits as rows with their icons, each switched On or Off
+    with one click, plus Remove every trait.
+  - **Sanctum:** raise it, tear it down, and wake or still each of its eleven
+    powers, with new painted icons. Locked until the Sanctum stands. Invoke
+    every power now.
+  - **Army:** Supreme Knights, Unlimited Knights, Unlimited and Free
+    Men-at-Arms as switches; raise the Legion, Bowmen or Riders; disband them.
+  - **Puppets:** each of your puppets with its portrait and type, and Release.
+- **Give a title** (right-click): any title you hold except your primary,
+  picked from a list. Never to anyone above you.
+- **Marry** (right-click): any of your unmarried family to any of theirs,
+  from two lists showing only those who can wed; a child is betrothed;
+  optionally matrilineal.
+
+### Changed
+- The menu's Traits, Army and My Puppets pages, and Buildings' Sanctum page,
+  now open the panel. Titles' three "give" options and Family's marry and
+  betroth options became the two new actions.
+
 ## [2.4.2] — 2026-10-02
 
 Canonize.
