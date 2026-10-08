@@ -404,3 +404,14 @@ pantheon_could_wed_demigod_trigger = {
 		}
 	}
 }
+
+# 2.0.1: can the god afford $COST$ Worship? Interactions evaluate their send_option and is_valid checks even for a
+# player who is not a god (so has no pantheon_worship yet): reading the variable then logged "Failed to fetch
+# variable" every frame (2.0 error.log). The limit keeps the read away from anyone without Worship.
+pantheon_can_afford_trigger = {
+	trigger_if = {
+		limit = { has_variable = pantheon_worship }
+		var:pantheon_worship >= $COST$
+	}
+	trigger_else = { always = no }
+}

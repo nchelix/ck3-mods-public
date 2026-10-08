@@ -1,5 +1,11 @@
 # Changelog — Pantheon of One
 
+## [2.0.1] — 2026-10-07
+
+### Fixed
+- In a game where you are not (yet) a god, the new actions' Worship checks no
+  longer fill error.log with "pantheon_worship not set".
+
 ## [2.0] — 2026-10-07
 
 The Pantheon window.

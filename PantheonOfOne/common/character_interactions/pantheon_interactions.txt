@@ -74,7 +74,7 @@ pantheon_judgement_interaction = {
 		flag = pantheon_judge_strike
 		localization = pantheon_judge_opt_strike
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_strike_tt var:pantheon_worship >= pantheon_cost_strike } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_strike_tt pantheon_can_afford_trigger = { COST = pantheon_cost_strike } } }
 			scope:recipient = { custom_tooltip = { text = pantheon_judge_sin_only_tt NOT = { pantheon_sin_only_trigger = { GOD = scope:actor } } } }
 		}
 	}
@@ -82,7 +82,7 @@ pantheon_judgement_interaction = {
 		flag = pantheon_judge_maimed
 		localization = pantheon_judge_opt_maimed
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt pantheon_can_afford_trigger = { COST = pantheon_cost_maim } } }
 			scope:recipient = { custom_tooltip = { text = pantheon_judge_already_tt NOT = { has_trait = maimed } } }
 		}
 	}
@@ -90,7 +90,7 @@ pantheon_judgement_interaction = {
 		flag = pantheon_judge_blind
 		localization = pantheon_judge_opt_blind
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt pantheon_can_afford_trigger = { COST = pantheon_cost_maim } } }
 			scope:recipient = { custom_tooltip = { text = pantheon_judge_already_tt NOT = { has_trait = blind } } }
 		}
 	}
@@ -98,7 +98,7 @@ pantheon_judgement_interaction = {
 		flag = pantheon_judge_wound
 		localization = pantheon_judge_opt_wound
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt var:pantheon_worship >= pantheon_cost_maim } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_maim_tt pantheon_can_afford_trigger = { COST = pantheon_cost_maim } } }
 			scope:recipient = { custom_tooltip = { text = pantheon_judge_already_tt NOT = { has_trait = wounded_3 } } }
 		}
 	}
@@ -106,7 +106,7 @@ pantheon_judgement_interaction = {
 		flag = pantheon_judge_curse
 		localization = pantheon_judge_opt_curse
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_curse_tt var:pantheon_worship >= pantheon_cost_curse } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_curse_tt pantheon_can_afford_trigger = { COST = pantheon_cost_curse } } }
 		}
 	}
 
@@ -194,21 +194,21 @@ pantheon_lands_interaction = {
 		flag = pantheon_lands_pestilence
 		localization = pantheon_lands_opt_pestilence
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_pestilence_tt var:pantheon_worship >= pantheon_cost_pestilence } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_pestilence_tt pantheon_can_afford_trigger = { COST = pantheon_cost_pestilence } } }
 		}
 	}
 	send_option = {
 		flag = pantheon_lands_great_dying
 		localization = pantheon_lands_opt_great_dying
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_great_dying_tt var:pantheon_worship >= pantheon_cost_great_dying } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_great_dying_tt pantheon_can_afford_trigger = { COST = pantheon_cost_great_dying } } }
 		}
 	}
 	send_option = {
 		flag = pantheon_lands_disaster
 		localization = pantheon_lands_opt_disaster
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_disaster_tt var:pantheon_worship >= pantheon_cost_disaster } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_disaster_tt pantheon_can_afford_trigger = { COST = pantheon_cost_disaster } } }
 		}
 	}
 
@@ -282,7 +282,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_champion
 		localization = pantheon_bless_opt_champion
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -293,7 +293,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_warlord
 		localization = pantheon_bless_opt_warlord
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -304,7 +304,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_sovereign
 		localization = pantheon_bless_opt_sovereign
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -315,7 +315,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_sage
 		localization = pantheon_bless_opt_sage
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt var:pantheon_worship >= pantheon_cost_trait } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_has_gift_tt NOT = { has_variable = pantheon_boon_trait } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -326,7 +326,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_harvest
 		localization = pantheon_bless_opt_harvest
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_harvest } }
@@ -338,7 +338,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_walls
 		localization = pantheon_bless_opt_walls
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_walls } }
@@ -350,7 +350,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_warding
 		localization = pantheon_bless_opt_warding
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_warding } }
@@ -362,7 +362,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_vigor
 		localization = pantheon_bless_opt_vigor
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_vigor } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -373,7 +373,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_fertility
 		localization = pantheon_bless_opt_fertility
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_fertility } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -384,7 +384,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_lineage
 		localization = pantheon_bless_opt_lineage
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_lineage } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
@@ -395,7 +395,7 @@ pantheon_bless_interaction = {
 		flag = pantheon_bless_host
 		localization = pantheon_bless_opt_host
 		is_valid = {
-			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_host_tt var:pantheon_worship >= pantheon_cost_host } }
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_host_tt pantheon_can_afford_trigger = { COST = pantheon_cost_host } } }
 			scope:recipient = {
 				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
 				custom_tooltip = { text = pantheon_bless_not_at_war_tt is_at_war = yes }
@@ -468,7 +468,7 @@ pantheon_conception_interaction = {
 		}
 	}
 	is_valid_showing_failures_only = {
-		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt var:pantheon_worship >= pantheon_cost_life } }
+		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 	}
 	on_accept = {
 		custom_tooltip = pantheon_menu.0300.conception.tt
@@ -515,7 +515,7 @@ pantheon_lend_interaction = {
 	}
 	is_valid_showing_failures_only = {
 		scope:actor = {
-			custom_tooltip = { text = pantheon_needs_worship_lend_tt var:pantheon_worship >= pantheon_cost_lend }
+			custom_tooltip = { text = pantheon_needs_worship_lend_tt pantheon_can_afford_trigger = { COST = pantheon_cost_lend } }
 			custom_tooltip = { text = pantheon_has_free_demigod_tt any_child = { pantheon_free_demigod_trigger = { GOD = scope:actor } } }
 		}
 	}
@@ -610,7 +610,7 @@ pantheon_wed_interaction = {
 	}
 	is_valid_showing_failures_only = {
 		scope:actor = {
-			custom_tooltip = { text = pantheon_needs_worship_wed_tt var:pantheon_worship >= pantheon_cost_wed }
+			custom_tooltip = { text = pantheon_needs_worship_wed_tt pantheon_can_afford_trigger = { COST = pantheon_cost_wed } }
 			custom_tooltip = { text = pantheon_has_free_demigod_tt any_child = { pantheon_free_demigod_trigger = { GOD = scope:actor } is_married = no } }
 		}
 		trigger_if = { limit = { exists = scope:secondary_actor exists = scope:secondary_recipient } scope:secondary_recipient = { custom_tooltip = { text = pantheon_cannot_wed_tt pantheon_could_wed_demigod_trigger = { DEMIGOD = scope:secondary_actor } } } }
