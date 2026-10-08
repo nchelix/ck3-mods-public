@@ -118,10 +118,9 @@ Everything you have ever wanted to do to a Crusader Kings save, in one place.
 
 ## Built for the game as it is now
 
-First released in 2020, now wired into every system added since: influence
-and merit, legitimacy, epidemics, legends, court grandeur, artifacts,
-contracts and agents, travel, accolades, nomad herds, the landless camp, and
-By God Alone's spiritual fulfillment.
+First released in 2020, now wired into every system added since, from
+influence, legitimacy and court grandeur to nomad herds, the landless camp and
+By God Alone.
 
 Every trait, regiment, war and building icon is original artwork made for
 this mod.
@@ -149,6 +148,10 @@ this mod.
 ## Languages
 
 All nine game languages; the other eight show English text until translated.
+
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
 
 ## Install
 

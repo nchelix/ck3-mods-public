@@ -77,6 +77,10 @@ Available in all nine languages the game supports. English is fully written;
 the other eight currently show the English wording. Translations are welcome
 and are only a few short lines.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.

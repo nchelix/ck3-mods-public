@@ -110,6 +110,10 @@ a translation, it is two short files and it would be very welcome.
 This mod is maintained on GitHub. Bug reports and translations are welcome in
 the comments below.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.

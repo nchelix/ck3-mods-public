@@ -127,6 +127,10 @@ when a boon fades (game rule: All, Divine Gifts Only, Off).
 For Crusader Kings III 1.20. Compatible with most mods: Pantheon of One only
 adds its own content and appends to vanilla hooks, replacing nothing.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.

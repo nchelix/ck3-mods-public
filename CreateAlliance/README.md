@@ -83,6 +83,10 @@ the German translation is by **RHSoldat**. The two new interactions added in
 1.2 are still in English everywhere else, and are marked in the files so they
 are easy to find. Translations are very welcome.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.

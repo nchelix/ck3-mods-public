@@ -86,6 +86,10 @@ the Bandaged Face are pure appearance.
 Available in all nine languages the game supports. English is fully written;
 the other eight currently show the English wording. Translations are welcome.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.

@@ -43,6 +43,10 @@ Council Automation's task definitions are **generated from the game itself**, an
 
 The idea and the county-selection order come from [Automatic Council Tasks](https://steamcommunity.com/sharedfiles/filedetails/?id=3604126943) by Hamzah Hayat, used under its MIT licence. Council Automation rebuilds it on CK3 1.20's own council tasks.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.

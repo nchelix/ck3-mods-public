@@ -82,6 +82,10 @@ the full serpent does not appear for you, that setting is why.
 Available in all nine languages the game supports. English is fully written;
 the other eight currently show the English wording. Translations are welcome.
 
+---
+
+[☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
+
 ## Install
 
 - **Steam Workshop:** subscribe on the Workshop page above.
