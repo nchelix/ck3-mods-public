@@ -1,5 +1,14 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.5.1] — 2026-10-13
+
+CK3 1.20.1.
+
+### Changed
+- The generated war and puppet files follow two small changes in CK3 1.20.1: the
+  Frankokratia leader protection in three wars' AI scores, and one puppet
+  type's priority.
+
 ## [2.5] — 2026-10-07
 
 The One Trait panel.
