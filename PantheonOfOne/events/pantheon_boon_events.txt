@@ -1,0 +1,116 @@
+﻿namespace = pantheon
+
+# Pantheon of One 2.1: a Great Boon. A devout follower asks for the impossible. Root is the god.
+# The event carries its own request, immutably: the follower, request ID and kind are captured here, in its own
+# immediate (the pattern proven in 1.6 and Task 0 item 9), and both options compare only against them. The god's
+# lock holds this event's ID: no second Great Boon event fires while it's set, and only this event clears it.
+# Events can't be dismissed unanswered (Task 0 item 8), so neither _offered nor the lock needs an expiry.
+pantheon.0066 = {
+	type = character_event
+	trigger = {
+		exists = var:pantheon_boon_suppliant_var
+		NOT = { has_variable = pantheon_boon_event_open }
+		var:pantheon_boon_suppliant_var = { pantheon_boon_sendable_trigger = { GOD = root } }
+	}
+	immediate = {
+		if = { limit = { exists = scope:pantheon_boon_event_follower } clear_saved_scope = pantheon_boon_event_follower }
+		var:pantheon_boon_suppliant_var = { save_scope_as = pantheon_boon_event_follower }
+		save_scope_value_as = { name = pantheon_boon_event_id value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_id }
+		save_scope_value_as = { name = pantheon_boon_event_kind value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_kind }
+		set_variable = { name = pantheon_boon_event_open value = scope:pantheon_boon_event_id }
+		scope:pantheon_boon_event_follower = { set_variable = pantheon_aspiration_offered }
+		if = { limit = { exists = scope:pantheon_boon_event_title } clear_saved_scope = pantheon_boon_event_title }
+		if = { limit = { exists = scope:pantheon_boon_event_kin } clear_saved_scope = pantheon_boon_event_kin }
+		if = { limit = { exists = scope:pantheon_boon_event_enemy } clear_saved_scope = pantheon_boon_event_enemy }
+		scope:pantheon_boon_event_follower = {
+			if = {
+				limit = { var:pantheon_aspiration_kind = 1 }
+				var:pantheon_aspiration_target ?= { save_scope_as = pantheon_boon_event_title }
+			}
+			else_if = {
+				limit = { var:pantheon_aspiration_kind = 2 }
+				var:pantheon_aspiration_target ?= { save_scope_as = pantheon_boon_event_kin }
+			}
+			else_if = {
+				limit = { var:pantheon_aspiration_kind = 3 }
+				var:pantheon_aspiration_target ?= {
+					if = {
+						limit = { is_attacker = scope:pantheon_boon_event_follower }
+						primary_defender = { save_scope_as = pantheon_boon_event_enemy }
+					}
+					else = {
+						primary_attacker = { save_scope_as = pantheon_boon_event_enemy }
+					}
+				}
+			}
+		}
+	}
+	title = pantheon.0066.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 1 }
+				desc = pantheon.0066.desc_crown
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 2 }
+				desc = pantheon.0066.desc_kin
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 3 }
+				desc = pantheon.0066.desc_war
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 4 scope:pantheon_boon_event_follower = { pantheon_boon_heir_law_trigger = yes } }
+				desc = pantheon.0066.desc_heir
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 4 }
+				desc = pantheon.0066.desc_child
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 5 }
+				desc = pantheon.0066.desc_conversion
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 6 }
+				desc = pantheon.0066.desc_fortune
+			}
+		}
+	}
+	theme = faith
+	left_portrait = {
+		character = scope:pantheon_boon_event_follower
+		animation = personality_zealous
+	}
+	option = {
+		name = pantheon.0066.grant
+		trigger = { pantheon_boon_affordable_kind_trigger = { KIND = scope:pantheon_boon_event_kind } }
+		show_as_unavailable = { NOT = { pantheon_boon_affordable_kind_trigger = { KIND = scope:pantheon_boon_event_kind } } }
+		if = { limit = { scope:pantheon_boon_event_kind = 1 } custom_tooltip = pantheon.0066.grant_crown.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 2 } custom_tooltip = pantheon.0066.grant_kin.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 3 } custom_tooltip = pantheon.0066.grant_war.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 4 } custom_tooltip = pantheon.0066.grant_heir.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 5 } custom_tooltip = pantheon.0066.grant_conversion.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 6 } custom_tooltip = pantheon.0066.grant_fortune.tt }
+		custom_tooltip = pantheon.0066.grant.tt
+		hidden_effect = {
+			pantheon_grant_great_boon_effect = { UNASKED = no }
+			pantheon_boon_close_event_effect = yes
+		}
+	}
+	option = {
+		name = pantheon.0066.refuse
+		if = { limit = { scope:pantheon_boon_event_kind = 1 } custom_tooltip = pantheon.0066.refuse_crown.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 2 } custom_tooltip = pantheon.0066.refuse_kin.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 3 } custom_tooltip = pantheon.0066.refuse_war.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 4 } custom_tooltip = pantheon.0066.refuse_heir.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 5 } custom_tooltip = pantheon.0066.refuse_conversion.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 6 } custom_tooltip = pantheon.0066.refuse_fortune.tt }
+		custom_tooltip = pantheon.0066.refuse.tt
+		hidden_effect = {
+			pantheon_refuse_great_boon_effect = yes
+			pantheon_boon_close_event_effect = yes
+		}
+	}
+}

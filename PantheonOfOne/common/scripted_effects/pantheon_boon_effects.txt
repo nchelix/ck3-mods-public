@@ -1,0 +1,410 @@
+﻿# Pantheon of One 2.1: Great Boons. Root is the god unless noted.
+
+# In the follower's scope. A new request of $KIND$, with a fresh ID from the god's counter and an exact
+# five-year clock that is never refreshed. The caller sets pantheon_aspiration_target afterwards (kinds 1-3).
+# A replacement passes through here too: its old target and _offered are cleared, and no retry delay starts.
+pantheon_boon_new_request_effect = {
+	save_temporary_scope_as = pantheon_boon_req
+	root = {
+		if = { limit = { NOT = { has_variable = pantheon_boon_request_seq } } set_variable = { name = pantheon_boon_request_seq value = 0 } }
+		change_variable = { name = pantheon_boon_request_seq add = 1 }
+	}
+	set_variable = pantheon_aspiration
+	set_variable = { name = pantheon_aspiration_live value = yes years = 5 }
+	set_variable = { name = pantheon_aspiration_kind value = $KIND$ }
+	set_variable = { name = pantheon_aspiration_id value = root.var:pantheon_boon_request_seq }
+	if = { limit = { has_variable = pantheon_aspiration_target } remove_variable = pantheon_aspiration_target }
+	if = { limit = { has_variable = pantheon_aspiration_offered } remove_variable = pantheon_aspiration_offered }
+	if = {
+		limit = { NOT = { root = { is_target_in_variable_list = { name = pantheon_boon_holders target = scope:pantheon_boon_req } } } }
+		root = { add_to_variable_list = { name = pantheon_boon_holders target = scope:pantheon_boon_req } }
+	}
+}
+
+# In the follower's scope: every variable of the aspiration goes
+pantheon_clear_aspiration_effect = {
+	if = { limit = { has_variable = pantheon_aspiration } remove_variable = pantheon_aspiration }
+	if = { limit = { has_variable = pantheon_aspiration_live } remove_variable = pantheon_aspiration_live }
+	if = { limit = { has_variable = pantheon_aspiration_kind } remove_variable = pantheon_aspiration_kind }
+	if = { limit = { has_variable = pantheon_aspiration_target } remove_variable = pantheon_aspiration_target }
+	if = { limit = { has_variable = pantheon_aspiration_id } remove_variable = pantheon_aspiration_id }
+	if = { limit = { has_variable = pantheon_aspiration_offered } remove_variable = pantheon_aspiration_offered }
+}
+
+# In the follower's scope: an aspiration ends (granted, refused, expired or invalid) and the retry delay starts
+pantheon_end_aspiration_effect = {
+	pantheon_clear_aspiration_effect = yes
+	set_variable = { name = pantheon_aspiration_retry value = yes years = 2 }
+}
+
+# In the follower's scope: the first of primary heir, spouse, children (oldest first) alive and seriously ill
+pantheon_boon_find_kin_effect = {
+	if = { limit = { exists = scope:pantheon_boon_found } clear_saved_scope = pantheon_boon_found }
+	if = {
+		limit = { primary_heir ?= { is_alive = yes pantheon_seriously_ill_trigger = yes } }
+		primary_heir = { save_scope_as = pantheon_boon_found }
+	}
+	else_if = {
+		limit = { any_spouse = { is_alive = yes pantheon_seriously_ill_trigger = yes } }
+		ordered_spouse = { limit = { is_alive = yes pantheon_seriously_ill_trigger = yes } order_by = age save_scope_as = pantheon_boon_found }
+	}
+	else_if = {
+		limit = { any_child = { is_alive = yes pantheon_seriously_ill_trigger = yes } }
+		ordered_child = { limit = { is_alive = yes pantheon_seriously_ill_trigger = yes } order_by = age save_scope_as = pantheon_boon_found }
+	}
+}
+
+# In the follower's scope: store the worst qualifying holy war itself (a war scope, proven to survive a save)
+pantheon_boon_find_war_effect = {
+	save_scope_as = pantheon_boon_cand
+	ordered_character_war = {
+		limit = { pantheon_boon_holy_war_trigger = { WHO = scope:pantheon_boon_cand GOD = root } }
+		order_by = pantheon_boon_war_badness
+		scope:pantheon_boon_cand = { set_variable = { name = pantheon_aspiration_target value = prev } }
+	}
+}
+
+# In the follower's scope (a duke or king): the de jure title one tier above their primary title
+pantheon_boon_find_crown_effect = {
+	if = { limit = { exists = scope:pantheon_boon_title } clear_saved_scope = pantheon_boon_title }
+	if = {
+		limit = { primary_title = { tier = tier_duchy } }
+		capital_county.de_jure_liege.de_jure_liege = { save_scope_as = pantheon_boon_title }
+	}
+	else = {
+		capital_county.de_jure_liege.de_jure_liege.de_jure_liege = { save_scope_as = pantheon_boon_title }
+	}
+}
+
+# In an eligible follower's scope. Without an aspiration (and past any retry delay): the first kind that
+# applies, urgent first: 2 kin, 3 holy war, 1 crown, 4 heir, 5 conversion, 6 fortune. Holding one: only dying
+# kin replaces it (a new ID, _offered cleared, and no retry delay).
+pantheon_boon_detect_one_effect = {
+	save_scope_as = pantheon_boon_cand
+	if = {
+		limit = { NOT = { has_variable = pantheon_aspiration_retry } NOT = { has_variable = pantheon_aspiration } }
+		if = {
+			limit = { pantheon_boon_kin_trigger = yes }
+			pantheon_boon_find_kin_effect = yes
+			pantheon_boon_new_request_effect = { KIND = 2 }
+			set_variable = { name = pantheon_aspiration_target value = scope:pantheon_boon_found }
+		}
+		else_if = {
+			limit = { is_landed = yes any_character_war = { pantheon_boon_holy_war_trigger = { WHO = scope:pantheon_boon_cand GOD = root } } }
+			pantheon_boon_new_request_effect = { KIND = 3 }
+			pantheon_boon_find_war_effect = yes
+		}
+		else_if = {
+			limit = { pantheon_boon_crown_trigger = yes }
+			pantheon_boon_find_crown_effect = yes
+			pantheon_boon_new_request_effect = { KIND = 1 }
+			set_variable = { name = pantheon_aspiration_target value = scope:pantheon_boon_title }
+		}
+		else_if = {
+			limit = { pantheon_boon_heir_trigger = yes }
+			pantheon_boon_new_request_effect = { KIND = 4 }
+		}
+		else_if = {
+			limit = { pantheon_boon_conversion_trigger = { GOD = root } }
+			pantheon_boon_new_request_effect = { KIND = 5 }
+		}
+		else_if = {
+			limit = { pantheon_boon_fortune_trigger = yes }
+			pantheon_boon_new_request_effect = { KIND = 6 }
+		}
+	}
+	else_if = {
+		limit = { has_variable = pantheon_aspiration NOT = { var:pantheon_aspiration_kind = 2 } pantheon_boon_kin_trigger = yes }
+		pantheon_boon_find_kin_effect = yes
+		pantheon_boon_new_request_effect = { KIND = 2 }
+		set_variable = { name = pantheon_aspiration_target value = scope:pantheon_boon_found }
+	}
+}
+
+# Quarterly: every eligible ruler of the faith and the god's courtiers
+pantheon_boon_detect_effect = {
+	every_ruler = {
+		limit = { pantheon_boon_eligible_trigger = { GOD = root } }
+		pantheon_boon_detect_one_effect = yes
+	}
+	every_courtier = {
+		limit = { pantheon_boon_eligible_trigger = { GOD = root } }
+		pantheon_boon_detect_one_effect = yes
+	}
+}
+
+# Quarterly, before detection: an aspiration whose five years ran out, or that is no longer valid (its holder
+# included), ends and starts the retry delay. The dead and the cleared leave the holders list, in a second
+# pass so the list isn't changed while it's walked. The god's event lock is left to its event.
+pantheon_boon_upkeep_effect = {
+	every_in_list = {
+		variable = pantheon_boon_holders
+		if = {
+			limit = { OR = { is_alive = no NOT = { has_variable = pantheon_aspiration } } }
+			root = { add_to_variable_list = { name = pantheon_boon_drop target = prev } }
+		}
+		else_if = {
+			limit = { NOT = { has_variable = pantheon_aspiration_live } }
+			pantheon_end_aspiration_effect = yes
+			root = { add_to_variable_list = { name = pantheon_boon_drop target = prev } }
+		}
+		else_if = {
+			limit = { NOT = { pantheon_aspiration_valid_trigger = { GOD = root } } }
+			pantheon_end_aspiration_effect = yes
+			root = { add_to_variable_list = { name = pantheon_boon_drop target = prev } }
+		}
+	}
+	every_in_list = {
+		variable = pantheon_boon_drop
+		root = { remove_list_variable = { name = pantheon_boon_holders target = prev } }
+	}
+	clear_variable_list = pantheon_boon_drop
+}
+
+# The price of $WHO$'s boon, for text that can't read the follower (the 1.3 lesson)
+pantheon_boon_store_price_effect = {
+	set_variable = { name = pantheon_boon_price_now value = 0 }
+	if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 1 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_crown } }
+	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 2 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_kin } }
+	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 3 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_war } }
+	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_heir } }
+	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_conversion } }
+	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_fortune } }
+}
+
+# ---- Granting. Root is the god; scope:pantheon_boon_event_follower is the follower and scope:pantheon_boon_event_id
+# the request this route is bound to (the event's own capture, or pantheon.0111's for an unasked grant).
+
+# Both routes (the prayer's Grant, UNASKED = no; the window, UNASKED = yes). Revalidate first: a stale,
+# mismatched, expired or invalid request, or a god short of Worship, closes harmlessly with a toast: no charge,
+# reward, penalty or cooldown, and the aspiration stays (the next tick clears it if it's invalid).
+pantheon_grant_great_boon_effect = {
+	if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+	if = {
+		limit = { NOT = { scope:pantheon_boon_event_follower = { pantheon_aspiration_current_trigger = { GOD = root ID = scope:pantheon_boon_event_id } } } }
+		send_interface_toast = { type = event_toast_effect_neutral title = pantheon_boon_passed_t custom_tooltip = pantheon_boon_passed_desc left_icon = scope:pantheon_boon_event_follower }
+	}
+	else_if = {
+		limit = { NOT = { pantheon_boon_affordable_trigger = { WHO = scope:pantheon_boon_event_follower } } }
+		send_interface_toast = { type = event_toast_effect_neutral title = pantheon_boon_poor_t custom_tooltip = pantheon_boon_poor_desc left_icon = scope:pantheon_boon_event_follower }
+	}
+	else = {
+		pantheon_boon_store_price_effect = { WHO = scope:pantheon_boon_event_follower }
+		pantheon_boon_charge_effect = yes
+		pantheon_boon_act_effect = yes
+		pantheon_change_devotion_effect = { AMOUNT = 100 }
+		scope:pantheon_boon_event_follower = { add_opinion = { target = root modifier = pantheon_answered_opinion years = 20 } }
+		send_interface_toast = { type = event_toast_effect_good title = pantheon_boon_granted_t custom_tooltip = pantheon_boon_granted_desc left_icon = scope:pantheon_boon_event_follower }
+		if = { limit = { always = $UNASKED$ } pantheon_miracle_awe_effect = { AMOUNT = 10 } }
+		else = { pantheon_miracle_awe_effect = { AMOUNT = 5 } }
+		scope:pantheon_boon_event_follower = { pantheon_end_aspiration_effect = yes }
+		if = { limit = { NOT = { always = $UNASKED$ } } set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 } }
+	}
+}
+
+# The god's Worship pays the boon's price (it replaces every ordinary cost of the act)
+pantheon_boon_charge_effect = {
+	if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 1 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_crown } }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 2 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_kin } }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 3 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_war } }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 4 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_heir } }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 5 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_conversion } }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 6 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_fortune } }
+}
+
+pantheon_boon_act_effect = {
+	if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 1 } } pantheon_boon_crown_act_effect = yes }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 2 } } pantheon_boon_kin_act_effect = yes }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 3 } } pantheon_boon_war_act_effect = yes }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 4 } } pantheon_boon_heir_act_effect = yes }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 5 } } pantheon_boon_conversion_act_effect = yes }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 6 } } pantheon_boon_fortune_act_effect = yes }
+}
+
+# Raise my house: vanilla title creation (as `created`, proven in Task 0); vassals and counties are unchanged
+pantheon_boon_crown_act_effect = {
+	if = { limit = { exists = scope:pantheon_boon_title } clear_saved_scope = pantheon_boon_title }
+	scope:pantheon_boon_event_follower = { var:pantheon_aspiration_target = { save_scope_as = pantheon_boon_title } }
+	create_title_and_vassal_change = {
+		type = created
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:pantheon_boon_title = {
+		change_title_holder = {
+			holder = scope:pantheon_boon_event_follower
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# Save my dying kin: the god's cure (a miracle restores a limb too) and Vigor, with no second charge
+pantheon_boon_kin_act_effect = {
+	if = { limit = { exists = scope:pantheon_boon_kin } clear_saved_scope = pantheon_boon_kin }
+	scope:pantheon_boon_event_follower = { var:pantheon_aspiration_target = { save_scope_as = pantheon_boon_kin } }
+	clear_saved_scope = pantheon_target
+	scope:pantheon_boon_kin = { save_scope_as = pantheon_target }
+	scope:pantheon_target = {
+		pantheon_cure_effect = yes
+		if = { limit = { has_trait = maimed } remove_trait = maimed }
+	}
+	# Already under Vigor: re-applying would leave the earlier end event to remove immortal early (review)
+	if = {
+		limit = { scope:pantheon_target = { NOT = { has_variable = pantheon_boon_vigor } } }
+		pantheon_apply_vigor_effect = yes
+	}
+	clear_saved_scope = pantheon_target
+	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+}
+
+# Win this holy war: the stored war ends at once, the follower's side victorious
+pantheon_boon_war_act_effect = {
+	scope:pantheon_boon_event_follower = {
+		var:pantheon_aspiration_target ?= {
+			if = {
+				limit = { is_attacker = scope:pantheon_boon_event_follower }
+				end_war = attacker
+			}
+			else = {
+				end_war = defender
+			}
+		}
+	}
+}
+
+# Give me an heir (or a child): one parent, legitimate, of their house, the god's faith and their culture.
+# The sex inherits under the gender law where the succession law makes a newborn heir; 50/50 elsewhere.
+# pantheon_miracle_birth keeps the Lineage hook off this birth, though create_character doesn't fire it (Task 0).
+pantheon_boon_heir_act_effect = {
+	scope:pantheon_boon_event_follower = { add_character_flag = pantheon_miracle_birth }
+	if = {
+		limit = { scope:pantheon_boon_event_follower = { pantheon_boon_heir_law_trigger = yes OR = { has_realm_law = male_only_law has_realm_law = male_preference_law } } }
+		set_local_variable = { name = pantheon_boon_female_chance value = 0 }
+	}
+	else_if = {
+		limit = { scope:pantheon_boon_event_follower = { pantheon_boon_heir_law_trigger = yes OR = { has_realm_law = female_only_law has_realm_law = female_preference_law } } }
+		set_local_variable = { name = pantheon_boon_female_chance value = 100 }
+	}
+	else = {
+		random_list = {
+			50 = { set_local_variable = { name = pantheon_boon_female_chance value = 0 } }
+			50 = { set_local_variable = { name = pantheon_boon_female_chance value = 100 } }
+		}
+	}
+	if = { limit = { exists = scope:pantheon_boon_child } clear_saved_scope = pantheon_boon_child }
+	scope:pantheon_boon_event_follower = {
+		if = {
+			limit = { is_female = yes }
+			create_character = {
+				age = 0
+				location = scope:pantheon_boon_event_follower.location
+				gender_female_chance = local_var:pantheon_boon_female_chance
+				mother = scope:pantheon_boon_event_follower
+				dynasty = inherit
+				faith = root.faith
+				culture = scope:pantheon_boon_event_follower.culture
+				save_scope_as = pantheon_boon_child
+			}
+		}
+		else = {
+			create_character = {
+				age = 0
+				location = scope:pantheon_boon_event_follower.location
+				gender_female_chance = local_var:pantheon_boon_female_chance
+				father = scope:pantheon_boon_event_follower
+				dynasty = inherit
+				faith = root.faith
+				culture = scope:pantheon_boon_event_follower.culture
+				save_scope_as = pantheon_boon_child
+			}
+		}
+	}
+	scope:pantheon_boon_child ?= {
+		if = { limit = { has_trait = bastard } remove_trait = bastard }
+		add_trait = beauty_good_3
+		add_trait = intellect_good_3
+	}
+	scope:pantheon_boon_event_follower = { remove_character_flag = pantheon_miracle_birth }
+}
+
+# Bring the land to the faith: every county of their domain
+pantheon_boon_conversion_act_effect = {
+	scope:pantheon_boon_event_follower = { every_held_county = { set_county_faith = root.faith } }
+}
+
+# Restore my fortune: the debt repaid (gold to 0; add_gold ignores a negative amount, Task 0 round 4), then
+# max(500, 60 x monthly income)
+pantheon_boon_fortune_act_effect = {
+	scope:pantheon_boon_event_follower = {
+		if = { limit = { gold > 0 } remove_short_term_gold = gold }
+		else_if = { limit = { gold < 0 } add_gold = { value = gold multiply = -1 } }
+		add_gold = pantheon_boon_fortune_amount
+	}
+}
+
+# Awe across the faith: every other living ruler of the faith gains $AMOUNT$ Devotion (5, or 10 unasked)
+pantheon_miracle_awe_effect = {
+	if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			is_alive = yes
+			NOT = { this = root }
+			NOT = { this = scope:pantheon_boon_event_follower }
+		}
+		save_scope_as = pantheon_target
+		root = { pantheon_change_devotion_effect = { AMOUNT = $AMOUNT$ } }
+	}
+	clear_saved_scope = pantheon_target
+	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+}
+
+# Refuse (the prayer event only): bound to the same request and still live, else harmless. The drop scales with
+# the ask; the refused opinion, the retry delay and the god's shared cooldown follow.
+pantheon_refuse_great_boon_effect = {
+	if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+	if = {
+		limit = { scope:pantheon_boon_event_follower = { pantheon_aspiration_bound_trigger = { ID = scope:pantheon_boon_event_id } } }
+		pantheon_change_devotion_effect = { AMOUNT = pantheon_boon_refusal }
+		scope:pantheon_target = {
+			add_opinion = { target = root modifier = pantheon_refused_prayer_opinion years = 5 }
+			pantheon_end_aspiration_effect = yes
+		}
+		set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
+		send_interface_toast = { type = event_toast_effect_bad title = pantheon_boon_refused_t custom_tooltip = pantheon_boon_refused_desc left_icon = scope:pantheon_target }
+	}
+	else = {
+		send_interface_toast = { type = event_toast_effect_neutral title = pantheon_boon_passed_t custom_tooltip = pantheon_boon_passed_desc left_icon = scope:pantheon_boon_event_follower }
+	}
+}
+
+# After either answer: clear only what belongs to this event. The follower's _offered only while they still hold
+# this very request, and the god's lock only if it is this event's.
+pantheon_boon_close_event_effect = {
+	scope:pantheon_boon_event_follower = {
+		if = {
+			limit = { has_variable = pantheon_aspiration_offered has_variable = pantheon_aspiration_id var:pantheon_aspiration_id = scope:pantheon_boon_event_id }
+			remove_variable = pantheon_aspiration_offered
+		}
+	}
+	if = {
+		limit = { has_variable = pantheon_boon_event_open var:pantheon_boon_event_open = scope:pantheon_boon_event_id }
+		remove_variable = pantheon_boon_event_open
+	}
+}
+
+# The prayer timer, after any Great Prayer: the follower holding the most urgent boon (then the most devout)
+# prays for it. The suppliant is kept in a variable; pantheon.0066 re-captures everything in its own immediate.
+pantheon_pick_great_boon_effect = {
+	ordered_in_list = {
+		variable = pantheon_boon_holders
+		limit = { pantheon_boon_sendable_trigger = { GOD = root } }
+		order_by = pantheon_boon_pick_score
+		root = { set_variable = { name = pantheon_boon_suppliant_var value = prev } }
+	}
+	trigger_event = pantheon.0066
+}
+

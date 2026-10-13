@@ -25,6 +25,9 @@ pantheon.0010 = {
 		pantheon_forget_the_dead_effect = yes
 		pantheon_plague_devotion_effect = yes
 		pantheon_torture_grievance_pass_effect = yes
+		# 2.1 Great Boons: end what has expired or lapsed, then find new aspirations
+		pantheon_boon_upkeep_effect = yes
+		pantheon_boon_detect_effect = yes
 		# 1.6: a lent demigod comes home if their host dies or leaves the faith
 		every_child = { limit = { has_variable = pantheon_lent_to var:pantheon_lent_to ?= { OR = { is_alive = no NOT = { faith = root.faith } } } } pantheon_orphan_return_effect = yes pantheon_return_demigod_effect = yes }
 		# 1.6 (user, in-game test): a demigod from before 1.6 never got vanilla's can_not_marry; mark them now

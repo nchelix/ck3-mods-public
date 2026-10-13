@@ -1,5 +1,23 @@
 # Changelog — Pantheon of One
 
+## [2.1] — 2026-10-13
+
+Great Boons. Tested on CK3 1.20.1.
+
+### Added
+- **Great Boons:** the faithful may ask for six impossible gifts:
+  - **Raise my house** (4,800 Worship): create the crown they are owed.
+  - **Save my dying kin** (2,400 Worship): heal their kin and grant Vigor.
+  - **Win this holy war** (4,800 Worship): end their holy war in victory.
+  - **Give me an heir** (2,400 Worship): grant a child who follows the succession law.
+  - **Bring the land to the faith** (3,600 Worship): convert their domain.
+  - **Restore my fortune** (1,800 Worship): clear their debt and restore their gold.
+- They may ask by prayer, or you may grant a valid request unasked from the Pantheon window. An unasked gift inspires twice the awe and has no cooldown.
+- **Refuse:** the follower loses Devotion according to the size of the request.
+
+### Changed
+- Healing and Vigor keep their existing effects and now share their foundation with Great Boons.
+
 ## [2.0.1] — 2026-10-07
 
 ### Fixed

@@ -187,6 +187,30 @@ window = {
 							visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
 							text = "pantheon_ui_grievance_line"
 						}
+						text_single = {
+							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
+							text = "pantheon_ui_wants_1"
+						}
+						text_single = {
+							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
+							text = "pantheon_ui_wants_2"
+						}
+						text_single = {
+							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
+							text = "pantheon_ui_wants_3"
+						}
+						text_single = {
+							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
+							text = "pantheon_ui_wants_4"
+						}
+						text_single = {
+							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
+							text = "pantheon_ui_wants_5"
+						}
+						text_single = {
+							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
+							text = "pantheon_ui_wants_6"
+						}
 					}
 				}
 
@@ -240,6 +264,20 @@ window = {
 						tooltip = "pantheon_ui_btn_clear_tt"
 						onclick = "[GetScriptedGui('pantheon_ui_clear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 					}
+				}
+				hbox = {
+					visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+					layoutpolicy_horizontal = expanding
+					spacing = 6
+					button_standard = {
+						size = { 180 30 }
+						text = "pantheon_ui_btn_boon"
+						visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+						enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
+						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
+						onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
+					}
+					expand = {}
 				}
 			}
 
@@ -366,6 +404,10 @@ window = {
 													visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_boon_count'), '(CFixedPoint)0' )]"
 													text = "pantheon_ui_blessed_mark"
 												}
+												text_single = {
+													visible = "[Character.MakeScope.Var('pantheon_aspiration').IsSet]"
+													text = "pantheon_ui_wants_mark"
+												}
 												expand = {}
 											}
 										}
@@ -411,6 +453,10 @@ window = {
 												layoutpolicy_horizontal = expanding
 												spacing = 12
 												text_single = { text = "pantheon_ui_devotion_line" }
+												text_single = {
+													visible = "[Character.MakeScope.Var('pantheon_aspiration').IsSet]"
+													text = "pantheon_ui_wants_mark"
+												}
 												expand = {}
 											}
 										}

@@ -172,3 +172,19 @@ pantheon.0110 = {
 		name = pantheon.0110.cancel
 	}
 }
+
+# 2.1 Grant their boon (unasked): var:pantheon_act_target is the follower. The request bound to this route is the
+# one they hold now; pantheon_grant_great_boon_effect revalidates it, as for the prayer's Grant.
+pantheon.0111 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		if = { limit = { exists = scope:pantheon_boon_event_follower } clear_saved_scope = pantheon_boon_event_follower }
+		var:pantheon_act_target ?= { save_scope_as = pantheon_boon_event_follower }
+		if = {
+			limit = { exists = scope:pantheon_boon_event_follower scope:pantheon_boon_event_follower = { has_variable = pantheon_aspiration_id } }
+			save_scope_value_as = { name = pantheon_boon_event_id value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_id }
+			pantheon_grant_great_boon_effect = { UNASKED = yes }
+		}
+	}
+}

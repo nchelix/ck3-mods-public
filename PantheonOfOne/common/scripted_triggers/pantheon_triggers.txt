@@ -415,3 +415,248 @@ pantheon_can_afford_trigger = {
 	}
 	trigger_else = { always = no }
 }
+
+# ---- 2.1 Great Boons. this is the character unless noted; $GOD$ is the god (root or a saved scope) and $WHO$ a
+# saved scope, never `this` or prev.
+
+# Seriously ill or wounded: the deadly illnesses and grave wounds (user, 2026-10-08: not the common ill, gout,
+# lover's pox or early great pox, which would keep replacing other asks; the god's cure still removes them all)
+pantheon_seriously_ill_trigger = {
+	OR = {
+		has_trait = pneumonic
+		has_trait = great_pox
+		has_trait = leper
+		has_trait = consumption
+		has_trait = cancer
+		has_trait = typhus
+		has_trait = bubonic_plague
+		has_trait = smallpox
+		has_trait = measles
+		has_trait = dysentery
+		has_trait = ergotism
+		has_trait = wounded_3
+		has_trait = maimed
+	}
+}
+
+# Who may hold an aspiration: the Great Prayer pool, but never the god, a demigod or a Godsblooded
+pantheon_boon_eligible_trigger = {
+	pantheon_grievance_eligible_trigger = { GOD = $GOD$ }
+	NOT = { has_trait = pantheon_divine }
+	NOT = { has_trait = pantheon_demigod }
+	NOT = { has_trait = pantheon_godsblooded }
+}
+
+# Kind 2: the primary heir, a spouse or a child is alive and seriously ill or wounded
+pantheon_boon_kin_trigger = {
+	OR = {
+		primary_heir ?= { is_alive = yes pantheon_seriously_ill_trigger = yes }
+		any_spouse = { is_alive = yes pantheon_seriously_ill_trigger = yes }
+		any_child = { is_alive = yes pantheon_seriously_ill_trigger = yes }
+	}
+}
+
+# War scope. Kind 3: a holy war $WHO$ leads and is losing, against an unbeliever leading the other side
+pantheon_boon_holy_war_trigger = {
+	OR = {
+		using_cb = religious_war
+		using_cb = major_religious_war
+		using_cb = excommunication_war
+		using_cb = undirected_great_holy_war
+		using_cb = directed_great_holy_war
+	}
+	trigger_if = {
+		limit = { primary_attacker = $WHO$ }
+		primary_defender = { NOT = { faith = $GOD$.faith } }
+		attacker_war_score < 0
+	}
+	trigger_else_if = {
+		limit = { primary_defender = $WHO$ }
+		primary_attacker = { NOT = { faith = $GOD$.faith } }
+		defender_war_score < 0
+	}
+	trigger_else = { always = no }
+}
+
+# Title scope. Kind 1: a crown $WHO$ may be raised to: unheld, half its counties in their realm (their own
+# counties included: Task 0 round 3), and never a vassal raised to their liege's rank
+pantheon_boon_crown_title_trigger = {
+	save_temporary_scope_as = pantheon_boon_crown_chk
+	NOT = { exists = holder }
+	any_de_jure_county = {
+		percent >= 0.5
+		holder ?= { OR = { this = $WHO$ target_is_liege_or_above = $WHO$ } }
+	}
+	trigger_if = {
+		limit = { $WHO$ = { is_independent_ruler = no } }
+		$WHO$.liege.highest_held_title_tier > scope:pantheon_boon_crown_chk.tier
+	}
+}
+
+# Kind 1: a duke or king, and the de jure title one tier above their primary title, containing their capital,
+# is such a crown
+pantheon_boon_crown_trigger = {
+	save_temporary_scope_as = pantheon_boon_crown_who
+	is_landed = yes
+	OR = {
+		AND = {
+			primary_title = { tier = tier_duchy }
+			capital_county.de_jure_liege.de_jure_liege ?= { pantheon_boon_crown_title_trigger = { WHO = scope:pantheon_boon_crown_who } }
+		}
+		AND = {
+			primary_title = { tier = tier_kingdom }
+			capital_county.de_jure_liege.de_jure_liege.de_jure_liege ?= { pantheon_boon_crown_title_trigger = { WHO = scope:pantheon_boon_crown_who } }
+		}
+	}
+}
+
+# Kind 4: a landed ruler, 40 or older, with no living child
+pantheon_boon_heir_trigger = {
+	is_landed = yes
+	age >= 40
+	NOT = { any_child = { is_alive = yes } }
+}
+
+# The succession laws under which a newborn only child becomes the primary heir (Task 0 rounds 3-4). Seniority
+# (single_heir_dynasty_house), elective and every other law offer "a child" instead. A title succession law on
+# the primary title (every law in vanilla's 01_title_succession_laws.txt: elective, appointment, noble family,
+# temporal head, law of the land) overrides the realm's law for that title, so it offers "a child" too.
+pantheon_boon_heir_law_trigger = {
+	OR = {
+		has_realm_law = confederate_partition_succession_law
+		has_realm_law = partition_succession_law
+		has_realm_law = high_partition_succession_law
+		has_realm_law = single_heir_succession_law
+		has_realm_law = single_heir_succession_law_youngest
+	}
+	primary_title = {
+		NOT = {
+			OR = {
+				has_title_law = feudal_elective_succession_law
+				has_title_law = princely_elective_succession_law
+				has_title_law = saxon_elective_succession_law
+				has_title_law = scandinavian_elective_succession_law
+				has_title_law = gaelic_elective_succession_law
+				has_title_law = tribal_elective_succession_law
+				has_title_law = temporal_head_of_faith_succession_law
+				has_title_law = noble_family_succession_law
+				has_title_law = law_of_the_land_succession_law
+				has_title_law = confederation_elective_succession_law
+				has_title_law = celestial_ministry_appointment_succession_law
+				has_title_law = celestial_grand_marshal_appointment_succession_law
+			}
+		}
+	}
+}
+
+# Kind 5: at least half of their domain counties are of another faith
+pantheon_boon_conversion_trigger = {
+	is_landed = yes
+	any_held_county = { percent >= 0.5 NOT = { faith = $GOD$.faith } }
+}
+
+# Kind 6: in debt
+pantheon_boon_fortune_trigger = {
+	gold < 0
+}
+
+# The aspiration they hold is still valid (spec, Validity table), and they're still eligible to hold one
+pantheon_aspiration_valid_trigger = {
+	pantheon_boon_eligible_trigger = { GOD = $GOD$ }
+	has_variable = pantheon_aspiration
+	has_variable = pantheon_aspiration_kind
+	save_temporary_scope_as = pantheon_boon_valid_who
+	trigger_if = {
+		limit = { var:pantheon_aspiration_kind = 1 } var:pantheon_aspiration_target ?= { pantheon_boon_crown_title_trigger = { WHO = scope:pantheon_boon_valid_who } }
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_aspiration_kind = 2 } var:pantheon_aspiration_target ?= { is_alive = yes pantheon_seriously_ill_trigger = yes }
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_aspiration_kind = 3 } var:pantheon_aspiration_target ?= { pantheon_boon_holy_war_trigger = { WHO = scope:pantheon_boon_valid_who GOD = $GOD$ } }
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_aspiration_kind = 4 } pantheon_boon_heir_trigger = yes
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_aspiration_kind = 5 } pantheon_boon_conversion_trigger = { GOD = $GOD$ }
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_aspiration_kind = 6 } pantheon_boon_fortune_trigger = yes
+	}
+	trigger_else = { always = no }
+}
+
+# The request this event or route was bound to ($ID$, its captured request ID) is still the one they hold, and
+# it hasn't run out its five years. Refuse checks only this; Grant also needs it valid.
+pantheon_aspiration_bound_trigger = {
+	has_variable = pantheon_aspiration
+	has_variable = pantheon_aspiration_live
+	has_variable = pantheon_aspiration_id
+	var:pantheon_aspiration_id = $ID$
+}
+
+pantheon_aspiration_current_trigger = {
+	pantheon_aspiration_bound_trigger = { ID = $ID$ }
+	pantheon_aspiration_valid_trigger = { GOD = $GOD$ }
+}
+
+# A boon the prayer timer may send now: valid, live, and not already offered in an open event
+pantheon_boon_sendable_trigger = {
+	is_alive = yes
+	has_variable = pantheon_aspiration_live
+	NOT = { has_variable = pantheon_aspiration_offered }
+	pantheon_aspiration_valid_trigger = { GOD = $GOD$ }
+}
+
+# God scope: can the god pay for $WHO$'s boon? Always through the guarded check (2.0.1)
+pantheon_boon_affordable_trigger = {
+	trigger_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 1 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_crown }
+	}
+	trigger_else_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 2 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_kin }
+	}
+	trigger_else_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 3 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_war }
+	}
+	trigger_else_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_heir }
+	}
+	trigger_else_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_conversion }
+	}
+	trigger_else_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_fortune }
+	}
+	trigger_else = { always = no }
+}
+
+# God scope: does any holder have a boon the timer may send?
+pantheon_has_a_great_boon_trigger = {
+	any_in_list = { variable = pantheon_boon_holders pantheon_boon_sendable_trigger = { GOD = root } }
+}
+
+# God scope: can the god pay for a boon of kind $KIND$ (a prayer's captured pantheon_boon_event_kind)? The
+# prayer's Grant is judged by what it asked when it opened, as its price text is (whole-branch review)
+pantheon_boon_affordable_kind_trigger = {
+	trigger_if = {
+		limit = { $KIND$ = 1 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_crown }
+	}
+	trigger_else_if = {
+		limit = { $KIND$ = 2 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_kin }
+	}
+	trigger_else_if = {
+		limit = { $KIND$ = 3 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_war }
+	}
+	trigger_else_if = {
+		limit = { $KIND$ = 4 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_heir }
+	}
+	trigger_else_if = {
+		limit = { $KIND$ = 5 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_conversion }
+	}
+	trigger_else_if = {
+		limit = { $KIND$ = 6 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_fortune }
+	}
+	trigger_else = { always = no }
+}

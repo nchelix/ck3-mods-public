@@ -366,6 +366,7 @@ pantheon_pick_stranger_effect = {
 # pantheon.0050's immediate: about one prayer in eight, if a bordering stranger with a need exists, they
 # pray instead of a follower (spec, Strangers' prayers). Root is the god.
 # 1.5: a Great Prayer comes first when a devout follower is owed vengeance (at most one every 2 years);
+# 2.1: then a Great Boon, sharing the Great Prayer cooldown, one open event at a time;
 # otherwise the ordinary 1.3 prayer.
 pantheon_send_prayer_effect = {
 	if = {
@@ -374,6 +375,14 @@ pantheon_send_prayer_effect = {
 			pantheon_has_a_great_prayer_trigger = yes
 		}
 		pantheon_pick_great_prayer_effect = yes
+	}
+	else_if = {
+		limit = {
+			NOT = { has_variable = pantheon_great_prayer_cooldown }
+			NOT = { has_variable = pantheon_boon_event_open }
+			pantheon_has_a_great_boon_trigger = yes
+		}
+		pantheon_pick_great_boon_effect = yes
 	}
 	else = {
 		random_list = {

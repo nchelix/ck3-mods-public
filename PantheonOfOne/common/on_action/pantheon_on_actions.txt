@@ -184,17 +184,18 @@ pantheon_on_birth_child = {
 			if = { limit = { house ?= { has_variable = pantheon_divine_revealed } } add_trait = pantheon_godsblooded }
 		}
 		# Blessed Lineage boon
+		# 2.1: a miracle birth (pantheon_boon_heir_act_effect) never consumes an active Lineage.
 		if = {
 			limit = {
 				OR = {
-					scope:mother ?= { has_character_flag = pantheon_lineage }
-					scope:real_father ?= { has_character_flag = pantheon_lineage }
+					scope:mother ?= { has_character_flag = pantheon_lineage NOT = { has_character_flag = pantheon_miracle_birth } }
+					scope:real_father ?= { has_character_flag = pantheon_lineage NOT = { has_character_flag = pantheon_miracle_birth } }
 				}
 			}
 			add_trait = beauty_good_3
 			add_trait = intellect_good_3
 			if = {
-				limit = { scope:mother ?= { has_character_flag = pantheon_lineage } }
+				limit = { scope:mother ?= { has_character_flag = pantheon_lineage NOT = { has_character_flag = pantheon_miracle_birth } } }
 				scope:mother = {
 					remove_character_flag = pantheon_lineage
 					remove_character_modifier = pantheon_lineage_marker
@@ -202,7 +203,7 @@ pantheon_on_birth_child = {
 				}
 			}
 			if = {
-				limit = { scope:real_father ?= { has_character_flag = pantheon_lineage } }
+				limit = { scope:real_father ?= { has_character_flag = pantheon_lineage NOT = { has_character_flag = pantheon_miracle_birth } } }
 				scope:real_father = {
 					remove_character_flag = pantheon_lineage
 					remove_character_modifier = pantheon_lineage_marker

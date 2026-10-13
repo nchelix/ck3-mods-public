@@ -699,3 +699,35 @@ pantheon_reveal_interaction = {
 	auto_accept = yes
 	ai_will_do = { base = 0 }
 }
+
+# 2.1: grant a follower's Great Boon unasked. Shown only while they hold a valid, live aspiration that isn't
+# offered in an open prayer (so it can't be granted twice); greyed with the reason when unaffordable. An unasked
+# grant doubles the awe and doesn't start the Great Prayer cooldown.
+pantheon_great_boon_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_great_boon_interaction
+	desc = pantheon_great_boon_interaction_desc
+	is_shown = {
+		scope:actor = { is_ai = no has_trait = pantheon_divine has_variable = pantheon_enthroned }
+		scope:recipient = {
+			NOT = { this = scope:actor }
+			has_variable = pantheon_aspiration_live
+			NOT = { has_variable = pantheon_aspiration_offered }
+			pantheon_aspiration_valid_trigger = { GOD = scope:actor }
+		}
+	}
+	is_valid_showing_failures_only = {
+		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_boon_tt pantheon_boon_affordable_trigger = { WHO = scope:recipient } } }
+	}
+	on_accept = {
+		custom_tooltip = pantheon_great_boon_interaction.tt
+		hidden_effect = {
+			scope:actor = { set_variable = { name = pantheon_act_target value = scope:recipient } trigger_event = pantheon.0111 }
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}

@@ -272,3 +272,83 @@ pantheon_ui_devotion = {
 		value = var:pantheon_devotion
 	}
 }
+
+# 2.1 Great Boons: the price of each boon (spec Section 2). Sandbox pays 1/12, like every boon.
+pantheon_cost_boon_crown = {
+	value = 4800
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_cost_boon_kin = {
+	value = 2400
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_cost_boon_war = {
+	value = 4800
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_cost_boon_heir = {
+	value = 2400
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_cost_boon_conversion = {
+	value = 3600
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_cost_boon_fortune = {
+	value = 1800
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+# Character scope (the follower): the price of the boon they hold
+pantheon_boon_price = {
+	value = 0
+	if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 1 } value = pantheon_cost_boon_crown }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 2 } value = pantheon_cost_boon_kin }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 3 } value = pantheon_cost_boon_war }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } value = pantheon_cost_boon_heir }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } value = pantheon_cost_boon_conversion }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } value = pantheon_cost_boon_fortune }
+}
+
+# Character scope: the Devotion a refusal costs, bigger for a bigger ask (user, 2026-10-07)
+pantheon_boon_refusal = {
+	value = 0
+	if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 1 } value = -50 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 2 } value = -30 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 3 } value = -50 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } value = -30 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } value = -40 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } value = -20 }
+}
+
+# Character scope: Restore my fortune pays max(500, 60 x max(0, monthly income)), evaluated at the grant
+pantheon_boon_fortune_amount = {
+	value = monthly_character_income
+	min = 0
+	multiply = 60
+	min = 500
+}
+
+# Character scope: which follower's boon is prayed for first: the highest-priority kind (2, 3, 1, 4, 5, 6), then Devotion
+pantheon_boon_pick_score = {
+	value = 0
+	if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 2 } value = 6000 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 3 } value = 5000 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 1 } value = 4000 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } value = 3000 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } value = 2000 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } value = 1000 }
+	if = { limit = { has_variable = pantheon_devotion } add = var:pantheon_devotion }
+}
+
+# War scope (scope:pantheon_boon_cand is the follower): higher is worse for them, so ordered_character_war picks the worst
+pantheon_boon_war_badness = {
+	value = 0
+	if = { limit = { is_attacker = scope:pantheon_boon_cand } value = attacker_war_score multiply = -1 }
+	else = { value = defender_war_score multiply = -1 }
+}
