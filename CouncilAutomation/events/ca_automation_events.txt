@@ -36,3 +36,53 @@ council_automation.0003 = {
 		}
 	}
 }
+
+# 1.2: every 30 days for each player, move ticked councillors onto their task when a county needs it.
+# Each councillor's check runs in its own hidden event (0011-0013), so one choice never reuses another's
+# saved county or temporary lists (plan revision R2).
+council_automation.0010 = {
+	hidden = yes
+	immediate = {
+		if = {
+			limit = {
+				is_ai = no
+				ca_rule_on_trigger = yes
+			}
+			ca_initialise_effect = yes
+			trigger_event = council_automation.0011
+			trigger_event = council_automation.0012
+			trigger_event = council_automation.0013
+			trigger_event = { id = council_automation.0010 days = 30 }
+		}
+		else = {
+			if = {
+				limit = { has_variable = ca_loop_running }
+				remove_variable = ca_loop_running
+			}
+		}
+	}
+}
+
+# Court Chaplain
+council_automation.0011 = {
+	hidden = yes
+	immediate = {
+		ca_check_chaplain_effect = yes
+	}
+}
+
+# Steward
+council_automation.0012 = {
+	hidden = yes
+	immediate = {
+		ca_check_steward_effect = yes
+	}
+}
+
+# Marshal
+council_automation.0013 = {
+	hidden = yes
+	immediate = {
+		ca_check_marshal_effect = yes
+	}
+}

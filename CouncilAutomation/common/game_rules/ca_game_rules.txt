@@ -1,0 +1,17 @@
+﻿# Council Automation 1.2: the game rule. Settings, loc and format follow the game's own
+# (game/common/game_rules/00_game_rules.txt; names in colour per
+# game/localization/english/game_rules_l_english.yml -- see ca_l_english.yml).
+ca_councillors = {
+	default = ca_councillors_automatic
+
+	categories = {
+		game_modes
+	}
+
+	ca_councillors_off = {
+	}
+	ca_councillors_manual = {
+	}
+	ca_councillors_automatic = {
+	}
+}

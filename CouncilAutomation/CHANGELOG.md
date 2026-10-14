@@ -1,5 +1,24 @@
 # Changelog — Council Automation
 
+## [1.2] — 2026-10-14
+
+### Added
+- **A checkbox on the Court Chaplain, Steward and Marshal cards** in the Council
+  window. Ticked: that councillor works on his own. Unticked: you choose his
+  tasks. The setting belongs to the position, so a new councillor keeps it. It
+  appears only on your own council.
+- **A monthly check**: a ticked councillor who is on another task is moved onto
+  his task when a county needs it. Ticking a box runs the check at once.
+- **Game rule** "Council Automation: Councillors": Off (no checkboxes, no
+  automation at all), On with councillors starting manual, or On with
+  councillors starting automatic (default; saves from 1.1 start ticked, and
+  their boxes show it from the moment the save loads).
+
+### Changed
+- The restart when a task ends now happens only for a ticked councillor, a day
+  after the task ends. Moving a ticked councillor off his task by hand no longer
+  trips CK3's event recursion limit.
+
 ## [1.1] — 2026-10-05
 
 ### Changed

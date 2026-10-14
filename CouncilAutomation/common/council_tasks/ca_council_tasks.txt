@@ -302,24 +302,14 @@ task_conversion = {
 			days = 1 # To ensure it does not fire at the same time as the finish message (both cancel and finish are fired on_finish_task_county)
 		}
 
-		# Council Automation: start the same task on the next county, another faith before another rite
-		if = {
-			limit = {
-				scope:councillor_liege = {
-					is_ai = no
-					any_sub_realm_county = { ca_can_target_task_conversion = yes }
-				}
-			}
+		# Council Automation: a day later, put him back on this task if a county still needs it
+		scope:councillor_liege = {
 			if = {
 				limit = {
-					scope:councillor_liege = {
-						any_sub_realm_county = { ca_converts_faith_task_conversion = yes }
-					}
+					is_ai = no
+					ca_position_on_trigger = { KEY = chaplain }
 				}
-				ca_start_next_task = { TRIGGER = ca_converts_faith_task_conversion ORDER = county_opinion EVENT = council_automation.0001 }
-			}
-			else = {
-				ca_start_next_task = { TRIGGER = ca_can_target_task_conversion ORDER = county_opinion EVENT = council_automation.0001 }
+				trigger_event = { id = council_automation.0011 days = 1 }
 			}
 		}
 	}
@@ -1272,15 +1262,15 @@ task_promote_culture = {
 	}
 
 	on_cancel_task_county = {
-		# Council Automation: start the same task on the next county
-		if = {
-			limit = {
-				scope:councillor_liege = {
+		# Council Automation: a day later, put him back on this task if a county still needs it
+		scope:councillor_liege = {
+			if = {
+				limit = {
 					is_ai = no
-					any_sub_realm_county = { ca_can_target_task_promote_culture = yes }
+					ca_position_on_trigger = { KEY = steward }
 				}
+				trigger_event = { id = council_automation.0012 days = 1 }
 			}
-			ca_start_next_task = { TRIGGER = ca_can_target_task_promote_culture ORDER = county_opinion EVENT = council_automation.0002 }
 		}
 	}
 }
@@ -1621,15 +1611,15 @@ task_increase_control = {
 	}
 
 	on_cancel_task_county = {
-		# Council Automation: start the same task on the next county
-		if = {
-			limit = {
-				scope:councillor_liege = {
+		# Council Automation: a day later, put him back on this task if a county still needs it
+		scope:councillor_liege = {
+			if = {
+				limit = {
 					is_ai = no
-					any_sub_realm_county = { ca_can_target_task_increase_control = yes }
+					ca_position_on_trigger = { KEY = marshal }
 				}
+				trigger_event = { id = council_automation.0013 days = 1 }
 			}
-			ca_start_next_task = { TRIGGER = ca_can_target_task_increase_control ORDER = county_control EVENT = council_automation.0003 }
 		}
 	}
 }

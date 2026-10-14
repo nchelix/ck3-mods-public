@@ -1,0 +1,9 @@
+﻿l_japanese:
+ rule_ca_councillors:0 "#P Council Automation:#! Councillors"
+ setting_ca_councillors_off:0 "Off"
+ setting_ca_councillors_off_desc:0 "Councillors are never moved for you: no checkboxes, no monthly check, and no task restarted when one ends."
+ setting_ca_councillors_manual:0 "On, councillors start manual"
+ setting_ca_councillors_manual_desc:0 "Each Court Chaplain, Steward and Marshal card has a checkbox. They all start unticked; tick one to let that councillor work on his own."
+ setting_ca_councillors_automatic:0 "On, councillors start automatic"
+ setting_ca_councillors_automatic_desc:0 "Each Court Chaplain, Steward and Marshal card has a checkbox. They all start ticked: those councillors convert, promote culture and raise control on their own until you untick them."
+ ca_toggle_tt:0 "#P Council Automation#!\nTicked: this councillor works on his own. He restarts his task on the next county when one ends, and once a month he is moved onto it from any other task when a county needs it.\nUnticked: you choose his tasks."

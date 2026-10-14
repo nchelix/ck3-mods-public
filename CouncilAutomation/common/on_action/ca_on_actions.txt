@@ -1,0 +1,24 @@
+﻿# Council Automation 1.2: start each player's 30-day loop. Appended to the game's on_actions with
+# on_actions = { } (never effect = { } on a vanilla on_action, which would replace it).
+# on_game_start_after_lobby has no character root (game/common/on_action/game_start.txt:2553), hence
+# every_player; quarterly_playable_pulse's root is the character (game/common/on_action/_on_actions.info:13).
+on_game_start_after_lobby = {
+	on_actions = { ca_on_game_start }
+}
+
+quarterly_playable_pulse = {
+	on_actions = { ca_on_quarterly_pulse }
+}
+
+ca_on_game_start = {
+	effect = {
+		every_player = { ca_start_monthly_loop_effect = yes }
+	}
+}
+
+ca_on_quarterly_pulse = {
+	trigger = { is_ai = no }
+	effect = {
+		ca_start_monthly_loop_effect = yes
+	}
+}

@@ -1,0 +1,46 @@
+﻿# Council Automation 1.2: the councillor card's checkbox.
+# Root = the player; scope:councillor = the card's councillor
+# (GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'councillor',
+#  ActiveCouncilTask.GetCouncillor.MakeScope ).End, see the generated card's gui/ file).
+#
+# R1: the checkbox acts only on the player's own council, so each position is matched by
+# identity (scope:councillor = root.cp:<position>) rather than has_council_position alone --
+# a vassal looking at his liege's council must never see or act on his liege's checkboxes.
+ca_toggle_shown = {
+	scope = character
+	is_valid = {
+		ca_rule_on_trigger = yes
+		exists = scope:councillor
+		OR = {
+			root.cp:councillor_court_chaplain ?= { this = scope:councillor }
+			root.cp:councillor_steward ?= { this = scope:councillor }
+			root.cp:councillor_marshal ?= { this = scope:councillor }
+		}
+	}
+}
+ca_toggle_ticked = {
+	scope = character
+	is_valid = {
+		exists = scope:councillor
+		OR = {
+			AND = {
+				root.cp:councillor_court_chaplain ?= { this = scope:councillor }
+				ca_position_on_trigger = { KEY = chaplain }
+			}
+			AND = {
+				root.cp:councillor_steward ?= { this = scope:councillor }
+				ca_position_on_trigger = { KEY = steward }
+			}
+			AND = {
+				root.cp:councillor_marshal ?= { this = scope:councillor }
+				ca_position_on_trigger = { KEY = marshal }
+			}
+		}
+	}
+}
+ca_toggle = {
+	scope = character
+	effect = {
+		ca_toggle_effect = yes
+	}
+}

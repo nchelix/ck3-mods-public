@@ -1,0 +1,17 @@
+﻿# Council Automation 1.2: is the feature on in this campaign, and is this position ticked?
+ca_rule_on_trigger = {
+	NOT = { has_game_rule = ca_councillors_off }
+}
+# Root = the player. $KEY$ = chaplain | steward | marshal.
+ca_position_on_trigger = {
+	ca_rule_on_trigger = yes
+	OR = {
+		has_variable = ca_auto_$KEY$
+		# Not yet initialised (a save that gains the mod, before its first pulse or click):
+		# ticked exactly when ca_initialise_effect will tick it.
+		AND = {
+			NOT = { has_variable = ca_initialised }
+			NOT = { has_game_rule = ca_councillors_manual }
+		}
+	}
+}

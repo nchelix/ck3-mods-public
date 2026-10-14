@@ -1,0 +1,75 @@
+﻿# Council Automation 1.2: per-councillor automation toggle state.
+# Root = the player. Once per player: take the rule's starting state (also for a save that
+# gains the mod). R4: ticks all three unless the rule is explicitly manual, so a save made
+# before 1.2 (which reports none of the three settings) keeps 1.1's automatic behaviour.
+ca_initialise_effect = {
+	if = {
+		limit = { NOT = { has_variable = ca_initialised } }
+		set_variable = ca_initialised
+		if = {
+			limit = { NOT = { has_game_rule = ca_councillors_manual } }
+			set_variable = ca_auto_chaplain
+			set_variable = ca_auto_steward
+			set_variable = ca_auto_marshal
+		}
+	}
+}
+
+# Root = the player; scope:councillor = the councillor whose card was clicked.
+# ca_initialise_effect first, so a click on a save that gains the mod does not lose the
+# rule's starting state for the other two positions before they are ever clicked.
+# R1: scope:councillor = root.cp:<position> (identity), not has_council_position alone.
+ca_toggle_effect = {
+	if = {
+		limit = { exists = scope:councillor }
+		ca_initialise_effect = yes
+		if = {
+			limit = { root.cp:councillor_court_chaplain ?= { this = scope:councillor } }
+			if = {
+				limit = { has_variable = ca_auto_chaplain }
+				remove_variable = ca_auto_chaplain
+			}
+			else = {
+				set_variable = ca_auto_chaplain
+				ca_check_chaplain_effect = yes
+			}
+		}
+		if = {
+			limit = { root.cp:councillor_steward ?= { this = scope:councillor } }
+			if = {
+				limit = { has_variable = ca_auto_steward }
+				remove_variable = ca_auto_steward
+			}
+			else = {
+				set_variable = ca_auto_steward
+				ca_check_steward_effect = yes
+			}
+		}
+		if = {
+			limit = { root.cp:councillor_marshal ?= { this = scope:councillor } }
+			if = {
+				limit = { has_variable = ca_auto_marshal }
+				remove_variable = ca_auto_marshal
+			}
+			else = {
+				set_variable = ca_auto_marshal
+				ca_check_marshal_effect = yes
+			}
+		}
+	}
+}
+
+# Root = the player. Starts the 30-day loop once per player (a save that gains the mod starts it from the
+# quarterly pulse). council_automation.0010 removes the marker when the rule is Off.
+ca_start_monthly_loop_effect = {
+	if = {
+		limit = {
+			is_ai = no
+			ca_rule_on_trigger = yes
+			NOT = { has_variable = ca_loop_running }
+		}
+		set_variable = ca_loop_running
+		ca_initialise_effect = yes
+		trigger_event = { id = council_automation.0010 days = 30 }
+	}
+}

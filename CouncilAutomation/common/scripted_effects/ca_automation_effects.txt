@@ -20,6 +20,12 @@
 #   5. any other county in the realm
 
 ca_start_next_task = {
+	# 1.2: a saved scope:target_county could already exist from an earlier call in the same
+	# effect chain (e.g. the monthly check calling this for more than one position).
+	if = {
+		limit = { exists = scope:target_county }
+		clear_saved_scope = target_county
+	}
 	scope:councillor_liege = {
 		# 1. The liege's capital
 		if = {
