@@ -13,3 +13,490 @@ one_trait_ui_puppets_effect = {
 	if = { limit = { exists = puppet:one_trait_theological_agent_puppet } set_variable = { name = one_trait_ui_puppet_ot_realm_priest value = puppet:one_trait_theological_agent_puppet } }
 	else_if = { limit = { has_variable = one_trait_ui_puppet_ot_realm_priest } remove_variable = one_trait_ui_puppet_ot_realm_priest }
 }
+
+# 2.6 R3: clears a pending government confirmation (one_trait_ui_confirm, the armed row number, and
+# one_trait_ui_confirm_target, the character it was armed for). Empty-safe; called by every panel scripted
+# GUI that does something and by the two menu options that open the panel, so a click on anything else
+# never applies a stray confirmation.
+one_trait_ui_clear_confirm_effect = {
+	if = { limit = { has_variable = one_trait_ui_confirm } remove_variable = one_trait_ui_confirm }
+	if = { limit = { has_variable = one_trait_ui_confirm_target } remove_variable = one_trait_ui_confirm_target }
+}
+
+
+# ---- Character 2.6 Task 2: the five stepper rows' shared step effects. root = the player; the target is
+# var:one_trait_ui_target. $AMOUNT$ is a literal number the calling scripted GUI supplies. No refresh effect (batch-3 handoff:
+# the rows read the target live, Proven Task 0): each effect only changes the target's value.
+one_trait_ui_grandeur_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { has_royal_court = yes }
+		}
+		var:one_trait_ui_target = { change_current_court_grandeur = $AMOUNT$ }
+	}
+}
+# add_gold ignores a negative amount (Pantheon of One, Task 0 round 4; seen again in the 2.6 look), so a
+# loss is taken with remove_short_term_gold and a value block (game/common/character_interactions/
+# pam_interactions.txt:23847). Gold may go below zero, as it does in the game.
+one_trait_ui_gold_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = {
+			set_local_variable = { name = one_trait_ui_gold_amount value = $AMOUNT$ }
+			if = {
+				limit = { local_var:one_trait_ui_gold_amount < 0 }
+				remove_short_term_gold = {
+					value = local_var:one_trait_ui_gold_amount
+					multiply = -1
+				}
+			}
+			else = {
+				add_gold = local_var:one_trait_ui_gold_amount
+			}
+		}
+	}
+}
+one_trait_ui_influence_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { change_influence = $AMOUNT$ }
+	}
+}
+one_trait_ui_merit_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { change_merit = $AMOUNT$ }
+	}
+}
+one_trait_ui_legitimacy_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { add_legitimacy = $AMOUNT$ }
+	}
+}
+# Age (spec section 2, Proven Task 0: set_age accepts a computed value). An adult never goes below 16. A
+# child may go down to 0; a step that would reach or pass 16 lands exactly on 16 and fires coming of age
+# once, as the retired "make them 16" option did (set_age skips birthday on-actions). is_adult is read
+# before set_age runs.
+one_trait_ui_age_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = {
+			set_local_variable = { name = one_trait_ui_new_age value = { value = age add = $AMOUNT$ } }
+			if = {
+				limit = { is_adult = yes }
+				if = { limit = { local_var:one_trait_ui_new_age < 16 } set_local_variable = { name = one_trait_ui_new_age value = 16 } }
+				set_age = local_var:one_trait_ui_new_age
+			}
+			else_if = {
+				limit = { local_var:one_trait_ui_new_age >= 16 }
+				set_age = 16
+				trigger_event = { on_action = on_16th_birthday }
+			}
+			else = {
+				if = { limit = { local_var:one_trait_ui_new_age < 0 } set_local_variable = { name = one_trait_ui_new_age value = 0 } }
+				set_age = local_var:one_trait_ui_new_age
+			}
+		}
+	}
+}
+
+
+# ---- Realm 2.6 Task 3: one_trait_ui_law_effect (root = the player) and one click effect per government
+# (R3: the scripted GUI only calls it, so the suite can test arming/cancelling/applying directly).
+one_trait_ui_law_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { add_realm_law_skip_effects = $LAW$ }
+	}
+}
+
+# Age +1. A child this step would bring to 16 comes of age for good, so the first click arms
+# (one number for both plus buttons: either confirms it) and a second click on a plus button that also
+# reaches 16, for the same character, applies. Any other step applies at once.
+one_trait_ui_age_p1_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 101
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+				var:one_trait_ui_target = {
+					is_adult = no
+					age >= 15
+				}
+			}
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_ui_age_step_effect = { AMOUNT = 1 }
+		}
+		else_if = {
+			limit = {
+				var:one_trait_ui_target = {
+					is_adult = no
+					age >= 15
+				}
+			}
+			set_variable = { name = one_trait_ui_confirm value = 101 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_ui_age_step_effect = { AMOUNT = 1 }
+		}
+	}
+}
+
+# Age +10. A child this step would bring to 16 comes of age for good, so the first click arms
+# (one number for both plus buttons: either confirms it) and a second click on a plus button that also
+# reaches 16, for the same character, applies. Any other step applies at once.
+one_trait_ui_age_p10_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 101
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+				var:one_trait_ui_target = {
+					is_adult = no
+					age >= 6
+				}
+			}
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_ui_age_step_effect = { AMOUNT = 10 }
+		}
+		else_if = {
+			limit = {
+				var:one_trait_ui_target = {
+					is_adult = no
+					age >= 6
+				}
+			}
+			set_variable = { name = one_trait_ui_confirm value = 101 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_ui_age_step_effect = { AMOUNT = 10 }
+		}
+	}
+}
+
+one_trait_ui_gov_feudal_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 1
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_feudal_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 1 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_clan_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 2
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_clan_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 2 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_tribal_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 3
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_tribal_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 3 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_nomad_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 4
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_nomad_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 4 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_administrative_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 5
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_administrative_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 5 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_ecclesiastical_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 6
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_ecclesiastical_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 6 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_republic_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 7
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_republic_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 7 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_theocracy_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 8
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_theocracy_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 8 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_celestial_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 9
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_celestial_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 9 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_meritocratic_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 10
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_meritocratic_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 10 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_japan_administrative_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 11
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_japan_administrative_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 11 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_japan_feudal_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 12
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_japan_feudal_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 12 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_mandala_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 13
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_mandala_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 13 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_wanua_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 14
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_wanua_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 14 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_gov_steppe_admin_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 15
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { one_trait_government_steppe_admin_effect = yes }
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 15 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}

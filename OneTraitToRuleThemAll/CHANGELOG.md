@@ -1,5 +1,34 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.6] — 2026-10-13
+
+The panel grows a sidebar, and the first menu pages move into it.
+
+### Added
+- **A sidebar.** The One Trait panel's tabs are now categories down the left
+  side, with the content on the right: Character, Traits, Realm, Sanctum, Army
+  and Puppets. The window is wider.
+- **Character:** age, gold, court grandeur, influence, merit and legitimacy, each
+  shown with its current value and four buttons, two steps down and two up.
+  An adult never drops below 16. A child stepped to 16 comes of age for
+  good, so that step asks for a second click. Court grandeur needs a royal
+  court.
+- **Realm**, for landed rulers:
+  - **Government:** all fifteen governments in one list, the current one
+    marked. A second click on the same row confirms the change.
+  - **Laws:** the six succession laws and five gender laws, the current ones
+    marked, applied with one click.
+
+### Changed
+- The menu's Government, Succession law and Gender law pages, the Body page's
+  four age presets and Modern Systems' grandeur, influence, merit and
+  legitimacy options have moved to the panel and left the menu.
+- Laws can now be changed for any ruler the panel is open on, not only for
+  yourself.
+- You can make yourself a Theocracy (playable since CK3 1.20).
+- Each succession law is offered to every government the game itself offers
+  it to, where the menu page was open to feudal and tribal rulers only.
+
 ## [2.5.1] — 2026-10-13
 
 CK3 1.20.1.
