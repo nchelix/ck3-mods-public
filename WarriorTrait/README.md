@@ -105,11 +105,6 @@ Available in all nine languages the game supports. English is fully written; the
 other eight currently show the English wording. If you would like to contribute
 a translation, it is two short files and it would be very welcome.
 
-## Source
-
-This mod is maintained on GitHub. Bug reports and translations are welcome in
-the comments below.
-
 ---
 
 [☕ Buy me a coffee](https://buymeacoffee.com/nchelix)
