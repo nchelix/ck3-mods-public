@@ -18,6 +18,7 @@ Each mod's page explains what it does and how to use it; the [Releases](https://
 | [Trigger Mask](WearTheMask/) | 1.2 | Nobody cared who I was before I put on the mask. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231939373) |
 | [Become Albino](BecomeAlbino/) | 1.2 | Turn anyone in the world albino, and decide how far it goes. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232333172) |
 | [Become the Snake](BecomeSnake/) | 1.2 | Don't step on snek. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232605324) |
+| [Allied AI War Fix](AlliedAIWarFixPatch/) | 1.0 | Stop the AI from starting wars it expects you to fight. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3820079745) |
 
 ## Licence
 
