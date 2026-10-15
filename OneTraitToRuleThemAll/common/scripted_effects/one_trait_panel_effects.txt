@@ -17,10 +17,12 @@ one_trait_ui_puppets_effect = {
 # 2.6 R3: clears a pending government confirmation (one_trait_ui_confirm, the armed row number, and
 # one_trait_ui_confirm_target, the character it was armed for). Empty-safe; called by every panel scripted
 # GUI that does something and by the two menu options that open the panel, so a click on anything else
-# never applies a stray confirmation.
+# never applies a stray confirmation. 2.7 Task 2 (batch-2 handoff, R12): also clears
+# one_trait_ui_confirm_title (a list row's armed title), so a stray click elsewhere disarms a list row too.
 one_trait_ui_clear_confirm_effect = {
 	if = { limit = { has_variable = one_trait_ui_confirm } remove_variable = one_trait_ui_confirm }
 	if = { limit = { has_variable = one_trait_ui_confirm_target } remove_variable = one_trait_ui_confirm_target }
+	if = { limit = { has_variable = one_trait_ui_confirm_title } remove_variable = one_trait_ui_confirm_title }
 }
 
 
@@ -497,6 +499,414 @@ one_trait_ui_gov_steppe_admin_click_effect = {
 		else = {
 			set_variable = { name = one_trait_ui_confirm value = 15 }
 			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+
+# ---- Realm / action rows (2.7 Task 2, batch-2 handoff): one click effect per REALM_ACTIONS key. A
+# non-confirm action clears any pending confirm, saves scope:one_trait_target from the variable (the same
+# idiom the probe proved, OneTraitRealmProto/common/scripted_guis/one_trait_realm_proto_guis.txt:87), then
+# calls the hand-written effect (which, for Succession, re-enters scope:one_trait_target itself -- R1). A
+# confirm action manages one_trait_ui_confirm/_confirm_target itself (the government rows' own form above),
+# so it must not also call the shared clear effect on its arming branch.
+one_trait_ui_act_succession_heir_everything_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_succession_heir_everything_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_authority_up_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_succession_authority_up_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_authority_down_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_succession_authority_down_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_crowned_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_succession_crowned_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_anointed_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_succession_anointed_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_create_titles_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_succession_create_titles_effect = yes
+	}
+}
+
+one_trait_ui_act_titles_take_all_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_titles_take_all_effect = yes
+	}
+}
+
+one_trait_ui_act_titles_take_realm_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 201
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_titles_take_realm_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 201 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_act_titles_destroy_primary_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 202
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_titles_destroy_primary_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 202 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_act_titles_claims_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_titles_claims_effect = yes
+	}
+}
+
+one_trait_ui_act_culture_innovations_era_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_culture_innovations_era_effect = yes
+	}
+}
+
+one_trait_ui_act_culture_innovations_all_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_culture_innovations_all_effect = yes
+	}
+}
+
+one_trait_ui_act_culture_acceptance_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_culture_acceptance_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_domain_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_domain_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_realm_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_realm_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_baronies_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_baronies_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_duchy_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_duchy_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_great_projects_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 203
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_buildings_great_projects_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 203 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_act_buildings_rebuild_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_rebuild_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_herd_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_realm_events_herd_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_herd_drain_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_realm_events_herd_drain_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_domicile_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 205
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_realm_events_domicile_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 205 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_act_realm_events_struggle_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_realm_events_struggle_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_tributary_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 206
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_realm_events_tributary_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 206 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
+one_trait_ui_act_realm_events_conqueror_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_realm_events_conqueror_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_scourge_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_realm_events_scourge_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_conqueror_end_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_realm_events_conqueror_end_effect = yes
+	}
+}
+
+
+# ---- Realm / list rows (2.7 Task 2, batch-2 handoff, R11/R12): one click effect per list button.
+# scope:landed_title is already set (AddScope, from the scripted GUI's call), so the hand-written effect
+# reads it directly -- no re-scoping needed here. A confirm button (the plague list) also arms/matches
+# one_trait_ui_confirm_title alongside the number and the target (R12).
+one_trait_ui_list_titles_take_one_take_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_titles_take_one_take_effect = yes
+	}
+}
+
+one_trait_ui_list_titles_take_one_claim_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_titles_take_one_claim_effect = yes
+	}
+}
+
+one_trait_ui_list_titles_take_one_destroy_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 207
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+				has_variable = one_trait_ui_confirm_title
+				scope:landed_title = var:one_trait_ui_confirm_title
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			remove_variable = one_trait_ui_confirm_title
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_titles_take_one_destroy_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 207 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+			set_variable = { name = one_trait_ui_confirm_title value = scope:landed_title }
+		}
+	}
+}
+
+one_trait_ui_list_buildings_county_max_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_county_max_effect = yes
+	}
+}
+
+one_trait_ui_list_buildings_county_slot_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_realm_buildings_county_slot_effect = yes
+	}
+}
+
+one_trait_ui_list_realm_events_plague_plague_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 204
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+				has_variable = one_trait_ui_confirm_title
+				scope:landed_title = var:one_trait_ui_confirm_title
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			remove_variable = one_trait_ui_confirm_title
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_realm_realm_events_plague_plague_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 204 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+			set_variable = { name = one_trait_ui_confirm_title value = scope:landed_title }
 		}
 	}
 }

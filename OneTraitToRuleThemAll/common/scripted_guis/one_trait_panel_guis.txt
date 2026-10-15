@@ -103,6 +103,46 @@ one_trait_ui_subtab_laws = {
 	}
 }
 
+one_trait_ui_subtab_succession = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 3 }
+	}
+}
+
+one_trait_ui_subtab_titles = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 4 }
+	}
+}
+
+one_trait_ui_subtab_culture = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 5 }
+	}
+}
+
+one_trait_ui_subtab_buildings = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 6 }
+	}
+}
+
+one_trait_ui_subtab_realm_events = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 7 }
+	}
+}
+
 one_trait_ui_tab_sanctum = {
 	scope = character
 	effect = {
@@ -1096,6 +1136,9 @@ one_trait_ui_target_is_ruler = {
 # ---- Realm / Government: two-click confirm (R3). The scripted GUI only calls the named click
 # effect (one_trait_panel_effects.txt); republic/theocracy also carry the retired page's own extra
 # condition (one_trait_menu_events.txt:2296,2310: NOT = { scope:one_trait_target = root }).
+# 2.7 Task 1 (batch-1 handoff): also requires CK3's own one_trait_can_get_<key>_trigger
+# (build_one_trait_governments.py's copy of that government's can_get_government), so a government
+# the game would refuse greys out with CK3's own reason on hover (IsValidTooltip, pick_row()).
 
 one_trait_ui_gov_feudal = {
 	scope = character
@@ -1103,6 +1146,7 @@ one_trait_ui_gov_feudal = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = feudal_government } }
+		var:one_trait_ui_target = { one_trait_can_get_feudal_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_feudal_click_effect = yes
@@ -1115,6 +1159,7 @@ one_trait_ui_gov_clan = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = clan_government } }
+		var:one_trait_ui_target = { one_trait_can_get_clan_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_clan_click_effect = yes
@@ -1127,6 +1172,7 @@ one_trait_ui_gov_tribal = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = tribal_government } }
+		var:one_trait_ui_target = { one_trait_can_get_tribal_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_tribal_click_effect = yes
@@ -1139,6 +1185,7 @@ one_trait_ui_gov_nomad = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = nomad_government } }
+		var:one_trait_ui_target = { one_trait_can_get_nomad_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_nomad_click_effect = yes
@@ -1151,6 +1198,7 @@ one_trait_ui_gov_administrative = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = administrative_government } }
+		var:one_trait_ui_target = { one_trait_can_get_administrative_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_administrative_click_effect = yes
@@ -1163,6 +1211,7 @@ one_trait_ui_gov_ecclesiastical = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = ecclesiastical_government } }
+		var:one_trait_ui_target = { one_trait_can_get_ecclesiastical_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_ecclesiastical_click_effect = yes
@@ -1176,6 +1225,8 @@ one_trait_ui_gov_republic = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = republic_government } }
 		NOT = { var:one_trait_ui_target = root }
+		var:one_trait_ui_target = { one_trait_can_get_republic_trigger = yes }
+		var:one_trait_ui_target = { capital_province = { has_holding_type = city_holding } }
 	}
 	effect = {
 		one_trait_ui_gov_republic_click_effect = yes
@@ -1188,6 +1239,8 @@ one_trait_ui_gov_theocracy = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = theocracy_government } }
+		var:one_trait_ui_target = { one_trait_can_get_theocracy_trigger = yes }
+		var:one_trait_ui_target = { is_independent_ruler = yes }
 	}
 	effect = {
 		one_trait_ui_gov_theocracy_click_effect = yes
@@ -1200,6 +1253,7 @@ one_trait_ui_gov_celestial = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = celestial_government } }
+		var:one_trait_ui_target = { one_trait_can_get_celestial_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_celestial_click_effect = yes
@@ -1212,6 +1266,7 @@ one_trait_ui_gov_meritocratic = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = meritocratic_government } }
+		var:one_trait_ui_target = { one_trait_can_get_meritocratic_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_meritocratic_click_effect = yes
@@ -1224,6 +1279,7 @@ one_trait_ui_gov_japan_administrative = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = japan_administrative_government } }
+		var:one_trait_ui_target = { one_trait_can_get_japan_administrative_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_japan_administrative_click_effect = yes
@@ -1236,6 +1292,7 @@ one_trait_ui_gov_japan_feudal = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = japan_feudal_government } }
+		var:one_trait_ui_target = { one_trait_can_get_japan_feudal_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_japan_feudal_click_effect = yes
@@ -1248,6 +1305,7 @@ one_trait_ui_gov_mandala = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = mandala_government } }
+		var:one_trait_ui_target = { one_trait_can_get_mandala_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_mandala_click_effect = yes
@@ -1260,6 +1318,7 @@ one_trait_ui_gov_wanua = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = wanua_government } }
+		var:one_trait_ui_target = { one_trait_can_get_wanua_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_wanua_click_effect = yes
@@ -1272,6 +1331,7 @@ one_trait_ui_gov_steppe_admin = {
 	is_valid = {
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = steppe_admin_government } }
+		var:one_trait_ui_target = { one_trait_can_get_steppe_admin_trigger = yes }
 	}
 	effect = {
 		one_trait_ui_gov_steppe_admin_click_effect = yes
@@ -1440,5 +1500,549 @@ one_trait_ui_law_female_only = {
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		one_trait_ui_law_effect = { LAW = female_only_law }
+	}
+}
+
+# ---- Realm / action rows (2.7 Task 2, batch-2 handoff): one scripted GUI per REALM_ACTIONS key.
+# is_shown/is_valid call the hand-written trigger of the same name on the target (guarded by
+# has_variable, R2); effect is exactly the named click effect (one_trait_panel_effects.txt), so the
+# self-test calls exactly what a click runs (the 2.6 rule).
+
+one_trait_ui_act_succession_heir_everything = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_heir_everything_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_heir_everything_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_succession_heir_everything_click_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_authority_up = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_authority_up_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_authority_up_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_succession_authority_up_click_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_authority_down = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_authority_down_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_authority_down_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_succession_authority_down_click_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_crowned = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_crowned_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_crowned_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_succession_crowned_click_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_anointed = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_anointed_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_anointed_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_succession_anointed_click_effect = yes
+	}
+}
+
+one_trait_ui_act_succession_create_titles = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_create_titles_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_succession_create_titles_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_succession_create_titles_click_effect = yes
+	}
+}
+
+one_trait_ui_act_titles_take_all = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_all_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_all_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_titles_take_all_click_effect = yes
+	}
+}
+
+one_trait_ui_act_titles_take_realm = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_realm_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_realm_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_titles_take_realm_click_effect = yes
+	}
+}
+
+one_trait_ui_act_titles_destroy_primary = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_destroy_primary_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_destroy_primary_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_titles_destroy_primary_click_effect = yes
+	}
+}
+
+one_trait_ui_act_titles_claims = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_claims_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_claims_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_titles_claims_click_effect = yes
+	}
+}
+
+one_trait_ui_act_culture_innovations_era = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_innovations_era_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_innovations_era_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_culture_innovations_era_click_effect = yes
+	}
+}
+
+one_trait_ui_act_culture_innovations_all = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_innovations_all_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_innovations_all_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_culture_innovations_all_click_effect = yes
+	}
+}
+
+one_trait_ui_act_culture_acceptance = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_acceptance_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_acceptance_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_culture_acceptance_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_domain = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_domain_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_domain_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_domain_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_realm = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_realm_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_realm_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_realm_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_baronies = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_baronies_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_baronies_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_baronies_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_duchy = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_duchy_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_duchy_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_duchy_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_great_projects = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_great_projects_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_great_projects_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_great_projects_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_rebuild = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_rebuild_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_rebuild_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_rebuild_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_herd = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_herd_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_herd_drain = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_drain_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_drain_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_herd_drain_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_domicile = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_domicile_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_domicile_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_domicile_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_struggle = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_struggle_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_struggle_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_struggle_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_tributary = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_tributary_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_tributary_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_tributary_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_conqueror = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_conqueror_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_scourge = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_scourge_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_scourge_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_scourge_click_effect = yes
+	}
+}
+
+one_trait_ui_act_realm_events_conqueror_end = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_end_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_end_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_realm_events_conqueror_end_click_effect = yes
+	}
+}
+
+# ---- Realm / list rows (2.7 Task 2, batch-2 handoff, R11/R12): one scripted GUI per list button,
+# receiving the row's title as scope:landed_title. is_shown is the list's own filter AND the
+# hand-written list-level shown trigger; is_valid is "still held by the target" AND the
+# hand-written per-button valid trigger. A confirm button also gets an _armed scripted GUI (used
+# only by the GUI to show "Confirm?" on the one armed row, R12).
+
+one_trait_ui_list_titles_take_one_take = {
+	scope = character
+	is_shown = {
+		scope:landed_title = { tier >= tier_county is_landless_type_title = no }
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_one_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		scope:landed_title.holder = var:one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_one_take_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_list_titles_take_one_take_click_effect = yes
+	}
+}
+
+one_trait_ui_list_titles_take_one_claim = {
+	scope = character
+	is_shown = {
+		scope:landed_title = { tier >= tier_county is_landless_type_title = no }
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_one_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		scope:landed_title.holder = var:one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_one_claim_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_list_titles_take_one_claim_click_effect = yes
+	}
+}
+
+one_trait_ui_list_titles_take_one_destroy = {
+	scope = character
+	is_shown = {
+		scope:landed_title = { tier >= tier_county is_landless_type_title = no }
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_one_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		scope:landed_title.holder = var:one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_take_one_destroy_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_list_titles_take_one_destroy_click_effect = yes
+	}
+}
+
+one_trait_ui_list_titles_take_one_destroy_armed = {
+	scope = character
+	is_valid = {
+		has_variable = one_trait_ui_target
+		has_variable = one_trait_ui_confirm
+		var:one_trait_ui_confirm = 207
+		has_variable = one_trait_ui_confirm_target
+		var:one_trait_ui_confirm_target = var:one_trait_ui_target
+		has_variable = one_trait_ui_confirm_title
+		scope:landed_title = var:one_trait_ui_confirm_title
+	}
+}
+
+one_trait_ui_list_buildings_county_max = {
+	scope = character
+	is_shown = {
+		scope:landed_title = { tier = tier_county }
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_county_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		scope:landed_title.holder = var:one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_county_max_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_list_buildings_county_max_click_effect = yes
+	}
+}
+
+one_trait_ui_list_buildings_county_slot = {
+	scope = character
+	is_shown = {
+		scope:landed_title = { tier = tier_county }
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_county_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		scope:landed_title.holder = var:one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_county_slot_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_list_buildings_county_slot_click_effect = yes
+	}
+}
+
+one_trait_ui_list_realm_events_plague_plague = {
+	scope = character
+	is_shown = {
+		scope:landed_title = { tier = tier_county }
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_plague_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		scope:landed_title.holder = var:one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_realm_events_plague_plague_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_list_realm_events_plague_plague_click_effect = yes
+	}
+}
+
+one_trait_ui_list_realm_events_plague_plague_armed = {
+	scope = character
+	is_valid = {
+		has_variable = one_trait_ui_target
+		has_variable = one_trait_ui_confirm
+		var:one_trait_ui_confirm = 204
+		has_variable = one_trait_ui_confirm_target
+		var:one_trait_ui_confirm_target = var:one_trait_ui_target
+		has_variable = one_trait_ui_confirm_title
+		scope:landed_title = var:one_trait_ui_confirm_title
 	}
 }

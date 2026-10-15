@@ -3,16 +3,17 @@
 # every event below.
 #
 # Re-check on every CK3 patch -- all of the following fail silently rather
-# than erroring if the game changes underneath them:
-#   - The five hardcoded top-tier domicile building ids on 0420.domicile
-#     (camp_main_04, estate_main_05, east_asian_estate_main_05, yurt_main_06,
-#     japanese_manor_main_06) may stop being the top tier if a patch adds a
-#     higher level.
-#   - The is_domicile_type if/else_if chain on 0420.domicile has no final
-#     else, so a new domicile type added by a patch gets no building added
-#     and no warning.
-#   - The two hardcoded struggle ids on 0420.struggle (iberian_struggle,
-#     persian_struggle) would not include a third struggle if one is added.
+# than erroring if the game changes underneath them. 2.7 Task 4: the two patch-fragile bodies below moved
+# into the panel's Realm > Realm events sub-tab
+# (common/scripted_effects/one_trait_realm_effects.txt: one_trait_realm_realm_events_domicile_effect and
+# one_trait_realm_realm_events_struggle_effect), which carries this same note:
+#   - The five hardcoded top-tier domicile building ids on realm_events_domicile (camp_main_04,
+#     estate_main_05, east_asian_estate_main_05, yurt_main_06, japanese_manor_main_06) may stop being the
+#     top tier if a patch adds a higher level.
+#   - The is_domicile_type if/else_if chain on realm_events_domicile has no final else, so a new domicile
+#     type added by a patch gets no building added and no warning.
+#   - The two hardcoded struggle ids on realm_events_struggle (iberian_struggle, persian_struggle) would
+#     not include a third struggle if one is added.
 
 namespace = one_trait_menu
 
@@ -66,21 +67,9 @@ one_trait_menu.0001 = {
 	}
 
 	option = {
-		name = one_trait_menu.0001.titles
-		trigger = { NOT = { scope:one_trait_target = root } }
-		trigger_event = one_trait_menu.1200
-	}
-
-	option = {
 		name = one_trait_menu.0001.diplomacy
 		trigger = { NOT = { scope:one_trait_target = root } }
 		trigger_event = one_trait_menu.1400
-	}
-
-	option = {
-		name = one_trait_menu.0001.succession
-		trigger = { scope:one_trait_target = root }
-		trigger_event = one_trait_menu.1300
 	}
 
 	option = {
@@ -91,11 +80,6 @@ one_trait_menu.0001 = {
 	option = {
 		name = one_trait_menu.0001.modern
 		trigger_event = one_trait_menu.0400
-	}
-
-	option = {
-		name = one_trait_menu.0001.buildings
-		trigger_event = one_trait_menu.0600
 	}
 
 	option = {
@@ -118,16 +102,6 @@ one_trait_menu.0400 = {
 	option = {
 		name = one_trait_menu.0400.character
 		trigger_event = one_trait_menu.0410
-	}
-
-	option = {
-		name = one_trait_menu.0400.realm
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0400.culture
-		trigger_event = one_trait_menu.0430
 	}
 
 	option = {
@@ -205,220 +179,10 @@ one_trait_menu.0410 = {
 	}
 }
 
-# Modern Systems: the realm.
-one_trait_menu.0420 = {
-	type = character_event
-	title = one_trait_menu.0420.t
-	desc = one_trait_menu.0420.desc
-	theme = default
-
-	left_portrait = {
-		character = scope:one_trait_target
-		animation = personality_bold
-	}
-
-	option = {
-		name = one_trait_menu.0420.herd
-		trigger = {
-			scope:one_trait_target = {
-				government_has_flag = government_is_nomadic
-				exists = domicile
-			}
-		}
-		scope:one_trait_target.domicile = {
-			change_herd = 10000
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0420.herd_drain
-		trigger = {
-			scope:one_trait_target = {
-				government_has_flag = government_is_nomadic
-				exists = domicile
-			}
-		}
-		scope:one_trait_target.domicile = {
-			change_herd = -10000
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0420.plague
-		trigger = {
-			exists = scope:one_trait_target.capital_province
-		}
-		scope:one_trait_target.capital_province = {
-			create_epidemic_outbreak = {
-				type = bubonic_plague
-				intensity = major
-			}
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0420.domicile
-		trigger = {
-			exists = scope:one_trait_target.domicile
-		}
-		scope:one_trait_target.domicile = {
-			if = {
-				limit = {
-					is_domicile_type = camp
-				}
-				add_domicile_building = camp_main_04
-			}
-			else_if = {
-				limit = {
-					is_domicile_type = estate
-				}
-				add_domicile_building = estate_main_05
-			}
-			else_if = {
-				limit = {
-					is_domicile_type = east_asian_estate
-				}
-				add_domicile_building = east_asian_estate_main_05
-			}
-			else_if = {
-				limit = {
-					is_domicile_type = yurt
-				}
-				add_domicile_building = yurt_main_06
-			}
-			else_if = {
-				limit = {
-					is_domicile_type = japanese_manor
-				}
-				add_domicile_building = japanese_manor_main_06
-			}
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0420.struggle
-		trigger = {
-			scope:one_trait_target = {
-				any_character_struggle = {
-					always = yes
-				}
-			}
-		}
-		struggle:iberian_struggle ?= {
-			end_struggle = yes
-		}
-		struggle:persian_struggle ?= {
-			end_struggle = yes
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0420.tributary
-		trigger = {
-			scope:one_trait_target = {
-				any_tributary = {
-					always = yes
-				}
-			}
-		}
-		scope:one_trait_target = {
-			every_tributary = {
-				end_tributary = yes
-			}
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	# Starts vanilla's conquest: conqueror.0001 adds the trait and the
-	# story_conqueror story, whose variable unlocks the armies, gifts and CBs.
-	# Its trigger needs an independent landed ruler, so this option does too.
-	# It fires on the target, because the event adds the trait to its root, and
-	# does not re-fire the menu: the conqueror window replaces it.
-	option = {
-		name = one_trait_menu.0420.conqueror
-		trigger = {
-			scope:one_trait_target = {
-				top_liege = this
-				is_landed = yes
-				NOR = {
-					has_trait = conqueror
-					any_owned_story = {
-						story_type = story_conqueror
-					}
-				}
-			}
-		}
-		scope:one_trait_target = {
-			add_character_flag = {
-				flag = one_trait_scourge_roll
-				days = 5
-			}
-			trigger_event = conqueror.0001
-			# Scourge of the Gods a day later, after vanilla's story setup (2.4.1)
-			trigger_event = { id = one_trait_menu.0421 days = 1 }
-		}
-	}
-
-	# 2.4.1: as Become a Conqueror, with Scourge of the Gods guaranteed. Vanilla grants
-	# ai_extreme_conqueror_modifier only to AI conquerors.
-	option = {
-		name = one_trait_menu.0420.scourge
-		trigger = {
-			scope:one_trait_target = {
-				top_liege = this
-				is_landed = yes
-				NOR = {
-					has_trait = conqueror
-					any_owned_story = {
-						story_type = story_conqueror
-					}
-				}
-			}
-		}
-		scope:one_trait_target = {
-			add_character_flag = {
-				flag = one_trait_scourge_sure
-				days = 5
-			}
-			trigger_event = conqueror.0001
-			# Scourge of the Gods a day later, after vanilla's story setup (2.4.1)
-			trigger_event = { id = one_trait_menu.0421 days = 1 }
-		}
-	}
-
-	# Ends the conquest with no penalty. Vanilla's conqueror.0002 is the FAILED
-	# ending (-2 prestige levels, -50 opinion from glory hounds); ending the
-	# story directly runs its on_end, which removes the trait and modifiers.
-	option = {
-		name = one_trait_menu.0420.conqueror_end
-		trigger = {
-			scope:one_trait_target = {
-				any_owned_story = {
-					story_type = story_conqueror
-				}
-			}
-		}
-		scope:one_trait_target = {
-			every_owned_story = {
-				limit = {
-					story_type = story_conqueror
-				}
-				end_story = yes
-			}
-		}
-		trigger_event = one_trait_menu.0420
-	}
-
-	option = {
-		name = one_trait_menu.0420.back
-		trigger_event = one_trait_menu.0400
-	}
-}
+# 2.7 Task 4 (batch-3 handoff): one_trait_menu.0420 (Modern Systems: the Realm) retired -- its options
+# moved into the panel's Realm > Realm events sub-tab (one_trait_realm_effects.txt /
+# one_trait_realm_triggers.txt, Batches 2-3). one_trait_menu.0421 stays: it is a hidden, delayed follow-up
+# (R3), not a page, and the conqueror/scourge effects below still schedule it exactly as this page did.
 
 # 2.4.1: a day after a conquest starts, Scourge of the Gods (ai_extreme_conqueror_modifier). Root is the
 # conqueror. Guaranteed from the Scourge option; otherwise, for a player, the Conqueror Bonuses rule's odds as
@@ -759,172 +523,10 @@ one_trait_menu.0130 = {
 	}
 }
 
-# Buildings (1.7) -- the hub.
-one_trait_menu.0600 = {
-	type = character_event
-	title = one_trait_menu.0600.t
-	desc = one_trait_menu.0600.desc
-	theme = default
-
-	left_portrait = {
-		character = scope:one_trait_target
-		animation = personality_bold
-	}
-
-	option = {
-		name = one_trait_menu.0600.construction
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0600.sanctum
-		# 2.6: Sanctum is category 4 in the panel's sidebar (was tab 2 in 2.5)
-		root = {
-			set_variable = { name = one_trait_ui_target value = scope:one_trait_target }
-			set_variable = { name = one_trait_ui_tab value = 4 }
-			set_variable = { name = one_trait_ui_subtab value = 1 }
-			one_trait_ui_clear_confirm_effect = yes
-			one_trait_ui_puppets_effect = yes
-			set_variable = one_trait_ui_open
-		}
-	}
-
-	option = {
-		name = one_trait_menu.0600.back
-		trigger_event = one_trait_menu.0001
-	}
-}
-
-# Buildings: Construction. Every option acts on the right-clicked character's
-# lands and re-fires this page.
-one_trait_menu.0610 = {
-	type = character_event
-	title = one_trait_menu.0610.t
-	desc = one_trait_menu.0610.desc
-	theme = default
-
-	left_portrait = {
-		character = scope:one_trait_target
-		animation = personality_bold
-	}
-
-	option = {
-		name = one_trait_menu.0610.capital
-		trigger = {
-			exists = scope:one_trait_target.capital_county
-		}
-		scope:one_trait_target.capital_county = {
-			one_trait_max_county_buildings = yes
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0610.domain
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		scope:one_trait_target = {
-			every_held_county = {
-				one_trait_max_county_buildings = yes
-			}
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	# Thousands of building changes on a large empire: expect a short pause.
-	option = {
-		name = one_trait_menu.0610.realm
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		scope:one_trait_target = {
-			every_realm_county = {
-				one_trait_max_county_buildings = yes
-			}
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0610.baronies
-		trigger = {
-			scope:one_trait_target = {
-				one_trait_can_fill_baronies = yes
-				any_held_county = {
-					any_county_province = { has_holding = no }
-				}
-			}
-		}
-		scope:one_trait_target = {
-			one_trait_fill_empty_baronies = yes
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	# Vanilla's extra_building_slot stacks, so this can be taken repeatedly.
-	option = {
-		name = one_trait_menu.0610.slot
-		trigger = {
-			exists = scope:one_trait_target.capital_province
-		}
-		scope:one_trait_target.capital_province = {
-			add_province_modifier = extra_building_slot
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0610.duchy
-		trigger = {
-			scope:one_trait_target = {
-				any_held_title = { tier = tier_duchy }
-			}
-		}
-		scope:one_trait_target = {
-			every_held_county = {
-				every_county_province = {
-					limit = { has_holding = yes }
-					one_trait_max_duchy_capital_building_in_province = yes
-				}
-			}
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0610.great_projects
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		every_great_project = {
-			limit = { great_project_owner = scope:one_trait_target }
-			complete_great_project = this
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0610.rebuild
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		scope:one_trait_target = {
-			every_held_county = {
-				every_county_province = {
-					limit = { has_ruined_great_building = yes }
-					rebuild_great_building = yes
-				}
-			}
-		}
-		trigger_event = one_trait_menu.0610
-	}
-
-	option = {
-		name = one_trait_menu.0610.back
-		trigger_event = one_trait_menu.0600
-	}
-}
+# 2.7 Task 4 (batch-3 handoff): one_trait_menu.0600 (Buildings hub) and .0610 (Construction) retired --
+# their options moved into the panel's Realm > Buildings sub-tab and its "Choose a county" list
+# (one_trait_realm_effects.txt / one_trait_realm_triggers.txt, Batches 2-3). The Sanctum shortcut
+# (0600.sanctum) needs no replacement: the panel's own sidebar already has a Sanctum category button.
 
 # Family page.
 one_trait_menu.0900 = {
@@ -1092,232 +694,9 @@ one_trait_menu.1000 = {
 	}
 }
 
-one_trait_menu.1200 = {
-	type = character_event
-	title = one_trait_menu.1200.t
-	desc = one_trait_menu.1200.desc
-	theme = default
-
-	left_portrait = {
-		character = scope:one_trait_target
-		animation = personality_bold
-	}
-
-	option = {
-		name = one_trait_menu.1200.take_primary
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		create_title_and_vassal_change = {
-			type = conquest
-			save_scope_as = change
-			add_claim_on_loss = no
-		}
-		scope:one_trait_target.primary_title = {
-			change_title_holder_include_vassals = {
-				holder = root
-				change = scope:change
-			}
-		}
-		resolve_title_and_vassal_change = scope:change
-		trigger_event = one_trait_menu.1200
-	}
-
-	option = {
-		name = one_trait_menu.1200.take_all
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		create_title_and_vassal_change = {
-			type = conquest
-			save_scope_as = change
-			add_claim_on_loss = no
-		}
-		scope:one_trait_target = {
-			every_held_title = {
-				change_title_holder_include_vassals = {
-					holder = root
-					change = scope:change
-				}
-			}
-		}
-		resolve_title_and_vassal_change = scope:change
-		trigger_event = one_trait_menu.1200
-	}
-
-	option = {
-		name = one_trait_menu.1200.take_realm
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		custom_tooltip = one_trait_menu.1200.take_realm.tt
-		# Hidden: the tooltip would list every title
-		hidden_effect = {
-			create_title_and_vassal_change = {
-				type = conquest
-				save_scope_as = change
-				add_claim_on_loss = no
-			}
-			scope:one_trait_target = {
-				every_sub_realm_title = {
-					limit = { tier > tier_barony }
-					change_title_holder_include_vassals = {
-						holder = root
-						change = scope:change
-					}
-				}
-			}
-			resolve_title_and_vassal_change = scope:change
-		}
-		trigger_event = one_trait_menu.1200
-	}
-
-	option = {
-		name = one_trait_menu.1200.destroy_primary
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		scope:one_trait_target = {
-			destroy_title = primary_title
-		}
-		trigger_event = one_trait_menu.1200
-	}
-
-	option = {
-		name = one_trait_menu.1200.claims
-		trigger = {
-			scope:one_trait_target = { is_landed = yes }
-		}
-		custom_tooltip = one_trait_menu.1200.claims.tt
-		# Hidden: the tooltip would list every title
-		hidden_effect = {
-			scope:one_trait_target = {
-				every_held_title = {
-					save_temporary_scope_as = one_trait_claim_title
-					root = { add_pressed_claim = scope:one_trait_claim_title }
-				}
-			}
-		}
-		trigger_event = one_trait_menu.1200
-	}
-
-	option = {
-		name = one_trait_menu.1200.back
-		trigger_event = one_trait_menu.0001
-	}
-}
-
-one_trait_menu.1300 = {
-	type = character_event
-	title = one_trait_menu.1300.t
-	desc = one_trait_menu.1300.desc
-	theme = default
-
-	left_portrait = {
-		character = scope:one_trait_target
-		animation = personality_bold
-	}
-
-	option = {
-		name = one_trait_menu.1300.heir_everything
-		add_realm_law_skip_effects = single_heir_succession_law
-		every_held_title = {
-			if = {
-				limit = { has_title_law = feudal_elective_succession_law }
-				remove_title_law = feudal_elective_succession_law
-			}
-			if = {
-				limit = { has_title_law = princely_elective_succession_law }
-				remove_title_law = princely_elective_succession_law
-			}
-			if = {
-				limit = { has_title_law = saxon_elective_succession_law }
-				remove_title_law = saxon_elective_succession_law
-			}
-			if = {
-				limit = { has_title_law = scandinavian_elective_succession_law }
-				remove_title_law = scandinavian_elective_succession_law
-			}
-			if = {
-				limit = { has_title_law = gaelic_elective_succession_law }
-				remove_title_law = gaelic_elective_succession_law
-			}
-			if = {
-				limit = { has_title_law = tribal_elective_succession_law }
-				remove_title_law = tribal_elective_succession_law
-			}
-		}
-		trigger_event = one_trait_menu.1300
-	}
-
-	option = {
-		name = one_trait_menu.1300.authority_up
-		trigger = {
-			one_trait_authority_can_change_trigger = { LIMIT = maximum }
-		}
-		one_trait_authority_change_effect = { CHANGE = 1 LIMIT = maximum }
-		trigger_event = one_trait_menu.1300
-	}
-
-	option = {
-		name = one_trait_menu.1300.authority_down
-		trigger = {
-			one_trait_authority_can_change_trigger = { LIMIT = minimum }
-		}
-		one_trait_authority_change_effect = { CHANGE = -1 LIMIT = minimum }
-		trigger_event = one_trait_menu.1300
-	}
-
-	option = {
-		name = one_trait_menu.1300.crowned
-		trigger = {
-			NOR = {
-				has_realm_law = crowned_king
-				has_realm_law = crowned_emperor
-			}
-		}
-		add_realm_law_skip_effects = crowned_king
-		trigger_event = one_trait_menu.1300
-	}
-
-	option = {
-		name = one_trait_menu.1300.anointed
-		trigger = {
-			NOT = { has_realm_law = crowned_emperor }
-		}
-		add_realm_law_skip_effects = crowned_emperor
-		trigger_event = one_trait_menu.1300
-	}
-
-	option = {
-		name = one_trait_menu.1300.create_titles
-		trigger = {
-			any_alert_creatable_title = { count >= 1 }
-		}
-		custom_tooltip = one_trait_menu.1300.create_titles.tt
-		# Hidden: the tooltip would list every title
-		hidden_effect = {
-			create_title_and_vassal_change = {
-				type = created
-				save_scope_as = change
-				add_claim_on_loss = no
-			}
-			every_alert_creatable_title = {
-				change_title_holder = {
-					holder = root
-					change = scope:change
-				}
-			}
-			resolve_title_and_vassal_change = scope:change
-		}
-		trigger_event = one_trait_menu.1300
-	}
-
-	option = {
-		name = one_trait_menu.1300.back
-		trigger_event = one_trait_menu.0001
-	}
-}
+# 2.7 Task 4 (batch-3 handoff): one_trait_menu.1200 (Titles) and .1300 (Succession) retired -- their
+# options moved into the panel's Realm > Titles sub-tab (and its "Take one title" list) and Realm >
+# Succession sub-tab (one_trait_realm_effects.txt / one_trait_realm_triggers.txt, Batches 2-3).
 
 one_trait_menu.1400 = {
 	type = character_event
@@ -1862,69 +1241,8 @@ one_trait_menu.1450 = {
 	}
 }
 
-one_trait_menu.0430 = {
-	type = character_event
-	title = one_trait_menu.0430.t
-	desc = one_trait_menu.0430.desc
-	theme = default
-
-	left_portrait = {
-		character = scope:one_trait_target
-		animation = personality_bold
-	}
-
-	option = {
-		name = one_trait_menu.0430.innovations_era
-		custom_tooltip = one_trait_menu.0430.innovations_era.tt
-		# Hidden: the tooltip would list every innovation
-		hidden_effect = {
-			scope:one_trait_target.culture = {
-				one_trait_unlock_innovations_effect = { UP_TO_ERA = yes }
-			}
-		}
-		trigger_event = one_trait_menu.0430
-	}
-
-	option = {
-		name = one_trait_menu.0430.innovations_all
-		custom_tooltip = one_trait_menu.0430.innovations_all.tt
-		# Hidden: the tooltip would list every innovation
-		hidden_effect = {
-			scope:one_trait_target.culture = {
-				one_trait_unlock_innovations_effect = { UP_TO_ERA = no }
-			}
-		}
-		trigger_event = one_trait_menu.0430
-	}
-
-	option = {
-		name = one_trait_menu.0430.acceptance
-		trigger = {
-			NOT = { scope:one_trait_target = root }
-			NOT = { scope:one_trait_target.culture = root.culture }
-		}
-		root.culture = {
-			change_cultural_acceptance = {
-				target = scope:one_trait_target.culture
-				value = 100
-				desc = one_trait_cultural_acceptance
-			}
-		}
-		scope:one_trait_target.culture = {
-			change_cultural_acceptance = {
-				target = root.culture
-				value = 100
-				desc = one_trait_cultural_acceptance
-			}
-		}
-		trigger_event = one_trait_menu.0430
-	}
-
-	option = {
-		name = one_trait_menu.0430.back
-		trigger_event = one_trait_menu.0400
-	}
-}
+# 2.7 Task 4 (batch-3 handoff): one_trait_menu.0430 (Culture) retired -- its options moved into the
+# panel's Realm > Culture sub-tab (one_trait_realm_effects.txt / one_trait_realm_triggers.txt, Batches 2-3).
 
 one_trait_menu.1500 = {
 	type = character_event

@@ -1344,16 +1344,46 @@ window = {
 					hbox = {
 						spacing = 4
 						button_tab = {
-							size = { 338 36 }
+							size = { 96 36 }
 							text = "one_trait_panel_subtab_government"
 							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)1' ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_subtab_government').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_tab = {
-							size = { 338 36 }
+							size = { 96 36 }
 							text = "one_trait_panel_subtab_laws"
 							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)2' ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_subtab_laws').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 96 36 }
+							text = "one_trait_panel_subtab_succession"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)3' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_succession').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 96 36 }
+							text = "one_trait_panel_subtab_titles"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)4' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_titles').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 96 36 }
+							text = "one_trait_panel_subtab_culture"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)5' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_culture').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 96 36 }
+							text = "one_trait_panel_subtab_buildings"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)6' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_buildings').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 96 36 }
+							text = "one_trait_panel_subtab_realm_events"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)7' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_realm_events').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 					}
 					text_single = {
@@ -1379,6 +1409,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_feudal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_feudal').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_feudal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'feudal_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_feudal').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1415,6 +1447,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_clan').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_clan').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_clan').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'clan_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_clan').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1451,6 +1485,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_tribal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_tribal').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_tribal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'tribal_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_tribal').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1487,6 +1523,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_nomad').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_nomad').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_nomad').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'nomad_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_nomad').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1523,6 +1561,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_administrative').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_administrative').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_administrative').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'administrative_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_administrative').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1559,6 +1599,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_ecclesiastical').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_ecclesiastical').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_ecclesiastical').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'ecclesiastical_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_ecclesiastical').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1595,6 +1637,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_republic').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_republic').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_republic').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'republic_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_republic').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1631,6 +1675,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_theocracy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_theocracy').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_theocracy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'theocracy_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_theocracy').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1667,6 +1713,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_celestial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_celestial').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_celestial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'celestial_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_celestial').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1703,6 +1751,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_meritocratic').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_meritocratic').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_meritocratic').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'meritocratic_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_meritocratic').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1739,6 +1789,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_japan_administrative').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_japan_administrative').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_japan_administrative').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'japan_administrative_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_japan_administrative').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1775,6 +1827,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_japan_feudal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_japan_feudal').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_japan_feudal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'japan_feudal_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_japan_feudal').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1811,6 +1865,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_mandala').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_mandala').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_mandala').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'mandala_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_mandala').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1847,6 +1903,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_wanua').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_wanua').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_wanua').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'wanua_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_wanua').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -1883,6 +1941,8 @@ window = {
 										button_standard = {
 											size = { 680 40 }
 											enabled = "[GetScriptedGui('one_trait_ui_gov_steppe_admin').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_gov_steppe_admin').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_gov_steppe_admin').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.GetGovernment.IsType( 'steppe_admin_government' ) ) )]"
 											onclick = "[GetScriptedGui('one_trait_ui_gov_steppe_admin').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											hbox = {
 												margin_left = 14
@@ -2165,6 +2225,809 @@ window = {
 											autoresize = no
 											align = right|vcenter
 											text = "one_trait_panel_gov_current"
+										}
+									}
+								}
+							}
+						}
+						vbox = {
+							visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)3' ) )]"
+							layoutpolicy_horizontal = expanding
+							spacing = 8
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_succession_heir_everything').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/heir.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_succession_heir_everything" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_succession_heir_everything').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_succession_heir_everything').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_succession_heir_everything').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_succession_heir_everything').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_succession_authority_up').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/laws/crown_authority_3.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_succession_authority_up" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_succession_authority_up').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_succession_authority_up').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_succession_authority_up').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_succession_authority_up').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_succession_authority_down').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/laws/crown_authority_0.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_succession_authority_down" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_succession_authority_down').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_succession_authority_down').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_succession_authority_down').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_succession_authority_down').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_succession_crowned').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/coronation_icon.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_succession_crowned" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_succession_crowned').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_succession_crowned').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_succession_crowned').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_succession_crowned').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_succession_anointed').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/activity_types/coronation_type_anointment_icon.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_succession_anointed" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_succession_anointed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_succession_anointed').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_succession_anointed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_succession_anointed').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_succession_create_titles').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/grant_titles_interaction.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_succession_create_titles" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_succession_create_titles').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_succession_create_titles').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_succession_create_titles').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_succession_create_titles').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+						}
+						vbox = {
+							visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)4' ) )]"
+							layoutpolicy_horizontal = expanding
+							spacing = 8
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_titles_take_all').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/revoke_title.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_titles_take_all" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_titles_take_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_titles_take_all').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_titles_take_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_titles_take_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_titles_take_realm').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/hegemony_crown.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_titles_take_realm" }
+									widget = {
+										size = { 80 32 }
+										button_standard = {
+											visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)201' ) )]"
+											size = { 80 32 }
+											text = "one_trait_panel_act_do"
+											enabled = "[GetScriptedGui('one_trait_ui_act_titles_take_realm').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_act_titles_take_realm').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_titles_take_realm').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('one_trait_ui_act_titles_take_realm').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+										button_standard = {
+											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)201' )]"
+											size = { 80 32 }
+											text = "one_trait_panel_act_confirm"
+											enabled = "[GetScriptedGui('one_trait_ui_act_titles_take_realm').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											onclick = "[GetScriptedGui('one_trait_ui_act_titles_take_realm').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_titles_destroy_primary').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/title_actions/destroy_title.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_titles_destroy_primary" }
+									widget = {
+										size = { 80 32 }
+										button_standard = {
+											visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)202' ) )]"
+											size = { 80 32 }
+											text = "one_trait_panel_act_do"
+											enabled = "[GetScriptedGui('one_trait_ui_act_titles_destroy_primary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_act_titles_destroy_primary').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_titles_destroy_primary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('one_trait_ui_act_titles_destroy_primary').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+										button_standard = {
+											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)202' )]"
+											size = { 80 32 }
+											text = "one_trait_panel_act_confirm"
+											enabled = "[GetScriptedGui('one_trait_ui_act_titles_destroy_primary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											onclick = "[GetScriptedGui('one_trait_ui_act_titles_destroy_primary').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_titles_claims').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_claim_pressed.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_titles_claims" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_titles_claims').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_titles_claims').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_titles_claims').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_titles_claims').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							text_single = {
+								visible = "[Character.IsLocalPlayer]"
+								multiline = yes
+								max_width = 680
+								autoresize = yes
+								text = "one_trait_panel_titles_take_one_self"
+							}
+							vbox = {
+								visible = "[Not( Character.IsLocalPlayer )]"
+								layoutpolicy_horizontal = expanding
+								spacing = 8
+								text_single = { text = "one_trait_panel_titles_take_one" }
+								scrollbox = {
+									size = { 680 180 }
+									blockoverride "scrollbox_content" {
+										vbox = {
+											layoutpolicy_horizontal = expanding
+											datamodel = "[Character.GetTitles]"
+											spacing = 4
+											item = {
+												widget = {
+													visible = "[GetScriptedGui('one_trait_ui_list_titles_take_one_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+													size = { 660 44 }
+													background = { using = Background_Area }
+													hbox = {
+														margin_left = 10
+														margin_right = 10
+														spacing = 10
+														text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "[Title.GetName]" }
+														hbox = {
+															spacing = 8
+															button_standard = {
+																size = { 80 32 }
+																text = "one_trait_panel_act_take"
+																enabled = "[GetScriptedGui('one_trait_ui_list_titles_take_one_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																tooltip = "[GetScriptedGui('one_trait_ui_list_titles_take_one_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_list_titles_take_one_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+																onclick = "[GetScriptedGui('one_trait_ui_list_titles_take_one_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															}
+															button_standard = {
+																size = { 80 32 }
+																text = "one_trait_panel_act_claim"
+																enabled = "[GetScriptedGui('one_trait_ui_list_titles_take_one_claim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																tooltip = "[GetScriptedGui('one_trait_ui_list_titles_take_one_claim').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_list_titles_take_one_claim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+																onclick = "[GetScriptedGui('one_trait_ui_list_titles_take_one_claim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															}
+															widget = {
+																size = { 80 32 }
+																button_standard = {
+																	visible = "[Not( GetScriptedGui('one_trait_ui_list_titles_take_one_destroy_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+																	size = { 80 32 }
+																	text = "one_trait_panel_act_destroy"
+																	enabled = "[GetScriptedGui('one_trait_ui_list_titles_take_one_destroy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																	tooltip = "[GetScriptedGui('one_trait_ui_list_titles_take_one_destroy').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																	tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_list_titles_take_one_destroy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+																	onclick = "[GetScriptedGui('one_trait_ui_list_titles_take_one_destroy').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																}
+																button_standard = {
+																	visible = "[GetScriptedGui('one_trait_ui_list_titles_take_one_destroy_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																	size = { 80 32 }
+																	text = "one_trait_panel_act_confirm"
+																	enabled = "[GetScriptedGui('one_trait_ui_list_titles_take_one_destroy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																	onclick = "[GetScriptedGui('one_trait_ui_list_titles_take_one_destroy').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						vbox = {
+							visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)5' ) )]"
+							layoutpolicy_horizontal = expanding
+							spacing = 8
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_culture_innovations_era').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/culture_era_frames/innovation_button.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_culture_innovations_era" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_culture_innovations_era').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_culture_innovations_era').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_culture_innovations_era').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_culture_innovations_era').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_culture_innovations_all').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/culture_era_frames/culture_era_late_medieval.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_culture_innovations_all" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_culture_innovations_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_culture_innovations_all').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_culture_innovations_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_culture_innovations_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_culture_acceptance').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/cultural_acceptance.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_culture_acceptance" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_culture_acceptance').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_culture_acceptance').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_culture_acceptance').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_culture_acceptance').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+						}
+						vbox = {
+							visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)6' ) )]"
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							spacing = 8
+							scrollbox = {
+								layoutpolicy_horizontal = expanding
+								size = { 0 240 }
+								blockoverride "scrollbox_content" {
+									vbox = {
+										spacing = 4
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_buildings_domain').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_domain.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_buildings_domain" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_buildings_domain').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_buildings_domain').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_buildings_domain').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_buildings_domain').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_buildings_realm').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/empire_crown.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_buildings_realm" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_buildings_realm').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_buildings_realm').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_buildings_realm').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_buildings_realm').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_buildings_baronies').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/holding_types_tab/castle_holding.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_buildings_baronies" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_buildings_baronies').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_buildings_baronies').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_buildings_baronies').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_buildings_baronies').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_buildings_duchy').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/duchy_crown.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_buildings_duchy" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_buildings_duchy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_buildings_duchy').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_buildings_duchy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_buildings_duchy').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_buildings_great_projects').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_great_project.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_buildings_great_projects" }
+												widget = {
+													size = { 80 32 }
+													button_standard = {
+														visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)203' ) )]"
+														size = { 80 32 }
+														text = "one_trait_panel_act_do"
+														enabled = "[GetScriptedGui('one_trait_ui_act_buildings_great_projects').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip = "[GetScriptedGui('one_trait_ui_act_buildings_great_projects').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_buildings_great_projects').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('one_trait_ui_act_buildings_great_projects').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+													button_standard = {
+														visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)203' )]"
+														size = { 80 32 }
+														text = "one_trait_panel_act_confirm"
+														enabled = "[GetScriptedGui('one_trait_ui_act_buildings_great_projects').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														onclick = "[GetScriptedGui('one_trait_ui_act_buildings_great_projects').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_buildings_rebuild').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/ruined_building.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_buildings_rebuild" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_buildings_rebuild').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_buildings_rebuild').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_buildings_rebuild').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_buildings_rebuild').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+									}
+								}
+							}
+							text_single = { text = "one_trait_panel_buildings_county" }
+							scrollbox = {
+								size = { 680 180 }
+								blockoverride "scrollbox_content" {
+									vbox = {
+										layoutpolicy_horizontal = expanding
+										datamodel = "[Character.GetTitles]"
+										spacing = 4
+										item = {
+											widget = {
+												visible = "[GetScriptedGui('one_trait_ui_list_buildings_county_max').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+												size = { 660 44 }
+												background = { using = Background_Area }
+												hbox = {
+													margin_left = 10
+													margin_right = 10
+													spacing = 10
+													text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "[Title.GetName]" }
+													hbox = {
+														spacing = 8
+														button_standard = {
+															size = { 130 32 }
+															text = "one_trait_panel_act_max"
+															enabled = "[GetScriptedGui('one_trait_ui_list_buildings_county_max').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															tooltip = "[GetScriptedGui('one_trait_ui_list_buildings_county_max').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_list_buildings_county_max').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('one_trait_ui_list_buildings_county_max').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+														}
+														button_standard = {
+															size = { 80 32 }
+															text = "one_trait_panel_act_slot"
+															enabled = "[GetScriptedGui('one_trait_ui_list_buildings_county_slot').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															tooltip = "[GetScriptedGui('one_trait_ui_list_buildings_county_slot').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_list_buildings_county_slot').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('one_trait_ui_list_buildings_county_slot').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						vbox = {
+							visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)3' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)7' ) )]"
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							spacing = 8
+							scrollbox = {
+								layoutpolicy_horizontal = expanding
+								size = { 0 240 }
+								blockoverride "scrollbox_content" {
+									vbox = {
+										spacing = 4
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_herd').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_herd.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_herd" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_herd').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_herd').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_herd').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_herd').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_herd_drain').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/demand_herd.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_herd_drain" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_herd_drain').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_herd_drain').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_herd_drain').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_herd_drain').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_domicile').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/domicile_building/domicile_yurt_main.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_domicile" }
+												widget = {
+													size = { 80 32 }
+													button_standard = {
+														visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)205' ) )]"
+														size = { 80 32 }
+														text = "one_trait_panel_act_do"
+														enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_domicile').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_domicile').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_domicile').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_domicile').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+													button_standard = {
+														visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)205' )]"
+														size = { 80 32 }
+														text = "one_trait_panel_act_confirm"
+														enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_domicile').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_domicile').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_struggle').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/struggle_types/struggle.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_struggle" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_struggle').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_struggle').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_struggle').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_struggle').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_tributary').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/release_tributary.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_tributary" }
+												widget = {
+													size = { 80 32 }
+													button_standard = {
+														visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)206' ) )]"
+														size = { 80 32 }
+														text = "one_trait_panel_act_do"
+														enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_tributary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_tributary').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_tributary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_tributary').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+													button_standard = {
+														visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)206' )]"
+														size = { 80 32 }
+														text = "one_trait_panel_act_confirm"
+														enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_tributary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_tributary').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/conqueror.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_conqueror" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_conqueror').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_scourge').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/message_feed/conqueror.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_scourge" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_scourge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_scourge').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_scourge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_scourge').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+										widget = {
+											visible = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror_end').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 680 44 }
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/request_white_peace_interaction.dds" }
+												text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_realm_events_conqueror_end" }
+												button_standard = {
+													size = { 80 32 }
+													text = "one_trait_panel_act_do"
+													enabled = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror_end').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror_end').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_realm_events_conqueror_end').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_act_realm_events_conqueror_end').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												}
+											}
+										}
+									}
+								}
+							}
+							text_single = { text = "one_trait_panel_realm_events_plague" }
+							scrollbox = {
+								size = { 680 180 }
+								blockoverride "scrollbox_content" {
+									vbox = {
+										layoutpolicy_horizontal = expanding
+										datamodel = "[Character.GetTitles]"
+										spacing = 4
+										item = {
+											widget = {
+												visible = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+												size = { 660 44 }
+												background = { using = Background_Area }
+												hbox = {
+													margin_left = 10
+													margin_right = 10
+													spacing = 10
+													text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "[Title.GetName]" }
+													hbox = {
+														spacing = 8
+														widget = {
+															size = { 80 32 }
+															button_standard = {
+																visible = "[Not( GetScriptedGui('one_trait_ui_list_realm_events_plague_plague_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+																size = { 80 32 }
+																text = "one_trait_panel_act_plague"
+																enabled = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																tooltip = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+																onclick = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															}
+															button_standard = {
+																visible = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																size = { 80 32 }
+																text = "one_trait_panel_act_confirm"
+																enabled = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+																onclick = "[GetScriptedGui('one_trait_ui_list_realm_events_plague_plague').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+															}
+														}
+													}
+												}
+											}
 										}
 									}
 								}

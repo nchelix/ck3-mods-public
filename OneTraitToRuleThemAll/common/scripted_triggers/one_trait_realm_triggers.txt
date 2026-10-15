@@ -1,0 +1,279 @@
+﻿# One Trait 2.7 Task 2 (batch-2 handoff): the Realm tab's hand-written triggers. For an action key K:
+# one_trait_realm_K_shown_trigger and one_trait_realm_K_valid_trigger. For a list key L: ONE
+# one_trait_realm_L_shown_trigger (shared by every button of that list -- "is the list usable at all"),
+# plus one one_trait_realm_L_<button>_valid_trigger per button. Spec:
+# docs/superpowers/specs/2026-10-14-one-trait-2.7-realm-pages-design.md section 2.
+#
+# Scope rule (plan "Names used across tasks" + R1): every trigger here runs IN the panel character's
+# scope -- the generated scripted GUI calls it as "var:one_trait_ui_target = { one_trait_realm_K_... =
+# yes }" (action rows) or, for a list button's valid trigger, the same call with scope:landed_title also
+# set (from the row, via AddScope). So a moved option's own "scope:one_trait_target" becomes "this" (left
+# bare) and "root" still means the player.
+#
+# Succession's six (batch-2, Task 2): shown = "is_ruler = yes" (R1: "when in doubt, the condition goes into
+# valid, not shown" -- none of the six original conditions are categorically never-true for a ruler, so
+# nothing else joins shown); valid = the retired option's own `trigger` (one_trait_menu_events.txt:1221-
+# 1314), re-scoped (bare already, since none referenced scope:one_trait_target or root).
+#
+# Titles, Culture, Buildings, Realm events and the three lists (Batch 3, Task 3): every remaining
+# shown/valid trigger below is real; each row's split between the two is explained where it appears.
+
+# ---- Succession (menu 1300), real this batch ----
+
+one_trait_realm_succession_heir_everything_shown_trigger = {
+	is_ruler = yes
+}
+# one_trait_menu.1300.heir_everything carried no trigger at all: always available to a ruler.
+one_trait_realm_succession_heir_everything_valid_trigger = {
+	always = yes
+}
+
+one_trait_realm_succession_authority_up_shown_trigger = {
+	is_ruler = yes
+}
+# Moved from one_trait_menu_events.txt:1255-1257 (bare; unchanged).
+one_trait_realm_succession_authority_up_valid_trigger = {
+	one_trait_authority_can_change_trigger = { LIMIT = maximum }
+}
+
+one_trait_realm_succession_authority_down_shown_trigger = {
+	is_ruler = yes
+}
+# Moved from one_trait_menu_events.txt:1264-1266 (bare; unchanged).
+one_trait_realm_succession_authority_down_valid_trigger = {
+	one_trait_authority_can_change_trigger = { LIMIT = minimum }
+}
+
+one_trait_realm_succession_crowned_shown_trigger = {
+	is_ruler = yes
+}
+# Moved from one_trait_menu_events.txt:1274-1278 (bare; unchanged).
+one_trait_realm_succession_crowned_valid_trigger = {
+	NOR = {
+		has_realm_law = crowned_king
+		has_realm_law = crowned_emperor
+	}
+}
+
+one_trait_realm_succession_anointed_shown_trigger = {
+	is_ruler = yes
+}
+# Moved from one_trait_menu_events.txt:1286-1287 (bare; unchanged).
+one_trait_realm_succession_anointed_valid_trigger = {
+	NOT = { has_realm_law = crowned_emperor }
+}
+
+one_trait_realm_succession_create_titles_shown_trigger = {
+	is_ruler = yes
+}
+# Moved from one_trait_menu_events.txt:1294-1296 (bare; unchanged).
+one_trait_realm_succession_create_titles_valid_trigger = {
+	any_alert_creatable_title = { count >= 1 }
+}
+
+# ---- Titles (menu 1200), real this batch ----
+# Spec: every Titles row is shown only when this isn't root (the panel is on someone else); the moved
+# option's own trigger (always "scope:one_trait_target = { is_landed = yes }", re-scoped by dropping the
+# prefix since this already is the target) is real and goes into valid, not shown.
+
+one_trait_realm_titles_take_all_shown_trigger = { NOT = { this = root } }
+one_trait_realm_titles_take_all_valid_trigger = { is_landed = yes }
+
+one_trait_realm_titles_take_realm_shown_trigger = { NOT = { this = root } }
+one_trait_realm_titles_take_realm_valid_trigger = { is_landed = yes }
+
+one_trait_realm_titles_destroy_primary_shown_trigger = { NOT = { this = root } }
+# Item 3 (batch-4r2 repair): destroy_title cannot destroy a county -- it's land-bound. Run 2: the subject's
+# primary was still held after the click, with no error. Require duchy tier or higher so CK3's own
+# IsValidTooltip greys the row with its own reason (vanilla cites a title-link tier >= check:
+# game/common/activities/activity_types/tour.txt:665, "primary_title.tier >= tier_empire").
+one_trait_realm_titles_destroy_primary_valid_trigger = { is_landed = yes }
+
+one_trait_realm_titles_claims_shown_trigger = { NOT = { this = root } }
+one_trait_realm_titles_claims_valid_trigger = { is_landed = yes }
+
+# ---- Culture (menu 0430), real this batch ----
+# innovations_era/innovations_all carried no trigger at all in the menu: always shown and valid.
+# acceptance's original trigger (one_trait_menu_events.txt:1902-1905) required
+# "scope:one_trait_target != root AND scope:one_trait_target.culture != root.culture"; since a character's
+# own culture always equals itself, the second half alone (re-scoped: this.culture != root.culture) already
+# implies the first, so the whole condition collapses into the culture-mismatch shown check with nothing
+# left for valid.
+
+one_trait_realm_culture_innovations_era_shown_trigger = { always = yes }
+one_trait_realm_culture_innovations_era_valid_trigger = { always = yes }
+
+one_trait_realm_culture_innovations_all_shown_trigger = { always = yes }
+one_trait_realm_culture_innovations_all_valid_trigger = { always = yes }
+
+one_trait_realm_culture_acceptance_shown_trigger = {
+	culture != root.culture
+}
+one_trait_realm_culture_acceptance_valid_trigger = { always = yes }
+
+# ---- Buildings (menu 0600/0610), real this batch ----
+# None of these conditions is categorically never-true for a landed ruler (unlike herd/conquest below), so
+# per "when in doubt, valid not shown" they are always shown and the moved option's own trigger (re-scoped
+# by dropping the scope:one_trait_target prefix) becomes valid.
+
+one_trait_realm_buildings_domain_shown_trigger = { always = yes }
+one_trait_realm_buildings_domain_valid_trigger = { is_landed = yes }
+
+one_trait_realm_buildings_realm_shown_trigger = { always = yes }
+one_trait_realm_buildings_realm_valid_trigger = { is_landed = yes }
+
+one_trait_realm_buildings_baronies_shown_trigger = { always = yes }
+one_trait_realm_buildings_baronies_valid_trigger = {
+	one_trait_can_fill_baronies = yes
+	any_held_county = {
+		any_county_province = { has_holding = no }
+	}
+}
+
+one_trait_realm_buildings_duchy_shown_trigger = { always = yes }
+one_trait_realm_buildings_duchy_valid_trigger = {
+	any_held_title = { tier = tier_duchy }
+}
+
+one_trait_realm_buildings_great_projects_shown_trigger = { always = yes }
+# UI checklist 2026-10-15 row 22: greyed unless they own a great project. No phase test: "completed" is the
+# funding phase finished, not the building (a project "Completed in 4 years" tested completed; vanilla
+# reads in_progress OR completed as still standing: common/scripted_triggers/tgp_mandala_triggers.txt:252-255).
+# An unstarted project has no owner, so owning one means one is under way. The plain
+# reason on hover is a custom_tooltip, not custom_description: the latter names a common/trigger_localization
+# entry, so with a plain loc key its tooltip came out empty (checklist row 28). Form:
+# common/scripted_guis/ep2_activities.txt:27-30.
+one_trait_realm_buildings_great_projects_valid_trigger = {
+	is_landed = yes
+	custom_tooltip = {
+		text = one_trait_realm_great_project_under_way_tt
+		any_great_project = { great_project_owner = prev }
+	}
+}
+
+one_trait_realm_buildings_rebuild_shown_trigger = { always = yes }
+one_trait_realm_buildings_rebuild_valid_trigger = { is_landed = yes }
+
+# ---- Realm events (menu 0420), real this batch ----
+# These conditions (nomadic + domicile, domicile existence, being in a struggle, holding a tributary, being
+# an eligible independent ruler) are each true for only a narrow slice of characters, so (as explicitly
+# directed for the herd and conquest rows) they go into shown, leaving nothing left to check in valid.
+
+one_trait_realm_realm_events_herd_shown_trigger = {
+	government_has_flag = government_is_nomadic
+	exists = domicile
+}
+one_trait_realm_realm_events_herd_valid_trigger = { always = yes }
+
+one_trait_realm_realm_events_herd_drain_shown_trigger = {
+	government_has_flag = government_is_nomadic
+	exists = domicile
+}
+one_trait_realm_realm_events_herd_drain_valid_trigger = { always = yes }
+
+one_trait_realm_realm_events_domicile_shown_trigger = {
+	exists = domicile
+}
+# Run 6: CK3 refuses a new main building while the domicile is constructing anything (vanilla form:
+# game/common/tutorial_lessons/00_tutorial_lessons_china.txt:816-818).
+one_trait_realm_realm_events_domicile_valid_trigger = {
+	domicile = { has_ongoing_domicile_construction = no }
+}
+
+one_trait_realm_realm_events_struggle_shown_trigger = {
+	any_character_struggle = {
+		always = yes
+	}
+}
+one_trait_realm_realm_events_struggle_valid_trigger = { always = yes }
+
+one_trait_realm_realm_events_tributary_shown_trigger = {
+	any_tributary = {
+		always = yes
+	}
+}
+one_trait_realm_realm_events_tributary_valid_trigger = { always = yes }
+
+one_trait_realm_realm_events_conqueror_shown_trigger = {
+	top_liege = this
+	is_landed = yes
+	NOR = {
+		has_trait = conqueror
+		any_owned_story = {
+			story_type = story_conqueror
+		}
+	}
+}
+one_trait_realm_realm_events_conqueror_valid_trigger = { always = yes }
+
+one_trait_realm_realm_events_scourge_shown_trigger = {
+	top_liege = this
+	is_landed = yes
+	NOR = {
+		has_trait = conqueror
+		any_owned_story = {
+			story_type = story_conqueror
+		}
+	}
+}
+one_trait_realm_realm_events_scourge_valid_trigger = { always = yes }
+
+one_trait_realm_realm_events_conqueror_end_shown_trigger = {
+	any_owned_story = {
+		story_type = story_conqueror
+	}
+}
+one_trait_realm_realm_events_conqueror_end_valid_trigger = { always = yes }
+
+# ---- List rows (R11/R12), real this batch ----
+# One shown trigger per list (shared by every button of that list): the Titles list follows the same
+# "someone else" rule as every Titles action row; the other two lists have no such gate (the per-row tier
+# filter, generated from REALM_LISTS' "filter", already narrows which titles appear).
+
+one_trait_realm_titles_take_one_shown_trigger = { NOT = { this = root } }
+one_trait_realm_buildings_county_shown_trigger = { always = yes }
+one_trait_realm_realm_events_plague_shown_trigger = { always = yes }
+
+# One valid trigger per button: the panel character must still hold scope:landed_title, plus the old
+# option's own condition generalised from the capital/capital_province it used to run on (R12's example:
+# "slot: the province exists").
+
+# batch-4r4 repair (item 1): also exclude a landless-type title (CK3 will not transfer one, same cite as
+# the panel's filter and the other Titles effects above).
+one_trait_realm_titles_take_one_take_valid_trigger = {
+	scope:landed_title.holder = this
+	scope:landed_title = { is_landless_type_title = no }
+}
+# UI checklist 2026-10-15 (user): Claim and Destroy per title, same holder/landless-type gate as Take.
+one_trait_realm_titles_take_one_claim_valid_trigger = {
+	scope:landed_title.holder = this
+	scope:landed_title = { is_landless_type_title = no }
+	# UI checklist 2026-10-15 9b: greys once you hold a claim on it.
+	custom_tooltip = {
+		text = one_trait_realm_no_claim_yet_tt
+		NOT = { root = { has_claim_on = scope:landed_title } }
+	}
+}
+one_trait_realm_titles_take_one_destroy_valid_trigger = {
+	scope:landed_title.holder = this
+	scope:landed_title = { is_landless_type_title = no }
+}
+one_trait_realm_buildings_county_max_valid_trigger = {
+	scope:landed_title.holder = this
+}
+one_trait_realm_buildings_county_slot_valid_trigger = {
+	scope:landed_title.holder = this
+	exists = scope:landed_title.title_province
+}
+# UI checklist 2026-10-15 row 28: greyed once the county already has an outbreak (province form:
+# game/common/scripted_triggers/06_ce1_epidemic_triggers.txt:27-29).
+one_trait_realm_realm_events_plague_plague_valid_trigger = {
+	scope:landed_title.holder = this
+	exists = scope:landed_title.title_province
+	custom_tooltip = {
+		text = one_trait_realm_no_outbreak_yet_tt
+		scope:landed_title.title_province = {
+			NOT = { any_province_epidemic = { always = yes } }
+		}
+	}
+}

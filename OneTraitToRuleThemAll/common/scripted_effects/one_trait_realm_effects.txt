@@ -1,0 +1,636 @@
+﻿# One Trait 2.7 Task 2 (batch-2 handoff): the Realm tab's hand-written effects, named
+# one_trait_realm_<key>_effect for each tools/build_one_trait_panel.py REALM_ACTIONS key, and
+# one_trait_realm_<list>_<button>_effect for each REALM_LISTS button. Spec:
+# docs/superpowers/specs/2026-10-14-one-trait-2.7-realm-pages-design.md section 2.
+#
+# Scope rule (R1, plan docs/superpowers/plans/2026-10-14-one-trait-2.7-realm-pages.md "Revisions"): root is
+# the player throughout (the generated click effect saves scope:one_trait_target from
+# var:one_trait_ui_target just before calling one of these, the same idiom
+# OneTraitRealmProto/common/scripted_guis/one_trait_realm_proto_guis.txt:87 proved). Succession's six
+# effects below each wrap their WHOLE moved body in "scope:one_trait_target = { ... }" as their only
+# top-level statement, because the moved option bodies (one_trait_menu_events.txt:1221-1314) act on the
+# implicit current scope, which used to be root (the player, since the menu always ran Succession on
+# itself) and must now be the panel's character instead; "holder = root" in create_titles becomes
+# "holder = scope:one_trait_target" for the same reason. Titles/Culture/Buildings/Realm events (Task 3)
+# already act on scope:one_trait_target/root as two characters (the spec's "you and them"), so those
+# bodies move unchanged, with no such wrapper, when Task 3 fills them in.
+#
+# Titles (1200), Culture (0430), Buildings (0600/0610) and Realm events (0420), plus the three R11/R12 list
+# buttons, are filled in by Batch 3 (Task 3) below: every body is the retired option's, minus ONLY its
+# trigger_event = one_trait_menu.<page> navigation line (R3 keeps conqueror.0001 and the delayed 0421).
+#
+# Re-check on every CK3 patch -- carried over from one_trait_menu_events.txt:5-15, the domicile and struggle
+# effects below fail silently rather than erroring if the game changes underneath them:
+#   - The five hardcoded top-tier domicile building ids on realm_events_domicile (camp_main_04,
+#     estate_main_05, east_asian_estate_main_05, yurt_main_06, japanese_manor_main_06) may stop being the
+#     top tier if a patch adds a higher level.
+#   - The is_domicile_type if/else_if chain on realm_events_domicile has no final else, so a new domicile
+#     type added by a patch gets no building added and no warning.
+#   - The two hardcoded struggle ids on realm_events_struggle (iberian_struggle, persian_struggle) would not
+#     include a third struggle if one is added.
+
+# ---- Succession (menu 1300), real this batch ----
+
+# Moved from one_trait_menu_events.txt:1222-1249 (option one_trait_menu.1300.heir_everything), minus its
+# trigger_event (:1250). No "root" in the original body to rewrite.
+one_trait_realm_succession_heir_everything_effect = {
+	scope:one_trait_target = {
+		add_realm_law_skip_effects = single_heir_succession_law
+		every_held_title = {
+			if = {
+				limit = { has_title_law = feudal_elective_succession_law }
+				remove_title_law = feudal_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = princely_elective_succession_law }
+				remove_title_law = princely_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = saxon_elective_succession_law }
+				remove_title_law = saxon_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = scandinavian_elective_succession_law }
+				remove_title_law = scandinavian_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = gaelic_elective_succession_law }
+				remove_title_law = gaelic_elective_succession_law
+			}
+			if = {
+				limit = { has_title_law = tribal_elective_succession_law }
+				remove_title_law = tribal_elective_succession_law
+			}
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1258 (option .authority_up), minus its trigger (:1255-1257, moved to
+# one_trait_realm_succession_authority_up_valid_trigger below) and trigger_event (:1259).
+one_trait_realm_succession_authority_up_effect = {
+	scope:one_trait_target = {
+		one_trait_authority_change_effect = { LIMIT = maximum }
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1267 (option .authority_down), minus its trigger (:1264-1266) and
+# trigger_event (:1268).
+one_trait_realm_succession_authority_down_effect = {
+	scope:one_trait_target = {
+		one_trait_authority_change_effect = { LIMIT = minimum }
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1279 (option .crowned), minus its trigger (:1274-1278) and
+# trigger_event (:1280).
+one_trait_realm_succession_crowned_effect = {
+	scope:one_trait_target = {
+		add_realm_law_skip_effects = crowned_king
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1288 (option .anointed), minus its trigger (:1286-1287) and
+# trigger_event (:1289).
+one_trait_realm_succession_anointed_effect = {
+	scope:one_trait_target = {
+		add_realm_law_skip_effects = crowned_emperor
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1297-1312 (option .create_titles), minus its trigger (:1294-1296,
+# moved to one_trait_realm_succession_create_titles_valid_trigger below) and trigger_event (:1313).
+# "holder = root" (:1307) becomes "holder = scope:one_trait_target" (R1): the new title now goes to the
+# panel's character, not to root (the player).
+one_trait_realm_succession_create_titles_effect = {
+	scope:one_trait_target = {
+		custom_tooltip = one_trait_menu.1300.create_titles.tt
+		# Hidden: the tooltip would list every title
+		hidden_effect = {
+			create_title_and_vassal_change = {
+				type = created
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			every_alert_creatable_title = {
+				change_title_holder = {
+					holder = scope:one_trait_target
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+	}
+}
+
+# ---- Titles (menu 1200), real this batch ----
+
+# Moved from one_trait_menu_events.txt:1127-1144 (option .take_all), minus its trigger_event (:1145).
+# batch-4r4 repair (item 1): run 4 -- "The Hé Family" (an administrative noble-family title, county tier,
+# is_landless_type_title = yes) is landless; CK3 will not transfer it, so this left it behind with no error.
+# Exclude it here too (cite vanilla: game/common/council_tasks/00_steward_tasks.txt:406-408).
+one_trait_realm_titles_take_all_effect = {
+	create_title_and_vassal_change = {
+		type = conquest
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:one_trait_target = {
+		every_held_title = {
+			limit = { tier > tier_barony is_landless_type_title = no }
+			change_title_holder_include_vassals = {
+				holder = root
+				change = scope:change
+			}
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# Moved from one_trait_menu_events.txt:1148-1172 (option .take_realm), minus its trigger (:1150-1152,
+# moved to one_trait_realm_titles_take_realm_valid_trigger below) and trigger_event (:1172).
+one_trait_realm_titles_take_realm_effect = {
+	custom_tooltip = one_trait_menu.1200.take_realm.tt
+	# Hidden: the tooltip would list every title
+	hidden_effect = {
+		create_title_and_vassal_change = {
+			type = conquest
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:one_trait_target = {
+			every_sub_realm_title = {
+				# batch-4r4 repair (item 1): same landless-type exclusion as titles_take_all above.
+				limit = { tier > tier_barony is_landless_type_title = no }
+				change_title_holder_include_vassals = {
+					holder = root
+					change = scope:change
+				}
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1180-1182 (option .destroy_primary), minus its trigger (:1177-1179,
+# moved to one_trait_realm_titles_destroy_primary_valid_trigger below) and trigger_event (:1183).
+one_trait_realm_titles_destroy_primary_effect = {
+	scope:one_trait_target = {
+		if = {
+			limit = { primary_title.tier >= tier_duchy }
+			destroy_title = primary_title
+		}
+		else = {
+			# 2026-10-14 (user): a county is land-bound and cannot be destroyed (destroy_title silently does
+			# nothing), so a count's primary county is revoked instead: to their liege, or to the player when
+			# they are independent. A count with other counties keeps those (the game picks a new primary);
+			# a count with only this one becomes landless. Revoke form: 00_diarch_interactions.txt:9730-9733.
+			if = { limit = { exists = scope:one_trait_county_heir } clear_saved_scope = one_trait_county_heir }
+			if = {
+				limit = { is_independent_ruler = yes }
+				root = { save_scope_as = one_trait_county_heir }
+			}
+			else = {
+				liege = { save_scope_as = one_trait_county_heir }
+			}
+			create_title_and_vassal_change = {
+				type = revoked
+				save_scope_as = change
+				add_claim_on_loss = no
+			}
+			primary_title = {
+				change_title_holder_include_vassals = {
+					holder = scope:one_trait_county_heir
+					change = scope:change
+				}
+			}
+			resolve_title_and_vassal_change = scope:change
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1191-1200 (option .claims), minus its trigger (:1188-1190, moved to
+# one_trait_realm_titles_claims_valid_trigger below) and trigger_event (:1201).
+one_trait_realm_titles_claims_effect = {
+	custom_tooltip = one_trait_menu.1200.claims.tt
+	# Hidden: the tooltip would list every title
+	hidden_effect = {
+		scope:one_trait_target = {
+			every_held_title = {
+				# batch-4r4 repair (item 1): same landless-type exclusion as titles_take_all above.
+				limit = { tier > tier_barony is_landless_type_title = no }
+				save_temporary_scope_as = one_trait_claim_title
+				root = { add_pressed_claim = scope:one_trait_claim_title }
+			}
+		}
+	}
+}
+
+# ---- Culture (menu 0430), real this batch ----
+
+# Moved from one_trait_menu_events.txt:1878-1884 (option .innovations_era), which carried no trigger, minus
+# its trigger_event (:1885).
+one_trait_realm_culture_innovations_era_effect = {
+	custom_tooltip = one_trait_menu.0430.innovations_era.tt
+	# Hidden: the tooltip would list every innovation
+	hidden_effect = {
+		scope:one_trait_target.culture = {
+			one_trait_unlock_innovations_effect = { UP_TO_ERA = yes }
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1890-1896 (option .innovations_all), which carried no trigger, minus
+# its trigger_event (:1897).
+one_trait_realm_culture_innovations_all_effect = {
+	custom_tooltip = one_trait_menu.0430.innovations_all.tt
+	# Hidden: the tooltip would list every innovation
+	hidden_effect = {
+		scope:one_trait_target.culture = {
+			one_trait_unlock_innovations_effect = { UP_TO_ERA = no }
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:1906-1919 (option .acceptance), minus its trigger (:1902-1905, moved
+# to one_trait_realm_culture_acceptance_valid_trigger below) and trigger_event (:1920).
+one_trait_realm_culture_acceptance_effect = {
+	root.culture = {
+		change_cultural_acceptance = {
+			target = scope:one_trait_target.culture
+			value = 100
+			desc = one_trait_cultural_acceptance
+		}
+	}
+	scope:one_trait_target.culture = {
+		change_cultural_acceptance = {
+			target = root.culture
+			value = 100
+			desc = one_trait_cultural_acceptance
+		}
+	}
+}
+
+# ---- Buildings (menu 0600/0610), real this batch ----
+
+# Moved from one_trait_menu_events.txt:827-831 (option .domain), minus its trigger (:824-826, moved to
+# one_trait_realm_buildings_domain_valid_trigger below) and trigger_event (:832).
+one_trait_realm_buildings_domain_effect = {
+	scope:one_trait_target = {
+		every_held_county = {
+			one_trait_max_county_buildings = yes
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:841-845 (option .realm), minus its trigger (:838-840, moved to
+# one_trait_realm_buildings_realm_valid_trigger below) and trigger_event (:846).
+one_trait_realm_buildings_realm_effect = {
+	scope:one_trait_target = {
+		every_realm_county = {
+			one_trait_max_county_buildings = yes
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:859-861 (option .baronies), minus its trigger (:851-857, moved to
+# one_trait_realm_buildings_baronies_valid_trigger below) and trigger_event (:862).
+one_trait_realm_buildings_baronies_effect = {
+	scope:one_trait_target = {
+		one_trait_fill_empty_baronies = yes
+	}
+}
+
+# Moved from one_trait_menu_events.txt:884-891 (option .duchy), minus its trigger (:880-882, moved to
+# one_trait_realm_buildings_duchy_valid_trigger below) and trigger_event (:892).
+one_trait_realm_buildings_duchy_effect = {
+	scope:one_trait_target = {
+		every_held_county = {
+			every_county_province = {
+				limit = { has_holding = yes }
+				one_trait_max_duchy_capital_building_in_province = yes
+			}
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:900-903 (option .great_projects), minus its trigger (:897-899, moved
+# to one_trait_realm_buildings_great_projects_valid_trigger below) and trigger_event (:904). The body never
+# referenced scope:one_trait_target.capital_county (it reads scope:one_trait_target directly), so it moves
+# unchanged.
+one_trait_realm_buildings_great_projects_effect = {
+	every_great_project = {
+		limit = { great_project_owner = scope:one_trait_target }
+		complete_great_project = this
+	}
+}
+
+# Moved from one_trait_menu_events.txt:912-919 (option .rebuild), minus its trigger (:909-911, moved to
+# one_trait_realm_buildings_rebuild_valid_trigger below) and trigger_event (:920).
+one_trait_realm_buildings_rebuild_effect = {
+	scope:one_trait_target = {
+		every_held_county = {
+			every_county_province = {
+				limit = { has_ruined_great_building = yes }
+				rebuild_great_building = yes
+			}
+		}
+	}
+}
+
+# ---- Realm events (menu 0420), real this batch ----
+
+# Moved from one_trait_menu_events.txt:228-230 (option .herd), minus its trigger (:222-227, moved to
+# one_trait_realm_realm_events_herd_shown_trigger below) and trigger_event (:231).
+one_trait_realm_realm_events_herd_effect = {
+	scope:one_trait_target.domicile = {
+		change_herd = 10000
+	}
+}
+
+# Moved from one_trait_menu_events.txt:242-244 (option .herd_drain), minus its trigger (:236-241, moved to
+# one_trait_realm_realm_events_herd_drain_shown_trigger below) and trigger_event (:245).
+one_trait_realm_realm_events_herd_drain_effect = {
+	scope:one_trait_target.domicile = {
+		change_herd = -10000
+	}
+}
+
+# Moved from one_trait_menu_events.txt:267-298 (option .domicile), minus its trigger (:264-266, moved to
+# one_trait_realm_realm_events_domicile_shown_trigger below) and trigger_event (:299).
+# Item 2 (batch-4r2 repair): error.log -- "add_domicile_building effect [ Cannot construct an upgrade when
+# previous building has not been built: 'east_asian_estate_main_05' ]". A single add_domicile_building call
+# for the top tier only works if every lower tier is already built; build each tier that isn't built yet,
+# lowest first, up to the top tier below, using vanilla's own gating idiom (has_domicile_building = the
+# previous tier, NOT = { has_domicile_building_or_higher = this tier }), e.g.
+# game/common/scripted_effects/00_administrative_effects.txt:404-421 (set_up_domicile_estate_effect).
+# Chains (game/common/domiciles/buildings/, tier 01 up to the top tier named below):
+#   camp: 00_camp_buildings.txt (camp_main_01..04); estate: 00_estate_buildings.txt (estate_main_01..05);
+#   east_asian_estate: 00_chinese_estate_buildings.txt (east_asian_estate_main_01..05);
+#   yurt: 00_yurt_buildings.txt (yurt_main_01..06);
+#   japanese_manor: 10_japanese_manor_buildings.txt (japanese_manor_main_01..06).
+# Item 1 (batch-4r3 repair): error.log -- "add_domicile_building effect [ Domicile owner failed to meet
+# triggered requirements: 'east_asian_estate_main_04' ... ]" (run 3). The previous-tier gate above is not
+# enough above tier 03: tiers 04/05(/06) carry their own owner-culture `can_construct` requirement that the
+# chain never tested before calling add_domicile_building. Found the vanilla idiom for testing this BEFORE
+# adding: game/common/scripted_effects/00_administrative_effects.txt:403-421 (estate), :441-459
+# (japanese_manor), :475-493 (east_asian_estate) -- set_up_domicile_estate_effect, called from DOMICILE
+# scope exactly like this effect, copies each tier's own `can_construct` requirement into its own gate as
+# `owner.culture ?= { has_innovation = ... }` (the building's own can_construct block runs with the OWNER as
+# its implicit scope -- the error says "Domicile owner failed..." -- so from domicile scope it needs the
+# `owner.` link; vanilla's `culture ?= {...}` bare form in the can_construct block itself is the same
+# requirement with that implicit owner scope already current). set_up_domicile_estate_effect only climbs to
+# tier 03 ("intentionally one level lower than what you can get"); tiers 04/05/06 are not in that function,
+# so their own `can_construct` blocks are copied directly from the building files (cited per tier below) in
+# the same `owner.culture ?=` form, per the handoff's fallback ("if no script-side test exists, copy each
+# tier's requirement block into the gate"):
+#   estate_main_04 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:251-252
+#   estate_main_05 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:336-337
+#   east_asian_estate_main_04 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:253-255
+#   east_asian_estate_main_05 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:291-293
+#   japanese_manor_main_04 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:128-129
+#   japanese_manor_main_05 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:171-172
+#   japanese_manor_main_06 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:213-214
+# camp (00_camp_buildings.txt, main_01..04) has NO can_construct block on any main tier -- checked directly,
+# no gate needed there. yurt's can_construct blocks (00_yurt_buildings.txt) are an OR of `has_realm_law`
+# instead of culture (main_03: :77; main_04: :132; main_05: :187; main_06: :242). Vanilla never writes
+# `owner.has_realm_law = X`, so the gate enters the owner's scope instead: `owner = { OR = { has_realm_law = ...
+# } }` (a scope block followed by an ordinary character trigger).
+one_trait_realm_realm_events_domicile_effect = {
+	scope:one_trait_target.domicile = {
+		if = {
+			limit = {
+				is_domicile_type = camp
+			}
+			if = { limit = { NOT = { has_domicile_building_or_higher = camp_main_01 } } add_domicile_building = camp_main_01 }
+			if = { limit = { has_domicile_building = camp_main_01 NOT = { has_domicile_building_or_higher = camp_main_02 } } add_domicile_building = camp_main_02 }
+			if = { limit = { has_domicile_building = camp_main_02 NOT = { has_domicile_building_or_higher = camp_main_03 } } add_domicile_building = camp_main_03 }
+			if = { limit = { has_domicile_building = camp_main_03 NOT = { has_domicile_building_or_higher = camp_main_04 } } add_domicile_building = camp_main_04 }
+		}
+		else_if = {
+			limit = {
+				is_domicile_type = estate
+			}
+			if = { limit = { NOT = { has_domicile_building_or_higher = estate_main_01 } } add_domicile_building = estate_main_01 }
+			if = { limit = { has_domicile_building = estate_main_01 NOT = { has_domicile_building_or_higher = estate_main_02 } owner.culture ?= { has_innovation = innovation_city_planning } } add_domicile_building = estate_main_02 }
+			if = { limit = { has_domicile_building = estate_main_02 NOT = { has_domicile_building_or_higher = estate_main_03 } owner.culture ?= { has_innovation = innovation_manorialism } } add_domicile_building = estate_main_03 }
+			if = { limit = { has_domicile_building = estate_main_03 NOT = { has_domicile_building_or_higher = estate_main_04 } owner.culture ?= { has_innovation = innovation_development_03 } } add_domicile_building = estate_main_04 }
+			if = { limit = { has_domicile_building = estate_main_04 NOT = { has_domicile_building_or_higher = estate_main_05 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = estate_main_05 }
+		}
+		else_if = {
+			limit = {
+				is_domicile_type = east_asian_estate
+			}
+			if = { limit = { NOT = { has_domicile_building_or_higher = east_asian_estate_main_01 } } add_domicile_building = east_asian_estate_main_01 }
+			if = { limit = { has_domicile_building = east_asian_estate_main_01 NOT = { has_domicile_building_or_higher = east_asian_estate_main_02 } owner.culture ?= { has_innovation = innovation_city_planning } } add_domicile_building = east_asian_estate_main_02 }
+			if = { limit = { has_domicile_building = east_asian_estate_main_02 NOT = { has_domicile_building_or_higher = east_asian_estate_main_03 } owner.culture ?= { has_innovation = innovation_manorialism } } add_domicile_building = east_asian_estate_main_03 }
+			if = { limit = { has_domicile_building = east_asian_estate_main_03 NOT = { has_domicile_building_or_higher = east_asian_estate_main_04 } owner.culture ?= { has_innovation = innovation_development_03 } } add_domicile_building = east_asian_estate_main_04 }
+			if = { limit = { has_domicile_building = east_asian_estate_main_04 NOT = { has_domicile_building_or_higher = east_asian_estate_main_05 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = east_asian_estate_main_05 }
+		}
+		else_if = {
+			limit = {
+				is_domicile_type = yurt
+			}
+			if = { limit = { NOT = { has_domicile_building_or_higher = yurt_main_01 } } add_domicile_building = yurt_main_01 }
+			if = { limit = { has_domicile_building = yurt_main_01 NOT = { has_domicile_building_or_higher = yurt_main_02 } } add_domicile_building = yurt_main_02 }
+			if = {
+				limit = {
+					has_domicile_building = yurt_main_02
+					NOT = { has_domicile_building_or_higher = yurt_main_03 }
+					owner = { OR = { has_realm_law = nomadic_authority_2 has_realm_law = nomadic_authority_3 has_realm_law = nomadic_authority_4 has_realm_law = nomadic_authority_5 } }
+				}
+				add_domicile_building = yurt_main_03
+			}
+			if = {
+				limit = {
+					has_domicile_building = yurt_main_03
+					NOT = { has_domicile_building_or_higher = yurt_main_04 }
+					owner = { OR = { has_realm_law = nomadic_authority_3 has_realm_law = nomadic_authority_4 has_realm_law = nomadic_authority_5 } }
+				}
+				add_domicile_building = yurt_main_04
+			}
+			if = {
+				limit = {
+					has_domicile_building = yurt_main_04
+					NOT = { has_domicile_building_or_higher = yurt_main_05 }
+					owner = { OR = { has_realm_law = nomadic_authority_3 has_realm_law = nomadic_authority_4 has_realm_law = nomadic_authority_5 } }
+				}
+				add_domicile_building = yurt_main_05
+			}
+			if = {
+				limit = {
+					has_domicile_building = yurt_main_05
+					NOT = { has_domicile_building_or_higher = yurt_main_06 }
+					owner = { OR = { has_realm_law = nomadic_authority_4 has_realm_law = nomadic_authority_5 } }
+				}
+				add_domicile_building = yurt_main_06
+			}
+		}
+		else_if = {
+			limit = {
+				is_domicile_type = japanese_manor
+			}
+			if = { limit = { NOT = { has_domicile_building_or_higher = japanese_manor_main_01 } } add_domicile_building = japanese_manor_main_01 }
+			if = { limit = { has_domicile_building = japanese_manor_main_01 NOT = { has_domicile_building_or_higher = japanese_manor_main_02 } owner.culture ?= { has_innovation = innovation_city_planning } } add_domicile_building = japanese_manor_main_02 }
+			if = { limit = { has_domicile_building = japanese_manor_main_02 NOT = { has_domicile_building_or_higher = japanese_manor_main_03 } owner.culture ?= { has_innovation = innovation_manorialism } } add_domicile_building = japanese_manor_main_03 }
+			if = { limit = { has_domicile_building = japanese_manor_main_03 NOT = { has_domicile_building_or_higher = japanese_manor_main_04 } owner.culture ?= { has_innovation = innovation_development_03 } } add_domicile_building = japanese_manor_main_04 }
+			if = { limit = { has_domicile_building = japanese_manor_main_04 NOT = { has_domicile_building_or_higher = japanese_manor_main_05 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = japanese_manor_main_05 }
+			if = { limit = { has_domicile_building = japanese_manor_main_05 NOT = { has_domicile_building_or_higher = japanese_manor_main_06 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = japanese_manor_main_06 }
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:311-316 (option .struggle), minus its trigger (:304-310, moved to
+# one_trait_realm_realm_events_struggle_shown_trigger below) and trigger_event (:317). The body never
+# referenced scope:one_trait_target (struggle:X ?= is a global scope link), so it moves unchanged.
+one_trait_realm_realm_events_struggle_effect = {
+	struggle:iberian_struggle ?= {
+		end_struggle = yes
+	}
+	struggle:persian_struggle ?= {
+		end_struggle = yes
+	}
+}
+
+# Moved from one_trait_menu_events.txt:329-333 (option .tributary), minus its trigger (:322-328, moved to
+# one_trait_realm_realm_events_tributary_shown_trigger below) and trigger_event (:334).
+one_trait_realm_realm_events_tributary_effect = {
+	scope:one_trait_target = {
+		every_tributary = {
+			end_tributary = yes
+		}
+	}
+}
+
+# Moved from one_trait_menu_events.txt:356-364 (option .conqueror), minus its trigger (:344-355, moved to
+# one_trait_realm_realm_events_conqueror_shown_trigger below). R3: trigger_event = conqueror.0001 (:361) and
+# trigger_event = { id = one_trait_menu.0421 days = 1 } (:363) are NOT menu navigation and stay.
+one_trait_realm_realm_events_conqueror_effect = {
+	scope:one_trait_target = {
+		add_character_flag = {
+			flag = one_trait_scourge_roll
+			days = 5
+		}
+		trigger_event = conqueror.0001
+		# Scourge of the Gods a day later, after vanilla's story setup (2.4.1)
+		trigger_event = { id = one_trait_menu.0421 days = 1 }
+	}
+}
+
+# Moved from one_trait_menu_events.txt:383-391 (option .scourge), minus its trigger (:371-382, moved to
+# one_trait_realm_realm_events_scourge_shown_trigger below). R3: trigger_event = conqueror.0001 (:388) and
+# trigger_event = { id = one_trait_menu.0421 days = 1 } (:390) are NOT menu navigation and stay.
+one_trait_realm_realm_events_scourge_effect = {
+	scope:one_trait_target = {
+		add_character_flag = {
+			flag = one_trait_scourge_sure
+			days = 5
+		}
+		trigger_event = conqueror.0001
+		# Scourge of the Gods a day later, after vanilla's story setup (2.4.1)
+		trigger_event = { id = one_trait_menu.0421 days = 1 }
+	}
+}
+
+# Moved from one_trait_menu_events.txt:406-413 (option .conqueror_end), minus its trigger (:400-404, moved
+# to one_trait_realm_realm_events_conqueror_end_shown_trigger below) and trigger_event (:414).
+one_trait_realm_realm_events_conqueror_end_effect = {
+	scope:one_trait_target = {
+		every_owned_story = {
+			limit = {
+				story_type = story_conqueror
+			}
+			end_story = yes
+		}
+	}
+}
+
+# ---- List rows (R11/R12), real this batch ----
+
+# R11/R12: the take-primary body (one_trait_menu_events.txt:1111-1122, option .take_primary) generalised to
+# scope:landed_title instead of scope:one_trait_target.primary_title, minus the trigger (:1108-1110, moved
+# to one_trait_realm_titles_take_one_take_valid_trigger below) and trigger_event (:1123).
+one_trait_realm_titles_take_one_take_effect = {
+	create_title_and_vassal_change = {
+		type = conquest
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:landed_title = {
+		change_title_holder_include_vassals = {
+			holder = root
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# UI checklist 2026-10-15 (user): a pressed claim on one title -- the claims row's body
+# (one_trait_realm_titles_claims_effect above) for scope:landed_title alone.
+one_trait_realm_titles_take_one_claim_effect = {
+	root = { add_pressed_claim = scope:landed_title }
+}
+
+# UI checklist 2026-10-15 (user): destroy one title -- destroy_primary's body (above) for
+# scope:landed_title: a duchy or higher is destroyed; a county is land-bound (destroy_title does nothing),
+# so it is revoked to their liege, or to the player when they are independent.
+one_trait_realm_titles_take_one_destroy_effect = {
+	if = {
+		limit = { scope:landed_title.tier >= tier_duchy }
+		destroy_title = scope:landed_title
+	}
+	else = {
+		if = { limit = { exists = scope:one_trait_county_heir } clear_saved_scope = one_trait_county_heir }
+		scope:one_trait_target = {
+			if = {
+				limit = { is_independent_ruler = yes }
+				root = { save_scope_as = one_trait_county_heir }
+			}
+			else = {
+				liege = { save_scope_as = one_trait_county_heir }
+			}
+		}
+		create_title_and_vassal_change = {
+			type = revoked
+			save_scope_as = change
+			add_claim_on_loss = no
+		}
+		scope:landed_title = {
+			change_title_holder_include_vassals = {
+				holder = scope:one_trait_county_heir
+				change = scope:change
+			}
+		}
+		resolve_title_and_vassal_change = scope:change
+	}
+}
+
+# R12: the capital body (one_trait_menu_events.txt:812-820, option .capital), generalised to
+# scope:landed_title instead of scope:one_trait_target.capital_county, minus the trigger (:813-815, moved
+# to one_trait_realm_buildings_county_max_valid_trigger below) and trigger_event (:819).
+one_trait_realm_buildings_county_max_effect = {
+	scope:landed_title = {
+		one_trait_max_county_buildings = yes
+	}
+}
+
+# R12: the slot body (one_trait_menu_events.txt:867-875, option .slot), generalised to
+# scope:landed_title.title_province instead of scope:one_trait_target.capital_province, minus the trigger
+# (:868-870, moved to one_trait_realm_buildings_county_slot_valid_trigger below) and trigger_event (:874).
+one_trait_realm_buildings_county_slot_effect = {
+	scope:landed_title.title_province = {
+		add_province_modifier = extra_building_slot
+	}
+}
+
+# R12: the plague body (one_trait_menu_events.txt:249-260, option .plague), generalised to
+# scope:landed_title.title_province instead of scope:one_trait_target.capital_province, minus the trigger
+# (:250-252, moved to one_trait_realm_realm_events_plague_plague_valid_trigger below) and trigger_event
+# (:259).
+one_trait_realm_realm_events_plague_plague_effect = {
+	scope:landed_title.title_province = {
+		create_epidemic_outbreak = {
+			type = bubonic_plague
+			intensity = major
+		}
+	}
+}

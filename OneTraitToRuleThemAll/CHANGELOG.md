@@ -1,5 +1,50 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.7] — 2026-10-14
+
+The event menu's Succession, Titles, Culture, Buildings and Modern Systems: the Realm pages move into the
+panel's Realm category, and refused governments grey out.
+
+### Added
+- **Five new Realm sub-tabs**, alongside Government and Laws: Succession, Titles, Culture, Buildings and
+  Realm events. Each lists the moved menu options as generated **action rows** -- an icon, a label and one
+  button per action -- plus three scrolling lists: Titles' "Their titles" (every county-or-higher title
+  this character holds, highest tier first, each with Take -- which brings its vassals -- Claim and
+  Destroy), Buildings' "Choose a
+  county" (max its buildings, or add a building slot) and Realm events' "Plague a county".
+- **Confirm on permanent actions.** Taking an entire realm, destroying a title, finishing every
+  great project, releasing all tributaries, upgrading a domicile and unleashing the plague all arm on the
+  first click ("Confirm?") and apply on the second; clicking anything else cancels.
+- **Refused governments grey out**, with the game's own reason shown on hover, instead of silently applying
+  a government CK3 would never let that character hold.
+
+### Changed
+- The event menu's Succession, Titles, Culture, Buildings and Modern Systems: the Realm pages have moved
+  into the panel and left the menu (Modern Systems: the Character stays).
+- Succession now acts on the panel's own character, not always on the player: open the panel on anyone
+  landed to change THEIR heir, authority, crowns and creatable titles.
+- Titles take, claim or destroy any one of a character's titles, not only their primary.
+- Raise and Lower authority are free: no prestige cost and no law cooldown.
+- Finish every great project greys out when they have none under way, and Plague greys out on a county
+  that already has an outbreak.
+- Destroy their primary title: a duke or higher loses it as before; a count's county (which CK3 cannot
+  destroy) goes to their liege, or to you if they are independent -- a count with no other county becomes
+  landless.
+- Max buildings fills the free slots the game itself would build in; a slot added with Add slot is yours to
+  build in.
+
+### Fixed
+- Switching between the administrative governments (administrative, celestial, meritocratic, steppe
+  administrative, Ritsuryō) did nothing once the ruler already had one of them; the switch now also
+  converts the estate and the noble-family title the way the game does for that government, for the ruler
+  and for their administrative vassals.
+- Max buildings fills the slots its own upgrades open (an upgraded holding gains slots the first pass
+  could not see), so a county is full after one click.
+- Upgrade the domicile builds each tier in turn; it used to fail, since the game will not build a top tier
+  over an empty one.
+- Take every title and Pressed claims on all their titles no longer try to move or claim capital baronies
+  (the game refuses them; the county already carries its baronies).
+
 ## [2.6] — 2026-10-13
 
 The panel grows a sidebar, and the first menu pages move into it.
