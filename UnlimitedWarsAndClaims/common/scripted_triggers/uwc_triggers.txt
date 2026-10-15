@@ -1,0 +1,42 @@
+﻿# Unlimited Wars and Claims 1.0: all the rule logic. Character scope = the attacker.
+uwc_shared_titles_trigger = {
+	OR = {
+		has_game_rule = uwc_shared_titles_everyone
+		AND = {
+			has_game_rule = uwc_shared_titles_players
+			is_ai = no
+		}
+	}
+}
+
+uwc_multiple_claims_trigger = {
+	OR = {
+		has_game_rule = uwc_multiple_claims_everyone
+		AND = {
+			has_game_rule = uwc_multiple_claims_players
+			is_ai = no
+		}
+	}
+}
+
+uwc_dejure_wars_trigger = {
+	OR = {
+		has_game_rule = uwc_dejure_wars_everyone
+		AND = {
+			has_game_rule = uwc_dejure_wars_players
+			is_ai = no
+		}
+	}
+}
+
+# Rule 4: declare war while your armies are raised (vanilla's can_start_war_with_raised_troops exemption,
+# hooked in the generated 00_war_and_peace_triggers.txt).
+uwc_raised_armies_trigger = {
+	OR = {
+		has_game_rule = uwc_raised_armies_everyone
+		AND = {
+			has_game_rule = uwc_raised_armies_players
+			is_ai = no
+		}
+	}
+}

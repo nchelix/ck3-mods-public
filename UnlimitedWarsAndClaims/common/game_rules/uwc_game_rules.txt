@@ -1,0 +1,62 @@
+﻿# Unlimited Wars and Claims 1.0: the four game rules. Settings, loc and format follow the
+# game's own (game/common/game_rules/00_game_rules.txt; names in colour per
+# game/localization/english/game_rules_l_english.yml -- see uwc_l_english.yml).
+uwc_shared_titles = {
+	default = uwc_shared_titles_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_shared_titles_off = {
+	}
+	uwc_shared_titles_players = {
+	}
+	uwc_shared_titles_everyone = {
+	}
+}
+
+uwc_multiple_claims = {
+	default = uwc_multiple_claims_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_multiple_claims_off = {
+	}
+	uwc_multiple_claims_players = {
+	}
+	uwc_multiple_claims_everyone = {
+	}
+}
+
+uwc_dejure_wars = {
+	default = uwc_dejure_wars_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_dejure_wars_off = {
+	}
+	uwc_dejure_wars_players = {
+	}
+	uwc_dejure_wars_everyone = {
+	}
+}
+
+uwc_raised_armies = {
+	default = uwc_raised_armies_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_raised_armies_off = {
+	}
+	uwc_raised_armies_players = {
+	}
+	uwc_raised_armies_everyone = {
+	}
+}
