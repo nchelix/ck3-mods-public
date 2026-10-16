@@ -13,11 +13,6 @@ unlimited_knights = {
 	knight_limit = 999
 }
 
-free_menatarms = {
-	icon = prowess_positive
-	men_at_arms_maintenance = -100
-}
-
 one_trait_relic_modifier = {
 	icon = prestige_positive
 	monthly_prestige = 10

@@ -1126,6 +1126,102 @@ one_trait_ui_step_legitimacy_p10 = {
 	}
 }
 
+one_trait_ui_step_prestige_m10 = {
+	scope = character
+	effect = {
+		one_trait_ui_prestige_step_effect = { AMOUNT = -1000 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_prestige_m1 = {
+	scope = character
+	effect = {
+		one_trait_ui_prestige_step_effect = { AMOUNT = -100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_prestige_p1 = {
+	scope = character
+	effect = {
+		one_trait_ui_prestige_step_effect = { AMOUNT = 100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_prestige_p10 = {
+	scope = character
+	effect = {
+		one_trait_ui_prestige_step_effect = { AMOUNT = 1000 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_piety_m10 = {
+	scope = character
+	effect = {
+		one_trait_ui_piety_step_effect = { AMOUNT = -1000 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_piety_m1 = {
+	scope = character
+	effect = {
+		one_trait_ui_piety_step_effect = { AMOUNT = -100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_piety_p1 = {
+	scope = character
+	effect = {
+		one_trait_ui_piety_step_effect = { AMOUNT = 100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_piety_p10 = {
+	scope = character
+	effect = {
+		one_trait_ui_piety_step_effect = { AMOUNT = 1000 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_renown_m10 = {
+	scope = character
+	effect = {
+		one_trait_ui_renown_step_effect = { AMOUNT = -1000 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_renown_m1 = {
+	scope = character
+	effect = {
+		one_trait_ui_renown_step_effect = { AMOUNT = -100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_renown_p1 = {
+	scope = character
+	effect = {
+		one_trait_ui_renown_step_effect = { AMOUNT = 100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_renown_p10 = {
+	scope = character
+	effect = {
+		one_trait_ui_renown_step_effect = { AMOUNT = 1000 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
 # ---- Realm lock (batch-3 handoff Task 3): the retired menu's own Government-entry condition
 # (OneTraitToRuleThemAll/events/one_trait_menu_events.txt:136, "scope:one_trait_target = { is_landed = yes }").
 one_trait_ui_target_is_ruler = {

@@ -491,6 +491,144 @@ window = {
 							}
 						}
 					}
+					hbox = {
+						size = { 680 48 }
+						margin_left = 10
+						margin_right = 10
+						spacing = 8
+						background = { using = Background_Area }
+						icon = { size = { 36 36 } texture = "[Character.GetPrestigeLevelTexture]" }
+						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_prestige" }
+						text_single = {
+							size = { 110 32 }
+							autoresize = no
+							align = right|vcenter
+							text = "[Character.GetPrestige|0]"
+						}
+						hbox = {
+							spacing = 6
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "-1,000"
+								tooltip = "one_trait_panel_step_prestige_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "-100"
+								tooltip = "one_trait_panel_step_prestige_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "+100"
+								tooltip = "one_trait_panel_step_prestige_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "+1,000"
+								tooltip = "one_trait_panel_step_prestige_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+						}
+					}
+					hbox = {
+						size = { 680 48 }
+						margin_left = 10
+						margin_right = 10
+						spacing = 8
+						background = { using = Background_Area }
+						icon = { size = { 36 36 } texture = "[Character.GetPietyLevelTexture]" }
+						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_piety" }
+						text_single = {
+							size = { 110 32 }
+							autoresize = no
+							align = right|vcenter
+							text = "[Character.GetPiety|0]"
+						}
+						hbox = {
+							spacing = 6
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "-1,000"
+								tooltip = "one_trait_panel_step_piety_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_piety_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_piety_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "-100"
+								tooltip = "one_trait_panel_step_piety_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_piety_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_piety_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "+100"
+								tooltip = "one_trait_panel_step_piety_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_piety_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_piety_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "+1,000"
+								tooltip = "one_trait_panel_step_piety_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_piety_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_piety_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+						}
+					}
+					hbox = {
+						size = { 680 48 }
+						margin_left = 10
+						margin_right = 10
+						spacing = 8
+						background = { using = Background_Area }
+						icon = { size = { 36 36 } texture = "gfx/interface/icons/modifiers/icon_dynasty_prestige_01.dds" }
+						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_renown" }
+						text_single = {
+							size = { 110 32 }
+							autoresize = no
+							align = right|vcenter
+							text = "[Character.GetDynasty.GetPrestige|0]"
+						}
+						hbox = {
+							spacing = 6
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "-1,000"
+								tooltip = "one_trait_panel_step_renown_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_renown_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_renown_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "-100"
+								tooltip = "one_trait_panel_step_renown_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_renown_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_renown_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "+100"
+								tooltip = "one_trait_panel_step_renown_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_renown_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_renown_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+							button_standard = {
+								size = { 80 32 }
+								raw_text = "+1,000"
+								tooltip = "one_trait_panel_step_renown_tt"
+								enabled = "[GetScriptedGui('one_trait_ui_step_renown_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								onclick = "[GetScriptedGui('one_trait_ui_step_renown_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+						}
+					}
 					expand = {}
 				}
 				vbox = {

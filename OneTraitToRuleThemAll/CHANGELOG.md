@@ -1,5 +1,16 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.7.1] — 2026-10-15
+
+### Added
+- **Prestige, Piety and Renown** on the panel's Character page, each with the usual four buttons (-1,000 / -100 /
+  +100 / +1,000). Renown is the character's dynasty's; a lowborn character has none to change.
+
+### Fixed
+- **Free Men-at-Arms now covers every currency.** It only made gold upkeep free, so a tribal ruler still paid
+  prestige for their men-at-arms (and warrior monks still cost piety). It now frees the upkeep and recruitment of
+  every men-at-arms type, whatever it is paid in (the game prices them in gold, then converts).
+
 ## [2.7] — 2026-10-14
 
 The event menu's Succession, Titles, Culture, Buildings and Modern Systems: the Realm pages move into the

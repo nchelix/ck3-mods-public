@@ -77,6 +77,28 @@ one_trait_ui_legitimacy_step_effect = {
 		var:one_trait_ui_target = { add_legitimacy = $AMOUNT$ }
 	}
 }
+# 2.7.1: add_prestige gives or takes prestige (script_docs effects.log:3200).
+one_trait_ui_prestige_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { add_prestige = $AMOUNT$ }
+	}
+}
+# 2.7.1: add_piety gives or takes piety (script_docs effects.log:3169, "gives (or takes)").
+one_trait_ui_piety_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { add_piety = $AMOUNT$ }
+	}
+}
+# 2.7.1: renown is the dynasty's prestige; add_dynasty_prestige runs in dynasty scope (effects.log:16167).
+# A lowborn character has no dynasty: nothing happens.
+one_trait_ui_renown_step_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		var:one_trait_ui_target = { dynasty ?= { add_dynasty_prestige = $AMOUNT$ } }
+	}
+}
 # Age (spec section 2, Proven Task 0: set_age accepts a computed value). An adult never goes below 16. A
 # child may go down to 0; a step that would reach or pass 16 lands exactly on 16 and fires coming of age
 # once, as the retired "make them 16" option did (set_age skips birthday on-actions). is_adult is read
