@@ -1,0 +1,12 @@
+﻿namespace = pantheon_temple
+
+# Pantheon of One 2.2 Task 3, R2: Age of faith's end notice. Fired immediately (no `days`, so this is not
+# the delayed/date-based trigger_event R6 forbids) from the monthly event (pantheon.0011,
+# events/pantheon_events.txt) once pantheon_temple_age_months reaches 0. Root is the god.
+pantheon_temple.0010 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		pantheon_temple_age_end_effect = yes
+	}
+}

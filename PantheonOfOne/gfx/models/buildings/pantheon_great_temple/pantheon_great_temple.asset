@@ -1,0 +1,113 @@
+﻿# Pantheon of One 2.2: the Great Temple's five tier models (Meshy, converted by
+# tools/build_pantheon_temple_assets.py). Form: vanilla
+# game/gfx/models/buildings/special/trosky_castle/building_special_trosky_castle_01.asset.
+
+pdxmesh = {
+	name = "pantheon_great_temple_01_mesh"
+	file = "pantheon_great_temple_01.mesh"
+
+	cull_distance = 5000.0
+
+	meshsettings = {
+		name = "pantheon_great_temple_01_LOD0"
+		index = 0
+		texture_diffuse = "pantheon_great_temple_01_diffuse.dds"
+		texture_normal = "pantheon_great_temple_01_normal.dds"
+		texture_specular = "pantheon_great_temple_01_properties.dds"
+		shader = "standard_winter"
+		shader_file = "gfx/FX/pdxmesh.shader"
+	}
+}
+
+entity = {
+	name = "pantheon_great_temple_01_entity"
+	pdxmesh = "pantheon_great_temple_01_mesh"
+}
+
+pdxmesh = {
+	name = "pantheon_great_temple_02_mesh"
+	file = "pantheon_great_temple_02.mesh"
+
+	cull_distance = 5000.0
+
+	meshsettings = {
+		name = "pantheon_great_temple_02_LOD0"
+		index = 0
+		texture_diffuse = "pantheon_great_temple_02_diffuse.dds"
+		texture_normal = "pantheon_great_temple_02_normal.dds"
+		texture_specular = "pantheon_great_temple_02_properties.dds"
+		shader = "standard_winter"
+		shader_file = "gfx/FX/pdxmesh.shader"
+	}
+}
+
+entity = {
+	name = "pantheon_great_temple_02_entity"
+	pdxmesh = "pantheon_great_temple_02_mesh"
+}
+
+pdxmesh = {
+	name = "pantheon_great_temple_03_mesh"
+	file = "pantheon_great_temple_03.mesh"
+
+	cull_distance = 5000.0
+
+	meshsettings = {
+		name = "pantheon_great_temple_03_LOD0"
+		index = 0
+		texture_diffuse = "pantheon_great_temple_03_diffuse.dds"
+		texture_normal = "pantheon_great_temple_03_normal.dds"
+		texture_specular = "pantheon_great_temple_03_properties.dds"
+		shader = "standard_winter"
+		shader_file = "gfx/FX/pdxmesh.shader"
+	}
+}
+
+entity = {
+	name = "pantheon_great_temple_03_entity"
+	pdxmesh = "pantheon_great_temple_03_mesh"
+}
+
+pdxmesh = {
+	name = "pantheon_great_temple_04_mesh"
+	file = "pantheon_great_temple_04.mesh"
+
+	cull_distance = 5000.0
+
+	meshsettings = {
+		name = "pantheon_great_temple_04_LOD0"
+		index = 0
+		texture_diffuse = "pantheon_great_temple_04_diffuse.dds"
+		texture_normal = "pantheon_great_temple_04_normal.dds"
+		texture_specular = "pantheon_great_temple_04_properties.dds"
+		shader = "standard_winter"
+		shader_file = "gfx/FX/pdxmesh.shader"
+	}
+}
+
+entity = {
+	name = "pantheon_great_temple_04_entity"
+	pdxmesh = "pantheon_great_temple_04_mesh"
+}
+
+pdxmesh = {
+	name = "pantheon_great_temple_05_mesh"
+	file = "pantheon_great_temple_05.mesh"
+
+	cull_distance = 5000.0
+
+	meshsettings = {
+		name = "pantheon_great_temple_05_LOD0"
+		index = 0
+		texture_diffuse = "pantheon_great_temple_05_diffuse.dds"
+		texture_normal = "pantheon_great_temple_05_normal.dds"
+		texture_specular = "pantheon_great_temple_05_properties.dds"
+		shader = "standard_winter"
+		shader_file = "gfx/FX/pdxmesh.shader"
+	}
+}
+
+entity = {
+	name = "pantheon_great_temple_05_entity"
+	pdxmesh = "pantheon_great_temple_05_mesh"
+}

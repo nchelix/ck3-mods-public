@@ -1,0 +1,365 @@
+﻿# Pantheon of One 2.2: the Great Temple's effects (Task 2). Root is the god unless noted.
+#
+# R6: no delayed trigger_event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215).
+# Founding/upgrading pay and store a months-left counter (pantheon_temple_build_months, years x 12); completion is driven by
+# the existing monthly event (pantheon.0011, events/pantheon_events.txt:233) checking
+# the monthly countdown in pantheon.0011 reaching 0, not by a dedicated event (coordinator, batch 1: date
+# arithmetic on current_date has no vanilla precedent, a counter does).
+#
+# R7: before replacing a tier, pantheon_temple_complete_effect re-confirms the province still holds the
+# previous tier's building (tier 1: still placeable at all; tier 2-5: has_building = pantheon_great_temple_0N
+# for the tier below). If it does not, the temple is lost (pantheon_temple_lost_effect): variables cleared,
+# nothing refunded, the god told.
+
+# God scope, $SITE$ a county scope (a holy site of the god's own faith, already checked by
+# pantheon_temple_can_found_trigger). Pays tier 1's Worship and stores the build timer; places nothing yet
+# (Proven, Task 0: before tier 1 completes nothing stands on the map). Placement is One Trait's Sanctum rule
+# (OneTraitToRuleThemAll/common/scripted_effects/one_trait_building_effects.txt one_trait_raise_sanctum),
+# applied to the chosen site instead of the founder's own capital: the county's capital barony if it has a
+# holding and no special building, else another barony of the county with a holding and none. Batch 1r1
+# repair (P2): both picks, and the eligibility check that chooses between them, also skip a province
+# reserved by another god's temple (pantheon_temple_not_reserved_trigger, common/scripted_triggers/
+# pantheon_temple_triggers.txt).
+pantheon_temple_found_effect = {
+	if = { limit = { exists = scope:pantheon_temple_site } clear_saved_scope = pantheon_temple_site }
+	if = {
+		limit = {
+			$SITE$ = {
+				any_county_province = {
+					is_county_capital = yes
+					has_holding = yes
+					has_special_building = no
+					pantheon_temple_not_reserved_trigger = yes
+				}
+			}
+		}
+		$SITE$ = {
+			random_county_province = {
+				limit = {
+					is_county_capital = yes
+					has_holding = yes
+					has_special_building = no
+					pantheon_temple_not_reserved_trigger = yes
+				}
+				save_scope_as = pantheon_temple_site
+			}
+		}
+	}
+	else = {
+		$SITE$ = {
+			random_county_province = {
+				limit = { has_holding = yes has_special_building = no pantheon_temple_not_reserved_trigger = yes }
+				save_scope_as = pantheon_temple_site
+			}
+		}
+	}
+	change_variable = { name = pantheon_worship subtract = pantheon_temple_cost_1 }
+	set_variable = { name = pantheon_temple_province value = scope:pantheon_temple_site }
+	# R4: the founder, stored once on the province itself (is_enabled reads it from there).
+	scope:pantheon_temple_site = {
+		set_variable = { name = pantheon_temple_founder value = root }
+	}
+	set_variable = { name = pantheon_temple_building value = yes }
+	set_variable = { name = pantheon_temple_build_tier value = 1 }
+	set_variable = {
+		name = pantheon_temple_build_months
+		value = { value = pantheon_temple_years_1 multiply = 12 }
+	}
+	clear_saved_scope = pantheon_temple_site
+}
+
+# God scope. Pays the next tier's Worship and stores its build timer; the current tier's building keeps
+# standing and working until the build above it completes.
+pantheon_temple_upgrade_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_temple_next_cost }
+	set_variable = { name = pantheon_temple_building value = yes }
+	set_variable = {
+		name = pantheon_temple_build_tier
+		value = { value = var:pantheon_temple_tier add = 1 }
+	}
+	set_variable = {
+		name = pantheon_temple_build_months
+		value = { value = pantheon_temple_next_years multiply = 12 }
+	}
+}
+
+# God scope, called from pantheon.0011 once `var:pantheon_temple_build_months` reaches 0. Branches on
+# which tier just finished building, since a building key can't be assembled from a variable.
+pantheon_temple_complete_effect = {
+	if = {
+		limit = { var:pantheon_temple_build_tier = 1 }
+		if = {
+			limit = { var:pantheon_temple_province = { has_holding = yes has_special_building = no } }
+			var:pantheon_temple_province = { add_special_building = pantheon_great_temple_01 }
+			set_variable = { name = pantheon_temple_tier value = 1 }
+			pantheon_temple_create_holy_site_effect = yes
+			pantheon_temple_build_done_effect = yes
+		}
+		else = { pantheon_temple_lost_effect = yes }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_build_tier = 2 }
+		if = {
+			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_01 } }
+			var:pantheon_temple_province = {
+				remove_building = pantheon_great_temple_01
+				add_special_building = pantheon_great_temple_02
+			}
+			set_variable = { name = pantheon_temple_tier value = 2 }
+			pantheon_temple_build_done_effect = yes
+		}
+		else = { pantheon_temple_lost_effect = yes }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_build_tier = 3 }
+		if = {
+			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_02 } }
+			var:pantheon_temple_province = {
+				remove_building = pantheon_great_temple_02
+				add_special_building = pantheon_great_temple_03
+			}
+			set_variable = { name = pantheon_temple_tier value = 3 }
+			pantheon_temple_build_done_effect = yes
+		}
+		else = { pantheon_temple_lost_effect = yes }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_build_tier = 4 }
+		if = {
+			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_03 } }
+			var:pantheon_temple_province = {
+				remove_building = pantheon_great_temple_03
+				add_special_building = pantheon_great_temple_04
+			}
+			set_variable = { name = pantheon_temple_tier value = 4 }
+			pantheon_temple_build_done_effect = yes
+		}
+		else = { pantheon_temple_lost_effect = yes }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_build_tier = 5 }
+		if = {
+			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_04 } }
+			var:pantheon_temple_province = {
+				remove_building = pantheon_great_temple_04
+				add_special_building = pantheon_great_temple_05
+			}
+			set_variable = { name = pantheon_temple_tier value = 5 }
+			pantheon_temple_build_done_effect = yes
+		}
+		else = { pantheon_temple_lost_effect = yes }
+	}
+}
+
+# God scope (R13, batch 2b: the capital as a holy site, spec "Addendum"): called once tier 1 completes,
+# before pantheon_temple_build_done_effect. If the temple's county is not already a holy site of the god's
+# own faith, create the mod's own dynamic holy-site type there (eminent, actor the god) and record whether
+# it took; a temple founded on an existing holy site creates nothing. Forms: script_docs effects.log:14185
+# (create_holy_site, faith scope) and the existing is_holy_site_of check (pantheon_temple_can_found_trigger,
+# common/scripted_triggers/pantheon_temple_triggers.txt).
+# Batch 1r1 repair (item 5): on success, also store WHICH barony and faith the site was created for
+# (pantheon_temple_holy_site_barony/_faith) -- pantheon_temple_lost_clear_effect then removes from the exact
+# faith it was created for, via that exact barony, instead of "whatever the god's faith happens to be today"
+# and "whichever county holy site of this type turns up" (the form it fell back to before this repair,
+# which a faith change between creation and loss, or another faith's same-type site sharing the county,
+# could mislead).
+pantheon_temple_create_holy_site_effect = {
+	if = {
+		limit = {
+			NOT = {
+				var:pantheon_temple_province = { county = { any_county_province = { barony = { is_holy_site_of = root.faith } } } }
+			}
+		}
+		faith = {
+			create_holy_site = {
+				type = pantheon_great_temple_site
+				eminent = yes
+				county = root.var:pantheon_temple_province.county
+				actor = root
+			}
+		}
+		if = { limit = { exists = scope:pantheon_temple_new_holy_site_barony } clear_saved_scope = pantheon_temple_new_holy_site_barony }
+		var:pantheon_temple_province = {
+			county = {
+				random_county_province = {
+					limit = { barony = { is_holy_site_of = root.faith } }
+					barony = { save_scope_as = pantheon_temple_new_holy_site_barony }
+				}
+			}
+		}
+		if = {
+			limit = { exists = scope:pantheon_temple_new_holy_site_barony }
+			set_variable = { name = pantheon_temple_created_holy_site value = yes }
+			set_variable = { name = pantheon_temple_holy_site_barony value = scope:pantheon_temple_new_holy_site_barony }
+			set_variable = { name = pantheon_temple_holy_site_faith value = faith }
+		}
+		else = {
+			set_variable = { name = pantheon_temple_holy_site_refused value = yes }
+		}
+	}
+}
+
+# God scope: the build timer is done; tell the god. Batch g2 repair (2.2): the toast now names the place --
+# save the stored province as a scope before it, the same clear-before-reuse pattern as pantheon_wrecked
+# (common/scripted_effects/pantheon_wrath_effects.txt), which the toast loc below reads by its bare name
+# (proven: that same file's pantheon_wrath_wrecked_t, "[pantheon_wrecked.GetName]").
+pantheon_temple_build_done_effect = {
+	remove_variable = pantheon_temple_building
+	remove_variable = pantheon_temple_build_tier
+	remove_variable = pantheon_temple_build_months
+	if = { limit = { exists = scope:pantheon_temple_built_site } clear_saved_scope = pantheon_temple_built_site }
+	var:pantheon_temple_province = { save_scope_as = pantheon_temple_built_site }
+	send_interface_toast = {
+		type = event_toast_effect_good
+		title = pantheon_temple_built_t
+		left_icon = root
+		custom_tooltip = pantheon_temple_built_tt
+	}
+}
+
+# God scope (R7): every temple variable cleared, nothing refunded. Shared by pantheon_temple_lost_effect
+# and pantheon_temple_lost_no_barony_effect below (batch g1 repair) so both toasts clear the exact same
+# state without duplicating it. The founder flag (R4, is_enabled) is stored on the province itself, so it
+# is removed there before the stored province reference is cleared (batch 1r1).
+pantheon_temple_lost_clear_effect = {
+	if = { limit = { has_variable = pantheon_temple_building } remove_variable = pantheon_temple_building }
+	if = { limit = { has_variable = pantheon_temple_build_tier } remove_variable = pantheon_temple_build_tier }
+	if = { limit = { has_variable = pantheon_temple_build_months } remove_variable = pantheon_temple_build_months }
+	if = { limit = { has_variable = pantheon_temple_tier } remove_variable = pantheon_temple_tier }
+	# Batch g1 repair: the confirmation-timing state (events/pantheon_events.txt, pantheon.0011) belongs to
+	# this same temple and must not linger for whatever gets founded next.
+	if = { limit = { has_variable = pantheon_temple_confirmed_tier } remove_variable = pantheon_temple_confirmed_tier }
+	if = { limit = { has_variable = pantheon_temple_confirm_attempts } remove_variable = pantheon_temple_confirm_attempts }
+	# Batch 2r1 (Task 3/R2 cleanup): a lost temple cannot keep Age of faith's Worship doubling running
+	# without a temple to be active.
+	if = { limit = { has_variable = pantheon_temple_age_months } remove_variable = pantheon_temple_age_months }
+	if = {
+		limit = { has_variable = pantheon_temple_province }
+		var:pantheon_temple_province = {
+			# Batch 1r1 repair (P2): only this god's OWN founder flag -- another god can now hold the matching
+			# flag on a DIFFERENT province while both builds race for eligibility, and must never have theirs
+			# cleared by this god's own loss.
+			if = {
+				limit = { has_variable = pantheon_temple_founder var:pantheon_temple_founder = root }
+				remove_variable = pantheon_temple_founder
+			}
+		}
+	}
+	# R13, batch 2b: if this temple created its own holy site, remove it (remove_holy_site, effects.log:14826)
+	# before the province reference is cleared below, then clear the flag. Dormancy does nothing (the
+	# county only changes faithful hands; it is never removed as a holy site for that). Batch 2r1: clear any
+	# stale scope:pantheon_temple_holy_site from an earlier call before the search (every_county_holy_site
+	# leaves it untouched, not cleared, when nothing matches), and only remove_holy_site when the search
+	# actually found one.
+	if = {
+		limit = { has_variable = pantheon_temple_created_holy_site }
+		if = { limit = { exists = scope:pantheon_temple_holy_site } clear_saved_scope = pantheon_temple_holy_site }
+		# Batch 1r1 repair (item 5): the exact barony/faith stored at creation time, when present, pin the
+		# removal precisely; a temple completed before this repair stored neither, so falls back to the old
+		# by-type county search.
+		if = {
+			limit = { has_variable = pantheon_temple_holy_site_barony }
+			# every_county_holy_site iterates a COUNTY's holy sites: enter the stored barony's de jure county.
+			var:pantheon_temple_holy_site_barony.county = {
+				every_county_holy_site = {
+					limit = { is_holy_site_type = pantheon_great_temple_site holy_site_barony = root.var:pantheon_temple_holy_site_barony }
+					save_scope_as = pantheon_temple_holy_site
+				}
+			}
+		}
+		else = {
+			var:pantheon_temple_province = {
+				county = {
+					every_county_holy_site = {
+						limit = { is_holy_site_type = pantheon_great_temple_site }
+						save_scope_as = pantheon_temple_holy_site
+					}
+				}
+			}
+		}
+		if = {
+			limit = { exists = scope:pantheon_temple_holy_site }
+			if = {
+				limit = { has_variable = pantheon_temple_holy_site_faith }
+				var:pantheon_temple_holy_site_faith = { remove_holy_site = scope:pantheon_temple_holy_site }
+			}
+			else = {
+				faith = { remove_holy_site = scope:pantheon_temple_holy_site }
+			}
+		}
+		remove_variable = pantheon_temple_created_holy_site
+		if = { limit = { has_variable = pantheon_temple_holy_site_barony } remove_variable = pantheon_temple_holy_site_barony }
+		if = { limit = { has_variable = pantheon_temple_holy_site_faith } remove_variable = pantheon_temple_holy_site_faith }
+	}
+	if = { limit = { has_variable = pantheon_temple_holy_site_refused } remove_variable = pantheon_temple_holy_site_refused }
+	if = { limit = { has_variable = pantheon_temple_province } remove_variable = pantheon_temple_province }
+}
+
+# God scope (R7): the site is gone (the previous tier's own building, or the whole barony, genuinely
+# destroyed off-script after having stood confirmed). Clear every temple variable; nothing is refunded.
+pantheon_temple_lost_effect = {
+	pantheon_temple_lost_clear_effect = yes
+	send_interface_toast = {
+		type = event_toast_effect_bad
+		title = pantheon_temple_lost_t
+		left_icon = root
+		custom_tooltip = pantheon_temple_lost_tt
+	}
+}
+
+# God scope (batch g1 repair, coordinator diagnosis item 3): a newly completed tier's building never once
+# got confirmed standing (pantheon_temple_confirmed_tier, events/pantheon_events.txt pantheon.0011) despite
+# pantheon_temple_retry_place_effect re-running add_special_building for up to 2 monthly ticks. Same
+# clearing as pantheon_temple_lost_effect, with a distinct toast/reason.
+pantheon_temple_lost_no_barony_effect = {
+	pantheon_temple_lost_clear_effect = yes
+	send_interface_toast = {
+		type = event_toast_effect_bad
+		title = pantheon_temple_lost_no_barony_t
+		left_icon = root
+		custom_tooltip = pantheon_temple_lost_no_barony_tt
+	}
+}
+
+# God scope (batch g1 repair, coordinator diagnosis item 2/3): re-run add_special_building for the current
+# tier on the stored province, used by pantheon.0011 while a freshly completed tier's building has not yet
+# been confirmed standing. One branch per tier, since the building key cannot be built from a variable.
+pantheon_temple_retry_place_effect = {
+	if = {
+		limit = { var:pantheon_temple_tier = 1 }
+		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_01 }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_tier = 2 }
+		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_02 }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_tier = 3 }
+		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_03 }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_tier = 4 }
+		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_04 }
+	}
+	else_if = {
+		limit = { var:pantheon_temple_tier = 5 }
+		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_05 }
+	}
+}
+
+# God scope, quarterly (pantheon.0010, alongside the Worship credit): pantheon_temple_aura Devotion to every
+# follower whose capital is within the active temple's current range. Devotion changes go through Pantheon's
+# own effect (pantheon_change_devotion_effect, common/scripted_effects/pantheon_devotion_effects.txt:33).
+pantheon_temple_aura_effect = {
+	if = {
+		limit = { pantheon_temple_active_trigger = yes pantheon_temple_aura > 0 }
+		every_ruler = {
+			limit = {
+				faith = root.faith
+				pantheon_temple_in_range_trigger = yes
+			}
+			save_scope_as = pantheon_target
+			root = { pantheon_change_devotion_effect = { AMOUNT = pantheon_temple_aura } }
+		}
+	}
+}

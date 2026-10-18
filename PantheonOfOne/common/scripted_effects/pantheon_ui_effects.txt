@@ -48,6 +48,41 @@ pantheon_ui_rebuild_effect = {
 			}
 		}
 	}
+	# 2.2 Task 4: the Temple tab's pre-founding list -- every holy site of the god's own faith (the form
+	# pantheon_temple_can_found_trigger already uses, common/scripted_triggers/pantheon_temple_triggers.txt:
+	# `any_county_province = { barony = { is_holy_site_of = root.faith } }`, read from county scope).
+	# Skipped once a temple exists (nothing to found any more).
+	# Batch 1r1 repair (item 4, concern): the review suggested narrowing this world-wide every_county scan
+	# to the faith's own holy sites (every_holy_site_barony, faith scope). Left AS-IS: every_holy_site_barony
+	# and every_holy_site are documented as iterating only ACTIVE holy sites -- "controlled by the correct
+	# faith on the county level and have an enshrined holy relic" (event_targets.log:872/896,
+	# barony_active_holy_site/county_active_holy_site) -- a materially narrower condition than the
+	# is_holy_site_of check this scan (and pantheon_temple_can_found_trigger itself) already uses, which has
+	# no "active"/enshrined-relic requirement. Swapping risks silently dropping a valid founding site (no
+	# relic enshrined, or momentarily not held by the faith) from this pick list while can_found_trigger
+	# would still accept it elsewhere -- not provable safe from docs/reference alone, so not changed here.
+	if = {
+		limit = {
+			NOT = { has_variable = pantheon_temple_tier }
+			NOT = { has_variable = pantheon_temple_building }
+			NOT = { has_variable = pantheon_temple_province }
+		}
+		clear_variable_list = pantheon_ui_temple_sites
+		every_county = {
+			limit = { any_county_province = { barony = { is_holy_site_of = scope:pantheon_ui_god.faith } } }
+			save_scope_as = pantheon_ui_row
+			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_temple_sites target = scope:pantheon_ui_row } }
+		}
+		# R13, batch 2b (spec Addendum): the capital county too, unless the loop above already added it as
+		# a holy site.
+		if = {
+			limit = {
+				NOT = { is_target_in_variable_list = { name = pantheon_ui_temple_sites target = scope:pantheon_ui_god.capital_county } }
+			}
+			scope:pantheon_ui_god.capital_county = { save_scope_as = pantheon_ui_row }
+			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_temple_sites target = scope:pantheon_ui_row } }
+		}
+	}
 }
 
 # Copy temporary list $LIST$ into the god's variable list $TARGET$, ordered by the chosen sort (var:pantheon_ui_sort:
@@ -82,4 +117,53 @@ pantheon_ui_fill_sorted_effect = {
 	else = {
 		ordered_in_list = { list = $LIST$ order_by = $DEFAULT$ max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
+}
+
+# Batch 2r1 (repair 4): an armed miracle (pantheon_temple_confirm) must not survive leaving the Temple tab
+# or closing the window -- called from every window open/close/toggle path and every tab switch in
+# common/scripted_guis/pantheon_scripted_guis.txt. Not called from pantheon_ui_rebuild_effect itself: the
+# three miracle click effects below call that too, after arming, so clearing the confirm there would
+# disarm a miracle on the very click that armed it. Scope = character (the god).
+pantheon_temple_clear_confirm_effect = {
+	if = { limit = { has_variable = pantheon_temple_confirm } remove_variable = pantheon_temple_confirm }
+}
+
+# 2.2 Task 4: the tier-5 miracle buttons arm on the first click and apply on the second (One Trait's
+# confirm form, OneTraitToRuleThemAll/common/scripted_effects/one_trait_panel_effects.txt
+# one_trait_ui_gov_feudal_click_effect); clicking a different miracle overwrites pantheon_temple_confirm
+# with its own code, disarming whichever was armed before.
+pantheon_ui_miracle_conversion_click_effect = {
+	if = {
+		limit = { has_variable = pantheon_temple_confirm var:pantheon_temple_confirm = 1 }
+		remove_variable = pantheon_temple_confirm
+		pantheon_miracle_conversion_effect = yes
+	}
+	else = {
+		set_variable = { name = pantheon_temple_confirm value = 1 }
+	}
+	pantheon_ui_rebuild_effect = yes
+}
+
+pantheon_ui_miracle_age_click_effect = {
+	if = {
+		limit = { has_variable = pantheon_temple_confirm var:pantheon_temple_confirm = 2 }
+		remove_variable = pantheon_temple_confirm
+		pantheon_miracle_age_effect = yes
+	}
+	else = {
+		set_variable = { name = pantheon_temple_confirm value = 2 }
+	}
+	pantheon_ui_rebuild_effect = yes
+}
+
+pantheon_ui_miracle_victory_click_effect = {
+	if = {
+		limit = { has_variable = pantheon_temple_confirm var:pantheon_temple_confirm = 3 }
+		remove_variable = pantheon_temple_confirm
+		pantheon_miracle_victory_effect = yes
+	}
+	else = {
+		set_variable = { name = pantheon_temple_confirm value = 3 }
+	}
+	pantheon_ui_rebuild_effect = yes
 }

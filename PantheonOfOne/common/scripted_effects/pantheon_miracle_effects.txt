@@ -1,0 +1,233 @@
+﻿# Pantheon of One 2.2 Task 3: the four tier-5 miracles. Root is the god throughout. Each is wrapped in
+# `pantheon_miracle_ready_trigger` (common/scripted_triggers/pantheon_temple_triggers.txt) so none runs
+# unless the temple is active, at tier 5, and off cooldown -- even if a button somehow called one anyway.
+# R12: the shared cooldown is a months-left counter (pantheon_temple_cooldown_months, counted down in
+# pantheon.0011, events/pantheon_events.txt), not a stored end date.
+
+# Sets the shared cooldown. Called by every miracle, after its own effects.
+pantheon_miracle_cast_effect = {
+	set_variable = {
+		name = pantheon_temple_cooldown_months
+		value = { value = pantheon_miracle_cooldown_years multiply = 12 }
+	}
+}
+
+# 1. Mass conversion (spec 3.1): every county within the temple's huge range takes the god's faith at
+# once; culture is untouched (set_county_faith changes only the faith, vanilla form
+# game/common/scripted_effects/00_almohad_invasion_effects.txt:76 `scope:almohad_county = { set_county_faith
+# = faith:masmudi }`); a county already of the faith is skipped by the `NOT = { faith = root.faith }` limit.
+# `every_county` is a world-scope iterator (proven already in vanilla, 00_history_effects.txt:13); each
+# county's capital province is reached with `title_province` (the same form pantheon_wrath_origin_effect
+# uses, common/scripted_effects/pantheon_wrath_effects.txt:61) to test the distance.
+pantheon_miracle_conversion_effect = {
+	if = {
+		limit = { pantheon_miracle_ready_trigger = yes has_variable = pantheon_temple_province }
+		every_county = {
+			limit = {
+				NOT = { faith = root.faith }
+				exists = title_province # a county with no capital province fails the context switch (error.log spam)
+				title_province = {
+					squared_distance = {
+						target = root.var:pantheon_temple_province
+						value <= squared_distance_huge
+					}
+				}
+			}
+			set_county_faith = root.faith
+		}
+		pantheon_miracle_conversion_awe_effect = yes
+		pantheon_miracle_cast_effect = yes
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_miracle_conversion_t
+			left_icon = root
+			custom_tooltip = pantheon_miracle_conversion_tt
+		}
+	}
+}
+
+# R5: a conversion-specific sweep instead of pantheon_wrath_awe_sweep_effect (pantheon_wrath_effects.txt:251),
+# which reads scope:pantheon_victim -- mass conversion strikes no single victim. +10 Devotion to every
+# follower (rulers and the god's courtiers of the faith, the scope pantheon_devotion_yearly_pass_effect
+# uses, common/scripted_effects/pantheon_devotion_effects.txt:177), through pantheon_change_devotion_effect
+# (pantheon_devotion_effects.txt:33), and a faith-wide toast.
+pantheon_miracle_conversion_awe_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	every_ruler = {
+		limit = { faith = root.faith NOT = { this = root } }
+		save_scope_as = pantheon_target
+		root = { pantheon_change_devotion_effect = { AMOUNT = 10 } }
+	}
+	every_courtier = {
+		limit = { faith = root.faith }
+		save_scope_as = pantheon_target
+		root = { pantheon_change_devotion_effect = { AMOUNT = 10 } }
+	}
+	send_interface_toast = {
+		type = event_toast_effect_good
+		title = pantheon_miracle_awe_t
+		left_icon = root
+	}
+}
+
+# 2. Age of faith (spec 3.2): starts the months-left counter (R2/R12: pantheon_temple_age_months). The
+# monthly upkeep itself (fervor restored to its maximum, +1 Devotion in the aura's range, the counter and
+# its end) lives in the existing monthly event (pantheon.0011, events/pantheon_events.txt, R2) so it keeps
+# running even across a save/reload; this effect only arms it and gives the start notice.
+pantheon_miracle_age_effect = {
+	if = {
+		limit = { pantheon_miracle_ready_trigger = yes }
+		set_variable = {
+			name = pantheon_temple_age_months
+			value = { value = pantheon_temple_age_years multiply = 12 }
+		}
+		# Batch 2r1: fervor restored at once on cast too (the same form as the monthly upkeep,
+		# events/pantheon_events.txt pantheon.0011), not only from the first monthly tick after.
+		faith = { change_fervor = { value = pantheon_temple_age_fervor_fill desc = pantheon_temple_age_fervor_desc } }
+		pantheon_miracle_cast_effect = yes
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_miracle_age_start_t
+			left_icon = root
+			custom_tooltip = pantheon_miracle_age_start_tt
+		}
+	}
+}
+
+# Called from pantheon.0011 when pantheon_temple_age_months reaches 0 (through the hidden event
+# pantheon_temple.0010, events/pantheon_temple_events.txt, R2).
+pantheon_temple_age_end_effect = {
+	if = { limit = { has_variable = pantheon_temple_age_months } remove_variable = pantheon_temple_age_months }
+	send_interface_toast = {
+		type = event_toast_effect_neutral
+		title = pantheon_miracle_age_end_t
+		left_icon = root
+		custom_tooltip = pantheon_miracle_age_end_tt
+	}
+}
+
+# 3. Divine victory (spec 3.3): every war a follower ruler primarily leads against an unbeliever ends at
+# once in the follower's favour; wars between followers are untouched (neither side then fails the
+# "unbeliever" check). `every_character_war` both iterates and switches scope to the war (vanilla form
+# game/common/scripted_effects/00_interaction_effects.txt:1963 `scope:recipient = { every_character_war =
+# { limit = {...} ... end_war = white_peace } }`); `is_attacker` reads a saved character scope from war
+# scope, exactly as this mod's own pantheon_boon_war_badness already does (common/script_values/
+# pantheon_values.txt `if = { limit = { is_attacker = scope:pantheon_boon_cand } ... }`); `end_war =
+# attacker` / `= defender` is the vanilla win form (game/common/scripted_effects/pam_effects.txt:11391).
+pantheon_miracle_victory_effect = {
+	if = {
+		limit = { pantheon_miracle_ready_trigger = yes }
+		every_ruler = {
+			limit = { faith = root.faith }
+			save_scope_as = pantheon_miracle_follower
+			every_character_war = {
+				limit = {
+					OR = {
+						AND = {
+							primary_attacker = scope:pantheon_miracle_follower
+							NOT = { primary_defender = { faith = root.faith } }
+						}
+						AND = {
+							primary_defender = scope:pantheon_miracle_follower
+							NOT = { primary_attacker = { faith = root.faith } }
+						}
+					}
+				}
+				if = {
+					limit = { is_attacker = scope:pantheon_miracle_follower }
+					end_war = attacker
+				}
+				else = {
+					end_war = defender
+				}
+			}
+		}
+		pantheon_miracle_cast_effect = yes
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_miracle_victory_t
+			left_icon = root
+		}
+	}
+}
+
+# 4. The Wrath of Heaven (spec 3.4), $CENTER$ a province (the right-clicked ruler's capital,
+# pantheon_wrath_of_heaven_interaction, common/character_interactions/pantheon_interactions.txt). Every
+# county within squared_distance_almost_massive of it is struck except the god's own domain (`holder =
+# root`) and the temple's own county. Per struck county: a terrain disaster (the terrain-conditional
+# modifier choice of pantheon_wrath_disaster_effect, pantheon_wrath_effects.txt:87-124: flood on coasts and
+# rivers, earthquake in hills and mountains, famine elsewhere, 5 years); the 5 most developed get a major
+# plague (create_epidemic_outbreak, as pantheon_wrath_plague_effect, pantheon_wrath_effects.txt:80, and the
+# same pantheon_plague_sent flag, :82, R3); then the fear sweep (pantheon_wrath_fear_sweep_effect,
+# pantheon_wrath_effects.txt:214) and R3's Devotion penalty for every follower struck directly.
+# `ordered_in_list` with `max` iterating several items is proven in this mod already
+# (common/scripted_effects/pantheon_ui_effects.txt pantheon_ui_fill_sorted_effect, `max = 300`).
+pantheon_miracle_wrath_effect = {
+	if = {
+		limit = { pantheon_miracle_ready_trigger = yes has_variable = pantheon_temple_province }
+		every_county = {
+			limit = {
+				NOT = { holder = root }
+				NOT = { this = root.var:pantheon_temple_province.county }
+				exists = title_province # a county with no capital province fails the context switch (error.log spam)
+				title_province = {
+					squared_distance = {
+						target = $CENTER$
+						value <= squared_distance_almost_massive
+					}
+				}
+			}
+			add_to_temporary_list = pantheon_wrath_struck_counties
+		}
+		every_in_list = {
+			list = pantheon_wrath_struck_counties
+			if = {
+				limit = {
+					OR = {
+						title_province = { is_coastal = yes }
+						title_province = { is_riverside_province = yes }
+					}
+				}
+				add_county_modifier = { modifier = pantheon_disaster_flood years = 5 }
+			}
+			else_if = {
+				limit = {
+					title_province = {
+						OR = { terrain = hills terrain = mountains }
+					}
+				}
+				add_county_modifier = { modifier = pantheon_disaster_quake years = 5 }
+			}
+			else = {
+				add_county_modifier = { modifier = pantheon_disaster_famine years = 5 }
+			}
+		}
+		ordered_in_list = {
+			list = pantheon_wrath_struck_counties
+			order_by = development_level
+			max = 5
+			title_province = {
+				create_epidemic_outbreak = { type = bubonic_plague intensity = major }
+			}
+		}
+		set_variable = { name = pantheon_plague_sent value = yes years = 3 }
+		every_in_list = {
+			list = pantheon_wrath_struck_counties
+			limit = { holder = { faith = root.faith } }
+			holder = { save_scope_as = pantheon_target }
+			root = { pantheon_plague_devotion_penalty_effect = yes }
+		}
+		pantheon_wrath_fear_sweep_effect = yes
+		pantheon_miracle_cast_effect = yes
+		send_interface_toast = {
+			type = event_toast_effect_bad
+			title = pantheon_miracle_wrath_t
+			left_icon = root
+			right_icon = scope:pantheon_victim
+			custom_tooltip = pantheon_miracle_wrath_tt
+		}
+	}
+}

@@ -1,0 +1,145 @@
+﻿# Pantheon of One 2.2: the Great Temple's triggers (Task 1). God scope unless noted.
+
+# County scope, $GOD$ a character scope: the county's holder is the god, or of the god's faith.
+pantheon_temple_faithful_hands_trigger = {
+	OR = {
+		holder = $GOD$
+		holder = { faith = $GOD$.faith }
+	}
+}
+
+# Province scope: not already claimed by another god's temple -- the founder variable
+# pantheon_temple_found_effect stores on the chosen province is kept while that god's build runs or its
+# tier stands, and is cleared only by pantheon_temple_lost_clear_effect, only for that same god (batch 1r1
+# repair, P2). Root must be the god evaluating placement: every real caller (pantheon_temple_placeable_trigger
+# below, and pantheon_temple_found_effect's own barony picks) keeps root fixed to the founding god, the
+# same assumption pantheon_temple_active_trigger's own comment already documents for this file.
+pantheon_temple_not_reserved_trigger = {
+	NOT = {
+		AND = {
+			has_variable = pantheon_temple_founder
+			NOT = { var:pantheon_temple_founder = root }
+		}
+	}
+}
+
+# County scope: a barony here has a holding, carries no special building yet (One Trait's rule -- the
+# temple never replaces a wonder -- OneTraitToRuleThemAll/common/scripted_effects/
+# one_trait_building_effects.txt one_trait_raise_sanctum), and is not reserved by another god's temple
+# (batch 1r1 repair, P2 -- pantheon_temple_not_reserved_trigger above).
+pantheon_temple_placeable_trigger = {
+	any_county_province = {
+		has_holding = yes
+		has_special_building = no
+		pantheon_temple_not_reserved_trigger = yes
+	}
+}
+
+# God scope: the temple province still carries the special building matching the stored (completed) tier.
+# One branch per tier, since a building key can't be assembled from a variable. Shared by
+# pantheon_temple_active_trigger below and the monthly destroyed-temple check in pantheon.0011
+# (events/pantheon_events.txt). Callers must guard with has_variable = pantheon_temple_tier first (and that
+# variable is only ever set alongside pantheon_temple_province, at founding/completion).
+pantheon_temple_building_stands_trigger = {
+	OR = {
+		AND = { var:pantheon_temple_tier = 1 var:pantheon_temple_province = { has_building = pantheon_great_temple_01 } }
+		AND = { var:pantheon_temple_tier = 2 var:pantheon_temple_province = { has_building = pantheon_great_temple_02 } }
+		AND = { var:pantheon_temple_tier = 3 var:pantheon_temple_province = { has_building = pantheon_great_temple_03 } }
+		AND = { var:pantheon_temple_tier = 4 var:pantheon_temple_province = { has_building = pantheon_great_temple_04 } }
+		AND = { var:pantheon_temple_tier = 5 var:pantheon_temple_province = { has_building = pantheon_great_temple_05 } }
+	}
+}
+
+# God scope. This is always entered through `faith.religious_head = { pantheon_temple_active_trigger = yes }`
+# inside pantheon_temple_active_tier (common/script_values/pantheon_values.txt), or as a direct sibling check
+# from other god-scope script (pantheon_temple_can_upgrade_trigger, pantheon_temple_aura_effect): either way
+# the current scope ("this", and every unprefixed read below) is the god. `root` is deliberately not used
+# here: root stays fixed to whatever scope started the *outer* evaluation, which is not always the god (e.g.
+# pantheon_temple_active_tier is designed to read correctly from a follower's own character scope too).
+# A destroyed temple building no longer counts as active (batch 1r1): pantheon_temple_building_stands_trigger
+# re-confirms the stored tier's building is still standing before the dormancy OR below is even considered.
+pantheon_temple_active_trigger = {
+	has_variable = pantheon_temple_tier
+	var:pantheon_temple_tier >= 1
+	has_trait = pantheon_divine
+	pantheon_temple_building_stands_trigger = yes
+	OR = {
+		var:pantheon_temple_province.county.holder = this
+		var:pantheon_temple_province.county.holder.faith = faith
+	}
+}
+
+# God scope (events/pantheon_events.txt pantheon.0011, and pantheon_temple_state in
+# common/customizable_localization/pantheon_custom_loc.txt -- batch u1 repair, rows 16-17): a build is
+# running and the temple's county has left faithful hands, so the build timer must not progress. `this`
+# throughout, never `root` (the same call-context ambiguity pantheon_temple_active_trigger's own comment
+# above already warns about for a customizable_localization caller). Tier 1 has no building yet, so this
+# checks the province's county directly rather than reusing pantheon_temple_active_trigger's
+# building-stands gate. Batch u2 repair (item 1, row 17b FAIL): the earlier form called
+# pantheon_temple_faithful_hands_trigger with `GOD = this` from INSIDE the
+# `var:pantheon_temple_province.county = { ... }` block -- macro substitution is textual, so the
+# substituted `holder = this` landed as "this" meaning the COUNTY (the block's own scope at the point the
+# substituted line runs), never the god, and the comparison was always true. Match
+# pantheon_temple_active_trigger's own form instead: direct `var:...county.holder` comparisons against
+# `this`/`faith`, evaluated from the god's own scope with no intervening scope block at all.
+pantheon_temple_build_paused_trigger = {
+	has_variable = pantheon_temple_building
+	NOT = {
+		OR = {
+			var:pantheon_temple_province.county.holder = this
+			var:pantheon_temple_province.county.holder.faith = faith
+		}
+	}
+}
+
+# God scope, $SITE$ a county: no temple yet (and none mid-build), the site is a holy site of the god's own
+# faith OR the god's own capital county (R13, batch 2b -- spec "Addendum": "the faith's holy sites or the
+# god's capital county"; `capital_county`, event_targets.log:422), in faithful hands, and has a free
+# barony, and tier 1's Worship is affordable. Holy-site form: vanilla game/events/travel_events/
+# travel_events_bp3.txt:383-394 (find_holy_site_effect) and :441-451 (travel_events_bp3.10's trigger) --
+# `any_county_province = { barony = { is_holy_site_of = root.faith } }`, read from county scope.
+pantheon_temple_can_found_trigger = {
+	NOT = { has_variable = pantheon_temple_tier }
+	NOT = { has_variable = pantheon_temple_building }
+	NOT = { has_variable = pantheon_temple_province }
+	$SITE$ = {
+		OR = {
+			any_county_province = { barony = { is_holy_site_of = root.faith } }
+			this = root.capital_county
+		}
+		pantheon_temple_faithful_hands_trigger = { GOD = root }
+		pantheon_temple_placeable_trigger = yes
+	}
+	pantheon_can_afford_trigger = { COST = pantheon_temple_cost_1 }
+}
+
+# God scope: below the top tier, no build already running, the temple active (not dormant), and the next
+# tier's Worship affordable.
+pantheon_temple_can_upgrade_trigger = {
+	has_variable = pantheon_temple_tier
+	var:pantheon_temple_tier < 5
+	NOT = { has_variable = pantheon_temple_building }
+	pantheon_temple_active_trigger = yes
+	pantheon_can_afford_trigger = { COST = pantheon_temple_next_cost }
+}
+
+# God scope (2.2 Task 3): tier 5, active (not dormant), and the shared miracle cooldown is not running
+# (R12: a months-left counter, pantheon_temple_cooldown_months, counted down in pantheon.0011).
+pantheon_miracle_ready_trigger = {
+	pantheon_temple_active_trigger = yes
+	var:pantheon_temple_tier = 5
+	NOT = { has_variable = pantheon_temple_cooldown_months }
+}
+
+# Character scope (a ruler, from pantheon_temple_aura_effect's every_ruler): their capital is within the
+# temple's current range. Root is the god throughout (every_ruler does not change it). Stays in the ruler's
+# own capital_province scope rather than entering the temple's province, so `root.pantheon_temple_range`
+# still resolves faith.religious_head from the god (a province has its own, unrelated `faith`).
+pantheon_temple_in_range_trigger = {
+	capital_province = {
+		squared_distance = {
+			target = root.var:pantheon_temple_province
+			value <= root.pantheon_temple_range
+		}
+	}
+}

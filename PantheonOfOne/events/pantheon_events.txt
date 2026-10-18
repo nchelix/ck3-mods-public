@@ -40,12 +40,21 @@ pantheon.0010 = {
 		}
 		set_variable = {
 			name = pantheon_last_worship
-			value = pantheon_quarterly_worship
+			# 2.2 R8: the temple's Worship factor (and, while Age of faith runs, its doubling --
+			# pantheon_temple_age_factor) apply to this quarterly credit only, not to thank-offerings
+			# (pantheon_great_prayer_effects.txt:210).
+			value = {
+				value = pantheon_quarterly_worship
+				multiply = pantheon_temple_worship_factor
+				multiply = pantheon_temple_age_factor
+			}
 		}
 		change_variable = {
 			name = pantheon_worship
 			add = var:pantheon_last_worship
 		}
+		# 2.2: the Devotion aura, on the same quarterly pulse as Worship.
+		pantheon_temple_aura_effect = yes
 		# Tell the god what came in this season, and the total (1.1, at the user's request)
 		send_interface_toast = {
 			type = event_toast_effect_good
@@ -236,6 +245,109 @@ pantheon.0011 = {
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
 		pantheon_divine_health_effect = yes
-		trigger_event = { id = pantheon.0011 days = 30 }
+		# 2.2 R6: the Great Temple's build timer is a months-left counter counted down here, not a delayed
+		# event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215) nor a date (no vanilla
+		# precedent for adding days to current_date); completion when it reaches 0.
+		if = {
+			# Batch u1 repair (rows 16-17): the build must not progress while the temple's county has
+			# left faithful hands (pantheon_temple_build_paused_trigger, pantheon_temple_triggers.txt).
+			limit = {
+				has_variable = pantheon_temple_building
+				has_variable = pantheon_temple_build_months
+				NOT = { pantheon_temple_build_paused_trigger = yes }
+			}
+			change_variable = { name = pantheon_temple_build_months subtract = 1 }
+			if = {
+				limit = { var:pantheon_temple_build_months <= 0 }
+				pantheon_temple_complete_effect = yes
+				# Batch g1 repair: a special building's construction_time (>= 1 month) means has_building can
+				# still read false the SAME tick add_special_building just ran -- the destroyed-temple check
+				# below must never run against a tier that completed this very tick, or it declares the brand
+				# new building lost before the engine has even reported it standing.
+				set_variable = pantheon_temple_completed_this_tick
+			}
+		}
+		# 2.2 batch 1r1: a completed temple (tier >= 1, whether or not a build toward the next tier is
+		# running) whose current-tier building was destroyed off-script loses the temple here. Dormancy
+		# (the county in unbelieving hands while the building still stands) is untouched -- that is gated
+		# by pantheon_temple_active_trigger's own OR, not this check. Batch g1 repair: this must never run
+		# in the same tick as a completion above (pantheon_temple_completed_this_tick), and must not declare
+		# a freshly-completed tier's building lost before it has ever been confirmed standing
+		# (pantheon_temple_confirmed_tier, refreshed just below once the stands check first passes for the
+		# current tier). Until confirmed, a missing building is retried (pantheon_temple_retry_place_effect)
+		# for up to 2 monthly ticks (pantheon_temple_confirm_attempts) before giving up with a distinct toast.
+		if = {
+			limit = {
+				has_variable = pantheon_temple_tier
+				pantheon_temple_building_stands_trigger = yes
+			}
+			set_variable = { name = pantheon_temple_confirmed_tier value = var:pantheon_temple_tier }
+			if = { limit = { has_variable = pantheon_temple_confirm_attempts } remove_variable = pantheon_temple_confirm_attempts }
+		}
+		if = {
+			limit = {
+				has_variable = pantheon_temple_tier
+				NOT = { has_variable = pantheon_temple_completed_this_tick }
+				NOT = { pantheon_temple_building_stands_trigger = yes }
+			}
+			if = {
+				limit = {
+					has_variable = pantheon_temple_confirmed_tier
+					var:pantheon_temple_confirmed_tier = var:pantheon_temple_tier
+				}
+				pantheon_temple_lost_effect = yes
+			}
+			else_if = {
+				limit = { has_variable = pantheon_temple_confirm_attempts var:pantheon_temple_confirm_attempts >= 2 }
+				pantheon_temple_lost_no_barony_effect = yes
+			}
+			else = {
+				if = {
+					limit = { NOT = { has_variable = pantheon_temple_confirm_attempts } }
+					set_variable = { name = pantheon_temple_confirm_attempts value = 0 }
+				}
+				change_variable = { name = pantheon_temple_confirm_attempts add = 1 }
+				pantheon_temple_retry_place_effect = yes
+			}
+		}
+		if = { limit = { has_variable = pantheon_temple_completed_this_tick } remove_variable = pantheon_temple_completed_this_tick }
+		# 2.2 Task 3, R12: the shared miracle cooldown is likewise a months-left counter.
+			if = {
+				limit = { has_variable = pantheon_temple_cooldown_months }
+				change_variable = { name = pantheon_temple_cooldown_months subtract = 1 }
+				if = {
+					limit = { var:pantheon_temple_cooldown_months <= 0 }
+					remove_variable = pantheon_temple_cooldown_months
+				}
+			}
+			# 2.2 Task 3, R2/R12: Age of faith's own monthly upkeep -- gated on an active temple and the
+			# age's timed flag -- then the months-left counter (the counter itself still runs down while
+			# dormant, so the age cannot be stalled by briefly losing faithful hands; R6/R12).
+			if = {
+				limit = { has_variable = pantheon_temple_age_months }
+				if = {
+					limit = { pantheon_temple_active_trigger = yes }
+					faith = {
+						change_fervor = {
+							value = pantheon_temple_age_fervor_fill
+							desc = pantheon_temple_age_fervor_desc
+						}
+					}
+					every_ruler = {
+						limit = {
+							faith = root.faith
+							pantheon_temple_in_range_trigger = yes
+						}
+						save_scope_as = pantheon_target
+						root = { pantheon_change_devotion_effect = { AMOUNT = 1 } }
+					}
+				}
+				change_variable = { name = pantheon_temple_age_months subtract = 1 }
+				if = {
+					limit = { var:pantheon_temple_age_months <= 0 }
+					trigger_event = pantheon_temple.0010
+				}
+			}
+			trigger_event = { id = pantheon.0011 days = 30 }
 	}
 }

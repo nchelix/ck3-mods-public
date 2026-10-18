@@ -66,50 +66,70 @@ window = {
 			text = "pantheon_ui_worship_line"
 		}
 
-		# The tabs: 1 Followers, 2 Children, 3 The God
+		# The tabs: 1 Followers, 2 Children, 3 The God, 4 The Temple (batch u1 repair, row 1).
+		# Batch u2 repair (item 2, row 1): u1's `layoutpolicy_horizontal = expanding` let each
+		# tab's own icon+text content set its minimum width, so the fourth tab's minimum could run
+		# past the window's right edge. Fixed 170px cells (4*170 + 3*2 spacing = 686, comfortably
+		# under the vbox's 716px content width: window size 780 minus margin {32 20}) make the row's
+		# total width deterministic instead of content-dependent.
 		hbox = {
 			layoutpolicy_horizontal = expanding
-			spacing = 4
+			spacing = 2
 			button_tab = {
-				layoutpolicy_horizontal = expanding
-				size = { 0 40 }
+				layoutpolicy_horizontal = fixed
+				size = { 170 40 }
 				onclick = "[GetScriptedGui('pantheon_ui_tab_followers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
 				hbox = {
-					spacing = 6
+					spacing = 3
 					icon = {
-						size = { 28 28 }
+						size = { 22 22 }
 						texture = "gfx/interface/icons/pantheon/pantheon_tab_followers.dds"
 					}
 					text_single = { text = "pantheon_ui_tab_followers" }
 				}
 			}
 			button_tab = {
-				layoutpolicy_horizontal = expanding
-				size = { 0 40 }
+				layoutpolicy_horizontal = fixed
+				size = { 170 40 }
 				onclick = "[GetScriptedGui('pantheon_ui_tab_children').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
 				hbox = {
-					spacing = 6
+					spacing = 3
 					icon = {
-						size = { 28 28 }
+						size = { 22 22 }
 						texture = "gfx/interface/icons/traits/pantheon_demigod.dds"
 					}
 					text_single = { text = "pantheon_ui_tab_children" }
 				}
 			}
 			button_tab = {
-				layoutpolicy_horizontal = expanding
-				size = { 0 40 }
+				layoutpolicy_horizontal = fixed
+				size = { 170 40 }
 				onclick = "[GetScriptedGui('pantheon_ui_tab_god').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
 				hbox = {
-					spacing = 6
+					spacing = 3
 					icon = {
-						size = { 28 28 }
+						size = { 22 22 }
 						texture = "gfx/interface/icons/traits/pantheon_divine.dds"
 					}
 					text_single = { text = "pantheon_ui_tab_god" }
+					}
+				}
+				button_tab = {
+					layoutpolicy_horizontal = fixed
+					size = { 170 40 }
+					onclick = "[GetScriptedGui('pantheon_ui_tab_temple').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)4' )]"
+					hbox = {
+						spacing = 3
+						icon = {
+							size = { 22 22 }
+							# R14: the painted Temple tab icon (tools/build_pantheon_icons.py).
+							texture = "gfx/interface/icons/pantheon/pantheon_tab_temple.dds"
+						}
+						text_single = { text = "pantheon_ui_tab_temple" }
 				}
 			}
 		}
@@ -706,8 +726,302 @@ window = {
 			text_single = {
 				visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
 				text = "pantheon_ui_plague_line"
+				}
+			# 2.2 Task 4: one line for the Great Temple's tier and state. Batch u1 repair (row 34): the
+			# line always read the tier-5 name regardless of the real tier -- datacontext set directly on
+			# this leaf text_single was not honoured for its own text (the Temple tab's own header and the
+			# Followers list's devotion line both set it on an ANCESTOR instead, and both read correctly).
+			vbox = {
+				datacontext = "[GetPlayer]"
+				text_single = {
+					text = "pantheon_ui_temple_line"
+				}
 			}
 			expand = {}
+		}
+
+		# ---- Tab 4: The Temple (2.2 Task 4)
+		vbox = {
+			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)4' )]"
+			layoutpolicy_horizontal = expanding
+			layoutpolicy_vertical = expanding
+			spacing = 8
+
+			# Before founding: the faith's holy sites, a scroll list (One Trait 2.7's proven list form,
+			# OneTraitToRuleThemAll/gui/one_trait_panel.gui, datamodel/AddScope('landed_title', Title.MakeScope)).
+			vbox = {
+				visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet )]"
+				layoutpolicy_horizontal = expanding
+				spacing = 8
+				text_single = {
+					multiline = yes
+					autoresize = yes
+					max_width = 680
+					text = "pantheon_ui_temple_intro"
+				}
+				text_single = {
+					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites') )]"
+					text = "pantheon_ui_temple_no_sites"
+				}
+				scrollbox = {
+					size = { 680 260 }
+					blockoverride "scrollbox_content" {
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites')]"
+							spacing = 4
+							item = {
+								widget = {
+									size = { 660 50 }
+									datacontext = "[Scope.GetLandedTitle]"
+									background = { using = Background_Area }
+									hbox = {
+										margin_left = 10
+										margin_right = 10
+										spacing = 10
+										text_single = {
+											layoutpolicy_horizontal = expanding
+											autoresize = no
+											text = "[Title.GetName]"
+										}
+										text_single = {
+											layoutpolicy_horizontal = expanding
+											autoresize = no
+											datacontext = "[Title.GetHolder]"
+											text = "[Character.GetShortUINameNoTooltip]"
+										}
+										# Batch 2r1 (repair 5): each row gave no idea what founding there would cost.
+										# Batch u1 repair (row 4): no size at all here rendered as a lone truncated "..."
+										# -- a fixed width gives the text room (One Trait 2.7's lesson again).
+										text_single = {
+											size = { 190 32 }
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_temple_found_cost"
+										}
+										button_standard = {
+											size = { 150 32 }
+											text = "pantheon_ui_btn_temple_found"
+											enabled = "[GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+											tooltip_visible = "[Not( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('pantheon_ui_temple_found').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			# After founding: header, bonuses, upgrade, the ladder, and the tier-5 miracles.
+			vbox = {
+				visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
+				layoutpolicy_horizontal = expanding
+				spacing = 8
+				datacontext = "[GetPlayer]"
+
+				text_single = { using = Font_Size_Medium text = "[Character.Custom('pantheon_temple_tier_name')]" }
+				text_single = { text = "[Character.Custom('pantheon_temple_state')]" }
+				# Batch 2r1 (repair 5): the header omitted which county holds the temple.
+				text_single = { text = "pantheon_ui_temple_county" }
+				text_single = { multiline = yes autoresize = yes max_width = 680 text = "[Character.Custom('pantheon_temple_tier_desc')]" }
+				# R13, batch 2b: the capital could not be made a holy site (e.g. the faith was already at its
+				# holy-site maximum). The temple itself still works fully.
+				text_single = {
+					visible = "[GetPlayer.MakeScope.Var('pantheon_temple_holy_site_refused').IsSet]"
+					text = "pantheon_ui_temple_holy_site_refused"
+				}
+
+				button_standard = {
+					size = { 260 32 }
+					text = "pantheon_ui_btn_temple_upgrade"
+					visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					enabled = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					tooltip = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					tooltip_visible = "[Not( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+					onclick = "[GetScriptedGui('pantheon_ui_temple_upgrade').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				# Batch 2r1 (repair 5): the Upgrade button gave no idea what the next tier costs or what it is.
+				text_single = {
+					visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					text = "pantheon_ui_temple_next_line"
+				}
+
+				# The five-step ladder: a passive row of tab-styled cells, the current tier's cell down.
+				# Batch u2 repair (item 3, rows 8/13): the cells looked clickable (button_tab's own hover/
+				# press frames) but did nothing. `enabled = no` keeps the "down" toggle look for the current
+				# tier while turning off the button's own hover/pressed states and click handling (the same
+				# property button_standard already uses elsewhere in this file to grey out, just always off
+				# here); each cell's own tooltip gives that tier's bonuses and cost/years
+				# (pantheon_temple_ladder_tt_1..5, localization/english/pantheon_l_english.yml -- built from
+				# the per-tier script values Task 1 already defines, common/script_values/pantheon_values.txt).
+				hbox = {
+					spacing = 4
+					button_tab = {
+						# Batch u1 repair (row 2): a bare hbox sizing itself from five expanding, zero-width
+						# children collapsed to nothing and the five names overlapped at one spot -- fixed-size
+						# cells with an explicit width fix it (the lesson One Trait 2.7 already proved).
+						size = { 132 32 }
+						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' )]"
+						enabled = no
+						tooltip = "pantheon_temple_ladder_tt_1"
+						text_single = {
+							size = { 132 32 }
+							autoresize = no
+							align = center|vcenter
+							text = "building_type_pantheon_great_temple_01"
+						}
+					}
+					button_tab = {
+						size = { 132 32 }
+						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' )]"
+						enabled = no
+						tooltip = "pantheon_temple_ladder_tt_2"
+						text_single = {
+							size = { 132 32 }
+							autoresize = no
+							align = center|vcenter
+							text = "building_type_pantheon_great_temple_02"
+						}
+					}
+					button_tab = {
+						size = { 132 32 }
+						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' )]"
+						enabled = no
+						tooltip = "pantheon_temple_ladder_tt_3"
+						text_single = {
+							size = { 132 32 }
+							autoresize = no
+							align = center|vcenter
+							text = "building_type_pantheon_great_temple_03"
+						}
+					}
+					button_tab = {
+						size = { 132 32 }
+						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' )]"
+						enabled = no
+						tooltip = "pantheon_temple_ladder_tt_4"
+						text_single = {
+							size = { 132 32 }
+							autoresize = no
+							align = center|vcenter
+							text = "building_type_pantheon_great_temple_04"
+						}
+					}
+					button_tab = {
+						size = { 132 32 }
+						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
+						enabled = no
+						tooltip = "pantheon_temple_ladder_tt_5"
+						text_single = {
+							size = { 132 32 }
+							autoresize = no
+							align = center|vcenter
+							text = "building_type_pantheon_great_temple_05"
+						}
+					}
+				}
+
+				# The miracles (tier 5): arm-then-confirm (pantheon_temple_confirm, One Trait's
+				# one_trait_ui_confirm form) and the Wrath note.
+				vbox = {
+					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
+					layoutpolicy_horizontal = expanding
+					spacing = 6
+					hbox = {
+						spacing = 6
+						button_standard = {
+							size = { 210 32 }
+							enabled = "[GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+							# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+							# (if any) on its own line below.
+							tooltip = "pantheon_ui_miracle_conversion_tt"
+							onclick = "[GetScriptedGui('pantheon_ui_miracle_conversion').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
+							# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
+							widget = {
+								size = { 210 32 }
+								text_single = {
+									visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									size = { 210 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "pantheon_ui_btn_miracle_conversion"
+								}
+								text_single = {
+									visible = "[GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									size = { 210 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "pantheon_ui_btn_confirm"
+								}
+							}
+						}
+						button_standard = {
+							size = { 210 32 }
+							enabled = "[GetScriptedGui('pantheon_ui_miracle_age').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+							# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+							# (if any) on its own line below.
+							tooltip = "pantheon_ui_miracle_age_tt"
+							onclick = "[GetScriptedGui('pantheon_ui_miracle_age').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							widget = {
+								size = { 210 32 }
+								text_single = {
+									visible = "[Not( GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									size = { 210 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "pantheon_ui_btn_miracle_age"
+								}
+								text_single = {
+									visible = "[GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									size = { 210 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "pantheon_ui_btn_confirm"
+								}
+							}
+						}
+						button_standard = {
+							size = { 210 32 }
+							enabled = "[GetScriptedGui('pantheon_ui_miracle_victory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+							# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+							# (if any) on its own line below.
+							tooltip = "pantheon_ui_miracle_victory_tt"
+							onclick = "[GetScriptedGui('pantheon_ui_miracle_victory').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							widget = {
+								size = { 210 32 }
+								text_single = {
+									visible = "[Not( GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									size = { 210 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "pantheon_ui_btn_miracle_victory"
+								}
+								text_single = {
+									visible = "[GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									size = { 210 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "pantheon_ui_btn_confirm"
+								}
+							}
+						}
+					}
+					text_single = {
+						multiline = yes
+						autoresize = yes
+						max_width = 680
+						text = "pantheon_ui_wrath_note"
+					}
+				}
+				expand = {}
+			}
 		}
 	}
 }

@@ -1,0 +1,26 @@
+﻿# Pantheon of One 2.2, batch 2b (R13, spec "Addendum"): the Great Temple's own holy-site type, created when
+# tier 1 completes on a county that is not already a holy site of the god's own faith
+# (common/scripted_effects/pantheon_temple_effects.txt pantheon_temple_create_holy_site_effect). Dynamic
+# (no fixed county/barony), format and field meaning from vanilla
+# game/common/religion/holy_site_types/01_dynamic_holy_site_types.txt and _holy_site_types.info. Modest
+# bonuses, matching the vanilla dynamic types' own scale (e.g. site_of_valor's 0.05 county_holder_character_modifier,
+# site_of_wisdom's learning = 2). faith_character_modifier only applies for an Eminent holy site
+# (_holy_site_types.info); the create effect always passes eminent = yes. Loc: holy_site_pantheon_great_temple_site_name,
+# _dynamic_name (barony as TITLE), _effects (PantheonOfOne/localization/english/pantheon_l_english.yml).
+pantheon_great_temple_site = {
+	is_dynamic = yes
+
+	county_holder_character_modifier = {
+		monthly_piety = 0.5
+	}
+
+	county_modifier_scaled = {
+		scale = holy_site_total_artifact_rarity
+		development_growth_factor = 0.01
+		monthly_county_control_growth_factor = 0.01
+	}
+
+	faith_character_modifier = {
+		learning_per_piety_level = 1
+	}
+}

@@ -20,10 +20,14 @@ pantheon_ui_toggle = {
 			clear_variable_list = pantheon_ui_blessed
 			clear_variable_list = pantheon_ui_demigods
 			clear_variable_list = pantheon_ui_houses
+			# Batch 2r1 (repair 4): closing the window must not leave a miracle armed.
+			pantheon_temple_clear_confirm_effect = yes
 		}
 		else = {
 			if = { limit = { NOT = { has_variable = pantheon_ui_tab } } set_variable = { name = pantheon_ui_tab value = 1 } }
 			pantheon_ui_rebuild_effect = yes
+			# Batch 2r1 (repair 4): re-opening must not resume with a stale armed miracle either.
+			pantheon_temple_clear_confirm_effect = yes
 			set_variable = pantheon_ui_open
 		}
 	}
@@ -38,6 +42,8 @@ pantheon_ui_close = {
 		clear_variable_list = pantheon_ui_blessed
 		clear_variable_list = pantheon_ui_demigods
 		clear_variable_list = pantheon_ui_houses
+		# Batch 2r1 (repair 4): same guard as the toggle's close branch.
+		pantheon_temple_clear_confirm_effect = yes
 	}
 }
 
@@ -45,6 +51,8 @@ pantheon_ui_tab_followers = {
 	scope = character
 	effect = {
 		set_variable = { name = pantheon_ui_tab value = 1 }
+		# Batch 2r1 (repair 4): leaving the Temple tab must not leave a miracle armed.
+		pantheon_temple_clear_confirm_effect = yes
 		pantheon_ui_rebuild_effect = yes
 	}
 }
@@ -53,6 +61,7 @@ pantheon_ui_tab_children = {
 	scope = character
 	effect = {
 		set_variable = { name = pantheon_ui_tab value = 2 }
+		pantheon_temple_clear_confirm_effect = yes
 		pantheon_ui_rebuild_effect = yes
 	}
 }
@@ -61,6 +70,7 @@ pantheon_ui_tab_god = {
 	scope = character
 	effect = {
 		set_variable = { name = pantheon_ui_tab value = 3 }
+		pantheon_temple_clear_confirm_effect = yes
 		pantheon_ui_rebuild_effect = yes
 	}
 }
@@ -196,5 +206,152 @@ pantheon_ui_sort_6 = {
 	effect = {
 		set_variable = { name = pantheon_ui_sort value = 6 }
 		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# ---- 2.2 Task 4: the Temple tab
+
+pantheon_ui_tab_temple = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_tab value = 4 }
+		# Batch 2r1 (repair 4): a stale armed miracle from a previous visit must not resume silently.
+		pantheon_temple_clear_confirm_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# A holy-site row's Found button. scope:landed_title is the county (AddScope('landed_title',
+# Title.MakeScope), One Trait's 2.7 list form, OneTraitToRuleThemAll/gui/one_trait_panel.gui). Greyed with
+# custom_tooltip reasons (never custom_description -- docs/selftest-kit/GUIDE.md, proven 2026-10-15).
+pantheon_ui_temple_found = {
+	scope = character
+	is_shown = {
+		NOT = { has_variable = pantheon_temple_province }
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_temple_not_faithful_tt
+			scope:landed_title = { pantheon_temple_faithful_hands_trigger = { GOD = root } }
+		}
+		custom_tooltip = {
+			text = pantheon_temple_no_site_tt
+			scope:landed_title = { pantheon_temple_placeable_trigger = yes }
+		}
+		custom_tooltip = {
+			text = pantheon_temple_cost_tt
+			pantheon_can_afford_trigger = { COST = pantheon_temple_cost_1 }
+		}
+	}
+	effect = {
+		if = { limit = { has_variable = pantheon_temple_confirm } remove_variable = pantheon_temple_confirm }
+		pantheon_temple_found_effect = { SITE = scope:landed_title }
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_temple_upgrade = {
+	scope = character
+	is_shown = {
+		has_variable = pantheon_temple_tier
+		var:pantheon_temple_tier < 5
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_temple_building_tt
+			NOT = { has_variable = pantheon_temple_building }
+		}
+		custom_tooltip = {
+			text = pantheon_temple_dormant_tt
+			pantheon_temple_active_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_temple_cost_tt
+			pantheon_can_afford_trigger = { COST = pantheon_temple_next_cost }
+		}
+	}
+	effect = {
+		if = { limit = { has_variable = pantheon_temple_confirm } remove_variable = pantheon_temple_confirm }
+		pantheon_temple_upgrade_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# The three tier-5 miracle buttons: arm on the first click, apply on the second (One Trait's confirm form,
+# one_trait_ui_gov_feudal_click_effect, OneTraitToRuleThemAll/common/scripted_effects/
+# one_trait_panel_effects.txt); any other click overwrites pantheon_temple_confirm, disarming it. The
+# matching _armed scripted GUI is read-only, for the window's label swap only.
+pantheon_ui_miracle_conversion = {
+	scope = character
+	is_shown = {
+		has_variable = pantheon_temple_tier
+		var:pantheon_temple_tier = 5
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_miracle_cooldown_tt
+			pantheon_miracle_ready_trigger = yes
+		}
+	}
+	effect = {
+		pantheon_ui_miracle_conversion_click_effect = yes
+	}
+}
+
+pantheon_ui_miracle_conversion_armed = {
+	scope = character
+	is_valid = {
+		has_variable = pantheon_temple_confirm
+		var:pantheon_temple_confirm = 1
+	}
+}
+
+pantheon_ui_miracle_age = {
+	scope = character
+	is_shown = {
+		has_variable = pantheon_temple_tier
+		var:pantheon_temple_tier = 5
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_miracle_cooldown_tt
+			pantheon_miracle_ready_trigger = yes
+		}
+	}
+	effect = {
+		pantheon_ui_miracle_age_click_effect = yes
+	}
+}
+
+pantheon_ui_miracle_age_armed = {
+	scope = character
+	is_valid = {
+		has_variable = pantheon_temple_confirm
+		var:pantheon_temple_confirm = 2
+	}
+}
+
+pantheon_ui_miracle_victory = {
+	scope = character
+	is_shown = {
+		has_variable = pantheon_temple_tier
+		var:pantheon_temple_tier = 5
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_miracle_cooldown_tt
+			pantheon_miracle_ready_trigger = yes
+		}
+	}
+	effect = {
+		pantheon_ui_miracle_victory_click_effect = yes
+	}
+}
+
+pantheon_ui_miracle_victory_armed = {
+	scope = character
+	is_valid = {
+		has_variable = pantheon_temple_confirm
+		var:pantheon_temple_confirm = 3
 	}
 }

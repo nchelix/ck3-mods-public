@@ -236,6 +236,40 @@ pantheon_lands_interaction = {
 	ai_will_do = { base = 0 }
 }
 
+# 2.2 Task 3: the fourth miracle, a right-click interaction on any landed ruler (follower or not -- the
+# Wrath does not spare followers in range, spec 3.4), centred on their capital. Shown only while the
+# miracle is ready (pantheon_miracle_ready_trigger, common/scripted_triggers/pantheon_temple_triggers.txt):
+# unlike Judgement/Lands, there is no greyed is_valid_showing_failures_only state, matching the window's own
+# note ("Right-click a ruler to choose where"), which only appears once the miracle is ready. Never offered
+# to the AI (is_ai = no and ai_will_do = 0, both proven forms above).
+pantheon_wrath_of_heaven_interaction = {
+	category = interaction_category_hostile
+	icon = pantheon_wrath_of_heaven_interaction # 2.2: AutoSprite painting (user-approved), cropped to 100x100
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = pantheon_wrath_of_heaven_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+			pantheon_miracle_ready_trigger = yes
+		}
+		scope:recipient = { is_landed = yes }
+	}
+	on_accept = {
+		hidden_effect = {
+			scope:recipient = { save_scope_as = pantheon_victim }
+			scope:actor = {
+				pantheon_miracle_wrath_effect = { CENTER = scope:recipient.capital_province }
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
 # 2.0: Bless, one interaction with a radio option per blessing (radio options, proven in the Task 0 prototype).
 # The work runs in pantheon.0100 on the god; on_accept only previews and records the choice in variables.
 pantheon_bless_interaction = {

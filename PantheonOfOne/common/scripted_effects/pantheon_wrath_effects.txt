@@ -149,7 +149,7 @@ pantheon_wrath_wreck_building_effect = {
 				max = 100
 				check_range_bounds = no
 				if = {
-					limit = { NOT = { exists = scope:pantheon_wrecked } }
+					limit = { NOT = { exists = scope:pantheon_wrecked } exists = title_province } # a county with no capital province fails the context switch
 					title_province = {
 						destroy_random_building_variable_effect = yes
 						if = {
@@ -285,9 +285,22 @@ pantheon_wrath_awe_sweep_effect = {
 	}
 }
 
+# 2.2 R3: the shared Wrath Devotion penalty, factored out of pantheon_plague_devotion_effect below so the
+# Wrath of Heaven (pantheon_miracle_wrath_effect, common/scripted_effects/pantheon_miracle_effects.txt) can
+# apply it to a county it strikes directly, keeping the same 3-year cooldown. Root is the god;
+# scope:pantheon_target is the one follower to penalize (saved by the caller, as
+# pantheon_change_devotion_effect itself expects).
+pantheon_plague_devotion_penalty_effect = {
+	if = {
+		limit = { NOT = { scope:pantheon_target = { has_variable = pantheon_plague_hurt } } }
+		scope:pantheon_target = { set_variable = { name = pantheon_plague_hurt value = yes years = 3 } }
+		pantheon_change_devotion_effect = { AMOUNT = -5 }
+	}
+}
+
 # Quarterly (pantheon.0010): while one of the god's plagues is abroad, a follower whose capital county has an
-# outbreak loses 5 Devotion, once per 3 years. Any outbreak counts: the engine gives no handle on which
-# outbreak is the god's.
+# outbreak loses 5 Devotion, once per 3 years (pantheon_plague_devotion_penalty_effect above). Any outbreak
+# counts: the engine gives no handle on which outbreak is the god's.
 pantheon_plague_devotion_effect = {
 	if = {
 		limit = { has_variable = pantheon_plague_sent }
@@ -301,11 +314,13 @@ pantheon_plague_devotion_effect = {
 				NOT = { this = root }
 				exists = capital_county
 				capital_county = { has_province_with_epidemic = { intensity = any } }
-				NOT = { has_variable = pantheon_plague_hurt }
 			}
-			set_variable = { name = pantheon_plague_hurt value = yes years = 3 }
 			save_scope_as = pantheon_target
-			root = { pantheon_change_devotion_effect = { AMOUNT = -5 } }
+			# Batch 2r1: called in root (the god) scope, not the ruler's -- pantheon_plague_devotion_penalty_effect
+			# calls pantheon_change_devotion_effect, whose pantheon_ensure_devotion_effect adds scope:pantheon_target
+			# to pantheon_known on the *current* scope; that list lives on the god. The direct Wrath path
+			# (pantheon_miracle_wrath_effect) already does this.
+			root = { pantheon_plague_devotion_penalty_effect = yes }
 		}
 	}
 }

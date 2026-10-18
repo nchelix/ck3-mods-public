@@ -1,0 +1,211 @@
+﻿# Pantheon of One 2.2: the Great Temple. Five special buildings (Shrine .. Great Temple), never offered in
+# the build menu -- placed and replaced only by common/scripted_effects/pantheon_temple_effects.txt, exactly
+# as One Trait's Sanctum is (OneTraitToRuleThemAll/common/buildings/one_trait_sanctum.txt,
+# common/scripted_effects/one_trait_building_effects.txt one_trait_raise_sanctum). Vanilla assets stand in
+# for all five tiers until Task 6's custom Meshy models (spec, "Proven (Task 0)": custom models work, but
+# nothing in this batch depends on them). Holy-site modifiers per the design spec, section 2: each tier
+# repeats every lower tier's bonus and adds its own, since the lower tier's building is removed when the
+# next one is placed (pantheon_temple_complete_effect).
+#
+# is_enabled (R4, dormancy): vanilla form game/common/buildings/00_admin_buildings.txt:20-29
+# (capital_bureau_01's is_enabled). The founder is stored as a character variable on the province itself at
+# founding (pantheon_temple_found_effect); dormant when the founder no longer has pantheon_divine, or the
+# province's county is no longer in faithful hands for that founder.
+
+pantheon_great_temple_01 = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_great_temple_01.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	asset = {
+		type = pdxmesh
+		name = "pantheon_great_temple_01_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	flag = pantheon_great_temple
+
+	is_enabled = {
+		has_variable = pantheon_temple_founder
+		var:pantheon_temple_founder = { has_trait = pantheon_divine }
+		county = {
+			pantheon_temple_faithful_hands_trigger = { GOD = root.var:pantheon_temple_founder }
+		}
+	}
+
+	county_modifier = {
+		county_opinion_add = 10
+		development_growth_factor = 0.1
+	}
+
+	ai_value = {
+		base = 0
+	}
+}
+
+pantheon_great_temple_02 = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_great_temple_02.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	asset = {
+		type = pdxmesh
+		name = "pantheon_great_temple_02_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	flag = pantheon_great_temple
+
+	is_enabled = {
+		has_variable = pantheon_temple_founder
+		var:pantheon_temple_founder = { has_trait = pantheon_divine }
+		county = {
+			pantheon_temple_faithful_hands_trigger = { GOD = root.var:pantheon_temple_founder }
+		}
+	}
+
+	county_modifier = {
+		county_opinion_add = 10
+		development_growth_factor = 0.1
+	}
+
+	character_modifier = {
+		monthly_piety = 0.5
+	}
+
+	ai_value = {
+		base = 0
+	}
+}
+
+pantheon_great_temple_03 = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_great_temple_03.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	asset = {
+		type = pdxmesh
+		name = "pantheon_great_temple_03_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	flag = pantheon_great_temple
+
+	is_enabled = {
+		has_variable = pantheon_temple_founder
+		var:pantheon_temple_founder = { has_trait = pantheon_divine }
+		county = {
+			pantheon_temple_faithful_hands_trigger = { GOD = root.var:pantheon_temple_founder }
+		}
+	}
+
+	county_modifier = {
+		county_opinion_add = 10
+		development_growth_factor = 0.1
+		monthly_county_control_growth_add = 2
+	}
+
+	character_modifier = {
+		monthly_piety = 0.5
+	}
+
+	ai_value = {
+		base = 0
+	}
+}
+
+pantheon_great_temple_04 = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_great_temple_04.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	asset = {
+		type = pdxmesh
+		name = "pantheon_great_temple_04_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	flag = pantheon_great_temple
+
+	is_enabled = {
+		has_variable = pantheon_temple_founder
+		var:pantheon_temple_founder = { has_trait = pantheon_divine }
+		county = {
+			pantheon_temple_faithful_hands_trigger = { GOD = root.var:pantheon_temple_founder }
+		}
+	}
+
+	county_modifier = {
+		county_opinion_add = 10
+		development_growth_factor = 0.1
+		monthly_county_control_growth_add = 2
+	}
+
+	character_modifier = {
+		monthly_piety = 0.5
+	}
+
+	province_modifier = {
+		fort_level = 2
+	}
+
+	ai_value = {
+		base = 0
+	}
+}
+
+pantheon_great_temple_05 = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_great_temple_05.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	asset = {
+		type = pdxmesh
+		name = "pantheon_great_temple_05_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	flag = pantheon_great_temple
+
+	is_enabled = {
+		has_variable = pantheon_temple_founder
+		var:pantheon_temple_founder = { has_trait = pantheon_divine }
+		county = {
+			pantheon_temple_faithful_hands_trigger = { GOD = root.var:pantheon_temple_founder }
+		}
+	}
+
+	# All of tiers 1-4's bonuses; the miracles (Task 3) are not static modifiers.
+	county_modifier = {
+		county_opinion_add = 10
+		development_growth_factor = 0.1
+		monthly_county_control_growth_add = 2
+	}
+
+	character_modifier = {
+		monthly_piety = 0.5
+	}
+
+	province_modifier = {
+		fort_level = 2
+	}
+
+	ai_value = {
+		base = 0
+	}
+}

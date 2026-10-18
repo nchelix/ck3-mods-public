@@ -36,12 +36,16 @@ pantheon_quarterly_worship = {
 	}
 }
 
+# 2.2 R1: multiply = pantheon_temple_boon_factor once here (never again at the display, affordability or
+# charge site) so every reader -- the menu's price loc, pantheon_can_afford_trigger and the debit in
+# pantheon_effects.txt -- sees the same discounted number.
 pantheon_cost_host = {
 	value = 1800
 	if = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 0.08333
 	}
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_trait = {
@@ -50,6 +54,7 @@ pantheon_cost_trait = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 0.08333
 	}
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_realm = {
@@ -58,6 +63,7 @@ pantheon_cost_realm = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 0.08333
 	}
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_life = {
@@ -66,6 +72,7 @@ pantheon_cost_life = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 0.08333
 	}
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_trait_years = {
@@ -274,34 +281,41 @@ pantheon_ui_devotion = {
 }
 
 # 2.1 Great Boons: the price of each boon (spec Section 2). Sandbox pays 1/12, like every boon.
+# 2.2 R1: multiply = pantheon_temple_boon_factor once here too (see pantheon_cost_host above).
 pantheon_cost_boon_crown = {
 	value = 4800
 	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_boon_kin = {
 	value = 2400
 	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_boon_war = {
 	value = 4800
 	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_boon_heir = {
 	value = 2400
 	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_boon_conversion = {
 	value = 3600
 	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
 }
 
 pantheon_cost_boon_fortune = {
 	value = 1800
 	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
 }
 
 # Character scope (the follower): the price of the boon they hold
@@ -351,4 +365,148 @@ pantheon_boon_war_badness = {
 	value = 0
 	if = { limit = { is_attacker = scope:pantheon_boon_cand } value = attacker_war_score multiply = -1 }
 	else = { value = defender_war_score multiply = -1 }
+}
+
+# ---- 2.2 Task 1: the Great Temple. Tier costs 1,000/2,000/4,000/8,000/16,000 Worship (Sandbox 1/12, like
+# every boon); build times 1-5 years flat (the plan's Global Constraints scope the "every new duration
+# doubles under Sandbox" rule to the miracle cooldown and Age of faith only -- Task 1's own step 1 lists the
+# years with no Sandbox branch, unlike the costs).
+pantheon_temple_cost_1 = {
+	value = 1000
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_temple_cost_2 = {
+	value = 2000
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_temple_cost_3 = {
+	value = 4000
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_temple_cost_4 = {
+	value = 8000
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_temple_cost_5 = {
+	value = 16000
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+}
+
+pantheon_temple_years_1 = { value = 1 }
+pantheon_temple_years_2 = { value = 2 }
+pantheon_temple_years_3 = { value = 3 }
+pantheon_temple_years_4 = { value = 4 }
+pantheon_temple_years_5 = { value = 5 }
+
+# God scope: the next tier's cost/years, for the Upgrade button and pantheon_temple_upgrade_effect. 0 once
+# there is no next tier (tier 5) or no temple yet (pantheon_temple_cost_1/_years_1 are used directly then).
+pantheon_temple_next_cost = {
+	value = 0
+	if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } value = pantheon_temple_cost_2 }
+	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } value = pantheon_temple_cost_3 }
+	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } value = pantheon_temple_cost_4 }
+	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } value = pantheon_temple_cost_5 }
+}
+
+pantheon_temple_next_years = {
+	value = 0
+	if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } value = pantheon_temple_years_2 }
+	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } value = pantheon_temple_years_3 }
+	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } value = pantheon_temple_years_4 }
+	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } value = pantheon_temple_years_5 }
+}
+
+# Any scope with a faith (the god's own, or a follower's -- both resolve to the same god through
+# faith.religious_head): 0 unless that faith's god has an active (non-dormant) temple, else that temple's
+# tier (1-5).
+pantheon_temple_active_tier = {
+	value = 0
+	if = {
+		limit = { exists = faith.religious_head faith.religious_head = { pantheon_temple_active_trigger = yes } }
+		value = faith.religious_head.var:pantheon_temple_tier
+	}
+}
+
+# God scope: the squared-distance threshold for the aura at the current tier (spec 2: medium/large/huge at
+# tiers 3/4/5; game/common/script_values/00_distance_values.txt:5,10,11).
+pantheon_temple_range = {
+	value = 0
+	if = { limit = { pantheon_temple_active_tier = 3 } value = squared_distance_medium }
+	else_if = { limit = { pantheon_temple_active_tier = 4 } value = squared_distance_large }
+	else_if = { limit = { pantheon_temple_active_tier >= 5 } value = squared_distance_huge }
+}
+
+# +10/20/30/40/50% Worship at tiers 1-5, 0 when no active temple (spec 2; hooked into the quarterly credit
+# only, events/pantheon_events.txt, R8).
+pantheon_temple_worship_factor = {
+	value = pantheon_temple_active_tier
+	multiply = 0.1
+	add = 1
+}
+
+# Boon and Great Boon prices: -0/-0/-10/-20/-25/-30% at tiers 0-5 (spec 2; multiplied into the cost values
+# themselves, R1).
+pantheon_temple_boon_factor = {
+	value = 1
+	if = { limit = { pantheon_temple_active_tier = 2 } value = 0.9 }
+	else_if = { limit = { pantheon_temple_active_tier = 3 } value = 0.8 }
+	else_if = { limit = { pantheon_temple_active_tier = 4 } value = 0.75 }
+	else_if = { limit = { pantheon_temple_active_tier >= 5 } value = 0.7 }
+}
+
+# +0/0/1/2/3 Divine Host stacks at tiers 1-5 (spec 2; added to pantheon_host_stacks in pantheon_effects.txt).
+pantheon_temple_host_bonus = {
+	value = 0
+	if = { limit = { pantheon_temple_active_tier = 3 } value = 1 }
+	else_if = { limit = { pantheon_temple_active_tier = 4 } value = 2 }
+	else_if = { limit = { pantheon_temple_active_tier >= 5 } value = 3 }
+}
+
+# +0/0/1/2/3 Devotion per quarter to followers in range at tiers 1-5 (spec 2; pantheon_temple_aura_effect).
+pantheon_temple_aura = {
+	value = 0
+	if = { limit = { pantheon_temple_active_tier = 3 } value = 1 }
+	else_if = { limit = { pantheon_temple_active_tier = 4 } value = 2 }
+	else_if = { limit = { pantheon_temple_active_tier >= 5 } value = 3 }
+}
+
+# ---- 2.2 Task 3: the miracles. The Global Constraints' Sandbox duration rule ("every new duration
+# multiplies by 2 except the cooldown, which halves"): the shared cooldown is 20 years Earned, 10 Sandbox
+# (R12: stored as a months-left counter, pantheon_temple_cooldown_months, counted down in pantheon.0011);
+# Age of faith is 10 years Earned, 20 Sandbox (R12: pantheon_temple_age_months, same pattern).
+pantheon_miracle_cooldown_years = {
+	value = 20
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.5 }
+}
+
+pantheon_temple_age_years = {
+	value = 10
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 2 }
+}
+
+# Faith scope only (called from inside a `faith = { change_fervor = {...} } }` block, pantheon.0011):
+# the gain needed to reach 100 fervor this month. `fervor` unprefixed reads the current (faith) scope,
+# as vanilla's own fervor triggers do (game/common/scripted_triggers/00_stress_triggers.txt:372 `fervor <= 50`).
+pantheon_temple_age_fervor_fill = {
+	value = 100
+	subtract = fervor
+}
+
+# God scope (events/pantheon_events.txt pantheon.0010, the quarterly credit only -- R8): 2 while Age of
+# faith is running (Worship income doubles), else 1. Batch 2r1: the counter alone is not enough -- a
+# dormant or lost temple must not keep doubling Worship, so the doubling also requires the temple to still
+# be active (pantheon_temple_active_trigger, which itself re-confirms the tier's building still stands).
+pantheon_temple_age_factor = {
+	value = 1
+	if = {
+		limit = {
+			has_variable = pantheon_temple_age_months
+			pantheon_temple_active_trigger = yes
+		}
+		value = 2
+	}
 }

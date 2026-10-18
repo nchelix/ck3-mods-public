@@ -14,3 +14,94 @@ pantheon_band = {
 		localization_key = pantheon_band_faithful
 	}
 }
+
+# 2.2 Task 4: the Temple tab header and The God tab's line ([Character.Custom('pantheon_temple_tier_name')],
+# [Character.Custom('pantheon_temple_state')]). Root/"this" is the god (datacontext = GetPlayer).
+pantheon_temple_tier_name = {
+	type = character
+	# Retest 2026-10-17 (row 17b): a paused build says so next to the name, before any plain tier branch.
+	text = { trigger = { pantheon_temple_build_paused_trigger = yes NOT = { has_variable = pantheon_temple_tier } } localization_key = pantheon_temple_name_paused_01 }
+	text = { trigger = { pantheon_temple_build_paused_trigger = yes has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } localization_key = pantheon_temple_name_paused_01 }
+	text = { trigger = { pantheon_temple_build_paused_trigger = yes has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } localization_key = pantheon_temple_name_paused_02 }
+	text = { trigger = { pantheon_temple_build_paused_trigger = yes has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } localization_key = pantheon_temple_name_paused_03 }
+	text = { trigger = { pantheon_temple_build_paused_trigger = yes has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } localization_key = pantheon_temple_name_paused_04 }
+	text = { trigger = { pantheon_temple_build_paused_trigger = yes has_variable = pantheon_temple_tier var:pantheon_temple_tier = 5 } localization_key = pantheon_temple_name_paused_05 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } localization_key = building_type_pantheon_great_temple_01 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } localization_key = building_type_pantheon_great_temple_02 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } localization_key = building_type_pantheon_great_temple_03 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } localization_key = building_type_pantheon_great_temple_04 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 5 } localization_key = building_type_pantheon_great_temple_05 }
+	text = {
+		# Batch u1 repair (row 9): before tier 1 completes, this fell back to "No Great Temple" even
+		# while a build was already running; show the tier being built instead.
+		trigger = {
+			NOT = { has_variable = pantheon_temple_tier }
+			has_variable = pantheon_temple_build_tier
+		}
+		localization_key = pantheon_temple_name_building_01
+	}
+	text = { fallback = yes localization_key = pantheon_temple_name_none }
+}
+
+# The tier's current bonuses, reusing the building's own description (Task 1's building_type_*_desc loc).
+pantheon_temple_tier_desc = {
+	type = character
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } localization_key = building_type_pantheon_great_temple_01_desc }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } localization_key = building_type_pantheon_great_temple_02_desc }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } localization_key = building_type_pantheon_great_temple_03_desc }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } localization_key = building_type_pantheon_great_temple_04_desc }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 5 } localization_key = building_type_pantheon_great_temple_05_desc }
+	text = {
+		trigger = {
+			NOT = { has_variable = pantheon_temple_tier }
+			has_variable = pantheon_temple_build_tier
+		}
+		localization_key = pantheon_temple_desc_building_01
+	}
+	text = { fallback = yes localization_key = pantheon_temple_desc_none }
+}
+
+# The header's state line: no temple yet / mid-build / dormant (one reason: the god viewing their own tab
+# always still has pantheon_divine, so the only dormancy a founder can see here is the county changing
+# hands) / active.
+pantheon_temple_state = {
+	type = character
+	text = {
+		trigger = {
+			NOT = { has_variable = pantheon_temple_tier }
+			NOT = { has_variable = pantheon_temple_building }
+		}
+		localization_key = pantheon_temple_state_none
+	}
+	text = {
+		# Batch u1 repair (rows 16-17): the build must read as PAUSED, not just "Building", while the
+		# county has left faithful hands (pantheon_temple_build_paused_trigger, pantheon_temple_triggers.txt).
+		trigger = { pantheon_temple_build_paused_trigger = yes }
+		localization_key = pantheon_temple_state_build_paused
+	}
+	text = {
+		trigger = { has_variable = pantheon_temple_building }
+		localization_key = pantheon_temple_state_building
+	}
+	text = {
+		trigger = { pantheon_temple_active_trigger = yes }
+		localization_key = pantheon_temple_state_active
+	}
+	text = {
+		fallback = yes
+		localization_key = pantheon_temple_state_dormant
+	}
+}
+
+# Batch 2r1 (repair 5): the next tier's name, for the line beside the Upgrade button
+# ([Character.Custom('pantheon_temple_next_tier_name')]). Empty once there is no next tier (tier 5) or no
+# temple yet -- the Upgrade button itself is hidden then (pantheon_ui_temple_upgrade's is_shown), so the
+# fallback text is never actually seen.
+pantheon_temple_next_tier_name = {
+	type = character
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } localization_key = building_type_pantheon_great_temple_02 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } localization_key = building_type_pantheon_great_temple_03 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } localization_key = building_type_pantheon_great_temple_04 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } localization_key = building_type_pantheon_great_temple_05 }
+	text = { fallback = yes localization_key = pantheon_temple_name_none }
+}

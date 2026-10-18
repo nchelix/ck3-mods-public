@@ -1,5 +1,37 @@
 # Changelog — Pantheon of One
 
+## [2.2] — 2026-10-15
+
+The Great Temple. Tested on CK3 1.20.1.
+
+### Added
+- **The Great Temple:** a special building the god founds on a holy site of their own faith, or their own
+  capital, in five tiers (Shrine, Sanctuary, Temple, High Temple, Great Temple). Each tier costs Worship
+  and takes years to build, and compounds every tier before it:
+  - +10/20/30/40/50% Worship income.
+  - -0/10/20/25/30% boon and Great Boon prices.
+  - +0/0/1/2/3 Divine Host stacks.
+  - +0/0/1/2/3 Devotion a quarter for followers whose capital is within the temple's growing range.
+  - County bonuses of its own: opinion and development, piety for its holder, control growth, and a fort
+    level.
+- The temple never replaces a wonder; its county must be in faithful hands, or its powers sleep until it
+  returns. A build under way pauses while the county is out of faithful hands
+  and resumes where it left off.
+- A site another god's temple is already being built on, or already stands on, cannot be taken for yours.
+- **Four miracles**, once the temple reaches its fifth tier, on a shared twenty-year cooldown:
+  - **Mass conversion:** every county within the temple's reach takes the god's faith at once.
+  - **Age of faith:** for ten years, Worship income doubles, followers nearby gain extra Devotion, and the
+    faith's fervor burns at its height.
+  - **Divine victory:** every war a follower leads against an unbeliever ends in their favour.
+  - **The Wrath of Heaven:** a right-click calamity on any ruler — disaster, plague and fear fall on a huge
+    swath of the world around their capital, sparing the god's own domain and the temple's own county but
+    no one else, not even the god's own followers caught elsewhere in the strike.
+- Founding the temple on a county that is not already a holy site of the faith makes it one, where the
+  faith has room for one (creation can be refused if the faith is already at its holy-site maximum), with
+  its own modest holy-site bonuses.
+- **The Temple**, a new tab in the Pantheon window: the holy-site list before founding, then the temple's
+  tier, state, bonuses and a five-step ladder.
+
 ## [2.1] — 2026-10-13
 
 Great Boons. Tested on CK3 1.20.1.

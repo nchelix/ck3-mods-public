@@ -319,7 +319,11 @@ pantheon_call_host_effect = {
 			inheritable = no
 			men_at_arms = {
 				type = pantheon_host_maa
-				stacks = pantheon_host_stacks
+				# 2.2: +pantheon_temple_host_bonus stacks at Temple tier and above (spec 2).
+				stacks = {
+					value = pantheon_host_stacks
+					add = pantheon_temple_host_bonus
+				}
 			}
 			location = scope:pantheon_target.capital_province
 			name = pantheon_host_army_name
