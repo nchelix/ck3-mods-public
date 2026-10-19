@@ -1,0 +1,607 @@
+﻿# One Trait 2.9: the Diplomacy, Court and puppet rows' hand-written triggers. For an action key K of area A
+# (tools/build_one_trait_panel.py): one_trait_A_K_shown_trigger and one_trait_A_K_valid_trigger (Court rows are
+# area "realm": one_trait_realm_court_*; their effects live in one_trait_summon_effects.txt). Spec:
+# docs/superpowers/specs/2026-10-19-one-trait-2.9-diplomacy-summon-design.md section 2.
+#
+# Scope rule: every trigger runs IN the panel character's scope (the generated scripted GUI calls it as
+# "var:one_trait_ui_target = { one_trait_A_K_... = yes }"), root = the player. A condition on the player is
+# written "root = { ... }" with the panel's character as prev. A trigger with no entry in the game's
+# common/trigger_localization/ gets its own custom_tooltip reason (the reasons table, DIPLOMACY_REASONS).
+# Batch 1 made relations_friend, court_chancellor and puppets_secular real; batch 2 made every other key real.
+# Every Diplomacy row is SHOWN always (the category's lock covers yourself and dead targets) and VALID by the
+# conditions below, each failing condition with a readable reason: a trigger with its own vanilla
+# trigger_localization entry stands alone (is_landed, is_independent_ruler, is_at_war, is_imprisoned, has_trait,
+# is_clergy: game/common/trigger_localization/00_character_triggers.txt:27, 362, 463, 351, 293, 1717); anything
+# relational to the player (root), a flag, or a scope comparison sits in a custom_tooltip with its own reason key.
+
+# ---- Real (batch 1)
+one_trait_diplomacy_relations_friend_shown_trigger = { always = yes }
+# Vanilla's own guard for set_relation_friend: game/common/scripted_triggers/00_relation_triggers.txt:14-22
+# (not themselves, and no friend, best friend, rival or nemesis relation yet). It mixes triggers with and
+# without trigger_localization, so one reason text covers it.
+one_trait_diplomacy_relations_friend_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_relations_friend_tt
+		root = { can_set_relation_friend_trigger = { CHARACTER = prev } }
+	}
+}
+
+# Court rows. The five councillor rows seat the summoned character on the court owner's council (this = the panel's
+# character), so they are VALID only when that seat can exist (Codex review #1 finding 1; the engine refuses the
+# assignment otherwise and the row would promise a seat that never comes):
+# 1. The owner's government has a council. The governments with council = no, in
+#    game/common/governments/00_government_types.txt: mercenary_government (:330, flag government_is_mercenary :349),
+#    holy_order_government (:367, government_is_holy_order :389), monastic_holy_order_government (:403, the same flag
+#    :432), landless_adventurer_government (:568, government_is_landless_adventurer :616) and herder_government (:743,
+#    government_is_herder :778).
+# 2. The position's own valid_position (game/common/council_positions/00_council_positions.txt): chancellor :53-58,
+#    steward :203-208, marshal :339-344 and court chaplain :823-828 exclude government_is_landless_adventurer and
+#    government_is_nomadic; spymaster :481-483 excludes only government_is_landless_adventurer.
+# 0. The owner is a playable character (count tier or above). A baron has_council = yes but is not playable and has no
+#    seat to fill: assign_councillor_type then logs "doesn't have an open council position" (batch 6 F1, self-test
+#    s21c4). It is the FIRST condition of each councillor row.
+# government_has_flag has trigger_localization of its own, but it would read as a bare flag name, so each guard sits in
+# a custom_tooltip with a plain reason. Champion, spouse and ward take no seat and stay always valid, as does every
+# shown trigger: Realm's lock (the target is a landed ruler) hides the rest.
+one_trait_realm_court_chancellor_shown_trigger = { always = yes }
+one_trait_realm_court_chancellor_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_owner_playable_tt
+		is_playable_character = yes
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_has_council_tt
+		NOR = {
+			government_has_flag = government_is_mercenary
+			government_has_flag = government_is_holy_order
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_herder
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_seat_open_tt
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_nomadic
+		}
+	}
+}
+one_trait_realm_court_marshal_shown_trigger = { always = yes }
+one_trait_realm_court_marshal_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_owner_playable_tt
+		is_playable_character = yes
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_has_council_tt
+		NOR = {
+			government_has_flag = government_is_mercenary
+			government_has_flag = government_is_holy_order
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_herder
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_seat_open_tt
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_nomadic
+		}
+	}
+}
+one_trait_realm_court_steward_shown_trigger = { always = yes }
+one_trait_realm_court_steward_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_owner_playable_tt
+		is_playable_character = yes
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_has_council_tt
+		NOR = {
+			government_has_flag = government_is_mercenary
+			government_has_flag = government_is_holy_order
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_herder
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_seat_open_tt
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_nomadic
+		}
+	}
+}
+one_trait_realm_court_spymaster_shown_trigger = { always = yes }
+one_trait_realm_court_spymaster_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_owner_playable_tt
+		is_playable_character = yes
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_has_council_tt
+		NOR = {
+			government_has_flag = government_is_mercenary
+			government_has_flag = government_is_holy_order
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_herder
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_seat_open_tt
+		NOT = { government_has_flag = government_is_landless_adventurer }
+	}
+}
+one_trait_realm_court_chaplain_shown_trigger = { always = yes }
+one_trait_realm_court_chaplain_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_owner_playable_tt
+		is_playable_character = yes
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_has_council_tt
+		NOR = {
+			government_has_flag = government_is_mercenary
+			government_has_flag = government_is_holy_order
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_herder
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_court_seat_open_tt
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_nomadic
+		}
+	}
+}
+one_trait_realm_court_champion_shown_trigger = { always = yes }
+one_trait_realm_court_champion_valid_trigger = { always = yes }
+one_trait_realm_court_spouse_shown_trigger = { always = yes }
+one_trait_realm_court_spouse_valid_trigger = { always = yes }
+one_trait_realm_court_ward_shown_trigger = { always = yes }
+one_trait_realm_court_ward_valid_trigger = { always = yes }
+
+# The menu option's conditions (one_trait_menu.1000.secular): a landed ruler, not clergy, not incapable, not
+# already your puppet. "Not you" is the Puppets rows' own vbox guard (one_trait_ui_target_is_other).
+# is_landed / is_ruler / has_trait / is_clergy have trigger_localization; puppeteer does not.
+one_trait_puppets_puppets_secular_shown_trigger = { always = yes }
+# Batch 6 F3: every row that SETS a puppet also needs the player to be able to hold that type (has_puppet_type,
+# docs/reference/ck3-1.20.1.1-triggers.log:4073). external_ruler_puppet's can_have is the vanilla DLC check
+# (pam_scripted_triggers.txt:1266); the mod's clerical types need has_trait = one_trait
+# (common/puppets/types/one_trait_puppet_types_generated.txt:9, 122).
+one_trait_puppets_puppets_secular_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_puppets_cannot_hold_secular_tt
+		root = { has_puppet_type = external_ruler_puppet }
+	}
+	is_landed = yes
+	is_ruler = yes
+	NOR = {
+		has_trait = incapable
+		is_clergy = yes
+	}
+	custom_tooltip = {
+		text = one_trait_puppets_not_yours_yet_tt
+		NOT = { puppeteer ?= root }
+	}
+}
+
+# ---- Alliances (one_trait_menu.1410)
+
+# create_alliance has no restriction in effects.log (:3775); vanilla's negotiate_alliance_interaction wants both
+# characters playable and not at war with each other (00_alliance.txt:1076-1091), the debug cheat that calls the
+# same effect wants them not already allied and not at war (00_debug_interactions.txt:3150-3157). Added (Codex review
+# #1 finding 3): vanilla's is_alliance_valid opens with NOT has_title = title:h_china on the FIRST character of the
+# alliance reason (game/common/scripted_rules/00_rules.txt:379-383), and the effects below make the player that
+# character (allied_through_owner = root), so a player who holds the Chinese hegemony cannot keep the alliance.
+one_trait_diplomacy_alliances_create_shown_trigger = { always = yes }
+one_trait_diplomacy_alliances_create_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_both_rulers_tt
+		is_playable_character = yes
+		root = { is_playable_character = yes }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_allied_yet_tt
+		root = { NOT = { is_allied_to = prev } }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_at_war_tt
+		root = { NOT = { is_at_war_with = prev } }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_hegemon_tt
+		root = { NOT = { has_title = title:h_china } }
+	}
+}
+
+# Old: one of their allies is neither you nor already your ally. Added: the same h_china rule as the create row (the
+# inherited alliances are made with allied_through_owner = root, one_trait_diplomacy_effects.txt).
+one_trait_diplomacy_alliances_inherit_shown_trigger = { always = yes }
+one_trait_diplomacy_alliances_inherit_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_ally_to_inherit_tt
+		any_ally = {
+			NOR = {
+				this = root
+				is_allied_to = root
+			}
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_hegemon_tt
+		root = { NOT = { has_title = title:h_china } }
+	}
+}
+
+one_trait_diplomacy_alliances_isolate_shown_trigger = { always = yes }
+# Changed (batch 7 U2): they need an ally whose alliance rests on a pact alone; marriage and family alliances are
+# kept by vanilla's is_alliance_valid, so an isolate that could only reach those would do nothing. In any_ally the
+# scope is the ally and prev is the panel's character.
+one_trait_diplomacy_alliances_isolate_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_isolate_pact_ally_tt
+		any_ally = { one_trait_alliance_rests_on_pact_only_trigger = { OTHER = prev } }
+	}
+}
+
+# Added (batch 7 U2, checklist #40): does the alliance between THIS character and $OTHER$ rest on a pact alone?
+# True when none of the reasons vanilla's is_alliance_valid keeps an alliance for holds
+# (game/common/scripted_rules/00_rules.txt:376-432: marriage, betrothal, close family, blood brotherhood, the
+# event-negotiated opinion either way, the childhood hostage oath of friendship, :411-428, and the FP3 loyalist
+# flag on either character, :430-431). Evaluated in one participant's scope with the other passed as OTHER, and
+# symmetric over the two directions. The perk-negotiated opinion is NOT here: break_alliance removes it both ways
+# (game/common/on_action/alliance_on_actions.txt:296-305, on_alliance_broken), so it never stops an isolate; the
+# end row's effect removes only their side, so that row adds the other side itself.
+# Used by alliances_end (OTHER = root) and alliances_isolate (OTHER = prev inside any_ally).
+# Scopes (batch 8, Codex review #2): inside any_memory the scope is the memory and prev is its OWNER, never the
+# other participant, and $OTHER$ may itself expand to prev; so the oath branch first saves both characters
+# (one_trait_pact_self / one_trait_pact_other) and the memory checks name those saved scopes. The only other prev
+# is in the event-negotiated opinion branch: it sits in a plain $OTHER$ = { ... } block, not in any_memory, so
+# prev is the scope before the block, this character, whether OTHER is root or prev.
+one_trait_alliance_rests_on_pact_only_trigger = {
+	NOR = {
+		is_spouse_of = $OTHER$
+		betrothed = $OTHER$
+		is_parent_of = $OTHER$
+		is_child_of = $OTHER$
+		is_sibling_of = $OTHER$
+		is_grandparent_of = $OTHER$
+		is_great_grandparent_of = $OTHER$
+		is_grandchild_of = $OTHER$
+		is_great_grandchild_of = $OTHER$
+		is_uncle_or_aunt_of = $OTHER$
+		is_nibling_of = $OTHER$
+		has_relation_blood_brother = $OTHER$
+		has_opinion_modifier = {
+			modifier = event_negotiated_alliance_opinion
+			target = $OTHER$
+		}
+		$OTHER$ = {
+			has_opinion_modifier = {
+				modifier = event_negotiated_alliance_opinion
+				target = prev
+			}
+		}
+		AND = {
+			save_temporary_scope_as = one_trait_pact_self
+			$OTHER$ = { save_temporary_scope_as = one_trait_pact_other }
+			OR = {
+				has_relation_friend = $OTHER$
+				has_relation_best_friend = $OTHER$
+			}
+			OR = {
+				any_memory = {
+					memory_type = hostage_oath_of_friendship
+					has_memory_participant = scope:one_trait_pact_other
+				}
+				scope:one_trait_pact_other = {
+					any_memory = {
+						memory_type = hostage_oath_of_friendship
+						has_memory_participant = scope:one_trait_pact_self
+					}
+				}
+			}
+		}
+		has_character_flag = fp3_is_a_loyalist_puppet
+		$OTHER$ = { has_character_flag = fp3_is_a_loyalist_puppet }
+	}
+}
+
+# Old: allied to them, and the one-day "ending" flag not raised. Added: the alliance ends by losing the
+# negotiated-alliance opinion, so it must not rest on anything else vanilla's is_alliance_valid accepts
+# (game/common/scripted_rules/00_rules.txt:379-432: marriage, betrothal, close family, blood brotherhood, the
+# event-negotiated opinion either way, or the same perk opinion held by you on them; the childhood hostage oath of
+# friendship, :411-428: friend or best friend plus a hostage_oath_of_friendship memory in either direction; and the
+# FP3 loyalist flag on either character, :430-431): otherwise the click would do nothing and the alliance would
+# stay. Scopes: this = the panel's character, root = the player; vanilla's root / scope:second are checked in both
+# directions by the same symmetric expression below.
+one_trait_diplomacy_alliances_end_shown_trigger = { always = yes }
+one_trait_diplomacy_alliances_end_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_allied_with_you_tt
+		root = { is_allied_to = prev }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_alliance_pact_only_tt
+		one_trait_alliance_rests_on_pact_only_trigger = { OTHER = root }
+		NOT = {
+			root = {
+				has_opinion_modifier = {
+					modifier = perk_negotiated_alliance_opinion
+					target = prev
+				}
+			}
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_alliance_not_ending_tt
+		NOT = { has_character_flag = one_trait_ending_alliance }
+	}
+}
+
+# ---- Vassals (one_trait_menu.1420)
+
+# Old: you are landed, they are not your liege or above, they are landed, not already your vassal, and hold a
+# lower title than you. The tier rule is vanilla's own for taking a vassal (00_test_interactions.txt:528-557,
+# the debug take_vassal_interaction: tier_difference < 0 at :547).
+one_trait_diplomacy_vassals_vassalize_shown_trigger = { always = yes }
+# Added (batch 6 F2, self-test s17c1): vanilla's offer_vassalization_interaction refuses a recipient whose government
+# has cannot_be_vassal_or_liege (mercenary, holy order, landless adventurer: 00_government_types.txt:348, 388, 431,
+# 615) or government_is_herder (game/common/character_interactions/00_character_interactions.txt:53-56), and
+# offer_fealty_interaction wants the liege side not cannot_be_vassal_or_liege (:577), so the player is guarded too.
+one_trait_diplomacy_vassals_vassalize_valid_trigger = {
+	is_landed = yes
+	custom_tooltip = {
+		text = one_trait_diplomacy_vassal_government_tt
+		NOR = {
+			government_has_flag = cannot_be_vassal_or_liege
+			government_has_flag = government_is_herder
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_can_have_vassals_tt
+		root = { NOT = { government_has_flag = cannot_be_vassal_or_liege } }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_hold_land_tt
+		root = { is_landed = yes }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_your_liege_tt
+		root = { NOT = { target_is_liege_or_above = prev } }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_your_vassal_yet_tt
+		NOT = { is_vassal_of = root }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_lower_title_tt
+		highest_held_title_tier < root.highest_held_title_tier
+	}
+}
+
+one_trait_diplomacy_vassals_release_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_release_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_is_your_vassal_tt
+		is_vassal_of = root
+	}
+}
+
+# Old: you are independent; they are independent, landed and not yet your tributary. Added: not anyone's
+# tributary (vanilla's demand_tributary_interaction, 00_tributary_interactions.txt:900-924, is_tributary = no at :924;
+# the contract cannot start on an existing tributary).
+one_trait_diplomacy_vassals_tributary_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_tributary_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_independent_tt
+		root = { is_independent_ruler = yes }
+	}
+	is_independent_ruler = yes
+	is_landed = yes
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_a_tributary_tt
+		is_tributary = no
+	}
+}
+
+one_trait_diplomacy_vassals_free_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_free_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_is_your_tributary_tt
+		is_tributary_of = root
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_tribute_not_ending_tt
+		NOT = { has_character_flag = one_trait_ending_tribute }
+	}
+}
+
+# ---- War and peace (one_trait_menu.1430)
+
+one_trait_diplomacy_war_peace_white_peace_shown_trigger = { always = yes }
+one_trait_diplomacy_war_peace_white_peace_valid_trigger = {
+	is_at_war = yes
+}
+
+# Old: one of your wars has you attacking them or defending against them (the same war scope read from them:
+# their own war list, with you as the other side).
+one_trait_diplomacy_war_peace_win_shown_trigger = { always = yes }
+one_trait_diplomacy_war_peace_win_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_war_between_you_tt
+		any_character_war = {
+			OR = {
+				AND = {
+					is_attacker = root
+					is_defender = prev
+				}
+				AND = {
+					is_defender = root
+					is_attacker = prev
+				}
+			}
+		}
+	}
+}
+
+one_trait_diplomacy_war_peace_truce_shown_trigger = { always = yes }
+one_trait_diplomacy_war_peace_truce_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_no_truce_yet_tt
+		NOR = {
+			has_truce = root
+			root = { has_truce = prev }
+		}
+	}
+}
+
+one_trait_diplomacy_war_peace_erase_truces_shown_trigger = { always = yes }
+one_trait_diplomacy_war_peace_erase_truces_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_have_a_truce_tt
+		OR = {
+			has_truce = root
+			root = { has_truce = prev }
+		}
+	}
+}
+
+# ---- Relations (one_trait_menu.1440; friend is above)
+
+one_trait_diplomacy_relations_hook_shown_trigger = { always = yes }
+one_trait_diplomacy_relations_hook_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_no_strong_hook_yet_tt
+		root = { NOT = { has_strong_hook = prev } }
+	}
+}
+
+# Old: not best friends yet. Vanilla's own guard for set_relation_best_friend is stricter and is what the engine
+# applies: game/common/scripted_triggers/00_relation_triggers.txt:30-39 (not the same character, not rivals or
+# nemeses, and NEITHER of you has a best friend already).
+one_trait_diplomacy_relations_best_friend_shown_trigger = { always = yes }
+one_trait_diplomacy_relations_best_friend_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_relations_best_friend_tt
+		root = { can_set_relation_best_friend_trigger = { CHARACTER = prev } }
+	}
+}
+
+one_trait_diplomacy_relations_end_rivalry_shown_trigger = { always = yes }
+one_trait_diplomacy_relations_end_rivalry_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_rivals_tt
+		root = {
+			OR = {
+				has_relation_rival = prev
+				has_relation_nemesis = prev
+			}
+		}
+	}
+}
+
+one_trait_diplomacy_relations_adore_shown_trigger = { always = yes }
+one_trait_diplomacy_relations_adore_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_adoring_yet_tt
+		NOT = {
+			has_opinion_modifier = {
+				modifier = one_trait_adoration
+				target = root
+			}
+		}
+	}
+}
+
+# ---- Hostility (one_trait_menu.1450)
+
+one_trait_diplomacy_hostility_strike_shown_trigger = { always = yes }
+one_trait_diplomacy_hostility_strike_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_your_heir_tt
+		NOT = { root.player_heir ?= this }
+	}
+}
+
+# Vanilla's own debug prison cheat asks only that they are not already a prisoner (00_prison_interactions.txt:7785-7800).
+one_trait_diplomacy_hostility_imprison_shown_trigger = { always = yes }
+one_trait_diplomacy_hostility_imprison_valid_trigger = {
+	is_imprisoned = no
+}
+
+one_trait_diplomacy_hostility_free_shown_trigger = { always = yes }
+one_trait_diplomacy_hostility_free_valid_trigger = {
+	is_imprisoned = yes
+}
+
+# Rulers (landed or landless) have no host to be banished from: remove_courtier_or_guest is a court action.
+one_trait_diplomacy_hostility_banish_shown_trigger = { always = yes }
+# Changed (batch 7 U1, checklist #29): is_foreign_court_guest_of matches only guests that have a liege elsewhere
+# (docs/reference/ck3-1.20.1.1-triggers.log:5427); an ordinary guest is a pool guest (is_pool_guest_of, :5836).
+# is_foreign_court_or_pool_guest_of (:5439) covers both, and remove_courtier_or_guest (effects.log:9532) removes either.
+one_trait_diplomacy_hostility_banish_valid_trigger = {
+	is_landed = no
+	custom_tooltip = {
+		text = one_trait_diplomacy_at_your_court_tt
+		OR = {
+			is_courtier_of = root
+			is_foreign_court_or_pool_guest_of = root
+		}
+	}
+}
+
+one_trait_diplomacy_hostility_excommunicate_shown_trigger = { always = yes }
+one_trait_diplomacy_hostility_excommunicate_valid_trigger = {
+	NOT = { has_trait = excommunicated }
+	custom_tooltip = {
+		text = one_trait_diplomacy_faith_has_head_tt
+		exists = faith.religious_head
+	}
+}
+
+one_trait_diplomacy_hostility_lift_shown_trigger = { always = yes }
+one_trait_diplomacy_hostility_lift_valid_trigger = {
+	has_trait = excommunicated
+}
+
+# ---- Puppets (one_trait_menu.1000; secular is above)
+
+# The menu option's conditions: clergy, not incapable, not already your puppet.
+one_trait_puppets_puppets_clerical_shown_trigger = { always = yes }
+one_trait_puppets_puppets_clerical_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_puppets_cannot_hold_clerical_tt
+		root = { has_puppet_type = one_trait_external_theological_agent_puppet }
+	}
+	is_clergy = yes
+	NOT = { has_trait = incapable }
+	custom_tooltip = {
+		text = one_trait_puppets_not_yours_yet_tt
+		NOT = { puppeteer ?= root }
+	}
+}
+
+one_trait_puppets_puppets_realm_priest_shown_trigger = { always = yes }
+one_trait_puppets_puppets_realm_priest_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_puppets_cannot_hold_clerical_tt
+		root = { has_puppet_type = one_trait_theological_agent_puppet }
+	}
+	is_clergy = yes
+	NOT = { has_trait = incapable }
+	custom_tooltip = {
+		text = one_trait_puppets_not_yours_yet_tt
+		NOT = { puppeteer ?= root }
+	}
+}
+
+one_trait_puppets_puppets_release_shown_trigger = { always = yes }
+one_trait_puppets_puppets_release_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_puppets_is_yours_tt
+		puppeteer ?= root
+	}
+}

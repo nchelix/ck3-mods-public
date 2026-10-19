@@ -1,5 +1,6 @@
-﻿# One Trait 2.0: the one right-click entry. It opens the menu on whoever you
-# clicked, yourself included; every power lives in the menu's pages.
+﻿# One Trait 2.0: the one right-click entry. 2.9: it opens the One Trait panel on whoever you
+# clicked, yourself included (one_trait_ui_open_panel_effect, run on the actor); every power
+# lives in the panel.
 one_trait_menu_interaction = {
 	category = interaction_category_friendly
 	common_interaction = yes
@@ -19,7 +20,7 @@ one_trait_menu_interaction = {
 			save_scope_as = one_trait_target
 		}
 		scope:actor = {
-			trigger_event = one_trait_menu.0001
+			one_trait_ui_open_panel_effect = yes
 		}
 	}
 

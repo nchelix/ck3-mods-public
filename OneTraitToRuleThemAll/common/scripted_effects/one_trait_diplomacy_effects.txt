@@ -1,0 +1,334 @@
+﻿# One Trait 2.9: the Diplomacy rows' and the puppet rows' hand-written effects. For an action key K of area A
+# (tools/build_one_trait_panel.py, DIPLOMACY_ACTIONS / PUPPET_ACTIONS): one_trait_A_K_effect. Spec:
+# docs/superpowers/specs/2026-10-19-one-trait-2.9-diplomacy-summon-design.md section 2.
+#
+# Scope rule: every effect runs with root = the player (the panel's scripted GUI runs in the player's scope) and
+# scope:one_trait_target = the panel's character, saved by the generated click effect just before the call.
+# Bodies moved from the retired event menu's options minus the menu's event hops and presentation wrappers.
+# Batch 1 made relations_friend and puppets_secular real; batch 2 made every other key real. The old menu's
+# event hop and its presentation-only wrappers (custom_tooltip texts, hidden_effect) are gone;
+# the bodies are otherwise the options' own.
+
+# ---- Relations: friend (batch 1)
+# one_trait_menu.1440.friend
+one_trait_diplomacy_relations_friend_effect = {
+	set_relation_friend = {
+		reason = one_trait_relation_reason
+		target = scope:one_trait_target
+	}
+}
+
+# one_trait_menu.1000.secular: steal the target from any other puppeteer, free the slot of this type, set the
+# puppet, then rebuild the Puppets list (plan R6: it refreshes after making a puppet).
+one_trait_puppets_puppets_secular_effect = {
+	one_trait_puppet_steal_effect = yes
+	one_trait_puppet_free_slot_effect = { TYPE = external_ruler_puppet }
+	set_puppet = {
+		target = scope:one_trait_target
+		type = external_ruler_puppet
+	}
+	one_trait_ui_puppets_effect = yes
+}
+
+# ---- Alliances (one_trait_menu.1410)
+
+# one_trait_menu.1410.create
+one_trait_diplomacy_alliances_create_effect = {
+	scope:one_trait_target = {
+		add_opinion = {
+			modifier = perk_negotiated_alliance_opinion
+			target = root
+		}
+	}
+	allow_alliance = scope:one_trait_target
+	create_alliance = {
+		target = scope:one_trait_target
+		allied_through_owner = root
+		allied_through_target = scope:one_trait_target
+	}
+}
+
+# one_trait_menu.1410.inherit: every ally of theirs that is neither you nor already your ally becomes your ally.
+one_trait_diplomacy_alliances_inherit_effect = {
+	scope:one_trait_target = {
+		every_ally = {
+			limit = {
+				NOR = {
+					this = root
+					is_allied_to = root
+				}
+			}
+			save_temporary_scope_as = one_trait_inherited_ally
+			add_opinion = {
+				modifier = perk_negotiated_alliance_opinion
+				target = root
+			}
+			root = {
+				allow_alliance = scope:one_trait_inherited_ally
+				create_alliance = {
+					target = scope:one_trait_inherited_ally
+					allied_through_owner = root
+					allied_through_target = scope:one_trait_inherited_ally
+				}
+			}
+		}
+	}
+}
+
+# one_trait_menu.1410.isolate: every ally of theirs whose alliance rests on a pact alone breaks it (batch 7 U2).
+# Marriage, betrothal, family and the other reasons vanilla's is_alliance_valid keeps an alliance for
+# (game/common/scripted_rules/00_rules.txt:376-432) are skipped: break_alliance would run and the alliance would
+# stay. break_alliance itself removes the perk-negotiated opinion both ways (on_alliance_broken,
+# game/common/on_action/alliance_on_actions.txt:296-305), so nothing else needs removing here.
+one_trait_diplomacy_alliances_isolate_effect = {
+	scope:one_trait_target = {
+		every_ally = {
+			limit = { one_trait_alliance_rests_on_pact_only_trigger = { OTHER = scope:one_trait_target } }
+			break_alliance = scope:one_trait_target
+		}
+	}
+}
+
+# one_trait_menu.1410.end: removing the negotiated-alliance opinion is what ends the alliance, at the next daily
+# tick (vanilla's is_alliance_valid rule, game/common/scripted_rules/00_rules.txt:379). The flag hides the row
+# until then (the valid trigger tests it). The menu's own custom_tooltip line is the row's hover text now.
+one_trait_diplomacy_alliances_end_effect = {
+	scope:one_trait_target = {
+		add_character_flag = {
+			flag = one_trait_ending_alliance
+			days = 1
+		}
+	}
+	allow_alliance = scope:one_trait_target
+	scope:one_trait_target = {
+		remove_opinion = {
+			modifier = perk_negotiated_alliance_opinion
+			target = root
+		}
+	}
+}
+
+# ---- Vassals (one_trait_menu.1420)
+
+# one_trait_menu.1420.vassalize
+one_trait_diplomacy_vassals_vassalize_effect = {
+	create_title_and_vassal_change = {
+		type = swear_fealty
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:one_trait_target = {
+		change_liege = {
+			liege = root
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# one_trait_menu.1420.release
+one_trait_diplomacy_vassals_release_effect = {
+	create_title_and_vassal_change = {
+		type = independency
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:one_trait_target = {
+		becomes_independent = {
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# one_trait_menu.1420.tributary
+one_trait_diplomacy_vassals_tributary_effect = {
+	save_scope_value_as = {
+		name = high_obligations
+		value = yes
+	}
+	start_tributary_interaction_effect = {
+		TRIBUTARY = scope:one_trait_target
+		SUZERAIN = root
+	}
+}
+
+# one_trait_menu.1420.free: the tribute ends at the next daily tick; the flag hides the row until then.
+one_trait_diplomacy_vassals_free_effect = {
+	scope:one_trait_target = {
+		add_character_flag = {
+			flag = one_trait_ending_tribute
+			days = 1
+		}
+		end_tributary = yes
+	}
+}
+
+# ---- War and peace (one_trait_menu.1430)
+
+# one_trait_menu.1430.white_peace
+one_trait_diplomacy_war_peace_white_peace_effect = {
+	scope:one_trait_target = {
+		every_character_war = {
+			end_war = white_peace
+		}
+	}
+}
+
+# one_trait_menu.1430.win: every war between you two ends in the favour of whichever side you are on.
+one_trait_diplomacy_war_peace_win_effect = {
+	every_character_war = {
+		limit = {
+			OR = {
+				AND = {
+					is_attacker = root
+					is_defender = scope:one_trait_target
+				}
+				AND = {
+					is_defender = root
+					is_attacker = scope:one_trait_target
+				}
+			}
+		}
+		if = {
+			limit = { is_attacker = root }
+			end_war = attacker
+		}
+		else = {
+			end_war = defender
+		}
+	}
+}
+
+# one_trait_menu.1430.truce (the name is a loc key: a truce without a war needs one)
+one_trait_diplomacy_war_peace_truce_effect = {
+	add_truce_both_ways = {
+		character = scope:one_trait_target
+		days = 1825
+		name = one_trait_truce
+	}
+}
+
+# one_trait_menu.1430.erase_truces
+one_trait_diplomacy_war_peace_erase_truces_effect = {
+	cancel_truce_both_ways = scope:one_trait_target
+}
+
+# ---- Relations (one_trait_menu.1440; friend is above)
+
+# one_trait_menu.1440.hook
+one_trait_diplomacy_relations_hook_effect = {
+	add_hook = {
+		type = strong_obligation_hook
+		target = scope:one_trait_target
+	}
+}
+
+# one_trait_menu.1440.best_friend
+one_trait_diplomacy_relations_best_friend_effect = {
+	set_relation_best_friend = {
+		reason = one_trait_relation_reason
+		target = scope:one_trait_target
+	}
+}
+
+# one_trait_menu.1440.end_rivalry: both branches, the nemesis and the rival.
+one_trait_diplomacy_relations_end_rivalry_effect = {
+	if = {
+		limit = { has_relation_nemesis = scope:one_trait_target }
+		remove_relation_nemesis = scope:one_trait_target
+	}
+	if = {
+		limit = { has_relation_rival = scope:one_trait_target }
+		remove_relation_rival = scope:one_trait_target
+	}
+}
+
+# one_trait_menu.1440.adore
+one_trait_diplomacy_relations_adore_effect = {
+	scope:one_trait_target = {
+		add_opinion = {
+			modifier = one_trait_adoration
+			target = root
+		}
+	}
+}
+
+# ---- Hostility (one_trait_menu.1450)
+
+# one_trait_menu.1450.strike: no killer, so no murder secret, tyranny or crime.
+one_trait_diplomacy_hostility_strike_effect = {
+	scope:one_trait_target = {
+		death = {
+			death_reason = death_mysterious
+		}
+	}
+}
+
+# one_trait_menu.1450.imprison
+one_trait_diplomacy_hostility_imprison_effect = {
+	imprison = {
+		target = scope:one_trait_target
+		type = dungeon
+	}
+}
+
+# one_trait_menu.1450.free
+one_trait_diplomacy_hostility_free_effect = {
+	scope:one_trait_target = {
+		release_from_prison = yes
+	}
+}
+
+# one_trait_menu.1450.banish
+one_trait_diplomacy_hostility_banish_effect = {
+	remove_courtier_or_guest = scope:one_trait_target
+}
+
+# one_trait_menu.1450.excommunicate
+one_trait_diplomacy_hostility_excommunicate_effect = {
+	scope:one_trait_target = {
+		add_excommunication_actual_effect = yes
+	}
+}
+
+# one_trait_menu.1450.lift
+one_trait_diplomacy_hostility_lift_effect = {
+	scope:one_trait_target = {
+		remove_trait = excommunicated
+		clear_excommunication_tracking_effect = yes
+	}
+}
+
+# ---- Puppets (one_trait_menu.1000; secular is above). Each steals the target from any other puppeteer, frees
+# the slot of its type, sets the puppet, then rebuilds the Puppets list (plan R6).
+
+# one_trait_menu.1000.clerical
+one_trait_puppets_puppets_clerical_effect = {
+	one_trait_puppet_steal_effect = yes
+	one_trait_puppet_free_slot_effect = { TYPE = one_trait_external_theological_agent_puppet }
+	set_puppet = {
+		target = scope:one_trait_target
+		type = one_trait_external_theological_agent_puppet
+	}
+	one_trait_ui_puppets_effect = yes
+}
+
+# one_trait_menu.1000.realm_priest
+one_trait_puppets_puppets_realm_priest_effect = {
+	one_trait_puppet_steal_effect = yes
+	one_trait_puppet_free_slot_effect = { TYPE = one_trait_theological_agent_puppet }
+	set_puppet = {
+		target = scope:one_trait_target
+		type = one_trait_theological_agent_puppet
+	}
+	one_trait_ui_puppets_effect = yes
+}
+
+# one_trait_menu.1000.release
+one_trait_puppets_puppets_release_effect = {
+	scope:one_trait_target = {
+		clear_puppet_status = yes
+	}
+	one_trait_ui_puppets_effect = yes
+}

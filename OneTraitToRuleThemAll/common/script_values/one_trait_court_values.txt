@@ -1,0 +1,88 @@
+﻿# One Trait 2.9: the Court rows' owner-based gender chances (plan Revisions R1). Each is a copy of its vanilla
+# original (same algorithm) reading scope:one_trait_target, the court owner, where the original reads root,
+# because a Court row summons into the court of the character the panel is on, not the player's.
+# Batch 1: the first (chancellor, steward, marshal, spymaster). Batch 2: clergy, soldier and attraction.
+
+# Copy of root_faith_dominant_gender_adjusted_female_chance
+# (game/common/script_values/01_dynamic_values.txt:2003); the original reads root.rite.
+one_trait_court_owner_faith_dominant_gender_female_chance = {
+	if = {
+		limit = { scope:one_trait_target.rite = { rite_has_doctrine = doctrine_gender_male_dominated } }
+		add = 20
+	}
+	else_if = {
+		limit = { scope:one_trait_target.rite = { rite_has_doctrine = doctrine_gender_female_dominated } }
+		add = 80
+	}
+	else = {
+		add = 50
+	}
+}
+
+# Copy of root_faith_clergy_gender_female_chance (game/common/script_values/01_dynamic_values.txt:1726); the
+# original reads root.rite. Used by the Court Chaplain.
+one_trait_court_owner_clergy_gender_female_chance = {
+	if = {
+		limit = {
+			scope:one_trait_target.rite = { rite_has_parameter = clergy_must_be_male }
+		}
+		add =  0
+	}
+	else_if = {
+		limit = {
+			scope:one_trait_target.rite = { rite_has_parameter = clergy_must_be_female }
+		}
+		add =  100
+	}
+	else = {
+	 	add = 50
+	}
+}
+
+# Copy of root_soldier_female_chance (game/common/script_values/01_dynamic_values.txt:1812); the original
+# passes root as the army owner. Used by the champion.
+one_trait_court_owner_soldier_female_chance = {
+	if = {
+		limit = {
+			NOT = { dummy_female = { can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:one_trait_target } } }
+			dummy_male = { can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:one_trait_target } }
+		}
+		add =  0
+	}
+	else_if = {
+		limit = {
+			dummy_female = { can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:one_trait_target } }
+			NOT = { dummy_male = { can_be_combatant_based_on_gender_trigger = { ARMY_OWNER = scope:one_trait_target } } }
+		}
+		add =  100
+	}
+	else = {
+	 	add = 50
+	}
+}
+
+# Copy of root_attraction_based_female_chance (game/common/script_values/01_dynamic_values.txt:1678); the
+# original reads root's attraction. Used by the spouse candidate.
+one_trait_court_owner_attraction_female_chance = {
+	if = {
+		limit = {
+			scope:one_trait_target = {
+				is_attracted_to_women = yes
+				is_attracted_to_men = no
+			}
+		}
+		add = 100
+	}
+	else_if = {
+		limit = {
+			scope:one_trait_target = {
+				is_attracted_to_women = yes
+				is_attracted_to_men = yes
+			}
+		}
+		add = 50
+	}
+	else = {
+		add = 0
+	}
+}

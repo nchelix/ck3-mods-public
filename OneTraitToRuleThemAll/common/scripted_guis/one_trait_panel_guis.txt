@@ -183,6 +183,14 @@ one_trait_ui_subtab_realm_events = {
 	}
 }
 
+one_trait_ui_subtab_court = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 8 }
+	}
+}
+
 one_trait_ui_tab_sanctum = {
 	scope = character
 	effect = {
@@ -210,6 +218,56 @@ one_trait_ui_tab_puppets = {
 		set_variable = { name = one_trait_ui_tab value = 6 }
 		set_variable = { name = one_trait_ui_subtab value = 1 }
 		one_trait_ui_puppets_effect = yes
+	}
+}
+
+one_trait_ui_tab_diplomacy = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_tab value = 7 }
+		set_variable = { name = one_trait_ui_subtab value = 1 }
+		one_trait_ui_puppets_effect = yes
+	}
+}
+
+one_trait_ui_subtab_alliances = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 1 }
+	}
+}
+
+one_trait_ui_subtab_vassals = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 2 }
+	}
+}
+
+one_trait_ui_subtab_war_peace = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 3 }
+	}
+}
+
+one_trait_ui_subtab_relations = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 4 }
+	}
+}
+
+one_trait_ui_subtab_hostility = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 5 }
 	}
 }
 
@@ -1299,6 +1357,13 @@ one_trait_ui_step_stress_p10 = {
 one_trait_ui_target_is_ruler = {
 	scope = character
 	is_valid = { var:one_trait_ui_target ?= { is_landed = yes } }
+}
+
+# ---- Diplomacy lock and the puppet rows' guard (2.9 Task 1, plan "Names used across tasks"): true while the
+# panel is on someone else (root is the player in a scripted GUI, as one_trait_ui_target_is_ruler above).
+one_trait_ui_target_is_other = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { is_alive = yes NOT = { this = root } } }
 }
 
 # ---- Realm / Government: two-click confirm (R3). The scripted GUI only calls the named click
@@ -2544,6 +2609,531 @@ one_trait_ui_act_legacy_canonize_dynasty_founder = {
 	}
 	effect = {
 		one_trait_ui_act_legacy_canonize_dynasty_founder_click_effect = yes
+	}
+}
+
+one_trait_ui_act_alliances_create = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_create_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_create_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_alliances_create_click_effect = yes
+	}
+}
+
+one_trait_ui_act_alliances_inherit = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_inherit_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_inherit_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_alliances_inherit_click_effect = yes
+	}
+}
+
+one_trait_ui_act_alliances_isolate = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_isolate_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_isolate_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_alliances_isolate_click_effect = yes
+	}
+}
+
+one_trait_ui_act_alliances_end = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_end_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_alliances_end_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_alliances_end_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_vassalize = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_vassalize_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_vassalize_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_vassalize_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_release = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_release_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_release_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_release_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_tributary = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_tributary_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_tributary_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_tributary_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_free = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_free_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_free_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_free_click_effect = yes
+	}
+}
+
+one_trait_ui_act_war_peace_white_peace = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_white_peace_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_white_peace_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_war_peace_white_peace_click_effect = yes
+	}
+}
+
+one_trait_ui_act_war_peace_win = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_win_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_win_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_war_peace_win_click_effect = yes
+	}
+}
+
+one_trait_ui_act_war_peace_truce = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_truce_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_truce_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_war_peace_truce_click_effect = yes
+	}
+}
+
+one_trait_ui_act_war_peace_erase_truces = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_erase_truces_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_erase_truces_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_war_peace_erase_truces_click_effect = yes
+	}
+}
+
+one_trait_ui_act_relations_hook = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_hook_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_hook_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_relations_hook_click_effect = yes
+	}
+}
+
+one_trait_ui_act_relations_friend = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_friend_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_friend_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_relations_friend_click_effect = yes
+	}
+}
+
+one_trait_ui_act_relations_best_friend = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_best_friend_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_best_friend_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_relations_best_friend_click_effect = yes
+	}
+}
+
+one_trait_ui_act_relations_end_rivalry = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_end_rivalry_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_end_rivalry_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_relations_end_rivalry_click_effect = yes
+	}
+}
+
+one_trait_ui_act_relations_adore = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_adore_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_relations_adore_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_relations_adore_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_strike = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_strike_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_strike_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_strike_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_imprison = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_imprison_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_imprison_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_imprison_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_free = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_free_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_free_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_free_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_banish = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_banish_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_banish_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_banish_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_excommunicate = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_excommunicate_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_excommunicate_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_excommunicate_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_lift = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_lift_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_lift_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_lift_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_chancellor = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_chancellor_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_chancellor_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_chancellor_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_marshal = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_marshal_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_marshal_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_marshal_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_steward = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_steward_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_steward_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_steward_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_spymaster = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_spymaster_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_spymaster_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_spymaster_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_chaplain = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_chaplain_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_chaplain_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_chaplain_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_champion = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_champion_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_champion_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_champion_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_spouse = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_spouse_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_spouse_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_spouse_click_effect = yes
+	}
+}
+
+one_trait_ui_act_court_ward = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_ward_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_court_ward_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_court_ward_click_effect = yes
+	}
+}
+
+one_trait_ui_act_puppets_secular = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_secular_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_secular_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_puppets_secular_click_effect = yes
+	}
+}
+
+one_trait_ui_act_puppets_clerical = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_clerical_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_clerical_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_puppets_clerical_click_effect = yes
+	}
+}
+
+one_trait_ui_act_puppets_realm_priest = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_realm_priest_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_realm_priest_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_puppets_realm_priest_click_effect = yes
+	}
+}
+
+one_trait_ui_act_puppets_release = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_release_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_puppets_puppets_release_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_puppets_release_click_effect = yes
 	}
 }
 

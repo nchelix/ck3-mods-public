@@ -1,5 +1,37 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.9] — 2026-10-19
+
+Diplomacy, Summon and Puppets move into the panel, and the event menu retires: right-clicking a character now
+opens the panel on them.
+
+### Added
+- **A Diplomacy category** with five tabs: Alliances (ally, inherit their alliances, isolate them, end an
+  alliance), Vassals (vassal, release, tributary, free from tribute), War & Peace (white peace, win every war
+  between you, five-year truce, erase truces), Relations (strong hook, friend, best friend, end a rivalry,
+  adoration) and Hostility (strike dead, imprison, free, banish, excommunicate, lift excommunication). It is
+  between you and another living character, so on yourself it shows a single line saying so.
+- **A Court tab under Realm** (Realm now has eight tabs): summon a master Chancellor, Marshal, Steward,
+  Spymaster or Court Chaplain, a champion, a spouse candidate or a gifted ward into the court of whoever the
+  panel is open on.
+- **Puppet rows on the Puppets tab.** On another character: make them your Secular Ruler, Clerical Ruler or Realm
+  Priest puppet, or release them. Your own puppets list stays below, with its Release buttons.
+- **Confirm on four permanent Diplomacy actions.** Inherit their alliances, Isolate them, Strike them dead and
+  Excommunicate them arm on the first click ("Confirm?") and apply on the second; clicking anything else, or
+  switching the panel to someone else, cancels.
+- **Every Diplomacy and puppet row greys with a reason on hover** when the game would refuse it (a new alliance
+  while at war, ending an alliance that rests on marriage or close family, a tributary of someone else, a best
+  friend who is a rival, a vassal of an equal or higher title, and so on), instead of clicking and doing nothing.
+
+### Changed
+- **Right-click opens the panel.** The "One Trait" right-click entry now opens the panel directly on whoever you
+  clicked, yourself included. The event menu is gone: its Open the panel, Puppets, Summon, Diplomacy and Close
+  pages have all moved into the panel. Give a title and Marry are unchanged.
+- **Summon uses the court owner's court.** The summoned character joins the court of whoever the panel is open
+  on, with that ruler's culture and faith, and a master councillor takes that seat on that ruler's council at
+  once, when their government has that seat; the row greys with a reason for a mercenary company, holy order,
+  landless adventurer or herder, and for the nomadic and landless-adventurer limits on four of the five seats. On another ruler this no longer touches your own court or council.
+
 ## [2.8] — 2026-10-18
 
 The event menu's Character pages move into the panel's Character category, which now has five tabs.
