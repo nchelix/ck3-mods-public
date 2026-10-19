@@ -192,440 +192,1282 @@ window = {
 					layoutpolicy_vertical = expanding
 					spacing = 10
 					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
-						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/icons/portraits/elder.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_age" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetAge]"
+						spacing = 4
+						button_tab = {
+							size = { 132 36 }
+							text = "one_trait_panel_subtab_stats"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)1' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_stats').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-10"
-								tooltip = "one_trait_panel_step_age_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_age_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_age_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1"
-								tooltip = "one_trait_panel_step_age_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_age_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_age_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								visible = "[Not( And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
-								size = { 80 32 }
-								raw_text = "+1"
-								tooltip = "one_trait_panel_step_age_tt"
-								onclick = "[GetScriptedGui('one_trait_ui_step_age_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-								size = { 80 32 }
-								text = "one_trait_panel_gov_confirm"
-								tooltip = "one_trait_panel_step_age_confirm_tt"
-								onclick = "[GetScriptedGui('one_trait_ui_step_age_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								visible = "[Not( And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
-								size = { 80 32 }
-								raw_text = "+10"
-								tooltip = "one_trait_panel_step_age_tt"
-								onclick = "[GetScriptedGui('one_trait_ui_step_age_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-								size = { 80 32 }
-								text = "one_trait_panel_gov_confirm"
-								tooltip = "one_trait_panel_step_age_confirm_tt"
-								onclick = "[GetScriptedGui('one_trait_ui_step_age_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
+						button_tab = {
+							size = { 132 36 }
+							text = "one_trait_panel_subtab_identity"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)2' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_identity').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 132 36 }
+							text = "one_trait_panel_subtab_traits_looks"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)3' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_traits_looks').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 132 36 }
+							text = "one_trait_panel_subtab_family"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)4' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_family').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_tab = {
+							size = { 132 36 }
+							text = "one_trait_panel_subtab_legacy"
+							down = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)5' ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_subtab_legacy').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
-						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/icons/icon_gold.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_gold" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetGold|0]"
-						}
+					vbox = {
+						visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)1' ) )]"
+						layoutpolicy_horizontal = expanding
+						spacing = 10
 						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-10,000"
-								tooltip = "one_trait_panel_step_gold_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_gold_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_gold_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_gold_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_gold_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_gold_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_gold_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_gold_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_gold_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+10,000"
-								tooltip = "one_trait_panel_step_gold_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_gold_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_gold_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-						}
-					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
-						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/window_roco_grandeur/icon_grandeur.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_grandeur" }
-						widget = {
-							size = { 110 32 }
-							widget = {
-								size = { 110 32 }
-								visible = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								datacontext = "[Character.GetCourtGrandeurData]"
-								text_single = { size = { 110 32 } autoresize = no align = right|vcenter text = "[CourtGrandeurData.GetCurrent|V0]" }
-							}
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/portraits/elder.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_age" }
 							text_single = {
-								visible = "[Not( GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 								size = { 110 32 }
 								autoresize = no
 								align = right|vcenter
-								text = "one_trait_panel_step_grandeur_locked_tt"
+								text = "[Character.GetAge]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10"
+									tooltip = "one_trait_panel_step_age_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_age_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_age_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1"
+									tooltip = "one_trait_panel_step_age_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_age_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_age_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									visible = "[Not( And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+									size = { 80 32 }
+									raw_text = "+1"
+									tooltip = "one_trait_panel_step_age_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_step_age_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									size = { 80 32 }
+									text = "one_trait_panel_gov_confirm"
+									tooltip = "one_trait_panel_step_age_confirm_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_step_age_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									visible = "[Not( And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+									size = { 80 32 }
+									raw_text = "+10"
+									tooltip = "one_trait_panel_step_age_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_step_age_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									size = { 80 32 }
+									text = "one_trait_panel_gov_confirm"
+									tooltip = "one_trait_panel_step_age_confirm_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_step_age_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
 						}
 						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-100"
-								tooltip = "one_trait_panel_step_grandeur_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/icon_gold.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_gold" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetGold|0]"
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-10"
-								tooltip = "one_trait_panel_step_grandeur_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10,000"
+									tooltip = "one_trait_panel_step_gold_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_gold_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_gold_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_gold_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_gold_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_gold_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_gold_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_gold_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_gold_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+10,000"
+									tooltip = "one_trait_panel_step_gold_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_gold_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_gold_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+10"
-								tooltip = "one_trait_panel_step_grandeur_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/window_roco_grandeur/icon_grandeur.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_grandeur" }
+							widget = {
+								size = { 110 32 }
+								widget = {
+									size = { 110 32 }
+									visible = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									datacontext = "[Character.GetCourtGrandeurData]"
+									text_single = { size = { 110 32 } autoresize = no align = right|vcenter text = "[CourtGrandeurData.GetCurrent|V0]" }
+								}
+								text_single = {
+									visible = "[Not( GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									size = { 110 32 }
+									autoresize = no
+									align = right|vcenter
+									text = "one_trait_panel_step_grandeur_locked_tt"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+100"
-								tooltip = "one_trait_panel_step_grandeur_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-100"
+									tooltip = "one_trait_panel_step_grandeur_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10"
+									tooltip = "one_trait_panel_step_grandeur_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+10"
+									tooltip = "one_trait_panel_step_grandeur_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+100"
+									tooltip = "one_trait_panel_step_grandeur_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/character_interactions/icon_influence_01.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_influence" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetInfluence|0]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10,000"
+									tooltip = "one_trait_panel_step_influence_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_influence_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_influence_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_influence_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_influence_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_influence_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_influence_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_influence_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_influence_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+10,000"
+									tooltip = "one_trait_panel_step_influence_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_influence_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_influence_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/icon_merit.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_merit" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.MakeScope.ScriptValue( 'one_trait_ui_merit_value' )|0]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10,000"
+									tooltip = "one_trait_panel_step_merit_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_merit_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_merit_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_merit_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_merit_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_merit_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_merit_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_merit_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_merit_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+10,000"
+									tooltip = "one_trait_panel_step_merit_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_merit_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_merit_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/legitimacy_level_icon.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_legitimacy" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetLegitimacy|0]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10,000"
+									tooltip = "one_trait_panel_step_legitimacy_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_legitimacy_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_legitimacy_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+10,000"
+									tooltip = "one_trait_panel_step_legitimacy_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "[Character.GetPrestigeLevelTexture]" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_prestige" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetPrestige|0]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_prestige_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-100"
+									tooltip = "one_trait_panel_step_prestige_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+100"
+									tooltip = "one_trait_panel_step_prestige_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_prestige_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "[Character.GetPietyLevelTexture]" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_piety" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetPiety|0]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_piety_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_piety_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_piety_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-100"
+									tooltip = "one_trait_panel_step_piety_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_piety_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_piety_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+100"
+									tooltip = "one_trait_panel_step_piety_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_piety_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_piety_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_piety_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_piety_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_piety_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/modifiers/icon_dynasty_prestige_01.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_renown" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetDynasty.GetPrestige|0]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-1,000"
+									tooltip = "one_trait_panel_step_renown_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_renown_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_renown_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-100"
+									tooltip = "one_trait_panel_step_renown_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_renown_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_renown_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+100"
+									tooltip = "one_trait_panel_step_renown_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_renown_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_renown_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+1,000"
+									tooltip = "one_trait_panel_step_renown_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_renown_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_renown_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						hbox = {
+							size = { 680 48 }
+							margin_left = 10
+							margin_right = 10
+							spacing = 8
+							background = { using = Background_Area }
+							icon = { size = { 36 36 } texture = "gfx/interface/icons/stress/icon_stress.dds" }
+							text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_stress" }
+							text_single = {
+								size = { 110 32 }
+								autoresize = no
+								align = right|vcenter
+								text = "[Character.GetStress]"
+							}
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-100"
+									tooltip = "one_trait_panel_step_stress_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_stress_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_stress_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "-10"
+									tooltip = "one_trait_panel_step_stress_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_stress_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_stress_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+10"
+									tooltip = "one_trait_panel_step_stress_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_stress_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_stress_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 80 32 }
+									raw_text = "+100"
+									tooltip = "one_trait_panel_step_stress_tt"
+									enabled = "[GetScriptedGui('one_trait_ui_step_stress_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('one_trait_ui_step_stress_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
 						}
 					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
+					vbox = {
+						visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)2' ) )]"
+						layoutpolicy_horizontal = expanding
 						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/icons/character_interactions/icon_influence_01.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_influence" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetInfluence|0]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/culture.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_give" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
 						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-10,000"
-								tooltip = "one_trait_panel_step_influence_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_influence_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_influence_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_culture.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_take" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_influence_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_influence_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_influence_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_culture.dds" }
+								text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital" }
+								text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital_you" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_influence_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_influence_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_influence_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/go_to_my_capital.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_your_capital" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+10,000"
-								tooltip = "one_trait_panel_step_influence_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_influence_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_influence_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/faith.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_give" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/personal_faith.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_take" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/known_faiths.dds" }
+								text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital" }
+								text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital_you" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/holy_site.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_your_capital" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/randomize.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_name_reroll" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/edit_text.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_name_give" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_name_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_identity_name_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
 						}
 					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
+					vbox = {
+						visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)3' ) )]"
+						layoutpolicy_horizontal = expanding
 						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/icons/icon_merit.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_merit" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.MakeScope.ScriptValue( 'one_trait_ui_merit_value' )|0]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_genetics').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/beauty_good_3.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_genetics" tooltip = "one_trait_panel_act_traits_looks_genetics_tt" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_genetics').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_genetics').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_genetics').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_genetics').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
 						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-10,000"
-								tooltip = "one_trait_panel_step_merit_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_merit_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_merit_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_cleanse').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/clear.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_cleanse" tooltip = "one_trait_panel_act_traits_looks_cleanse_tt" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_cleanse').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_cleanse').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_cleanse').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_cleanse').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_merit_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_merit_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_merit_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_character.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_personality_give" tooltip = "one_trait_panel_act_traits_looks_personality_give_tt" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_personality_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_merit_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_merit_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_merit_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/copy.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_personality_take" tooltip = "one_trait_panel_act_traits_looks_personality_take_tt" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_personality_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_personality_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+10,000"
-								tooltip = "one_trait_panel_step_merit_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_merit_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_merit_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_coping').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/drunkard.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_coping" tooltip = "one_trait_panel_act_traits_looks_coping_tt" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_coping').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_coping').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_coping').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_coping').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/barbershop.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_looks_give" tooltip = "one_trait_panel_act_traits_looks_looks_give_tt" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)302' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)302' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/replace.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_traits_looks_looks_take" tooltip = "one_trait_panel_act_traits_looks_looks_take_tt" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)303' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)303' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_traits_looks_looks_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
 							}
 						}
 					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
+					vbox = {
+						visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)4' ) )]"
+						layoutpolicy_horizontal = expanding
 						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/icons/legitimacy_level_icon.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_legitimacy" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetLegitimacy|0]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_family_heir').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/heir.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_family_heir" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_family_heir').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_family_heir').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_heir').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_family_heir').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
 						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-10,000"
-								tooltip = "one_trait_panel_step_legitimacy_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_family_adopt').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_adopt_house_member.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_family_adopt" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_family_adopt').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_family_adopt').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_adopt').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_family_adopt').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_legitimacy_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_family_disown').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_cross.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_family_disown" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)301' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_family_disown').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_family_disown').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_disown').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_family_disown').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)301' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_family_disown').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_family_disown').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_legitimacy_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+10,000"
-								tooltip = "one_trait_panel_step_legitimacy_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_family_court').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/courtier_interaction.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_family_court" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_family_court').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_family_court').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_court').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_family_court').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
 						}
 					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
+					vbox = {
+						visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)5' ) )]"
+						layoutpolicy_horizontal = expanding
 						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "[Character.GetPrestigeLevelTexture]" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_prestige" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetPrestige|0]"
-						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_prestige_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-100"
-								tooltip = "one_trait_panel_step_prestige_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+100"
-								tooltip = "one_trait_panel_step_prestige_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_prestige_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_legend').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/legends.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_legend" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_legacy_legend').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_legend').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_legend').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_legacy_legend').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
 						}
-					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
-						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "[Character.GetPietyLevelTexture]" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_piety" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetPiety|0]"
-						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_piety_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_piety_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_piety_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-100"
-								tooltip = "one_trait_panel_step_piety_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_piety_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_piety_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+100"
-								tooltip = "one_trait_panel_step_piety_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_piety_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_piety_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_piety_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_piety_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_piety_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_glory').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_legends_of_ck.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_glory" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_legacy_glory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_glory').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_glory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_legacy_glory').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
 							}
 						}
-					}
-					hbox = {
-						size = { 680 48 }
-						margin_left = 10
-						margin_right = 10
-						spacing = 8
-						background = { using = Background_Area }
-						icon = { size = { 36 36 } texture = "gfx/interface/icons/modifiers/icon_dynasty_prestige_01.dds" }
-						text_single = { size = { 150 32 } autoresize = no align = left|vcenter text = "one_trait_panel_step_renown" }
-						text_single = {
-							size = { 110 32 }
-							autoresize = no
-							align = right|vcenter
-							text = "[Character.GetDynasty.GetPrestige|0]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_relic').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/artifact.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_relic" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_legacy_relic').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_relic').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_relic').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('one_trait_ui_act_legacy_relic').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
 						}
-						hbox = {
-							spacing = 6
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-1,000"
-								tooltip = "one_trait_panel_step_renown_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_renown_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_renown_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_father').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_father" tooltip = "one_trait_panel_act_legacy_canonize_father_tt" }
+								text_single = { visible = "[Character.GetFather.IsValid]" text = "[Character.GetFather.GetUINameNoTooltip]" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)304' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_father').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_father').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_father').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_father').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)304' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_father').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_father').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "-100"
-								tooltip = "one_trait_panel_step_renown_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_renown_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_renown_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_mother" tooltip = "one_trait_panel_act_legacy_canonize_mother_tt" }
+								text_single = { visible = "[Character.GetMother.IsValid]" text = "[Character.GetMother.GetUINameNoTooltip]" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)305' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)305' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_mother').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+100"
-								tooltip = "one_trait_panel_step_renown_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_renown_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_renown_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_paternal_grandfather" tooltip = "one_trait_panel_act_legacy_canonize_paternal_grandfather_tt" }
+								text_single = { visible = "[Character.GetFather.GetFather.IsValid]" text = "[Character.GetFather.GetFather.GetUINameNoTooltip]" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)306' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)306' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandfather').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
 							}
-							button_standard = {
-								size = { 80 32 }
-								raw_text = "+1,000"
-								tooltip = "one_trait_panel_step_renown_tt"
-								enabled = "[GetScriptedGui('one_trait_ui_step_renown_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								onclick = "[GetScriptedGui('one_trait_ui_step_renown_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_paternal_grandmother" tooltip = "one_trait_panel_act_legacy_canonize_paternal_grandmother_tt" }
+								text_single = { visible = "[Character.GetFather.GetMother.IsValid]" text = "[Character.GetFather.GetMother.GetUINameNoTooltip]" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)307' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)307' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_paternal_grandmother').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_maternal_grandfather" tooltip = "one_trait_panel_act_legacy_canonize_maternal_grandfather_tt" }
+								text_single = { visible = "[Character.GetMother.GetFather.IsValid]" text = "[Character.GetMother.GetFather.GetUINameNoTooltip]" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)308' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)308' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_maternal_grandfather').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_house_founder" tooltip = "one_trait_panel_act_legacy_canonize_house_founder_tt" }
+								text_single = { visible = "[Character.GetHouse.GetFounder.IsValid]" text = "[Character.GetHouse.GetFounder.GetUINameNoTooltip]" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)309' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)309' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_house_founder').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/traits/saint.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_legacy_canonize_dynasty_founder" tooltip = "one_trait_panel_act_legacy_canonize_dynasty_founder_tt" }
+								widget = {
+									size = { 80 32 }
+									button_standard = {
+										visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)310' ) )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)310' )]"
+										size = { 80 32 }
+										text = "one_trait_panel_act_confirm"
+										enabled = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_legacy_canonize_dynasty_founder').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
 							}
 						}
 					}

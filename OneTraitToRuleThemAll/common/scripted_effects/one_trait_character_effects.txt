@@ -1,4 +1,6 @@
-﻿# One Trait character editor (1.4). Called from one_trait_menu.0110 / .0120.
+﻿# One Trait character editor (1.4). Since 2.8 the bundles below, and the one_trait_character_<key>_effect
+# rows at the end of this file, are called from the panel's Character sub-tabs (the generated
+# one_trait_ui_act_<key>_click_effect, tools/build_one_trait_panel.py), not from the retired menu pages.
 #
 # Every trait key below is checked by tools/validate_mod.py against the
 # installed game, so a patch that renames a trait fails validation rather than
@@ -172,5 +174,326 @@ one_trait_reroll_name_effect = {
 	}
 	scope:one_trait_name_donor = {
 		silent_disappearance_effect = yes
+	}
+}
+
+# ---------------------------------------------------------------------------------------------------------
+# One Trait 2.8: the Character rows' effects. For an action key K (tools/build_one_trait_panel.py,
+# CHARACTER_ACTIONS): one_trait_character_K_effect. The panel's click effect saves scope:one_trait_target (the
+# panel's character) and calls it with root = the player, so the body is exactly the retired menu option's,
+# minus its menu navigation (R2: also minus the menu's custom_tooltip text and any hidden_effect whose only
+# purpose was hiding trait icons on a menu button -- the explanation is the row's hover text). Spec:
+# docs/superpowers/specs/2026-10-17-one-trait-2.8-character-pages-design.md section 2.
+# The rows below are in table order. Every row is real: the body is the retired option's, with scope:one_trait_target
+# as the panel's character and root the player (so take-culture, take-faith, take-looks, heir and court act on root).
+# Their shown/valid triggers are in one_trait_character_triggers.txt.
+# ---------------------------------------------------------------------------------------------------------
+
+# ---- Identity ----
+
+one_trait_character_identity_culture_give_effect = {
+	scope:one_trait_target = { set_culture = root.culture }
+}
+one_trait_character_identity_culture_take_effect = {
+	set_culture = scope:one_trait_target.culture
+}
+one_trait_character_identity_culture_their_capital_effect = {
+	scope:one_trait_target = { set_culture = capital_county.culture }
+}
+one_trait_character_identity_culture_your_capital_effect = {
+	scope:one_trait_target = { set_culture = root.capital_county.culture }
+}
+one_trait_character_identity_faith_give_effect = {
+	scope:one_trait_target = { set_character_faith = root.faith }
+}
+one_trait_character_identity_faith_take_effect = {
+	set_character_faith = scope:one_trait_target.faith
+}
+one_trait_character_identity_faith_their_capital_effect = {
+	scope:one_trait_target = { set_character_faith = capital_county.faith }
+}
+one_trait_character_identity_faith_your_capital_effect = {
+	scope:one_trait_target = { set_character_faith = root.capital_county.faith }
+}
+one_trait_character_identity_name_reroll_effect = {
+	scope:one_trait_target = { one_trait_reroll_name_effect = yes }
+}
+one_trait_character_identity_name_give_effect = {
+	scope:one_trait_target = {
+		change_first_name = { template_character = root }
+	}
+}
+
+# ---- Traits & Looks ----
+
+one_trait_character_traits_looks_genetics_effect = {
+	scope:one_trait_target = { one_trait_perfect_genetics_effect = yes }
+}
+one_trait_character_traits_looks_cleanse_effect = {
+	scope:one_trait_target = { one_trait_cleanse_effect = yes }
+}
+one_trait_character_traits_looks_personality_give_effect = {
+	one_trait_copy_personality_effect = {
+		GIVER = root
+		RECEIVER = scope:one_trait_target
+	}
+}
+# Real (2.8 Task 1): the retired personality_take option (menu page 0120). root takes on the target's
+# personality traits in place of root's own. The menu wrapped this in a hidden_effect only to keep the trait
+# icons off its button; the panel has no such button, so it is unwrapped (R2).
+one_trait_character_traits_looks_personality_take_effect = {
+	one_trait_copy_personality_effect = {
+		GIVER = scope:one_trait_target
+		RECEIVER = root
+	}
+}
+
+one_trait_character_traits_looks_coping_effect = {
+	scope:one_trait_target = { one_trait_clear_coping_effect = yes }
+}
+one_trait_character_traits_looks_looks_give_effect = {
+	scope:one_trait_target = { copy_inheritable_appearance_from = root }
+}
+one_trait_character_traits_looks_looks_take_effect = {
+	copy_inheritable_appearance_from = scope:one_trait_target
+}
+
+# ---- Family ----
+
+one_trait_character_family_heir_effect = {
+	set_designated_heir = scope:one_trait_target
+}
+one_trait_character_family_adopt_effect = {
+	scope:one_trait_target = {
+		if = {
+			limit = { root = { is_female = no } }
+			set_father = root
+		}
+		else = {
+			set_mother = root
+		}
+		if = {
+			limit = { exists = root.house }
+			set_house = root.house
+		}
+	}
+}
+one_trait_character_family_disown_effect = {
+	scope:one_trait_target = {
+		set_to_lowborn = yes
+	}
+}
+one_trait_character_family_court_effect = {
+	add_courtier = scope:one_trait_target
+}
+
+# ---- Legacy ----
+
+one_trait_character_legacy_legend_effect = {
+	scope:one_trait_target = {
+		# Play-test fix 3: the mod's own copy of vanilla heroic with every cost zero
+		# (common/legends/legend_types/one_trait_legend_types.txt); vanilla mythical charges gold up front and monthly.
+		create_legend = {
+			type = one_trait_heroic
+			quality = mythical
+			chronicle = ancestral_glory
+			properties = {
+				ancestor = scope:one_trait_target
+				title = scope:one_trait_target.primary_title
+			}
+		}
+	}
+}
+one_trait_character_legacy_glory_effect = {
+	scope:one_trait_target = {
+		accolade = {
+			add_glory = 10000
+		}
+	}
+}
+one_trait_character_legacy_relic_effect = {
+	scope:one_trait_target = {
+		create_artifact = {
+			name = one_trait_relic_name
+			description = one_trait_relic_desc
+			type = miscellaneous
+			visuals = trinket_icon
+			rarity = illustrious
+			modifier = one_trait_relic_modifier
+		}
+	}
+}
+# Real (2.8 Task 1): the retired father option of the canonize page (menu page 0140). Saved scopes persist
+# along an event chain, so clear before saving again (as the page's immediate did). The father's scope and
+# the consecration place are saved here from scope:one_trait_target: its capital province, else the
+# player's. pam_canonize_saint_effect (By God Alone): the Saint trait, sainthood in the faith, and relics;
+# the shown/valid triggers keep it to a dead father who is not yet a saint.
+one_trait_character_legacy_canonize_father_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_father }
+		clear_saved_scope = one_trait_canon_father
+	}
+	scope:one_trait_target.father ?= { save_scope_as = one_trait_canon_father }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_father
+		CANDIDATE = scope:one_trait_canon_father
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
+	}
+}
+
+one_trait_character_legacy_canonize_mother_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_mother }
+		clear_saved_scope = one_trait_canon_mother
+	}
+	scope:one_trait_target.mother ?= { save_scope_as = one_trait_canon_mother }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_mother
+		CANDIDATE = scope:one_trait_canon_mother
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
+	}
+}
+one_trait_character_legacy_canonize_paternal_grandfather_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_paternal_grandfather }
+		clear_saved_scope = one_trait_canon_paternal_grandfather
+	}
+	scope:one_trait_target.father.father ?= { save_scope_as = one_trait_canon_paternal_grandfather }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_paternal_grandfather
+		CANDIDATE = scope:one_trait_canon_paternal_grandfather
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
+	}
+}
+one_trait_character_legacy_canonize_paternal_grandmother_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_paternal_grandmother }
+		clear_saved_scope = one_trait_canon_paternal_grandmother
+	}
+	scope:one_trait_target.father.mother ?= { save_scope_as = one_trait_canon_paternal_grandmother }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_paternal_grandmother
+		CANDIDATE = scope:one_trait_canon_paternal_grandmother
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
+	}
+}
+one_trait_character_legacy_canonize_maternal_grandfather_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_maternal_grandfather }
+		clear_saved_scope = one_trait_canon_maternal_grandfather
+	}
+	scope:one_trait_target.mother.father ?= { save_scope_as = one_trait_canon_maternal_grandfather }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_maternal_grandfather
+		CANDIDATE = scope:one_trait_canon_maternal_grandfather
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
+	}
+}
+one_trait_character_legacy_canonize_house_founder_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_house_founder }
+		clear_saved_scope = one_trait_canon_house_founder
+	}
+	scope:one_trait_target.house.house_founder ?= { save_scope_as = one_trait_canon_house_founder }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_house_founder
+		CANDIDATE = scope:one_trait_canon_house_founder
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
+	}
+}
+one_trait_character_legacy_canonize_dynasty_founder_effect = {
+	if = {
+		limit = { exists = scope:one_trait_canon_dynasty_founder }
+		clear_saved_scope = one_trait_canon_dynasty_founder
+	}
+	scope:one_trait_target.dynasty.dynasty_founder ?= { save_scope_as = one_trait_canon_dynasty_founder }
+	if = {
+		limit = { exists = scope:one_trait_canon_place }
+		clear_saved_scope = one_trait_canon_place
+	}
+	if = {
+		limit = { exists = scope:one_trait_target.capital_province }
+		scope:one_trait_target.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	else = {
+		root.capital_province = { save_scope_as = one_trait_canon_place }
+	}
+	pam_canonize_saint_effect = {
+		CANONIZER = scope:one_trait_canon_dynasty_founder
+		CANDIDATE = scope:one_trait_canon_dynasty_founder
+		CONSECRATION_PROVINCE = scope:one_trait_canon_place
+		PRESET = no
 	}
 }

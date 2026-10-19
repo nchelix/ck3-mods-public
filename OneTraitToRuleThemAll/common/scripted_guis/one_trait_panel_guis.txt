@@ -67,6 +67,46 @@ one_trait_ui_tab_character = {
 	}
 }
 
+one_trait_ui_subtab_stats = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 1 }
+	}
+}
+
+one_trait_ui_subtab_identity = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 2 }
+	}
+}
+
+one_trait_ui_subtab_traits_looks = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 3 }
+	}
+}
+
+one_trait_ui_subtab_family = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 4 }
+	}
+}
+
+one_trait_ui_subtab_legacy = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 5 }
+	}
+}
+
 one_trait_ui_tab_traits = {
 	scope = character
 	effect = {
@@ -1222,6 +1262,38 @@ one_trait_ui_step_renown_p10 = {
 	}
 }
 
+one_trait_ui_step_stress_m10 = {
+	scope = character
+	effect = {
+		one_trait_ui_stress_step_effect = { AMOUNT = -100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_stress_m1 = {
+	scope = character
+	effect = {
+		one_trait_ui_stress_step_effect = { AMOUNT = -10 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_stress_p1 = {
+	scope = character
+	effect = {
+		one_trait_ui_stress_step_effect = { AMOUNT = 10 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
+one_trait_ui_step_stress_p10 = {
+	scope = character
+	effect = {
+		one_trait_ui_stress_step_effect = { AMOUNT = 100 }
+		one_trait_ui_clear_confirm_effect = yes
+	}
+}
+
 # ---- Realm lock (batch-3 handoff Task 3): the retired menu's own Government-entry condition
 # (OneTraitToRuleThemAll/events/one_trait_menu_events.txt:136, "scope:one_trait_target = { is_landed = yes }").
 one_trait_ui_target_is_ruler = {
@@ -1599,7 +1671,8 @@ one_trait_ui_law_female_only = {
 	}
 }
 
-# ---- Realm / action rows (2.7 Task 2, batch-2 handoff): one scripted GUI per REALM_ACTIONS key.
+# ---- Realm / action rows (2.7 Task 2, batch-2 handoff): one scripted GUI per ALL_ACTIONS key
+# (2.8: Realm and Character rows; `area` picks the hand-written names).
 # is_shown/is_valid call the hand-written trigger of the same name on the target (guarded by
 # has_variable, R2); effect is exactly the named click effect (one_trait_panel_effects.txt), so the
 # self-test calls exactly what a click runs (the 2.6 rule).
@@ -2006,6 +2079,471 @@ one_trait_ui_act_realm_events_conqueror_end = {
 	}
 	effect = {
 		one_trait_ui_act_realm_events_conqueror_end_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_culture_give = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_give_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_give_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_culture_give_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_culture_take = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_take_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_take_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_culture_take_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_culture_their_capital = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_their_capital_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_their_capital_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_culture_their_capital_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_culture_your_capital = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_your_capital_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_culture_your_capital_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_culture_your_capital_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_faith_give = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_give_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_give_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_faith_give_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_faith_take = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_take_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_take_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_faith_take_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_faith_their_capital = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_their_capital_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_their_capital_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_faith_their_capital_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_faith_your_capital = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_your_capital_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_faith_your_capital_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_faith_your_capital_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_name_reroll = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_name_reroll_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_name_reroll_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_name_reroll_click_effect = yes
+	}
+}
+
+one_trait_ui_act_identity_name_give = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_name_give_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_identity_name_give_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_identity_name_give_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_genetics = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_genetics_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_genetics_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_genetics_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_cleanse = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_cleanse_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_cleanse_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_cleanse_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_personality_give = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_give_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_give_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_personality_give_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_personality_take = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_take_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_take_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_personality_take_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_coping = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_coping_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_coping_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_coping_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_looks_give = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_give_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_give_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_looks_give_click_effect = yes
+	}
+}
+
+one_trait_ui_act_traits_looks_looks_take = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_take_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_take_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_traits_looks_looks_take_click_effect = yes
+	}
+}
+
+one_trait_ui_act_family_heir = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_heir_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_heir_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_family_heir_click_effect = yes
+	}
+}
+
+one_trait_ui_act_family_adopt = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_adopt_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_adopt_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_family_adopt_click_effect = yes
+	}
+}
+
+one_trait_ui_act_family_disown = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_disown_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_disown_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_family_disown_click_effect = yes
+	}
+}
+
+one_trait_ui_act_family_court = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_court_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_court_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_family_court_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_legend = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_legend_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_legend_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_legend_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_glory = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_glory_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_glory_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_glory_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_relic = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_relic_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_relic_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_relic_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_father = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_father_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_father_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_father_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_mother = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_mother_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_mother_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_mother_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_paternal_grandfather = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandfather_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandfather_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_paternal_grandfather_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_paternal_grandmother = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandmother_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandmother_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_paternal_grandmother_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_maternal_grandfather = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_maternal_grandfather_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_maternal_grandfather_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_maternal_grandfather_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_house_founder = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_house_founder_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_house_founder_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_house_founder_click_effect = yes
+	}
+}
+
+one_trait_ui_act_legacy_canonize_dynasty_founder = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_dynasty_founder_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_legacy_canonize_dynasty_founder_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_legacy_canonize_dynasty_founder_click_effect = yes
 	}
 }
 

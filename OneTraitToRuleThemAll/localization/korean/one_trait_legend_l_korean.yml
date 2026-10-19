@@ -1,0 +1,5 @@
+﻿l_korean:
+# Untranslated placeholder: English strings. Replace with a real korean translation.
+ legend_one_trait_heroic:0 "Heroic Legend"
+ legend_one_trait_heroic_name:0 "The Legend of [ROOT.Legend.GetOwner.GetNameNoTooltip]"
+ legend_one_trait_heroic_desc:0 "[ROOT.Legend.GetOwner.GetTitledFirstNameNoTooltip] is renowned for [ROOT.Legend.GetOwner.GetHerHis] heroic deeds."

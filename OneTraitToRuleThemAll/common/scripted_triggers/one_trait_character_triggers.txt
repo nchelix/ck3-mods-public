@@ -1,0 +1,271 @@
+﻿# One Trait 2.8: the Character rows' hand-written triggers. For an action key K (tools/build_one_trait_panel.py,
+# CHARACTER_ACTIONS): one_trait_character_K_shown_trigger and one_trait_character_K_valid_trigger. Spec:
+# docs/superpowers/specs/2026-10-17-one-trait-2.8-character-pages-design.md section 2.
+#
+# Scope rule (plan "Names used across tasks" + R5): every trigger here runs IN the panel character's scope --
+# the generated scripted GUI calls it as "var:one_trait_ui_target = { one_trait_character_K_... = yes }" --
+# so the retired menu option's own "scope:one_trait_target" becomes "this" (left bare), and "root" is still
+# the player. Shown = a row that can never apply is really hidden (the action row's outer visible); valid =
+# greyed with CK3's own reason on hover, when the row could apply but not now.
+#
+# Each row carries the retired option's conditions, split per the spec: shown holds what can never apply
+# (yourself, a missing relative), valid holds what could apply but not now (greyed with CK3's own reason).
+# A missing relative is genuinely false in shown by explicit existence, never a bare ?= chain (R6).
+
+# ---- Identity ----
+
+one_trait_character_identity_culture_give_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_culture_give_valid_trigger = {
+	NOT = { has_culture = root.culture }
+}
+one_trait_character_identity_culture_take_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_culture_take_valid_trigger = {
+	NOT = { has_culture = root.culture }
+}
+one_trait_character_identity_culture_their_capital_shown_trigger = {
+	always = yes
+}
+one_trait_character_identity_culture_their_capital_valid_trigger = {
+	exists = capital_county
+	NOT = { has_culture = capital_county.culture }
+}
+one_trait_character_identity_culture_your_capital_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_culture_your_capital_valid_trigger = {
+	exists = root.capital_county
+	NOT = { has_culture = root.capital_county.culture }
+}
+one_trait_character_identity_faith_give_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_faith_give_valid_trigger = {
+	NOT = { has_faith = root.faith }
+}
+one_trait_character_identity_faith_take_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_faith_take_valid_trigger = {
+	NOT = { has_faith = root.faith }
+}
+one_trait_character_identity_faith_their_capital_shown_trigger = {
+	always = yes
+}
+one_trait_character_identity_faith_their_capital_valid_trigger = {
+	exists = capital_county
+	NOT = { has_faith = capital_county.faith }
+}
+one_trait_character_identity_faith_your_capital_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_faith_your_capital_valid_trigger = {
+	exists = root.capital_county
+	NOT = { has_faith = root.capital_county.faith }
+}
+one_trait_character_identity_name_reroll_shown_trigger = {
+	always = yes
+}
+one_trait_character_identity_name_reroll_valid_trigger = {
+	always = yes
+}
+one_trait_character_identity_name_give_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_identity_name_give_valid_trigger = {
+	always = yes
+}
+
+# ---- Traits & Looks ----
+
+one_trait_character_traits_looks_genetics_shown_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_genetics_valid_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_cleanse_shown_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_cleanse_valid_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_personality_give_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_traits_looks_personality_give_valid_trigger = {
+	is_adult = yes
+	root = { is_adult = yes }
+}
+# Real (2.8 Task 1). The retired option's trigger (menu page 0120): NOT = { target = root } is_adult = yes
+# target = { is_adult = yes }, re-scoped to the target (R5): this = the target, root = the player. Shown keeps
+# the "never true" half (you cannot swap with yourself); valid keeps the age conditions (greyed, with the
+# game's own reason, for a child).
+one_trait_character_traits_looks_personality_take_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_traits_looks_personality_take_valid_trigger = {
+	is_adult = yes
+	root = { is_adult = yes }
+}
+
+one_trait_character_traits_looks_coping_shown_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_coping_valid_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_looks_give_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_traits_looks_looks_give_valid_trigger = {
+	always = yes
+}
+one_trait_character_traits_looks_looks_take_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_traits_looks_looks_take_valid_trigger = {
+	always = yes
+}
+
+# ---- Family ----
+
+one_trait_character_family_heir_shown_trigger = {
+	NOT = { this = root }
+}
+# Playtest 2.8 fix 1: set_designated_heir only accepts a direct child (docs/reference/ck3-1.20.1.1-effects.log:10217),
+# so a non-child must grey with a readable reason. Both clauses are custom_tooltip: CK3 prints nothing for a
+# bare scope comparison.
+one_trait_character_family_heir_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_character_own_child_tt
+		is_child_of = root
+	}
+	custom_tooltip = {
+		text = one_trait_character_not_heir_yet_tt
+		NOT = { root.designated_heir ?= this }
+	}
+}
+one_trait_character_family_adopt_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_family_adopt_valid_trigger = {
+	NOT = { is_child_of = root }
+}
+one_trait_character_family_disown_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_family_disown_valid_trigger = {
+	is_lowborn = no
+}
+one_trait_character_family_court_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_character_family_court_valid_trigger = {
+	is_ruler = no
+	NOT = { is_courtier_of = root }
+	# No trigger_localization entry for is_foreign_court_guest_of, so it needs its own reason.
+	custom_tooltip = {
+		text = one_trait_character_not_foreign_guest_tt
+		NOT = { is_foreign_court_guest_of = root }
+	}
+}
+
+# ---- Legacy ----
+
+one_trait_character_legacy_legend_shown_trigger = {
+	always = yes
+}
+one_trait_character_legacy_legend_valid_trigger = {
+	exists = primary_title
+}
+one_trait_character_legacy_glory_shown_trigger = {
+	always = yes
+}
+# Playtest 2.8 fix 2: is_acclaimed has no trigger_localization entry, so the greyed row showed no reason.
+one_trait_character_legacy_glory_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_character_not_acclaimed_tt
+		is_acclaimed = yes
+	}
+}
+one_trait_character_legacy_relic_shown_trigger = {
+	always = yes
+}
+one_trait_character_legacy_relic_valid_trigger = {
+	always = yes
+}
+# Real (2.8 Task 1). The retired option's trigger (menu page 0140): the father exists, is dead and is not yet
+# a saint. Shown = the father exists (R6: explicit existence); valid = dead and not already a saint.
+one_trait_character_legacy_canonize_father_shown_trigger = {
+	exists = father
+}
+one_trait_character_legacy_canonize_father_valid_trigger = {
+	father = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}
+
+one_trait_character_legacy_canonize_mother_shown_trigger = {
+	exists = mother
+}
+one_trait_character_legacy_canonize_mother_valid_trigger = {
+	mother = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}
+one_trait_character_legacy_canonize_paternal_grandfather_shown_trigger = {
+	exists = father
+	father = { exists = father }
+}
+one_trait_character_legacy_canonize_paternal_grandfather_valid_trigger = {
+	father.father = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}
+one_trait_character_legacy_canonize_paternal_grandmother_shown_trigger = {
+	exists = father
+	father = { exists = mother }
+}
+one_trait_character_legacy_canonize_paternal_grandmother_valid_trigger = {
+	father.mother = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}
+one_trait_character_legacy_canonize_maternal_grandfather_shown_trigger = {
+	exists = mother
+	mother = { exists = father }
+}
+one_trait_character_legacy_canonize_maternal_grandfather_valid_trigger = {
+	mother.father = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}
+one_trait_character_legacy_canonize_house_founder_shown_trigger = {
+	exists = house
+	house = { exists = house_founder }
+}
+one_trait_character_legacy_canonize_house_founder_valid_trigger = {
+	house.house_founder = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}
+one_trait_character_legacy_canonize_dynasty_founder_shown_trigger = {
+	exists = dynasty
+	dynasty = { exists = dynasty_founder }
+}
+one_trait_character_legacy_canonize_dynasty_founder_valid_trigger = {
+	dynasty.dynasty_founder = {
+		is_alive = no
+		NOT = { has_trait = saint }
+	}
+}

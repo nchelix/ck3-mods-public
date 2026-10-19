@@ -1,5 +1,29 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.8] — 2026-10-18
+
+The event menu's Character pages move into the panel's Character category, which now has five tabs.
+
+### Added
+- **Five Character tabs**: Stats, Identity, Traits & Looks, Family and Legacy. Stats keeps the steppers and
+  gains **Stress** (-100 / -10 / +10 / +100, with the current stress shown). The other four hold the moved
+  menu options as action rows, each with an icon, a label and one button: Identity (culture, faith and name
+  swaps), Traits & Looks (perfect genetics, cleanse, personality, coping, hereditary looks), Family (heir,
+  adopt, disown, court) and Legacy (legend, glory, relic and the seven Canonize rows).
+- **Confirm on permanent actions.** Disowning, giving or taking hereditary looks, and every Canonize row arm on
+  the first click ("Confirm?") and apply on the second; clicking anything else cancels.
+- **Canonize rows name the relative** (their father, mother, grandparents and house founder) beside the button.
+- **Hover text** on the trait bundles and the Canonize and looks rows says what they do.
+
+### Changed
+- The event menu's Family, Character Editor and Modern Systems pages have moved into the panel and left the
+  menu. Right-clicking now offers Open the panel, Puppets (on others), Summon (on yourself), Diplomacy (on
+  others) and Close.
+- Options that used to vanish once done (already their heir, already your culture, already a saint, and so on)
+  now stay on the page greyed out, with the game's own reason on hover.
+- Rows that can never apply are hidden: give and take rows and every Family row on yourself, "Adopt your
+  capital's culture / faith" on yourself, and a Canonize row whose relative does not exist.
+
 ## [2.7.1] — 2026-10-15
 
 ### Added
