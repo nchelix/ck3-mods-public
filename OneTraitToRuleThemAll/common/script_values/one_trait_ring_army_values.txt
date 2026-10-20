@@ -1,0 +1,66 @@
+﻿# One Trait 2.9.1: the ring army's men per company and the Count's arithmetic.
+# Script-value syntax: game/common/script_values/_script_values.info (value / add / divide / multiply / ceiling / min).
+#
+# The Count (men, default 5000) is the PLAYER's preference: variable one_trait_ring_count on the player (R3).
+# companies / men are evaluated with root = the player (the panel's scripted GUIs pass the player as root; the
+# readout calls GetPlayer.MakeScope.ScriptValue) and read the panel's target as root.var:one_trait_ui_target.
+
+# Character scope: men per company at this character's level (Godlike 500, Elite 200, Regular 100).
+one_trait_ring_stack_value = {
+	value = 500
+	if = {
+		limit = { one_trait_ring_is_elite_trigger = yes }
+		value = 200
+	}
+	else_if = {
+		limit = { one_trait_ring_is_regular_trigger = yes }
+		value = 100
+	}
+}
+
+# Root = the player: the stack of the panel's target (no target set = Godlike, 500).
+one_trait_ring_target_stack_value = {
+	value = 500
+	if = {
+		limit = { root = { has_variable = one_trait_ui_target } }
+		# Inside a scope switch the value is moved with add (as vanilla does, 06_ep3_interactions.txt:9970-9982):
+		# 500 - 300 = 200 (Elite), 500 - 400 = 100 (Regular).
+		root.var:one_trait_ui_target = {
+			if = {
+				limit = { one_trait_ring_is_elite_trigger = yes }
+				add = -300
+			}
+			else_if = {
+				limit = { one_trait_ring_is_regular_trigger = yes }
+				add = -400
+			}
+		}
+	}
+}
+
+# Root = the player: the Count as the player set it (default 5000), before rounding to whole companies.
+one_trait_ring_count_value = {
+	value = 5000
+	if = {
+		limit = { root = { has_variable = one_trait_ring_count } }
+		value = root.var:one_trait_ring_count
+	}
+}
+
+# Root = the player: whole companies for the Count at the target's level, rounded UP, at least 1.
+one_trait_ring_companies_value = {
+	value = 5000
+	if = {
+		limit = { root = { has_variable = one_trait_ring_count } }
+		value = root.var:one_trait_ring_count
+	}
+	divide = one_trait_ring_target_stack_value
+	ceiling = yes
+	min = 1
+}
+
+# Root = the player: the real number of men a grant creates (the panel's "Count: N" readout).
+one_trait_ring_men_value = {
+	value = one_trait_ring_companies_value
+	multiply = one_trait_ring_target_stack_value
+}

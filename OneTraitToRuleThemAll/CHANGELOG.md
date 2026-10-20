@@ -1,5 +1,34 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.9.1] — 2026-10-19
+
+The ring army gets a strength setting and a size, a new Army toggle gives it supply, and four Vassals rows act on you.
+A player asked for longer battles; Regular troops are the answer.
+
+### Added
+- **Ring army strength: Godlike, Elite or Regular.** Three buttons on the Army tab, the current one highlighted.
+  Godlike is the army you know, unchanged. Elite is about three times a vanilla best of its kind, Regular only a
+  little above it, so battles last. Each level has its own troop types (nine in all) and its own art: Godlike gold,
+  Elite blued steel, Regular iron and red. A character with no setting is Godlike, exactly as in 2.9.
+- **Count.** A stepper on the Army tab (-1000 / -100 / +100 / +1000, from 100 to 50,000 men, 5,000 by default) sets
+  how many men the three raise buttons create. The readout shows the real figure for the level, so Count 100 on
+  Godlike reads 500 (whole companies, rounded up).
+- **Tireless Armies**, a toggle beside Free and Unlimited Men at Arms: no hostile attrition (raiding included), much
+  longer supply, bigger supply limit and capacity. It applies to all of the character's armies and adds harmlessly to
+  Supreme Commander.
+- **Four Vassals rows that act on you**, on another ruler's panel: become their vassal, break free from them, become
+  their tributary, stop paying them tribute. Each greys with a reason when the game would refuse it (their own vassal,
+  a lower tier, not your liege, already a tributary).
+
+### Changed
+- **The raise buttons create the current level and Count** (Legion, Bowmen, Riders), not a fixed ten companies.
+- **Disband covers all nine ring troop types.**
+- **Changing level converts the ring regiments** the character holds to the new level, refilled to full strength.
+  The level buttons grey ("Send your ring armies home first.") while any ring regiment is raised.
+
+### Credits
+- Longer battles: a player's request.
+
 ## [2.9] — 2026-10-19
 
 Diplomacy, Summon and Puppets move into the panel, and the event menu retires: right-clicking a character now

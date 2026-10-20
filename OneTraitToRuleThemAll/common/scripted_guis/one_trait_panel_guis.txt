@@ -608,6 +608,17 @@ one_trait_ui_army_free_menatarms = {
 	}
 }
 
+one_trait_ui_army_tireless = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= {
+			if = { limit = { has_character_modifier = one_trait_tireless_armies } remove_character_modifier = one_trait_tireless_armies }
+			else = { add_character_modifier = { modifier = one_trait_tireless_armies days = -1 } }
+		}
+	}
+}
+
 one_trait_ui_army_knights_on = {
 	scope = character
 	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = supreme_knights } }
@@ -628,17 +639,111 @@ one_trait_ui_army_free_menatarms_on = {
 	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = free_menatarms } }
 }
 
+one_trait_ui_army_tireless_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = one_trait_tireless_armies } }
+}
+
+one_trait_ui_ring_level_godlike = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			custom_tooltip = {
+				text = one_trait_ring_send_home_tt
+				NOT = { one_trait_ring_any_raised_trigger = yes }
+			}
+		}
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_ring_set_level_effect = { LEVEL = godlike } }
+	}
+}
+
+one_trait_ui_ring_level_godlike_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_ring_is_godlike_trigger = yes } }
+}
+
+one_trait_ui_ring_level_elite = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			custom_tooltip = {
+				text = one_trait_ring_send_home_tt
+				NOT = { one_trait_ring_any_raised_trigger = yes }
+			}
+		}
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_ring_set_level_effect = { LEVEL = elite } }
+	}
+}
+
+one_trait_ui_ring_level_elite_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_ring_is_elite_trigger = yes } }
+}
+
+one_trait_ui_ring_level_regular = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			custom_tooltip = {
+				text = one_trait_ring_send_home_tt
+				NOT = { one_trait_ring_any_raised_trigger = yes }
+			}
+		}
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_ring_set_level_effect = { LEVEL = regular } }
+	}
+}
+
+one_trait_ui_ring_level_regular_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_ring_is_regular_trigger = yes } }
+}
+
+one_trait_ui_ring_count_m1000 = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_ring_count_step_effect = { AMOUNT = -1000 }
+	}
+}
+
+one_trait_ui_ring_count_m100 = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_ring_count_step_effect = { AMOUNT = -100 }
+	}
+}
+
+one_trait_ui_ring_count_p100 = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_ring_count_step_effect = { AMOUNT = 100 }
+	}
+}
+
+one_trait_ui_ring_count_p1000 = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_ring_count_step_effect = { AMOUNT = 1000 }
+	}
+}
+
 one_trait_ui_spawn_legion = {
 	scope = character
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			create_maa_regiment = {
-				type = one_trait_legion
-				size = 10
-				check_can_recruit = no
-			}
-		}
+		var:one_trait_ui_target ?= { one_trait_ring_grant_effect = { ROLE = legion } }
 	}
 }
 
@@ -646,13 +751,7 @@ one_trait_ui_spawn_bowmen = {
 	scope = character
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			create_maa_regiment = {
-				type = one_trait_bowmen
-				size = 10
-				check_can_recruit = no
-			}
-		}
+		var:one_trait_ui_target ?= { one_trait_ring_grant_effect = { ROLE = bowmen } }
 	}
 }
 
@@ -660,13 +759,7 @@ one_trait_ui_spawn_riders = {
 	scope = character
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			create_maa_regiment = {
-				type = one_trait_riders
-				size = 10
-				check_can_recruit = no
-			}
-		}
+		var:one_trait_ui_target ?= { one_trait_ring_grant_effect = { ROLE = riders } }
 	}
 }
 
@@ -674,29 +767,12 @@ one_trait_ui_disband = {
 	scope = character
 	is_valid = {
 		var:one_trait_ui_target ?= {
-			any_maa_regiment = {
-				OR = {
-					is_maa_type = one_trait_legion
-					is_maa_type = one_trait_bowmen
-					is_maa_type = one_trait_riders
-				}
-			}
+			any_maa_regiment = { one_trait_ring_regiment_trigger = yes }
 		}
 	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			every_maa_regiment = {
-				limit = {
-					OR = {
-					is_maa_type = one_trait_legion
-					is_maa_type = one_trait_bowmen
-					is_maa_type = one_trait_riders
-					}
-				}
-				destroy_maa_regiment = yes
-			}
-		}
+		var:one_trait_ui_target ?= { one_trait_ring_disband_effect = yes }
 	}
 }
 
@@ -2729,6 +2805,66 @@ one_trait_ui_act_vassals_free = {
 	}
 	effect = {
 		one_trait_ui_act_vassals_free_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_become_vassal = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_vassal_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_vassal_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_become_vassal_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_break_free = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_break_free_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_break_free_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_break_free_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_become_tributary = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_tributary_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_tributary_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_become_tributary_click_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_stop_tribute = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_stop_tribute_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_vassals_stop_tribute_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_vassals_stop_tribute_click_effect = yes
 	}
 }
 

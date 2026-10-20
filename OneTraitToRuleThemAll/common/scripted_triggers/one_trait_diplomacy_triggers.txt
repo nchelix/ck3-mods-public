@@ -419,6 +419,96 @@ one_trait_diplomacy_vassals_free_valid_trigger = {
 	}
 }
 
+# ---- Vassals, acting on YOU (2.9.1). Runs in the panel character's scope; root = the player (plan Task 2 + R5).
+# target_is_liege_or_above = X is true when X is ABOVE the scoped character (triggers.log:7549).
+
+# (a) a landed ruler, not you; (b) not already your liege; (c) nowhere below you in your realm; (d) outranks you.
+# Governments as vanilla's offer_fealty_interaction (00_character_interactions.txt:53-56, :577): neither side may be
+# a mercenary company, holy order or landless adventurer, and you must hold land to be a vassal.
+one_trait_diplomacy_vassals_become_vassal_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_become_vassal_valid_trigger = {
+	is_landed = yes
+	custom_tooltip = {
+		text = one_trait_diplomacy_they_are_not_you_tt
+		NOT = { this = root }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_they_can_hold_vassals_tt
+		NOT = { government_has_flag = cannot_be_vassal_or_liege }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_can_be_vassal_tt
+		root = {
+			NOR = {
+				government_has_flag = cannot_be_vassal_or_liege
+				government_has_flag = government_is_herder
+			}
+		}
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_hold_land_tt
+		root = { is_landed = yes }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_your_direct_liege_tt
+		NOT = { root = { is_vassal_of = prev } }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_below_you_tt
+		NOT = { target_is_liege_or_above = root }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_higher_title_tt
+		highest_held_title_tier > root.highest_held_title_tier
+	}
+}
+
+# They are your direct liege, or anyone above.
+one_trait_diplomacy_vassals_break_free_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_break_free_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_your_liege_or_above_tt
+		root = { target_is_liege_or_above = prev }
+	}
+}
+
+# You are independent and not a tributary; they are independent, landed, not you and not your own tributary (a
+# contract in both directions would loop).
+one_trait_diplomacy_vassals_become_tributary_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_become_tributary_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_independent_tt
+		root = { is_independent_ruler = yes }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_not_tributary_tt
+		root = { is_tributary = no }
+	}
+	is_independent_ruler = yes
+	is_landed = yes
+	custom_tooltip = {
+		text = one_trait_diplomacy_they_are_not_you_tt
+		NOT = { this = root }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_not_your_tributary_tt
+		NOT = { is_tributary_of = root }
+	}
+}
+
+# You are their tributary (is_tributary_of: triggers.log:5976); the flag hides the row for a day after use.
+one_trait_diplomacy_vassals_stop_tribute_shown_trigger = { always = yes }
+one_trait_diplomacy_vassals_stop_tribute_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_you_are_their_tributary_tt
+		root = { is_tributary_of = prev }
+	}
+	custom_tooltip = {
+		text = one_trait_diplomacy_your_tribute_not_ending_tt
+		root = { NOT = { has_character_flag = one_trait_ending_tribute } }
+	}
+}
+
 # ---- War and peace (one_trait_menu.1430)
 
 one_trait_diplomacy_war_peace_white_peace_shown_trigger = { always = yes }

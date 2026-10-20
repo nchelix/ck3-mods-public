@@ -13,6 +13,19 @@ unlimited_knights = {
 	knight_limit = 999
 }
 
+# 2.9.1 Tireless Armies (plan R1): Supreme Commander's attrition and supply lines
+# (one_trait_trait.txt:288-297) and nothing else. Fractions: -1 = -100%. All character-area keys
+# (modifiers.log); supply_loss_winter is province-only (modifiers.log:1511) and is NOT here, so the
+# tooltip must not promise winter immunity. It covers ALL of the character's armies.
+one_trait_tireless_armies = {
+	icon = martial_positive
+	hostile_county_attrition = -1
+	hostile_county_attrition_raiding = -1
+	supply_duration = 10
+	supply_limit_mult = 1
+	supply_capacity_mult = 1
+}
+
 one_trait_relic_modifier = {
 	icon = prestige_positive
 	monthly_prestige = 10

@@ -1,0 +1,47 @@
+﻿# One Trait 2.9.1: the ring army's strength level (Godlike / Elite / Regular) and the checks around it.
+# A character's level is the variable one_trait_ring_strength: flag:elite or flag:regular. ABSENT = GODLIKE, so a
+# 2.9 save (no variable) stays Godlike; choosing Godlike removes the variable. Character scope unless noted.
+# Plan: docs/superpowers/plans/2026-10-19-one-trait-2.9.1-ring-army-and-independence.md ("Names used across tasks").
+
+# Absent, or set to anything but elite / regular (never reads a missing variable).
+one_trait_ring_is_godlike_trigger = {
+	OR = {
+		NOT = { has_variable = one_trait_ring_strength }
+		AND = {
+			has_variable = one_trait_ring_strength
+			NOT = { var:one_trait_ring_strength = flag:elite }
+			NOT = { var:one_trait_ring_strength = flag:regular }
+		}
+	}
+}
+
+one_trait_ring_is_elite_trigger = {
+	has_variable = one_trait_ring_strength
+	var:one_trait_ring_strength = flag:elite
+}
+
+one_trait_ring_is_regular_trigger = {
+	has_variable = one_trait_ring_strength
+	var:one_trait_ring_strength = flag:regular
+}
+
+# Regiment scope: one of the nine ring types (the Godlike three and the Elite / Regular six).
+one_trait_ring_regiment_trigger = {
+	OR = {
+		is_maa_type = one_trait_legion
+		is_maa_type = one_trait_bowmen
+		is_maa_type = one_trait_riders
+		is_maa_type = one_trait_legion_elite
+		is_maa_type = one_trait_bowmen_elite
+		is_maa_type = one_trait_riders_elite
+		is_maa_type = one_trait_legion_regular
+		is_maa_type = one_trait_bowmen_regular
+		is_maa_type = one_trait_riders_regular
+	}
+}
+
+# Any ring regiment of the character is currently raised (is_raised: regiment scope, triggers.log:9364).
+# Wired to the level buttons only when the panel generator's RING_BLOCK_WHILE_RAISED is True.
+one_trait_ring_any_raised_trigger = {
+	any_maa_regiment = { one_trait_ring_regiment_trigger = yes is_raised = yes }
+}

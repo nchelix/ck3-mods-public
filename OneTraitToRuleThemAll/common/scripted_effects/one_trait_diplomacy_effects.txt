@@ -164,6 +164,64 @@ one_trait_diplomacy_vassals_free_effect = {
 	}
 }
 
+# ---- Vassals, acting on YOU (2.9.1): the four above with root (the player) and the panel's character swapped.
+# No menu option behind them. Run at the player's scope with scope:one_trait_target = the panel's character.
+
+# Mirror of vassals_vassalize (create/resolve title_and_vassal_change kept: R5). Your own vassals come with you.
+one_trait_diplomacy_vassals_become_vassal_effect = {
+	create_title_and_vassal_change = {
+		type = swear_fealty
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	root = {
+		change_liege = {
+			liege = scope:one_trait_target
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# Mirror of vassals_release: cutting the direct liege tie makes you independent of the whole chain.
+one_trait_diplomacy_vassals_break_free_effect = {
+	create_title_and_vassal_change = {
+		type = independency
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	root = {
+		becomes_independent = {
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+}
+
+# Mirror of vassals_tributary with TRIBUTARY and SUZERAIN swapped. The contract is the LIGHT one (low_obligations,
+# 00_interaction_effects.txt:2383), as this cheat favours the player, where the original takes the heavy one.
+one_trait_diplomacy_vassals_become_tributary_effect = {
+	save_scope_value_as = {
+		name = low_obligations
+		value = yes
+	}
+	start_tributary_interaction_effect = {
+		TRIBUTARY = root
+		SUZERAIN = scope:one_trait_target
+	}
+}
+
+# Mirror of vassals_free: the tribute ends at the next daily tick; the flag on you hides the row until then.
+one_trait_diplomacy_vassals_stop_tribute_effect = {
+	root = {
+		add_character_flag = {
+			flag = one_trait_ending_tribute
+			days = 1
+		}
+		end_tributary = yes
+	}
+}
+
 # ---- War and peace (one_trait_menu.1430)
 
 # one_trait_menu.1430.white_peace

@@ -4893,7 +4893,7 @@ window = {
 					text_single = { text = "one_trait_panel_army_powers" }
 					scrollbox = {
 						layoutpolicy_horizontal = expanding
-						size = { 0 230 }
+						size = { 0 280 }
 						blockoverride "scrollbox_content" {
 							vbox = {
 								spacing = 4
@@ -5053,10 +5053,109 @@ window = {
 										}
 									}
 								}
+								button_standard = {
+									size = { 680 52 }
+									tooltip = "one_trait_panel_army_tireless_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_army_tireless').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									hbox = {
+										margin_left = 8
+										margin_right = 16
+										spacing = 12
+										widget = {
+											size = { 44 44 }
+											icon = {
+												parentanchor = center
+												size = { 44 44 }
+												alpha = 0.3
+												visible = "[Not( GetScriptedGui('one_trait_ui_army_tireless_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												texture = "gfx/interface/icons/one_trait_panel/one_trait_tireless_armies.dds"
+											}
+											icon = {
+												parentanchor = center
+												size = { 44 44 }
+												visible = "[GetScriptedGui('one_trait_ui_army_tireless_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												texture = "gfx/interface/icons/one_trait_panel/one_trait_tireless_armies.dds"
+											}
+										}
+										text_single = {
+											layoutpolicy_horizontal = expanding
+											autoresize = no
+											text = "one_trait_panel_army_tireless"
+										}
+										text_single = {
+											visible = "[GetScriptedGui('one_trait_ui_army_tireless_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											text = "one_trait_panel_on"
+										}
+										text_single = {
+											visible = "[Not( GetScriptedGui('one_trait_ui_army_tireless_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											text = "one_trait_panel_off"
+										}
+									}
+								}
 							}
 						}
 					}
+					hbox = {
+						spacing = 8
+						text_single = { size = { 180 32 } autoresize = no align = left|vcenter text = "one_trait_panel_ring_strength" }
+						button_standard = {
+							size = { 150 32 }
+							text = "one_trait_panel_ring_level_godlike"
+							down = "[GetScriptedGui('one_trait_ui_ring_level_godlike_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							enabled = "[GetScriptedGui('one_trait_ui_ring_level_godlike').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "[GetScriptedGui('one_trait_ui_ring_level_godlike').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_ring_level_godlike').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_level_godlike').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 150 32 }
+							text = "one_trait_panel_ring_level_elite"
+							down = "[GetScriptedGui('one_trait_ui_ring_level_elite_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							enabled = "[GetScriptedGui('one_trait_ui_ring_level_elite').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "[GetScriptedGui('one_trait_ui_ring_level_elite').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_ring_level_elite').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_level_elite').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 150 32 }
+							text = "one_trait_panel_ring_level_regular"
+							down = "[GetScriptedGui('one_trait_ui_ring_level_regular_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							enabled = "[GetScriptedGui('one_trait_ui_ring_level_regular').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "[GetScriptedGui('one_trait_ui_ring_level_regular').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_ring_level_regular').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_level_regular').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+					}
 					text_single = { text = "one_trait_panel_army_raise" }
+					hbox = {
+						spacing = 8
+						text_single = { size = { 70 32 } autoresize = no align = left|vcenter text = "one_trait_panel_ring_count" tooltip = "one_trait_panel_ring_count_tt" }
+						text_single = { size = { 220 32 } autoresize = no align = left|vcenter text = "one_trait_panel_ring_count_readout" tooltip = "one_trait_panel_ring_count_tt" }
+						button_standard = {
+							size = { 80 32 }
+							raw_text = "-1,000"
+							tooltip = "one_trait_panel_ring_count_tt"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_count_m1000').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 80 32 }
+							raw_text = "-100"
+							tooltip = "one_trait_panel_ring_count_tt"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_count_m100').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 80 32 }
+							raw_text = "+100"
+							tooltip = "one_trait_panel_ring_count_tt"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_count_p100').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 80 32 }
+							raw_text = "+1,000"
+							tooltip = "one_trait_panel_ring_count_tt"
+							onclick = "[GetScriptedGui('one_trait_ui_ring_count_p1000').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+					}
 					hbox = {
 						spacing = 8
 						button_standard = {
@@ -5066,7 +5165,20 @@ window = {
 							icon = {
 								parentanchor = center
 								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_godlike_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								texture = "gfx/interface/icons/regimenttypes/one_trait_legion.dds"
+							}
+							icon = {
+								parentanchor = center
+								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_elite_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								texture = "gfx/interface/icons/regimenttypes/one_trait_legion_elite.dds"
+							}
+							icon = {
+								parentanchor = center
+								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_regular_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								texture = "gfx/interface/icons/regimenttypes/one_trait_legion_regular.dds"
 							}
 						}
 						button_standard = {
@@ -5076,7 +5188,20 @@ window = {
 							icon = {
 								parentanchor = center
 								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_godlike_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								texture = "gfx/interface/icons/regimenttypes/one_trait_bowmen.dds"
+							}
+							icon = {
+								parentanchor = center
+								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_elite_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								texture = "gfx/interface/icons/regimenttypes/one_trait_bowmen_elite.dds"
+							}
+							icon = {
+								parentanchor = center
+								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_regular_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								texture = "gfx/interface/icons/regimenttypes/one_trait_bowmen_regular.dds"
 							}
 						}
 						button_standard = {
@@ -5086,7 +5211,20 @@ window = {
 							icon = {
 								parentanchor = center
 								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_godlike_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								texture = "gfx/interface/icons/regimenttypes/one_trait_riders.dds"
+							}
+							icon = {
+								parentanchor = center
+								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_elite_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								texture = "gfx/interface/icons/regimenttypes/one_trait_riders_elite.dds"
+							}
+							icon = {
+								parentanchor = center
+								size = { 64 64 }
+								visible = "[GetScriptedGui('one_trait_ui_ring_level_regular_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								texture = "gfx/interface/icons/regimenttypes/one_trait_riders_regular.dds"
 							}
 						}
 					}
@@ -5581,6 +5719,86 @@ window = {
 										tooltip = "[GetScriptedGui('one_trait_ui_act_vassals_free').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_vassals_free').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 										onclick = "[GetScriptedGui('one_trait_ui_act_vassals_free').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_vassals_become_vassal').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_vassal.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_vassals_become_vassal" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_vassals_become_vassal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_vassals_become_vassal').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_vassals_become_vassal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_vassals_become_vassal').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_vassals_break_free').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/independence.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_vassals_break_free" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_vassals_break_free').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_vassals_break_free').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_vassals_break_free').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_vassals_break_free').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_vassals_become_tributary').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/become_tributary_interaction.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_vassals_become_tributary" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_vassals_become_tributary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_vassals_become_tributary').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_vassals_become_tributary').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_vassals_become_tributary').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_vassals_stop_tribute').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/release_tributary_interaction.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_vassals_stop_tribute" tooltip = "one_trait_panel_act_vassals_stop_tribute_tt" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_vassals_stop_tribute').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_vassals_stop_tribute').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_vassals_stop_tribute').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_vassals_stop_tribute').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									}
 								}
 							}

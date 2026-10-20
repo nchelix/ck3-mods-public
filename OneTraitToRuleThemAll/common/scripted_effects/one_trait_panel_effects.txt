@@ -1368,6 +1368,42 @@ one_trait_ui_act_vassals_free_click_effect = {
 	}
 }
 
+one_trait_ui_act_vassals_become_vassal_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_vassals_become_vassal_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_break_free_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_vassals_break_free_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_become_tributary_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_vassals_become_tributary_effect = yes
+	}
+}
+
+one_trait_ui_act_vassals_stop_tribute_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_vassals_stop_tribute_effect = yes
+	}
+}
+
 one_trait_ui_act_war_peace_white_peace_click_effect = {
 	if = {
 		limit = { has_variable = one_trait_ui_target }
