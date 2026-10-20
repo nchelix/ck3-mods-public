@@ -14,7 +14,7 @@ Each mod's page explains what it does and how to use it; the [Releases](https://
 | [Renovatio Imperii](RenovatioImperii/) | 1.2 | Rome fell centuries ago, but its inheritance never found an owner. Vanilla makes that inheritance a trophy: you cannot even see the decision to restore the… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806764786) |
 | [Renovatio: Pretender](RenovatioPretender/) | 1.0 | Rome fell centuries ago, but its name still moves armies. Renovatio Imperii gives that name to landed kings. This mod gives the road before the crown: a… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3809982416) |
 | [Warrior Trait](WarriorTrait/) | 1.3 | Some rulers are good in a fight. These two cannot lose one. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2250932791) |
-| [OP Troops](TheImmortalArmy/) | 1.2 | Five hundred soldiers who do not lose. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231435851) |
+| [OP Troops](TheImmortalArmy/) | 1.3 | Five hundred soldiers who do not lose. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231435851) |
 | [Trigger Mask](WearTheMask/) | 1.2 | Nobody cared who I was before I put on the mask. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231939373) |
 | [Become Albino](BecomeAlbino/) | 1.2 | Turn anyone in the world albino, and decide how far it goes. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232333172) |
 | [Become the Snake](BecomeSnake/) | 1.2 | Don't step on snek. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232605324) |

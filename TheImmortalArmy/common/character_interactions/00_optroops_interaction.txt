@@ -1,5 +1,9 @@
 ﻿# Immortal Army interactions. Everything but the menu toggle is hidden until
 # the menu is opened, so a right-click stays short.
+#
+# Strength levels: the player picks Godlike (default, no flag), Elite or Regular.
+# The level is stored as a character flag on the actor and only affects new
+# spawns; armies already raised keep the regiment type they were made with.
 
 open_optroop_menu = {
 	category = interaction_category_diplomacy
@@ -53,10 +57,115 @@ close_optroop_menu = {
 	}
 }
 
-inheritable_optroop_interaction = {
+optroop_strength_godlike_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
 	interface_priority = 68
+	icon = icon_combat
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = optroop_strength_godlike_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			has_character_flag = open_optroop_menu
+		}
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = optroop_strength_already_set
+			scope:actor = {
+				OR = {
+					has_character_flag = optroops_level_elite
+					has_character_flag = optroops_level_regular
+				}
+			}
+		}
+	}
+
+	on_accept = {
+		scope:actor = {
+			remove_character_flag = optroops_level_elite
+			remove_character_flag = optroops_level_regular
+		}
+	}
+
+	auto_accept = yes
+}
+
+optroop_strength_elite_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 67
+	icon = icon_combat
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = optroop_strength_elite_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			has_character_flag = open_optroop_menu
+		}
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = optroop_strength_already_set
+			scope:actor = {
+				NOT = { has_character_flag = optroops_level_elite }
+			}
+		}
+	}
+
+	on_accept = {
+		scope:actor = {
+			remove_character_flag = optroops_level_regular
+			add_character_flag = optroops_level_elite
+		}
+	}
+
+	auto_accept = yes
+}
+
+optroop_strength_regular_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 66
+	icon = icon_combat
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = optroop_strength_regular_interaction_desc
+
+	is_shown = {
+		scope:actor = {
+			has_character_flag = open_optroop_menu
+		}
+	}
+
+	is_valid = {
+		custom_tooltip = {
+			text = optroop_strength_already_set
+			scope:actor = {
+				NOT = { has_character_flag = optroops_level_regular }
+			}
+		}
+	}
+
+	on_accept = {
+		scope:actor = {
+			remove_character_flag = optroops_level_elite
+			add_character_flag = optroops_level_regular
+		}
+	}
+
+	auto_accept = yes
+}
+
+inheritable_optroop_interaction = {
+	category = interaction_category_diplomacy
+	common_interaction = yes
+	interface_priority = 65
 	icon = request_maa_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
@@ -70,16 +179,46 @@ inheritable_optroop_interaction = {
 
 	on_accept = {
 		scope:recipient = {
-			spawn_army = {
-				levies = 0
-				men_at_arms = {
-					type = op_troops
-					stacks = 1
+			if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_elite
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_elite
 				}
-				location = scope:recipient.capital_province
-				inheritable = yes
-				uses_supply = no
-				name = op_troops
+			}
+			else_if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_regular
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_regular
+				}
+			}
+			else = {
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops
+				}
 			}
 		}
 	}
@@ -90,7 +229,7 @@ inheritable_optroop_interaction = {
 non_inheritable_optroop_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
-	interface_priority = 67
+	interface_priority = 64
 	icon = request_maa_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
@@ -104,16 +243,46 @@ non_inheritable_optroop_interaction = {
 
 	on_accept = {
 		scope:recipient = {
-			spawn_army = {
-				levies = 0
-				men_at_arms = {
-					type = op_troops
-					stacks = 1
+			if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_elite
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_elite
 				}
-				location = scope:recipient.capital_province
-				inheritable = no
-				uses_supply = no
-				name = op_troops
+			}
+			else_if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_regular
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_regular
+				}
+			}
+			else = {
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops
+				}
 			}
 		}
 	}
@@ -124,7 +293,7 @@ non_inheritable_optroop_interaction = {
 inheritable_optroop_cavalry_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
-	interface_priority = 66
+	interface_priority = 63
 	icon = request_maa_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
@@ -138,16 +307,46 @@ inheritable_optroop_cavalry_interaction = {
 
 	on_accept = {
 		scope:recipient = {
-			spawn_army = {
-				levies = 0
-				men_at_arms = {
-					type = op_troops_cavalry
-					stacks = 1
+			if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_cavalry_elite
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_cavalry_elite
 				}
-				location = scope:recipient.capital_province
-				inheritable = yes
-				uses_supply = no
-				name = op_troops_cavalry
+			}
+			else_if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_cavalry_regular
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_cavalry_regular
+				}
+			}
+			else = {
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_cavalry
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_cavalry
+				}
 			}
 		}
 	}
@@ -158,7 +357,7 @@ inheritable_optroop_cavalry_interaction = {
 non_inheritable_optroop_cavalry_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
-	interface_priority = 65
+	interface_priority = 62
 	icon = request_maa_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
@@ -172,16 +371,46 @@ non_inheritable_optroop_cavalry_interaction = {
 
 	on_accept = {
 		scope:recipient = {
-			spawn_army = {
-				levies = 0
-				men_at_arms = {
-					type = op_troops_cavalry
-					stacks = 1
+			if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_cavalry_elite
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_cavalry_elite
 				}
-				location = scope:recipient.capital_province
-				inheritable = no
-				uses_supply = no
-				name = op_troops_cavalry
+			}
+			else_if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_cavalry_regular
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_cavalry_regular
+				}
+			}
+			else = {
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_cavalry
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_cavalry
+				}
 			}
 		}
 	}
@@ -192,7 +421,7 @@ non_inheritable_optroop_cavalry_interaction = {
 inheritable_optroop_archers_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
-	interface_priority = 64
+	interface_priority = 61
 	icon = request_maa_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
@@ -206,16 +435,46 @@ inheritable_optroop_archers_interaction = {
 
 	on_accept = {
 		scope:recipient = {
-			spawn_army = {
-				levies = 0
-				men_at_arms = {
-					type = op_troops_archers
-					stacks = 1
+			if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_archers_elite
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_archers_elite
 				}
-				location = scope:recipient.capital_province
-				inheritable = yes
-				uses_supply = no
-				name = op_troops_archers
+			}
+			else_if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_archers_regular
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_archers_regular
+				}
+			}
+			else = {
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_archers
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = yes
+					uses_supply = no
+					name = op_troops_archers
+				}
 			}
 		}
 	}
@@ -226,7 +485,7 @@ inheritable_optroop_archers_interaction = {
 non_inheritable_optroop_archers_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
-	interface_priority = 63
+	interface_priority = 60
 	icon = request_maa_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
@@ -240,16 +499,46 @@ non_inheritable_optroop_archers_interaction = {
 
 	on_accept = {
 		scope:recipient = {
-			spawn_army = {
-				levies = 0
-				men_at_arms = {
-					type = op_troops_archers
-					stacks = 1
+			if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_archers_elite
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_archers_elite
 				}
-				location = scope:recipient.capital_province
-				inheritable = no
-				uses_supply = no
-				name = op_troops_archers
+			}
+			else_if = {
+				limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_archers_regular
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_archers_regular
+				}
+			}
+			else = {
+				spawn_army = {
+					levies = 0
+					men_at_arms = {
+						type = op_troops_archers
+						stacks = 1
+					}
+					location = scope:recipient.capital_province
+					inheritable = no
+					uses_supply = no
+					name = op_troops_archers
+				}
 			}
 		}
 	}

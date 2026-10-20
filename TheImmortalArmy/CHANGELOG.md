@@ -1,5 +1,39 @@
 # Changelog — OP Troops (The Immortal Army)
 
+## [1.3] — 2026-10-20
+
+Strength levels: choose how strong the Immortal Army is when you raise it.
+
+### Added
+- **Three strength interactions** in the existing menu, shown only while it is
+  open: **Strength: Godlike**, **Strength: Elite** and **Strength: Regular**.
+  The current level is greyed out, with a hover note saying it is already set.
+  The choice is stored as a character flag on you (none = Godlike, so nothing
+  changes for existing players; `optroops_level_elite` and
+  `optroops_level_regular` for the others).
+- **Six new regiment types**, one Elite and one Regular for each role:
+  `op_troops_elite`, `op_troops_regular`, `op_troops_cavalry_elite`,
+  `op_troops_cavalry_regular`, `op_troops_archers_elite` and
+  `op_troops_archers_regular`. Same base types, icons and zero cost as the
+  Godlike ones; stats copied role for role from the sister mod One Trait's
+  Elite and Regular regiments (infantry from its legion, cavalry from its
+  riders, archers from its bowmen).
+- Localization for all of it in all nine languages (English wording, as with
+  the rest of this mod).
+
+### Changed
+- The six spawn interactions now raise the type matching your current level.
+  Still one stack of **500** at every level, still inheritable or not exactly
+  as before, and still **no supply needs** (no attrition) at every level.
+- The six spawn interactions moved down three places in the menu to make room
+  for the strength options directly under Close.
+
+### Unchanged
+- The three Godlike regiment types are byte-for-byte as in 1.2, and Godlike is
+  the default.
+- The level only affects armies spawned afterwards. Armies already raised keep
+  the type they were made with.
+
 ## [1.2] — 2026-09-22
 
 Adds two more regiment types.
