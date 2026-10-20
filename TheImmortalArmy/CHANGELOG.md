@@ -1,5 +1,13 @@
 # Changelog — OP Troops (The Immortal Army)
 
+## [1.3.1] — 2026-10-20
+
+A small fix to the men-at-arms cards.
+
+### Fixed
+- All nine troop types (Immortal Army, Riders and Bowmen, each at Godlike, Elite and Regular strength) showed a raw
+  localization key (`op_troops_flavor` and the like) where the flavor line belongs. Each now has one, in all nine languages.
+
 ## [1.3] — 2026-10-20
 
 Strength levels: choose how strong the Immortal Army is when you raise it.

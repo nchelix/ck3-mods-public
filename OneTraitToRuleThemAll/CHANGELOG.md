@@ -1,5 +1,13 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.9.3] — 2026-10-20
+
+A small fix to the Army of the One Trait's card.
+
+### Fixed
+- The `one_army` men-at-arms card showed a raw localization key (`one_army_flavor`) where the flavor line belongs. It now
+  has one, in all nine languages.
+
 ## [2.9.2] — 2026-10-20
 
 Tireless Armies now really means tireless, and a new Army toggle, Swift Armies, gets the armies there.

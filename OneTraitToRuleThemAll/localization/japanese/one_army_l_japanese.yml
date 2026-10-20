@@ -2,6 +2,7 @@
 # Untranslated placeholder: English strings. Replace with a real japanese translation.
 # \regiment_types
  one_army:0 "The Army of the One Trait"
+ one_army_flavor:0 "#F The whole of the One Trait's host, raised at a word. Every legion, bow and rider answers to the One, and the field is theirs before the fighting starts.#!"
  one_trait_legion:0 "Legion of the One"
  one_trait_legion_flavor:0 "#F The One Trait's own infantry, in white enamel and gold. No blow breaks their shield wall, and no castle wall stands long before them.#!"
  one_trait_bowmen:0 "Bowmen of the One"

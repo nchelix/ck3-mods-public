@@ -1,7 +1,12 @@
 ﻿l_spanish:
 # Untranslated placeholder: English strings. Replace with a real spanish translation.
  ga_ligne:0 "Infanterie de Ligne"
+ ga_ligne_flavor:0 "#F The line infantry of the Grande Armee. Drilled to march apart and fight together, their volleys and bayonets carry the day centuries before anyone expects them.#!"
  ga_vieille_garde:0 "La Vieille Garde"
+ ga_vieille_garde_flavor:0 "#F The Old Guard. Veterans of every campaign, they are held back until the decisive moment and then thrown forward. The Guard dies, but it does not surrender.#!"
  ga_cuirassiers:0 "Cuirassiers"
+ ga_cuirassiers_flavor:0 "#F Heavy cavalry in iron breastplates. Massed in a single charge, they ride through broken lines and finish what the guns began.#!"
  ga_foot_artillery:0 "Foot Artillery"
+ ga_foot_artillery_flavor:0 "#F Heavy guns on the march, brought up with the corps. Their massed batteries tear holes in the enemy line before the infantry advance.#!"
  ga_horse_artillery:0 "Horse Artillery"
+ ga_horse_artillery_flavor:0 "#F Light guns drawn at the gallop. They race to the decisive point, unlimber in minutes and fire where no one thought a battery could be.#!"

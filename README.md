@@ -6,15 +6,15 @@ Each mod's page explains what it does and how to use it; the [Releases](https://
 
 | Mod | Version | What it does | Steam |
 |---|---|---|---|
-| [One Trait to Rule Them All](OneTraitToRuleThemAll/) | 2.9.2 | One panel, no menu. Twenty-one trait cheats, tabs to rule any character, and a wonder of its own. Everything you have ever wanted to do to a Crusader Kings… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2245233173) |
+| [One Trait to Rule Them All](OneTraitToRuleThemAll/) | 2.9.3 | One panel, no menu. Twenty-one trait cheats, tabs to rule any character, and a wonder of its own. Everything you have ever wanted to do to a Crusader Kings… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2245233173) |
 | [Pantheon of One](PantheonOfOne/) | 2.2.1 | Play as a god. Not a king with a halo: a god whose power is the worship of the faithful, and whose gifts to them are overwhelming but never permanent. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3811559970) |
 | [Council Automation](CouncilAutomation/) | 1.2 | Stop babysitting your council. When your Court Chaplain, Steward or Marshal finishes converting, promoting culture in, or increasing control over a county,… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3810883437) |
 | [Create Alliance](CreateAlliance/) | 1.2 | An alliance with anyone, anywhere, right now. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2237350746) |
-| [La Grande Armee](GrandeArmee/) | 1.0 | Napoleon arrives in 867. Everyone else is about nine hundred years behind. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806598359) |
+| [La Grande Armee](GrandeArmee/) | 1.0.1 | Napoleon arrives in 867. Everyone else is about nine hundred years behind. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806598359) |
 | [Renovatio Imperii](RenovatioImperii/) | 1.2 | Rome fell centuries ago, but its inheritance never found an owner. Vanilla makes that inheritance a trophy: you cannot even see the decision to restore the… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806764786) |
 | [Renovatio: Pretender](RenovatioPretender/) | 1.0 | Rome fell centuries ago, but its name still moves armies. Renovatio Imperii gives that name to landed kings. This mod gives the road before the crown: a… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3809982416) |
 | [Warrior Trait](WarriorTrait/) | 1.3 | Some rulers are good in a fight. These two cannot lose one. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2250932791) |
-| [OP Troops](TheImmortalArmy/) | 1.3 | Five hundred soldiers who do not lose. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231435851) |
+| [OP Troops](TheImmortalArmy/) | 1.3.1 | Five hundred soldiers who do not lose. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231435851) |
 | [Trigger Mask](WearTheMask/) | 1.2 | Nobody cared who I was before I put on the mask. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231939373) |
 | [Become Albino](BecomeAlbino/) | 1.2 | Turn anyone in the world albino, and decide how far it goes. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232333172) |
 | [Become the Snake](BecomeSnake/) | 1.2 | Don't step on snek. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232605324) |

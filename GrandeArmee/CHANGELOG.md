@@ -1,5 +1,13 @@
 # Changelog — La Grande Armée
 
+## [1.0.1] — 2026-10-20
+
+A small fix to the men-at-arms cards.
+
+### Fixed
+- All five regiments (Infanterie de Ligne, La Vieille Garde, Cuirassiers, Foot Artillery and Horse Artillery) showed a raw
+  localization key (`ga_ligne_flavor` and the like) where the flavor line belongs. Each now has one, in all nine languages.
+
 ## [1.0] — 2026-09-22
 
 First release. Built for **CK3 1.19 "Scribe"**.
