@@ -13,10 +13,12 @@ unlimited_knights = {
 	knight_limit = 999
 }
 
-# 2.9.1 Tireless Armies (plan R1): Supreme Commander's attrition and supply lines
-# (one_trait_trait.txt:288-297) and nothing else. Fractions: -1 = -100%. All character-area keys
-# (modifiers.log); supply_loss_winter is province-only (modifiers.log:1511) and is NOT here, so the
-# tooltip must not promise winter immunity. It covers ALL of the character's armies.
+# 2.9.1 Tireless Armies (plan R1), widened in 2.9.2: Supreme Commander's attrition and supply lines
+# (one_trait_trait.txt:288-297) plus, for each of the 15 land terrains (vanilla 00_terrains.txt), no terrain
+# attrition and no negative-supply penalty (precedent: vanilla 08_bp3_modifiers.txt master_terrain_*). Water is
+# left out (no sea terrain keys). A monthly refill (on_action/one_trait_tireless_on_actions.txt) tops supply up.
+# Fractions: -1 = -100%. All character-area keys (modifiers.log); supply_loss_winter is province-only
+# (modifiers.log:1511) and is NOT here. Sieges and looting have no modifier. It covers ALL of the character's armies.
 one_trait_tireless_armies = {
 	icon = martial_positive
 	hostile_county_attrition = -1
@@ -24,6 +26,58 @@ one_trait_tireless_armies = {
 	supply_duration = 10
 	supply_limit_mult = 1
 	supply_capacity_mult = 1
+	plains_cancel_negative_supply = yes
+	plains_attrition_mult = -1
+	farmlands_cancel_negative_supply = yes
+	farmlands_attrition_mult = -1
+	hills_cancel_negative_supply = yes
+	hills_attrition_mult = -1
+	mountains_cancel_negative_supply = yes
+	mountains_attrition_mult = -1
+	desert_cancel_negative_supply = yes
+	desert_attrition_mult = -1
+	desert_mountains_cancel_negative_supply = yes
+	desert_mountains_attrition_mult = -1
+	oasis_cancel_negative_supply = yes
+	oasis_attrition_mult = -1
+	jungle_cancel_negative_supply = yes
+	jungle_attrition_mult = -1
+	forest_cancel_negative_supply = yes
+	forest_attrition_mult = -1
+	taiga_cancel_negative_supply = yes
+	taiga_attrition_mult = -1
+	wetlands_cancel_negative_supply = yes
+	wetlands_attrition_mult = -1
+	steppe_cancel_negative_supply = yes
+	steppe_attrition_mult = -1
+	floodplains_cancel_negative_supply = yes
+	floodplains_attrition_mult = -1
+	drylands_cancel_negative_supply = yes
+	drylands_attrition_mult = -1
+	terraced_hills_cancel_negative_supply = yes
+	terraced_hills_attrition_mult = -1
+}
+
+# 2.9.2 Swift Armies: getting there. Supreme Commander's movement keys (one_trait_trait.txt:283-291) plus the two
+# embarkation keys; the combat keys stay exclusive to the trait. All character-area keys (modifiers.log).
+# embarkation_cost_mult = -1 is what vanilla's no_embarkation_cost does.
+one_trait_swift_armies = {
+	icon = martial_positive
+	embarkation_cost_mult = -1
+	no_disembark_penalty = yes
+	naval_movement_speed_mult = 1
+	movement_speed = 1
+	no_water_crossing_penalty = yes
+	winter_movement_speed = 1
+}
+
+# 2.9.2 Swift Armies: the commander half. no_disembark_penalty and no_water_crossing_penalty are COMMANDER modifiers,
+# so they only act on the character leading the army. one_trait_swift_command_refresh_effect puts this on every
+# commander of the holder's armies (modifiers.log).
+one_trait_swift_command = {
+	icon = martial_positive
+	no_disembark_penalty = yes
+	no_water_crossing_penalty = yes
 }
 
 one_trait_relic_modifier = {

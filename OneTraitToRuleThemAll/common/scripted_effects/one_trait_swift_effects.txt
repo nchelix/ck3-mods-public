@@ -1,0 +1,12 @@
+﻿# 2.9.2 Swift Armies: no_disembark_penalty / no_water_crossing_penalty only work on the army's commander.
+# Run in ARMY scope. Remove then add so the 35 days refresh instead of stacking; the monthly on_action and the
+# panel grant call it.
+one_trait_swift_command_refresh_effect = {
+	army_commander ?= {
+		if = {
+			limit = { has_character_modifier = one_trait_swift_command }
+			remove_character_modifier = one_trait_swift_command
+		}
+		add_character_modifier = { modifier = one_trait_swift_command days = 35 }
+	}
+}

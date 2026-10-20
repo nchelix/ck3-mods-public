@@ -4893,7 +4893,7 @@ window = {
 					text_single = { text = "one_trait_panel_army_powers" }
 					scrollbox = {
 						layoutpolicy_horizontal = expanding
-						size = { 0 280 }
+						size = { 0 356 }
 						blockoverride "scrollbox_content" {
 							vbox = {
 								spacing = 4
@@ -5088,6 +5088,45 @@ window = {
 										}
 										text_single = {
 											visible = "[Not( GetScriptedGui('one_trait_ui_army_tireless_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											text = "one_trait_panel_off"
+										}
+									}
+								}
+								button_standard = {
+									size = { 680 52 }
+									tooltip = "one_trait_panel_army_swift_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_army_swift').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									hbox = {
+										margin_left = 8
+										margin_right = 16
+										spacing = 12
+										widget = {
+											size = { 44 44 }
+											icon = {
+												parentanchor = center
+												size = { 44 44 }
+												alpha = 0.3
+												visible = "[Not( GetScriptedGui('one_trait_ui_army_swift_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												texture = "gfx/interface/icons/one_trait_panel/one_trait_swift_armies.dds"
+											}
+											icon = {
+												parentanchor = center
+												size = { 44 44 }
+												visible = "[GetScriptedGui('one_trait_ui_army_swift_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												texture = "gfx/interface/icons/one_trait_panel/one_trait_swift_armies.dds"
+											}
+										}
+										text_single = {
+											layoutpolicy_horizontal = expanding
+											autoresize = no
+											text = "one_trait_panel_army_swift"
+										}
+										text_single = {
+											visible = "[GetScriptedGui('one_trait_ui_army_swift_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											text = "one_trait_panel_on"
+										}
+										text_single = {
+											visible = "[Not( GetScriptedGui('one_trait_ui_army_swift_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 											text = "one_trait_panel_off"
 										}
 									}

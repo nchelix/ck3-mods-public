@@ -1,0 +1,26 @@
+﻿# One Trait 2.9.2: Tireless Armies' monthly supply refill.
+# Vanilla fires on_army_monthly every 30 days per army (staggered by army id): root is the army's owner, scope:army
+# is the army (game/common/on_action/army_on_actions.txt:3-5). The vanilla block already has an effect, so this
+# appends a uniquely named child through on_actions, as _on_actions.info prescribes.
+on_army_monthly = {
+	on_actions = { one_trait_tireless_refill one_trait_swift_command_monthly }
+}
+
+one_trait_tireless_refill = {
+	trigger = {
+		has_character_modifier = one_trait_tireless_armies
+	}
+	effect = {
+		scope:army ?= { refill_supply = yes }
+	}
+}
+
+# 2.9.2: Swift Armies' commander half, renewed each pulse (the modifier lasts 35 days, the pulse is every 30).
+one_trait_swift_command_monthly = {
+	trigger = {
+		has_character_modifier = one_trait_swift_armies
+	}
+	effect = {
+		scope:army ?= { one_trait_swift_command_refresh_effect = yes }
+	}
+}

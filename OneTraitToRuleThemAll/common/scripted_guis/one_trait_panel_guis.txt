@@ -614,7 +614,28 @@ one_trait_ui_army_tireless = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
 			if = { limit = { has_character_modifier = one_trait_tireless_armies } remove_character_modifier = one_trait_tireless_armies }
-			else = { add_character_modifier = { modifier = one_trait_tireless_armies days = -1 } }
+			else = {
+				add_character_modifier = { modifier = one_trait_tireless_armies days = -1 }
+				every_army = { refill_supply = yes }
+			}
+		}
+	}
+}
+
+one_trait_ui_army_swift = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= {
+			if = {
+				limit = { has_character_modifier = one_trait_swift_armies }
+				remove_character_modifier = one_trait_swift_armies
+				every_army = { army_commander ?= { if = { limit = { has_character_modifier = one_trait_swift_command } remove_character_modifier = one_trait_swift_command } } }
+			}
+			else = {
+				add_character_modifier = { modifier = one_trait_swift_armies days = -1 }
+				every_army = { one_trait_swift_command_refresh_effect = yes }
+			}
 		}
 	}
 }
@@ -642,6 +663,11 @@ one_trait_ui_army_free_menatarms_on = {
 one_trait_ui_army_tireless_on = {
 	scope = character
 	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = one_trait_tireless_armies } }
+}
+
+one_trait_ui_army_swift_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = one_trait_swift_armies } }
 }
 
 one_trait_ui_ring_level_godlike = {

@@ -1,5 +1,24 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.9.2] — 2026-10-20
+
+Tireless Armies now really means tireless, and a new Army toggle, Swift Armies, gets the armies there.
+
+### Added
+- **Swift Armies**, a toggle beside Tireless Armies on the Army tab: embarking costs 90% less (the game's minimum is a tenth), +100%
+  land and naval movement speed and +100% winter movement. The no-penalty-after-landing and river and strait bonuses go
+  to the armies' commanders and are renewed monthly, so a newly assigned commander may wait up to a month. It applies
+  to all of the character's armies and adds harmlessly to Supreme Commander.
+
+### Changed
+- **Tireless Armies covers terrain and supply.** On top of no hostile-county attrition and the longer supply, it now
+  removes terrain attrition and the supply penalty of every land terrain, and tops every army's supply up to full when
+  you grant it and then every month (the game pulses each army every 30 days). Characters who already have Tireless
+  Armies get the stronger version automatically, with nothing to redo.
+- **Still not covered:** sieges and looting keep their usual 1% a month, since the game gives no way to change them. The
+  refill restores supply, not men already lost.
+- The Army tab's toggle list is tall enough to show all six toggles without scrolling.
+
 ## [2.9.1] — 2026-10-19
 
 The ring army gets a strength setting and a size, a new Army toggle gives it supply, and four Vassals rows act on you.
