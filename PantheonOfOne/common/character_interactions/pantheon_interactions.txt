@@ -112,10 +112,15 @@ pantheon_judgement_interaction = {
 
 	on_accept = {
 		if = { limit = { scope:pantheon_judge_strike = yes } custom_tooltip = pantheon.0071.strike.tt }
+		if = { limit = { scope:pantheon_judge_strike = yes } custom_tooltip = pantheon_worship_line_strike }
 		if = { limit = { scope:pantheon_judge_maimed = yes } custom_tooltip = pantheon_judge_maimed.tt }
+		if = { limit = { scope:pantheon_judge_maimed = yes } custom_tooltip = pantheon_worship_line_maim }
 		if = { limit = { scope:pantheon_judge_blind = yes } custom_tooltip = pantheon_judge_blind.tt }
+		if = { limit = { scope:pantheon_judge_blind = yes } custom_tooltip = pantheon_worship_line_maim }
 		if = { limit = { scope:pantheon_judge_wound = yes } custom_tooltip = pantheon_judge_wound.tt }
+		if = { limit = { scope:pantheon_judge_wound = yes } custom_tooltip = pantheon_worship_line_maim }
 		if = { limit = { scope:pantheon_judge_curse = yes } custom_tooltip = pantheon.0071.curse.tt }
+		if = { limit = { scope:pantheon_judge_curse = yes } custom_tooltip = pantheon_worship_line_curse }
 		hidden_effect = {
 			scope:actor = {
 				# A wrath on the sworn offender answers the oath itself: pantheon_wrath_landed_effect must still
@@ -214,8 +219,11 @@ pantheon_lands_interaction = {
 
 	on_accept = {
 		if = { limit = { scope:pantheon_lands_pestilence = yes } custom_tooltip = pantheon_lands_pestilence.tt }
+		if = { limit = { scope:pantheon_lands_pestilence = yes } custom_tooltip = pantheon_worship_line_pestilence }
 		if = { limit = { scope:pantheon_lands_great_dying = yes } custom_tooltip = pantheon_lands_great_dying.tt }
+		if = { limit = { scope:pantheon_lands_great_dying = yes } custom_tooltip = pantheon_worship_line_great_dying }
 		if = { limit = { scope:pantheon_lands_disaster = yes } custom_tooltip = pantheon.0073.disaster.tt }
+		if = { limit = { scope:pantheon_lands_disaster = yes } custom_tooltip = pantheon_worship_line_disaster }
 		hidden_effect = {
 			scope:actor = {
 				# A wrath on the sworn offender answers the oath itself (M9, as Judgement)
@@ -362,7 +370,7 @@ pantheon_bless_interaction = {
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
-				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_harvest } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
 			}
@@ -374,7 +382,7 @@ pantheon_bless_interaction = {
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
-				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_walls } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
 			}
@@ -386,7 +394,7 @@ pantheon_bless_interaction = {
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
-				custom_tooltip = { text = pantheon_bless_landless_tt is_landed = yes }
+				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_warding } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
 			}
@@ -442,16 +450,27 @@ pantheon_bless_interaction = {
 	on_accept = {
 		# The preview follows the selected option (the page tooltips of 1.0-1.6)
 		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_menu.0100.champion.tt }
+		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_worship_line_trait }
 		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_menu.0100.warlord.tt }
+		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_worship_line_trait }
 		if = { limit = { scope:pantheon_bless_sovereign = yes } custom_tooltip = pantheon_menu.0100.sovereign.tt }
+		if = { limit = { scope:pantheon_bless_sovereign = yes } custom_tooltip = pantheon_worship_line_trait }
 		if = { limit = { scope:pantheon_bless_sage = yes } custom_tooltip = pantheon_menu.0100.sage.tt }
+		if = { limit = { scope:pantheon_bless_sage = yes } custom_tooltip = pantheon_worship_line_trait }
 		if = { limit = { scope:pantheon_bless_harvest = yes } custom_tooltip = pantheon_menu.0200.harvest.tt }
+		if = { limit = { scope:pantheon_bless_harvest = yes } custom_tooltip = pantheon_worship_line_realm }
 		if = { limit = { scope:pantheon_bless_walls = yes } custom_tooltip = pantheon_menu.0200.walls.tt }
+		if = { limit = { scope:pantheon_bless_walls = yes } custom_tooltip = pantheon_worship_line_realm }
 		if = { limit = { scope:pantheon_bless_warding = yes } custom_tooltip = pantheon_menu.0200.warding.tt }
+		if = { limit = { scope:pantheon_bless_warding = yes } custom_tooltip = pantheon_worship_line_realm }
 		if = { limit = { scope:pantheon_bless_vigor = yes } custom_tooltip = pantheon_menu.0300.vigor.tt }
+		if = { limit = { scope:pantheon_bless_vigor = yes } custom_tooltip = pantheon_worship_line_life }
 		if = { limit = { scope:pantheon_bless_fertility = yes } custom_tooltip = pantheon_menu.0300.fertility.tt }
+		if = { limit = { scope:pantheon_bless_fertility = yes } custom_tooltip = pantheon_worship_line_life }
 		if = { limit = { scope:pantheon_bless_lineage = yes } custom_tooltip = pantheon_menu.0300.lineage.tt }
+		if = { limit = { scope:pantheon_bless_lineage = yes } custom_tooltip = pantheon_worship_line_life }
 		if = { limit = { scope:pantheon_bless_host = yes } custom_tooltip = pantheon_menu.0001.host.tt }
+		if = { limit = { scope:pantheon_bless_host = yes } custom_tooltip = pantheon_worship_line_host }
 		hidden_effect = {
 			scope:actor = {
 				# The handoff to pantheon.0100 (I3); pantheon_ui_target also stays, so the pane keeps showing
@@ -758,6 +777,14 @@ pantheon_great_boon_interaction = {
 	}
 	on_accept = {
 		custom_tooltip = pantheon_great_boon_interaction.tt
+		# 2.2.1 (#3): the price of THIS follower's boon and the Worship before and after (the unasked grant
+		# charges the same pantheon_cost_boon_* the affordability check reads)
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 1 } } custom_tooltip = pantheon.0066.grant_crown.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 2 } } custom_tooltip = pantheon.0066.grant_kin.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 3 } } custom_tooltip = pantheon.0066.grant_war.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 4 } } custom_tooltip = pantheon.0066.grant_heir.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 5 } } custom_tooltip = pantheon.0066.grant_conversion.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 6 } } custom_tooltip = pantheon.0066.grant_fortune.tt }
 		hidden_effect = {
 			scope:actor = { set_variable = { name = pantheon_act_target value = scope:recipient } trigger_event = pantheon.0111 }
 		}

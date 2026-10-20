@@ -1,5 +1,38 @@
 # Changelog — Pantheon of One
 
+## [2.2.1] — 2026-10-20
+
+Bug fixes, and a notice when the miracles are ready. Tested on CK3 1.20.1.
+
+### Fixed
+- **The window's Worship income now includes the temple (#1).** The header showed the base income per season;
+  the credit also applies the Great Temple's Worship bonus and Age of faith's doubling. Both now read one
+  number, so the header matches what arrives.
+- **A prayer out of debt really clears the debt (#2).** The "poor and in debt" prayer now cancels the
+  follower's debt (negative gold is brought to zero; gold they have is never touched). A ruler who holds a
+  county also receives Bountiful Harvest, as before; a landless one no longer shows a harvest they cannot
+  have, and instead shows "Debts forgiven" for the usual blessing period. The prayer's text says which. The
+  old Bless menu pages no longer offer land blessings to a landless follower, as the Bless interaction
+  never did. An answered prayer is now charged exactly once, at the price its button showed.
+- **Great Boon and Great Prayer recipients show as Blessed (#4).** A follower granted a Great Boon (asked or
+  unasked) or whose Great Prayer you answered now carries a blessing for the usual blessing period, shown on
+  their row in the Pantheon window ("Great Boon: ..., until ...", "Great Prayer answered, until ...") and on
+  the Your Blessed page, counted as Blessed, and kept on your Blessed list until it ends.
+
+### Added
+- **Worship before and after (#3):** hovering any option, button or interaction that spends Worship now also
+  shows your balance and what it will be afterwards ("Worship: 900 -> 300"), computed from the same price the
+  option checks and charges: prayers (grant, sign, send), Great Boons, Judgement and the land wraths,
+  Retribution, Bless, Lend and Wed, Divine Conception, and founding or upgrading the temple.
+- **The Heavens Stir:** when the miracle cooldown ends and the Great Temple is active at its fifth tier, you
+  are told once that the miracles are ready. If the temple is dormant at that moment, the notice comes when it
+  wakes. Casting a miracle first cancels it.
+
+### Notes
+- No save migration. Harvest markers already on landless characters from 2.2 simply run out as before (they
+  only stopped that one prayer meanwhile), and Great Boons granted before 2.2.1 are not retro-fitted with a
+  blessing line.
+
 ## [2.2] — 2026-10-15
 
 The Great Temple. Tested on CK3 1.20.1.

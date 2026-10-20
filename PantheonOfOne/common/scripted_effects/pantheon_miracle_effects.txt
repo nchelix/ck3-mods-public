@@ -6,6 +6,8 @@
 
 # Sets the shared cooldown. Called by every miracle, after its own effects.
 pantheon_miracle_cast_effect = {
+	# 2.2.1 (#5, R7): a miracle cast before the pending "miracles ready" notice was delivered makes it moot
+	if = { limit = { has_variable = pantheon_miracles_ready_unannounced } remove_variable = pantheon_miracles_ready_unannounced }
 	set_variable = {
 		name = pantheon_temple_cooldown_months
 		value = { value = pantheon_miracle_cooldown_years multiply = 12 }

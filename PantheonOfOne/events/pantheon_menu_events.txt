@@ -160,6 +160,7 @@ pantheon_menu.0001 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0001
+		custom_tooltip = pantheon_worship_line_host
 	}
 
 	option = {
@@ -189,6 +190,7 @@ pantheon_menu.0100 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0001
+		custom_tooltip = pantheon_worship_line_trait
 	}
 
 	option = {
@@ -203,6 +205,7 @@ pantheon_menu.0100 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0001
+		custom_tooltip = pantheon_worship_line_trait
 	}
 
 	option = {
@@ -217,6 +220,7 @@ pantheon_menu.0100 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0001
+		custom_tooltip = pantheon_worship_line_trait
 	}
 
 	option = {
@@ -231,6 +235,7 @@ pantheon_menu.0100 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0001
+		custom_tooltip = pantheon_worship_line_trait
 	}
 
 	# Not enough Worship: one greyed notice instead of every blessing (CK3 shows at most three
@@ -265,11 +270,15 @@ pantheon_menu.0200 = {
 		name = pantheon_menu.0200.harvest
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm }
-			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_harvest } }
+			scope:pantheon_target = {
+				# 2.2.1 (#2, R6): a land blessing needs land (the Bless interaction already says so)
+				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
+				NOT = { has_variable = pantheon_boon_harvest }
+			}
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_realm
-			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_harvest } }
+			scope:pantheon_target = { any_held_county = { always = yes } NOT = { has_variable = pantheon_boon_harvest } }
 		}
 		custom_tooltip = pantheon_menu.0200.harvest.tt
 		hidden_effect = {
@@ -277,17 +286,22 @@ pantheon_menu.0200 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0200
+		custom_tooltip = pantheon_worship_line_realm
 	}
 
 	option = {
 		name = pantheon_menu.0200.walls
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm }
-			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_walls } }
+			scope:pantheon_target = {
+				# 2.2.1 (#2, R6): a land blessing needs land (the Bless interaction already says so)
+				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
+				NOT = { has_variable = pantheon_boon_walls }
+			}
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_realm
-			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_walls } }
+			scope:pantheon_target = { any_held_county = { always = yes } NOT = { has_variable = pantheon_boon_walls } }
 		}
 		custom_tooltip = pantheon_menu.0200.walls.tt
 		hidden_effect = {
@@ -295,17 +309,22 @@ pantheon_menu.0200 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0200
+		custom_tooltip = pantheon_worship_line_realm
 	}
 
 	option = {
 		name = pantheon_menu.0200.warding
 		trigger = {
 			custom_tooltip = { text = pantheon_needs_worship_realm_tt var:pantheon_worship >= pantheon_cost_realm }
-			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_warding } }
+			scope:pantheon_target = {
+				# 2.2.1 (#2, R6): a land blessing needs land (the Bless interaction already says so)
+				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
+				NOT = { has_variable = pantheon_boon_warding }
+			}
 		}
 		show_as_unavailable = {
 			var:pantheon_worship >= pantheon_cost_realm
-			scope:pantheon_target = { NOT = { has_variable = pantheon_boon_warding } }
+			scope:pantheon_target = { any_held_county = { always = yes } NOT = { has_variable = pantheon_boon_warding } }
 		}
 		custom_tooltip = pantheon_menu.0200.warding.tt
 		hidden_effect = {
@@ -313,6 +332,7 @@ pantheon_menu.0200 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0200
+		custom_tooltip = pantheon_worship_line_realm
 	}
 
 	# Not enough Worship: one greyed notice instead of every blessing (CK3 shows at most three
@@ -361,6 +381,7 @@ pantheon_menu.0300 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0300
+		custom_tooltip = pantheon_worship_line_life
 	}
 
 	option = {
@@ -381,6 +402,7 @@ pantheon_menu.0300 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0300
+		custom_tooltip = pantheon_worship_line_life
 	}
 
 	option = {
@@ -401,6 +423,7 @@ pantheon_menu.0300 = {
 			pantheon_change_devotion_effect = { AMOUNT = 10 }
 		}
 		trigger_event = pantheon_menu.0300
+		custom_tooltip = pantheon_worship_line_life
 	}
 
 	# Clickable whenever affordable; eligibility is checked on click (costs nothing and says why when refused).
@@ -530,6 +553,27 @@ pantheon_menu.0400 = {
 		}
 		triggered_desc = {
 			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_great }
+			}
+			desc = pantheon_menu.0400.great_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_prayer }
+			}
+			desc = pantheon_menu.0400.prayer_1
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_1
+				scope:pantheon_blessed_1 = { has_variable = pantheon_boon_debt }
+			}
+			desc = pantheon_menu.0400.debt_1
+		}
+		triggered_desc = {
+			trigger = {
 				exists = scope:pantheon_blessed_2
 				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_trait }
 			}
@@ -576,6 +620,27 @@ pantheon_menu.0400 = {
 				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_lineage }
 			}
 			desc = pantheon_menu.0400.lineage_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_great }
+			}
+			desc = pantheon_menu.0400.great_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_prayer }
+			}
+			desc = pantheon_menu.0400.prayer_2
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_2
+				scope:pantheon_blessed_2 = { has_variable = pantheon_boon_debt }
+			}
+			desc = pantheon_menu.0400.debt_2
 		}
 		triggered_desc = {
 			trigger = {
@@ -628,6 +693,27 @@ pantheon_menu.0400 = {
 		}
 		triggered_desc = {
 			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_great }
+			}
+			desc = pantheon_menu.0400.great_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_prayer }
+			}
+			desc = pantheon_menu.0400.prayer_3
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_3
+				scope:pantheon_blessed_3 = { has_variable = pantheon_boon_debt }
+			}
+			desc = pantheon_menu.0400.debt_3
+		}
+		triggered_desc = {
+			trigger = {
 				exists = scope:pantheon_blessed_4
 				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_trait }
 			}
@@ -677,6 +763,27 @@ pantheon_menu.0400 = {
 		}
 		triggered_desc = {
 			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_great }
+			}
+			desc = pantheon_menu.0400.great_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_prayer }
+			}
+			desc = pantheon_menu.0400.prayer_4
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_4
+				scope:pantheon_blessed_4 = { has_variable = pantheon_boon_debt }
+			}
+			desc = pantheon_menu.0400.debt_4
+		}
+		triggered_desc = {
+			trigger = {
 				exists = scope:pantheon_blessed_5
 				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_trait }
 			}
@@ -723,6 +830,27 @@ pantheon_menu.0400 = {
 				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_lineage }
 			}
 			desc = pantheon_menu.0400.lineage_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_great }
+			}
+			desc = pantheon_menu.0400.great_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_prayer }
+			}
+			desc = pantheon_menu.0400.prayer_5
+		}
+		triggered_desc = {
+			trigger = {
+				exists = scope:pantheon_blessed_5
+				scope:pantheon_blessed_5 = { has_variable = pantheon_boon_debt }
+			}
+			desc = pantheon_menu.0400.debt_5
 		}
 		triggered_desc = {
 			trigger = { exists = scope:pantheon_wavering_1 }
@@ -928,6 +1056,7 @@ pantheon_menu.0500 = {
 		}
 		set_variable = { name = pantheon_demigod_mode value = 1 }
 		trigger_event = pantheon_menu.0510
+		custom_tooltip = pantheon_worship_line_lend
 	}
 
 	option = {
@@ -943,6 +1072,7 @@ pantheon_menu.0500 = {
 		}
 		set_variable = { name = pantheon_demigod_mode value = 2 }
 		trigger_event = pantheon_menu.0510
+		custom_tooltip = pantheon_worship_line_wed
 	}
 
 	option = {

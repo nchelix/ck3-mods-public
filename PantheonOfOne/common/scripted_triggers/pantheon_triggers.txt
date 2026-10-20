@@ -10,6 +10,11 @@ pantheon_has_any_boon_trigger = {
 		has_variable = pantheon_boon_vigor
 		has_variable = pantheon_boon_fertility
 		has_variable = pantheon_boon_lineage
+		# 2.2.1 (#4): timed markers of a Great Boon, a fulfilled Great Prayer and forgiven debts, so the
+		# quarterly pruning (pantheon.0010) and the window's Blessed count keep their recipients
+		has_variable = pantheon_boon_great
+		has_variable = pantheon_boon_prayer
+		has_variable = pantheon_boon_debt
 	}
 }
 
@@ -112,6 +117,8 @@ pantheon_need_harvest_trigger = {
 		is_in_debt = yes
 	}
 	NOT = { has_variable = pantheon_boon_harvest }
+	# 2.2.1 (#2): a landless debtor whose debts were forgiven does not pray again for the same debt
+	NOT = { has_variable = pantheon_boon_debt }
 }
 
 # Otherwise: only a landed ruler, and even then at most a third as often (the chance is rolled where this

@@ -70,6 +70,7 @@ pantheon.0071 = {
 		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
 		custom_tooltip = pantheon.0071.strike.tt
 		hidden_effect = { pantheon_wrath_strike_effect = yes }
+		custom_tooltip = pantheon_worship_line_strike
 	}
 
 	option = {
@@ -79,6 +80,7 @@ pantheon.0071 = {
 		}
 		show_as_unavailable = { always = yes }
 		trigger_event = pantheon.0072
+		custom_tooltip = pantheon_worship_line_maim
 	}
 
 	option = {
@@ -90,6 +92,7 @@ pantheon.0071 = {
 		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_harsh } }
 		custom_tooltip = pantheon.0071.curse.tt
 		hidden_effect = { pantheon_wrath_curse_effect = yes }
+		custom_tooltip = pantheon_worship_line_curse
 	}
 
 	option = {
@@ -122,6 +125,7 @@ pantheon.0072 = {
 		}
 		show_as_unavailable = { scope:pantheon_victim = { NOT = { has_trait = maimed } } }
 		hidden_effect = { pantheon_wrath_maim_effect = { TRAIT = maimed } }
+		custom_tooltip = pantheon_worship_line_maim
 	}
 
 	option = {
@@ -132,6 +136,7 @@ pantheon.0072 = {
 		}
 		show_as_unavailable = { scope:pantheon_victim = { NOT = { has_trait = blind } } }
 		hidden_effect = { pantheon_wrath_maim_effect = { TRAIT = blind } }
+		custom_tooltip = pantheon_worship_line_maim
 	}
 
 	option = {
@@ -142,6 +147,7 @@ pantheon.0072 = {
 		}
 		show_as_unavailable = { scope:pantheon_victim = { NOT = { has_trait = wounded_3 } } }
 		hidden_effect = { pantheon_wrath_maim_effect = { TRAIT = wounded_3 } }
+		custom_tooltip = pantheon_worship_line_maim
 	}
 
 	option = {
@@ -175,6 +181,7 @@ pantheon.0073 = {
 		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
 		custom_tooltip = pantheon.0073.pestilence.tt
 		hidden_effect = { pantheon_wrath_plague_effect = { INTENSITY = minor COST = pantheon_cost_pestilence } }
+		custom_tooltip = pantheon_worship_line_pestilence
 	}
 
 	option = {
@@ -186,6 +193,7 @@ pantheon.0073 = {
 		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
 		custom_tooltip = pantheon.0073.great_dying.tt
 		hidden_effect = { pantheon_wrath_plague_effect = { INTENSITY = major COST = pantheon_cost_great_dying } }
+		custom_tooltip = pantheon_worship_line_great_dying
 	}
 
 	option = {
@@ -197,6 +205,7 @@ pantheon.0073 = {
 		show_as_unavailable = { NOT = { has_variable = pantheon_wrath_light } }
 		custom_tooltip = pantheon.0073.disaster.tt
 		hidden_effect = { pantheon_wrath_disaster_effect = yes }
+		custom_tooltip = pantheon_worship_line_disaster
 	}
 
 	option = {
@@ -251,6 +260,7 @@ pantheon.0080 = {
 		show_as_unavailable = { always = yes }
 		set_variable = { name = pantheon_wrath_target value = scope:pantheon_victim }
 		trigger_event = pantheon.0071
+		custom_tooltip = pantheon_worship_line_curse
 	}
 
 	option = {
@@ -264,6 +274,7 @@ pantheon.0080 = {
 		}
 		show_as_unavailable = { always = yes }
 		hidden_effect = { pantheon_wrath_disaster_effect = yes }
+		custom_tooltip = pantheon_worship_line_disaster
 	}
 
 	option = {
@@ -284,6 +295,7 @@ pantheon.0080 = {
 			}
 		}
 		hidden_effect = { pantheon_retribution_host_effect = yes }
+		custom_tooltip = pantheon_worship_line_host
 	}
 
 	# 1.6: a free demigod lent to the defender as Commander (600 Worship). Hidden, not greyed: the 3-greyed cap.
@@ -302,6 +314,7 @@ pantheon.0080 = {
 			set_variable = { name = pantheon_demigod_mode value = 3 }
 			trigger_event = pantheon_menu.0510
 		}
+		custom_tooltip = pantheon_worship_line_lend
 	}
 
 	option = {

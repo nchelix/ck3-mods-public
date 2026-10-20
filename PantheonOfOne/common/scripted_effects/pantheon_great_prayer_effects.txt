@@ -207,6 +207,8 @@ pantheon_great_prayer_answered_effect = {
 			add_opinion = { target = root modifier = pantheon_avenged_opinion years = 10 }
 			pantheon_clear_grievance_effect = yes
 		}
+		# 2.2.1 (#4): the avenged suppliant shows as Blessed for the usual blessing period
+		pantheon_mark_timed_blessing_effect = { KEY = prayer VALUE = yes }
 		set_variable = { name = pantheon_offering value = var:pantheon_last_wrath_cost }
 		change_variable = { name = pantheon_offering multiply = 0.5 }
 		change_variable = { name = pantheon_worship add = var:pantheon_offering }

@@ -40,14 +40,11 @@ pantheon.0010 = {
 		}
 		set_variable = {
 			name = pantheon_last_worship
+			# 2.2.1 (#1): one formula, pantheon_quarterly_worship_total (also the window header's number).
 			# 2.2 R8: the temple's Worship factor (and, while Age of faith runs, its doubling --
 			# pantheon_temple_age_factor) apply to this quarterly credit only, not to thank-offerings
 			# (pantheon_great_prayer_effects.txt:210).
-			value = {
-				value = pantheon_quarterly_worship
-				multiply = pantheon_temple_worship_factor
-				multiply = pantheon_temple_age_factor
-			}
+			value = pantheon_quarterly_worship_total
 		}
 		change_variable = {
 			name = pantheon_worship
@@ -106,6 +103,30 @@ pantheon.0010 = {
 					NOT = { has_variable = pantheon_boon_fertility }
 				}
 				remove_variable = pantheon_ends_fertility
+			}
+			# 2.2.1 (#4, R2): the timed markers of a Great Boon, a fulfilled Great Prayer and forgiven debts
+			# expire by themselves; their display years are tidied the same way, only once the marker is gone
+			# (a renewal sets both afresh, so nothing scheduled can clear a live blessing's year).
+			if = {
+				limit = {
+					has_variable = pantheon_ends_great
+					NOT = { has_variable = pantheon_boon_great }
+				}
+				remove_variable = pantheon_ends_great
+			}
+			if = {
+				limit = {
+					has_variable = pantheon_ends_prayer
+					NOT = { has_variable = pantheon_boon_prayer }
+				}
+				remove_variable = pantheon_ends_prayer
+			}
+			if = {
+				limit = {
+					has_variable = pantheon_ends_debt
+					NOT = { has_variable = pantheon_boon_debt }
+				}
+				remove_variable = pantheon_ends_debt
 			}
 		}
 		# Forget followers who no longer carry a boon, or have died (two passes: never edit a list while walking it)
@@ -318,6 +339,26 @@ pantheon.0011 = {
 				if = {
 					limit = { var:pantheon_temple_cooldown_months <= 0 }
 					remove_variable = pantheon_temple_cooldown_months
+					# 2.2.1 (#5, R7): the cooldown just ended, so the god is owed one notice. Only a pending
+					# flag is set here; delivery (below) needs the whole miracle-ready trigger, so a dormant or
+					# lost temple defers it instead of losing it. Cleared on delivery and when a miracle is cast.
+					set_variable = pantheon_miracles_ready_unannounced
+				}
+			}
+			# 2.2.1 (#5): "The Heavens Stir" -- once per cooldown, and only while a miracle can really be cast
+			# (active, tier 5, no cooldown). Dormant when the cooldown ends: the monthly ticks after it keep
+			# checking and deliver on reactivation; the flag is removed first so no tick repeats it.
+			if = {
+				limit = {
+					has_variable = pantheon_miracles_ready_unannounced
+					pantheon_miracle_ready_trigger = yes
+				}
+				remove_variable = pantheon_miracles_ready_unannounced
+				send_interface_toast = {
+					type = event_toast_effect_good
+					title = pantheon_miracles_ready_t
+					left_icon = root
+					custom_tooltip = pantheon_miracles_ready_tt
 				}
 			}
 			# 2.2 Task 3, R2/R12: Age of faith's own monthly upkeep -- gated on an active temple and the

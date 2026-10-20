@@ -204,6 +204,18 @@ window = {
 							text = "pantheon_ui_boon_lineage"
 						}
 						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_great').IsSet]"
+							text = "pantheon_ui_boon_great"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_prayer').IsSet]"
+							text = "pantheon_ui_boon_prayer"
+						}
+						text_single = {
+							visible = "[Character.MakeScope.Var('pantheon_boon_debt').IsSet]"
+							text = "pantheon_ui_boon_debt"
+						}
+						text_single = {
 							visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
 							text = "pantheon_ui_grievance_line"
 						}
@@ -798,13 +810,13 @@ window = {
 											autoresize = no
 											align = left|vcenter
 											text = "pantheon_ui_temple_found_cost"
+											tooltip = "pantheon_temple_found_after_tt"
 										}
 										button_standard = {
 											size = { 150 32 }
 											text = "pantheon_ui_btn_temple_found"
 											enabled = "[GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
-											tooltip = "[GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
-											tooltip_visible = "[Not( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+											tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ), Localize( 'pantheon_temple_found_after_tt' ), GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
 											onclick = "[GetScriptedGui('pantheon_ui_temple_found').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
 										}
 									}
@@ -839,14 +851,14 @@ window = {
 					text = "pantheon_ui_btn_temple_upgrade"
 					visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 					enabled = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					tooltip = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					tooltip_visible = "[Not( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+					tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_temple_upgrade_after_tt' ), GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 					onclick = "[GetScriptedGui('pantheon_ui_temple_upgrade').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 				}
 				# Batch 2r1 (repair 5): the Upgrade button gave no idea what the next tier costs or what it is.
 				text_single = {
 					visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 					text = "pantheon_ui_temple_next_line"
+					tooltip = "pantheon_temple_upgrade_after_tt"
 				}
 
 				# The five-step ladder: a passive row of tab-styled cells, the current tier's cell down.

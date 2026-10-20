@@ -36,6 +36,15 @@ pantheon_quarterly_worship = {
 	}
 }
 
+# 2.2.1 (#1): the quarterly credit as the god actually receives it: the base times the temple's Worship factor
+# and, while Age of faith runs, its doubling. ONE formula: the credit (pantheon.0010) and the window header
+# (pantheon_ui_worship_line) both read this, so they cannot drift apart. Thank-offerings stay outside it (2.2 R8).
+pantheon_quarterly_worship_total = {
+	value = pantheon_quarterly_worship
+	multiply = pantheon_temple_worship_factor
+	multiply = pantheon_temple_age_factor
+}
+
 # 2.2 R1: multiply = pantheon_temple_boon_factor once here (never again at the display, affordability or
 # charge site) so every reader -- the menu's price loc, pantheon_can_afford_trigger and the debit in
 # pantheon_effects.txt -- sees the same discounted number.
@@ -249,6 +258,10 @@ pantheon_ui_boon_count = {
 	if = { limit = { has_variable = pantheon_boon_vigor } add = 1 }
 	if = { limit = { has_variable = pantheon_boon_fertility } add = 1 }
 	if = { limit = { has_variable = pantheon_boon_lineage } add = 1 }
+	# 2.2.1 (#4): a Great Boon, a fulfilled Great Prayer and forgiven debts are blessings too
+	if = { limit = { has_variable = pantheon_boon_great } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_prayer } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_debt } add = 1 }
 }
 
 # 2.0: on a house head, how many living members carry the god's blood (the Children tab)
@@ -509,4 +522,121 @@ pantheon_temple_age_factor = {
 		}
 		value = 2
 	}
+}
+
+# ---- 2.2.1 (#3): Worship before and after, for every hover. God scope: the balance minus the SAME script value
+# the site's affordability check (pantheon_can_afford_trigger / var:pantheon_worship >= ...) and its debit read, so
+# the hover can never promise a different number than the site charges. Read in loc as
+# [GetPlayer.MakeScope.ScriptValue('pantheon_worship_after_<cost>')|0].
+
+pantheon_worship_after_cost_host = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_host
+}
+
+pantheon_worship_after_cost_trait = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_trait
+}
+
+pantheon_worship_after_cost_realm = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_realm
+}
+
+pantheon_worship_after_cost_life = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_life
+}
+
+pantheon_worship_after_cost_strike = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_strike
+}
+
+pantheon_worship_after_cost_maim = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_maim
+}
+
+pantheon_worship_after_cost_curse = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_curse
+}
+
+pantheon_worship_after_cost_pestilence = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_pestilence
+}
+
+pantheon_worship_after_cost_great_dying = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_great_dying
+}
+
+pantheon_worship_after_cost_disaster = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_disaster
+}
+
+pantheon_worship_after_cost_lend = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_lend
+}
+
+pantheon_worship_after_cost_wed = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_wed
+}
+
+pantheon_worship_after_cost_boon_crown = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_crown
+}
+
+pantheon_worship_after_cost_boon_kin = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_kin
+}
+
+pantheon_worship_after_cost_boon_war = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_war
+}
+
+pantheon_worship_after_cost_boon_heir = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_heir
+}
+
+pantheon_worship_after_cost_boon_conversion = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_conversion
+}
+
+pantheon_worship_after_cost_boon_fortune = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_fortune
+}
+
+pantheon_worship_after_temple_cost_1 = {
+	value = var:pantheon_worship
+	subtract = pantheon_temple_cost_1
+}
+
+pantheon_worship_after_temple_next_cost = {
+	value = var:pantheon_worship
+	subtract = pantheon_temple_next_cost
+}
+
+# The prayer event stores its prices when it opens (the suppliant cannot be read from button text, error.log 1.3
+# test); the check, the hover and the debit all read these two stored numbers.
+pantheon_worship_after_prayer = {
+	value = var:pantheon_worship
+	subtract = var:pantheon_prayer_cost_now
+}
+
+pantheon_worship_after_sign = {
+	value = var:pantheon_worship
+	subtract = var:pantheon_prayer_sign_now
 }

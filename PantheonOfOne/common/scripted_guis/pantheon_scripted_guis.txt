@@ -239,7 +239,7 @@ pantheon_ui_temple_found = {
 			scope:landed_title = { pantheon_temple_placeable_trigger = yes }
 		}
 		custom_tooltip = {
-			text = pantheon_temple_cost_tt
+			text = pantheon_temple_cost_found_tt
 			pantheon_can_afford_trigger = { COST = pantheon_temple_cost_1 }
 		}
 	}
@@ -266,7 +266,7 @@ pantheon_ui_temple_upgrade = {
 			pantheon_temple_active_trigger = yes
 		}
 		custom_tooltip = {
-			text = pantheon_temple_cost_tt
+			text = pantheon_temple_cost_upgrade_tt
 			pantheon_can_afford_trigger = { COST = pantheon_temple_next_cost }
 		}
 	}

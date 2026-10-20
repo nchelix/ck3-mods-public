@@ -193,6 +193,9 @@ pantheon_grant_great_boon_effect = {
 		pantheon_boon_store_price_effect = { WHO = scope:pantheon_boon_event_follower }
 		pantheon_boon_charge_effect = yes
 		pantheon_boon_act_effect = yes
+		# 2.2.1 (#4): the follower now shows as Blessed for the usual blessing period, on both routes and
+		# for every kind. After the act, so the kin act's own scope juggling is over (R2).
+		pantheon_great_boon_blessing_effect = yes
 		pantheon_change_devotion_effect = { AMOUNT = 100 }
 		scope:pantheon_boon_event_follower = { add_opinion = { target = root modifier = pantheon_answered_opinion years = 20 } }
 		send_interface_toast = { type = event_toast_effect_good title = pantheon_boon_granted_t custom_tooltip = pantheon_boon_granted_desc left_icon = scope:pantheon_boon_event_follower }
@@ -201,6 +204,15 @@ pantheon_grant_great_boon_effect = {
 		scope:pantheon_boon_event_follower = { pantheon_end_aspiration_effect = yes }
 		if = { limit = { NOT = { always = $UNASKED$ } } set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 } }
 	}
+}
+
+# 2.2.1 (#4, R1/R2): the follower of the Great Boon just granted is a Blessed follower: the timed marker
+# pantheon_boon_great (value = the kind, 1-6, read by the row text), the display year, the Blessed list. Root is the
+# god; scope:pantheon_boon_event_follower the follower, whose aspiration kind is still set (it is ended after).
+pantheon_great_boon_blessing_effect = {
+	if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+	pantheon_mark_timed_blessing_effect = { KEY = great VALUE = scope:pantheon_boon_event_follower.var:pantheon_aspiration_kind }
 }
 
 # The god's Worship pays the boon's price (it replaces every ordinary cost of the act)

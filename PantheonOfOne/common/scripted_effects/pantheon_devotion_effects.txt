@@ -445,6 +445,12 @@ pantheon_pick_gift_effect = {
 # scope:pantheon_suppliant is whoever prayed.
 pantheon_grant_prayer_effect = {
 	scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+	# 2.2.1 (R3/R4): an answered prayer is charged exactly ONCE, here, at the price pantheon.0060 stored when it
+	# opened (pantheon_prayer_cost_now) -- the very number its availability check and its hover read. The grant
+	# effects below charge their own recomputed price (they are shared with the window and the old menus); the
+	# balance is put back to what it was and charged the stored price instead. The debt answer (need 5) charges
+	# nothing itself.
+	set_variable = { name = pantheon_prayer_balance_before value = var:pantheon_worship }
 	if = {
 		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
 		pantheon_call_host_effect = yes
@@ -463,7 +469,7 @@ pantheon_grant_prayer_effect = {
 	}
 	else_if = {
 		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 5 } }
-		pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest }
+		pantheon_grant_debt_prayer_effect = yes
 	}
 	else_if = {
 		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 6 } }
@@ -477,6 +483,14 @@ pantheon_grant_prayer_effect = {
 		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 } }
 		pantheon_grant_spouse_effect = yes
 	}
+	set_variable = {
+		name = pantheon_worship
+		value = {
+			value = var:pantheon_prayer_balance_before
+			subtract = var:pantheon_prayer_cost_now
+		}
+	}
+	remove_variable = pantheon_prayer_balance_before
 	if = {
 		limit = { NOT = { scope:pantheon_suppliant = { faith = root.faith } } }
 		scope:pantheon_suppliant = {
@@ -509,6 +523,53 @@ pantheon_grant_prayer_effect = {
 			left_icon = scope:pantheon_suppliant
 		}
 	}
+}
+
+# 2.2.1 (#2, R3/R6): the answer to need 5, a prayer out of debt. Charges NOTHING (pantheon_grant_prayer_effect
+# charges the stored price once). Everyone: the debt is cleared -- gold set to 0 when negative (add_gold ignores a
+# negative amount, so the debt is cancelled by adding its absolute value, as pantheon_boon_fortune_act_effect
+# does; positive gold is never touched). A ruler who holds a county ALSO gets Bountiful Harvest, exactly the
+# ordinary harvest boon; a landless one gets no harvest and no harvest markers, and shows "Debts forgiven"
+# for the usual blessing period instead (pantheon_boon_debt). Root is the god; scope:pantheon_target the
+# suppliant.
+pantheon_grant_debt_prayer_effect = {
+	scope:pantheon_target = {
+		if = {
+			limit = { gold < 0 }
+			add_gold = { value = gold multiply = -1 }
+		}
+		# a negative Treasury counts as debt too (is_in_debt); add_treasury gets the positive amount that lifts it to 0
+		if = {
+			limit = { has_treasury = yes treasury < 0 }
+			add_treasury = { value = treasury multiply = -1 }
+		}
+	}
+	if = {
+		limit = { scope:pantheon_target = { any_held_county = { always = yes } } }
+		scope:pantheon_target = {
+			set_variable = {
+				name = pantheon_boon_harvest
+				value = yes
+				years = pantheon_blessing_years
+			}
+			every_held_county = {
+				add_county_modifier = { modifier = pantheon_harvest years = pantheon_blessing_years }
+			}
+			trigger_event = { id = pantheon.0022 years = pantheon_blessing_years }
+			set_variable = {
+				name = pantheon_ends_harvest
+				value = {
+					value = current_year
+					add = pantheon_blessing_years
+				}
+			}
+		}
+		pantheon_remember_blessed_effect = yes
+	}
+	else = {
+		pantheon_mark_timed_blessing_effect = { KEY = debt VALUE = yes }
+	}
+	pantheon_bless_opinion_effect = yes
 }
 
 # pantheon.0060's Send a sign: a quarter of the boon's cost, rounded, and +5 Devotion. Not offered to a

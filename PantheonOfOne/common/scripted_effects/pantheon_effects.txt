@@ -494,6 +494,31 @@ pantheon_remember_blessed_effect = {
 	}
 }
 
+# 2.2.1 (#4, R1/R2): a timed blessing that is not one of the five ordinary boons -- a Great Boon (KEY = great,
+# VALUE = its kind 1-6), a fulfilled Great Prayer (KEY = prayer) or forgiven debts of a landless debtor
+# (KEY = debt). Sets the marker pantheon_boon_$KEY$ with the usual blessing period (it expires by itself, like
+# every ordinary marker; pantheon_has_any_boon_trigger and pantheon_ui_boon_count know it, so quarterly pruning
+# keeps the recipient), the display year pantheon_ends_$KEY$ (untimed, tidied in pantheon.0010 once the marker is
+# gone, and overwritten by a renewal -- no scheduled event can clear it early), and registers them on the god's
+# Blessed list. Root is the god; scope:pantheon_target the recipient.
+pantheon_mark_timed_blessing_effect = {
+	scope:pantheon_target = {
+		set_variable = {
+			name = pantheon_boon_$KEY$
+			value = $VALUE$
+			years = pantheon_blessing_years
+		}
+		set_variable = {
+			name = pantheon_ends_$KEY$
+			value = {
+				value = current_year
+				add = pantheon_blessing_years
+			}
+		}
+	}
+	pantheon_remember_blessed_effect = yes
+}
+
 # A boon has faded: tell the god who granted it, if the Boon Expiry Notices rule allows. Root is the follower.
 pantheon_expiry_notice_effect = {
 	if = {

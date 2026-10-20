@@ -105,3 +105,15 @@ pantheon_temple_next_tier_name = {
 	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } localization_key = building_type_pantheon_great_temple_05 }
 	text = { fallback = yes localization_key = pantheon_temple_name_none }
 }
+
+# 2.2.1 (#4): the kind of a follower's Great Boon (pantheon_boon_great holds 1-6), for the window row and the
+# Your Blessed page ([Character.Custom('pantheon_great_boon_kind')]).
+pantheon_great_boon_kind = {
+	type = character
+	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 1 } localization_key = pantheon_great_boon_kind_1 }
+	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 2 } localization_key = pantheon_great_boon_kind_2 }
+	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 3 } localization_key = pantheon_great_boon_kind_3 }
+	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 4 } localization_key = pantheon_great_boon_kind_4 }
+	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 5 } localization_key = pantheon_great_boon_kind_5 }
+	text = { fallback = yes localization_key = pantheon_great_boon_kind_6 }
+}

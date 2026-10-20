@@ -71,6 +71,11 @@ pantheon.0060 = {
 				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 4 } }
 				desc = pantheon.0060.desc_warding
 			}
+			# 2.2.1 (#2): a landless debtor is freed of their debts only (no harvest is on offer)
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 5 NOT = { any_held_county = { always = yes } } } }
+				desc = pantheon.0060.desc_debt
+			}
 			triggered_desc = {
 				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 5 } }
 				desc = pantheon.0060.desc_harvest
@@ -134,6 +139,7 @@ pantheon.0060 = {
 		show_as_unavailable = { always = yes }
 		custom_tooltip = pantheon.0060.grant.tt
 		hidden_effect = { pantheon_grant_prayer_effect = yes }
+		custom_tooltip = pantheon_worship_line_prayer
 	}
 
 	option = {
@@ -147,6 +153,7 @@ pantheon.0060 = {
 		}
 		custom_tooltip = pantheon.0060.sign.tt
 		hidden_effect = { pantheon_sign_prayer_effect = yes }
+		custom_tooltip = pantheon_worship_line_sign
 	}
 
 	# 1.6: Send one of your children. Host -> a demigod lent as Commander; Spouse -> a demigod wed to them.
@@ -194,6 +201,13 @@ pantheon.0060 = {
 			set_variable = { name = pantheon_demigod_mode value = 4 }
 		}
 		trigger_event = pantheon_menu.0510
+		if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
+			custom_tooltip = pantheon_worship_line_lend
+		}
+		else = {
+			custom_tooltip = pantheon_worship_line_wed
+		}
 	}
 
 	option = {
