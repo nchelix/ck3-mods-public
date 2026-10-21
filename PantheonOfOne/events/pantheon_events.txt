@@ -17,6 +17,8 @@ pantheon.0010 = {
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
 		pantheon_divine_health_effect = yes
+		# 2.2.2 (#12, R5): idempotent upkeep for demigods
+		pantheon_demigod_upkeep_effect = yes
 		if = {
 			limit = { NOT = { has_variable = pantheon_monthly_timer } }
 			set_variable = pantheon_monthly_timer
@@ -239,23 +241,30 @@ pantheon.0040 = {
 	}
 }
 
-# A day after a demigod's birth: vanilla's birth events brand bastardy after Pantheon's hook. Root is the child.
+# A day after the birth of a god's child: the last sanctify, then the union is closed (2.2.2). Root is the mother.
+pantheon.0042 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		pantheon_close_union_effect = yes
+	}
+}
+
+# A day after a demigod's birth: SAFETY NET only (2.2.2: prevention is pantheon_mark_conception_effect and
+# pantheon_clear_bastard_pregnancy_effect). Root is the child.
 pantheon.0041 = {
 	type = character_event
 	hidden = yes
 	immediate = {
 		if = {
-			limit = { has_trait = bastard }
-			remove_trait = bastard
+			limit = { mother ?= { has_trait = pantheon_divine } }
+			mother = { save_temporary_scope_as = pantheon_unbrand_god }
 		}
-		if = {
-			limit = { has_trait = wild_oat }
-			remove_trait = wild_oat
+		else_if = {
+			limit = { real_father ?= { has_trait = pantheon_divine } }
+			real_father = { save_temporary_scope_as = pantheon_unbrand_god }
 		}
-		if = {
-			limit = { has_trait = disputed_heritage }
-			remove_trait = disputed_heritage
-		}
+		pantheon_unbrand_demigod_effect = yes
 	}
 }
 
@@ -266,6 +275,10 @@ pantheon.0011 = {
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
 		pantheon_divine_health_effect = yes
+		# 2.2.2 (R5): once per god, the first monthly tick on a 2.2.1 save repairs what 2.2.1 did; then the
+		# demigod upkeep (the blocked_from_leaving flag and the bastard safety net) runs every month
+		pantheon_repair_221_effect = yes
+		pantheon_demigod_upkeep_effect = yes
 		# 2.2 R6: the Great Temple's build timer is a months-left counter counted down here, not a delayed
 		# event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215) nor a date (no vanilla
 		# precedent for adding days to current_date); completion when it reaches 0.

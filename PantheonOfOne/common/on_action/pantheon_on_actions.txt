@@ -37,11 +37,18 @@ pantheon_on_birth_child = {
 			add_trait = pantheon_demigod
 			# 1.6 (user, in-game test): demigods carry vanilla's can_not_marry so no one else may propose.
 			set_variable = can_not_marry
+			# 2.2.2 (#12): demigods never wander off (vanilla's courtier/guest leave triggers honour this flag)
+			add_character_flag = blocked_from_leaving
+			# 2.2.2: the engine gives a concubine-conceived child its Child of Concubine trait; demigods never carry it
+			pantheon_remove_concubine_brand_effect = yes
 			add_trait = physique_good_3
 			add_trait = fecund
 			# Vanilla brands bastardy and adultery after this hook: clean up a day later
 			trigger_event = { id = pantheon.0041 days = 1 }
-			scope:mother = { trigger_event = { id = pantheon.0040 days = 1 } }
+			# 2.2.2: the birth-time run (0042) also closes the union (R3); the mother records THIS child so
+			# cleanup removes only parentage secrets about it
+			scope:mother = { set_variable = { name = pantheon_union_child value = root } }
+			scope:mother = { trigger_event = { id = pantheon.0042 days = 1 } }
 			add_trait = beauty_good_3
 			add_trait = intellect_good_3
 			# Flawless: no negative congenital trait
@@ -245,6 +252,9 @@ pantheon_on_pregnancy_mother = {
 					name = pantheon_child_father
 					value = scope:real_father
 				}
+				# 2.2.2 (R1/R2): pregnancy.2001/.2002 have just run (events precede on_actions): clear the
+				# bastard flags they set at once, and again a day later (0040)
+				pantheon_clear_bastard_pregnancy_effect = yes
 				trigger_event = { id = pantheon.0040 days = 1 }
 			}
 		}
@@ -402,6 +412,14 @@ pantheon_on_title_gain = {
 # hold it against the jailer. (1.0 already hooks on_imprison with pantheon_on_imprison, the god's release:
 # this joins that list, see the top of this file, under its own name.)
 pantheon_on_imprison_grievance = {
+	# 2.2.2 (#5): some imprisonments fire on_imprison with no imprisoner (error.log: "Undefined event target
+	# 'imprisoner'", then province-scope errors). No imprisoner, no offender: no grievance is stored.
+	# (There is no is_character trigger in 1.20.1: exists first, then the character-only is_alive on both.)
+	trigger = {
+		exists = scope:imprisoner
+		is_alive = yes
+		scope:imprisoner = { is_alive = yes }
+	}
 	effect = {
 		save_scope_as = pantheon_prisoner
 		every_player = {

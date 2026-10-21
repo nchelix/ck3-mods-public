@@ -1,5 +1,48 @@
 # Changelog — Pantheon of One
 
+## [2.2.2] — 2026-10-20
+
+Bug fixes and one change. Tested on CK3 1.20.1.
+
+### Fixed
+- **Imprisonment no longer errors (#5).** The imprisonment grievance hook ran even when an imprisonment had no
+  imprisoner, logging errors every time. It now does nothing unless there is an imprisoner and a prisoner.
+- **A Divine Conception is no scandal for the mother's husband (#6).** He no longer gets "Slept with My
+  Spouse" or "Unfaithful", and no rivalry (rival, nemesis, grudge or a growing grudge) that this union caused;
+  rivalries he already had are left alone. He keeps "My spouse bore the god's child". Only the secrets about
+  this union's child are removed now, not the parents' other scandals.
+- **The god's own spouse is left in peace (#8).** She no longer gets "Unfaithful" or "Slept with My Spouse"
+  from the conception, and no longer gets the "My spouse bore the god's child" line, which was always meant
+  for the mortal parent's spouse only.
+- **A demigod is never a bastard (#8).** The conception now marks the child as a concubine's child and not a
+  known bastard, and clears the bastard flags vanilla's pregnancy events set, at the pregnancy reveal and at
+  the birth, so the god's household is not asked to legitimize anyone and does not resent it
+  ("Legitimized a Bastard"). A safety net strips any bastard, wild-oat, disputed-heritage or legitimized
+  brand from a demigod each month, with the opinions a legitimization cost. Known limit: if you answer
+  vanilla's "name the father" pregnancy event after the day it fires, that answer is not undone.
+  Known issue (#14): an unmarried follower's AI may still publicly name the god as the father (vanilla's
+  "Beyond All Doubt"); the cleanup removes its Adulterer trait and opinions, and the child is unaffected.
+- **Demigods no longer carry the Child of Concubine trait.** Preventing the bastard brand makes the game treat the
+  child as a concubine's child, which gave a -1 Diplomacy trait; it is removed at birth and by the monthly safety
+  net (existing demigods lose it too).
+- **Demigods no longer leave the god's court (#12).** Every demigod carries the vanilla "blocked from
+  leaving" flag, so "has no reason to remain in your Court" no longer applies. Lend, Wed, Call home and
+  Send-a-child are unchanged. Not covered: a family move by the whole court, or a character event that moves
+  a demigod by hand.
+- **Men-at-arms flavor text (#9).** The Host of Heaven and the Guardians show a flavor line instead of the raw key.
+
+### Changed
+- **The Great Temple building shows its real tier (#7).** The five tiers are chained, so the map window badge
+  reads I to V, and each tier's description says "Tier N of 5. Raise it further from the Temple tab of the
+  Pantheon window." Vanilla's own gold Upgrade stays unavailable.
+
+### Migration
+- Saves from 2.2.1: on the god's first monthly tick, every living demigod gets the flag, bastard and
+  legitimized brands are removed from living demigods with the "Legitimized a Bastard" opinions they caused,
+  and the god's own spouses lose the "My spouse bore the god's child" line. Not recovered: demigods who
+  already left, events already shown, and the "Unfaithful" and "Slept with My Spouse" opinions or rivalries
+  2.2.1 already created (they cannot be traced to this mod).
+
 ## [2.2.1] — 2026-10-20
 
 Bug fixes, and a notice when the miracles are ready. Tested on CK3 1.20.1.

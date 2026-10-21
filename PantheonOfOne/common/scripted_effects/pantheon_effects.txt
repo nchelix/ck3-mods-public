@@ -556,6 +556,16 @@ pantheon_grant_conception_effect = {
 		else = {
 			make_pregnant = { father = scope:pantheon_target }
 		}
+		# 2.2.2 (#6/#8, R1/R3): never a bastard, and remember what the husbands' relations were BEFORE this
+		# union, in the pregnant parent's scope (the mother, or the goddess herself).
+		save_temporary_scope_as = pantheon_conception_god
+		if = {
+			limit = { is_female = no }
+			scope:pantheon_target = { pantheon_mark_conception_effect = yes }
+		}
+		else = {
+			pantheon_mark_conception_effect = yes
+		}
 		# An honour, not a sin: neither parent carries adultery or fornication for a god's child
 		root = { add_to_temporary_list = pantheon_parents }
 		scope:pantheon_target = { add_to_temporary_list = pantheon_parents }
@@ -622,14 +632,132 @@ pantheon_grant_conception_effect = {
 	}
 }
 
+# 2.2.2 (#6/#8, R1/R3). Root is the pregnant parent (the mother; the goddess when the god is the mother);
+# scope:pantheon_conception_god is the god, scope:pantheon_target the mortal parent.
+#  - R1 prevention: tell the engine the unborn is a concubine's child (set_child_of_concubine_on_pregnancy) and
+#    not a known bastard. Vanilla script never reads either (they are engine-side pregnancy state, read when the
+#    engine decides scope:is_bastard at birth); UNPROVEN until the in-game checklist. The script-side bastard
+#    flags that pregnancy.2001/.2002 set are cleared separately (pantheon_clear_bastard_pregnancy_effect).
+#  - R3 provenance: the union is opened (flag pantheon_union_open, 12 months) and, for every consort of either
+#    parent, the relations they already had with the two parents are remembered ON THE MOTHER (per union:
+#    pantheon_union_snapshotted / pantheon_union_prior_rel_mother / pantheon_union_prior_rel_father), so cleanup
+#    only undoes rivalry that this union caused.
+pantheon_mark_conception_effect = {
+	if = {
+		limit = { is_pregnant = yes }
+		set_child_of_concubine_on_pregnancy = yes
+		set_known_bastard_on_pregnancy = no
+	}
+	if = {
+		limit = { has_trait = pantheon_divine }
+		set_variable = { name = pantheon_child_father value = scope:pantheon_target }
+	}
+	else = {
+		set_variable = { name = pantheon_child_father value = scope:pantheon_conception_god }
+	}
+	add_character_flag = { flag = pantheon_union_open months = 12 }
+	# Provenance lives on the MOTHER (root), per union, so two pregnancies by one god never share it
+	save_temporary_scope_as = pantheon_snap_mother
+	pantheon_clear_union_provenance_effect = yes
+	add_to_temporary_list = pantheon_snap_union
+	var:pantheon_child_father ?= { add_to_temporary_list = pantheon_snap_union }
+	every_in_list = {
+		list = pantheon_snap_union
+		every_consort = {
+			limit = { NOT = { is_in_list = pantheon_snap_union } }
+			save_temporary_scope_as = pantheon_snap_holder
+			every_in_list = {
+				list = pantheon_snap_union
+				save_temporary_scope_as = pantheon_snap_member
+				scope:pantheon_snap_holder = { pantheon_snapshot_relation_effect = yes }
+			}
+		}
+	}
+}
+
+# Root is the mother. Forgets this union's provenance: the consorts snapshotted, who already had a hostile
+# relation with the mother / with the father at conception, and the child. Idempotent.
+pantheon_clear_union_provenance_effect = {
+	if = { limit = { has_variable_list = pantheon_union_snapshotted } clear_variable_list = pantheon_union_snapshotted }
+	if = { limit = { has_variable_list = pantheon_union_prior_rel_mother } clear_variable_list = pantheon_union_prior_rel_mother }
+	if = { limit = { has_variable_list = pantheon_union_prior_rel_father } clear_variable_list = pantheon_union_prior_rel_father }
+	if = { limit = { has_variable = pantheon_union_child } remove_variable = pantheon_union_child }
+}
+
+# Holder scope; scope:pantheon_snap_member is the union member, scope:pantheon_snap_mother the mother who holds
+# the lists. Remembers (idempotently) that this holder was snapshotted and whether they already had any
+# rivalry-type relation with the member (mother list or father list, by the member's role).
+pantheon_snapshot_relation_effect = {
+	scope:pantheon_snap_mother = {
+		if = {
+			limit = { NOT = { is_target_in_variable_list = { name = pantheon_union_snapshotted target = scope:pantheon_snap_holder } } }
+			add_to_variable_list = { name = pantheon_union_snapshotted target = scope:pantheon_snap_holder }
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_relation_rival = scope:pantheon_snap_member
+				has_relation_nemesis = scope:pantheon_snap_member
+				has_relation_grudge = scope:pantheon_snap_member
+				has_relation_potential_rival = scope:pantheon_snap_member
+			}
+		}
+		if = {
+			limit = { scope:pantheon_snap_member = scope:pantheon_snap_mother }
+			scope:pantheon_snap_mother = {
+				if = {
+					limit = { NOT = { is_target_in_variable_list = { name = pantheon_union_prior_rel_mother target = scope:pantheon_snap_holder } } }
+					add_to_variable_list = { name = pantheon_union_prior_rel_mother target = scope:pantheon_snap_holder }
+				}
+			}
+		}
+		else = {
+			scope:pantheon_snap_mother = {
+				if = {
+					limit = { NOT = { is_target_in_variable_list = { name = pantheon_union_prior_rel_father target = scope:pantheon_snap_holder } } }
+					add_to_variable_list = { name = pantheon_union_prior_rel_father target = scope:pantheon_snap_holder }
+				}
+			}
+		}
+	}
+}
+
+# 2.2.2 (R1/R2). Root is the mother. Vanilla's pregnancy.2001/.2002 (an unwed or married mother whose child's
+# father is not her consort) set the script flags below when they fire, and birth.0001 / pregnancy
+# maintenance read them (secrets, birth.1002/.1005, the known-bastard legitimisation event birth.2001). Take
+# them away at every boundary Pantheon can reach; idempotent. Not reachable: an option the player picks
+# AFTER the day it was cleared sets its flag again (see the CHANGELOG / checklist).
+pantheon_clear_bastard_pregnancy_effect = {
+	if = { limit = { has_character_flag = bastard_pregnancy } remove_character_flag = bastard_pregnancy }
+	if = { limit = { has_character_flag = unmarried_bastard_pregnancy } remove_character_flag = unmarried_bastard_pregnancy }
+	if = { limit = { has_character_flag = pregnancy_real_father_of_bastard_is_known_flag } remove_character_flag = pregnancy_real_father_of_bastard_is_known_flag }
+	if = { limit = { has_character_flag = pregnancy_spouse_knows_of_bastardy } remove_character_flag = pregnancy_spouse_knows_of_bastardy }
+	if = { limit = { has_character_flag = pregnancy_real_father_knows } remove_character_flag = pregnancy_real_father_knows }
+	if = { limit = { has_variable = bastard_pregnancy } remove_variable = bastard_pregnancy }
+	if = { limit = { has_variable = unmarried_bastard_pregnancy } remove_variable = unmarried_bastard_pregnancy }
+	if = {
+		limit = { is_pregnant = yes }
+		set_child_of_concubine_on_pregnancy = yes
+		set_known_bastard_on_pregnancy = no
+	}
+}
+
 # Make a god's child an honour, not a scandal. Root is the mother; var:pantheon_child_father is the real father.
-# Run a day after vanilla's pregnancy-reveal and birth events, which brand adultery, create the affair and
-# parentage secrets, and anger the spouse AFTER Pantheon's own hooks have run (third 1.2 test).
+# Run a day after the pregnancy is revealed (pantheon.0040) and a day after the birth (pantheon.0042): vanilla's
+# reveal and birth events brand adultery, create the affair and parentage secrets, and anger the spouses AFTER
+# Pantheon's own hooks have run. 2.2.2: the god's own spouse(s) are neutral (no "Unfaithful", no "Slept with My
+# Spouse", no honoured line); only the MORTAL parent's spouse is honoured; relations only undo what this union
+# caused (see pantheon_mark_conception_effect); secrets only those about this union's child.
 pantheon_sanctify_union_effect = {
+	save_temporary_scope_as = pantheon_union_mother
 	add_to_temporary_list = pantheon_union
 	var:pantheon_child_father ?= { add_to_temporary_list = pantheon_union }
+	# The bastard flags pregnancy.2001/.2002 may have just set (R1/R2)
+	pantheon_clear_bastard_pregnancy_effect = yes
 	every_in_list = {
 		list = pantheon_union
+		save_temporary_scope_as = pantheon_union_member
 		if = {
 			limit = { has_trait = adulterer }
 			remove_trait = adulterer
@@ -638,7 +766,8 @@ pantheon_sanctify_union_effect = {
 			limit = { has_trait = fornicator }
 			remove_trait = fornicator
 		}
-		# Nothing left to expose: the affair between them, and the child's parentage
+		# Nothing left to expose: the affair between the two parents, and the parentage secrets about THIS
+		# union's child (recorded on the mother at birth) -- never the owner's other secrets
 		every_secret = {
 			limit = {
 				OR = {
@@ -646,34 +775,22 @@ pantheon_sanctify_union_effect = {
 						secret_type = secret_lover
 						secret_target ?= { is_in_list = pantheon_union }
 					}
-					secret_type = secret_disputed_heritage
-					secret_type = secret_unmarried_illegitimate_child
+					AND = {
+						OR = {
+							secret_type = secret_disputed_heritage
+							secret_type = secret_unmarried_illegitimate_child
+						}
+						scope:pantheon_union_mother = { has_variable = pantheon_union_child }
+						secret_target ?= scope:pantheon_union_mother.var:pantheon_union_child
+					}
 				}
 			}
 			remove_secret = yes
 		}
-		# Their spouses are honoured, not wronged
-		every_spouse = {
+		every_consort = {
 			limit = { NOT = { is_in_list = pantheon_union } }
-			every_in_list = {
-				list = pantheon_union
-				save_temporary_scope_as = pantheon_union_member
-				prev = {
-					remove_opinion = { target = scope:pantheon_union_member modifier = slept_with_spouse_exposed_opinion }
-					remove_opinion = { target = scope:pantheon_union_member modifier = slept_with_spouse_discovered_opinion }
-				}
-			}
-			every_in_list = {
-				list = pantheon_union
-				limit = { has_trait = pantheon_divine }
-				save_temporary_scope_as = pantheon_union_god
-				prev = {
-					if = {
-						limit = { NOT = { has_opinion_modifier = { target = scope:pantheon_union_god modifier = pantheon_honoured_spouse_opinion } } }
-						add_opinion = { target = scope:pantheon_union_god modifier = pantheon_honoured_spouse_opinion }
-					}
-				}
-			}
+			save_temporary_scope_as = pantheon_union_holder
+			pantheon_union_consort_effect = yes
 		}
 		# Freed, if their own spouse imprisoned them for it
 		if = {
@@ -684,6 +801,81 @@ pantheon_sanctify_union_effect = {
 			release_from_prison = yes
 		}
 	}
+}
+
+# Consort scope; scope:pantheon_union_holder is this consort, scope:pantheon_union_member the union member they
+# are consort of. Removes the adultery opinions toward both parents, undoes this union's rivalry, and honours
+# the MORTAL parent's consorts (the god's own are neutral).
+pantheon_union_consort_effect = {
+	every_in_list = {
+		list = pantheon_union
+		save_temporary_scope_as = pantheon_union_target
+		scope:pantheon_union_holder = {
+			# Evidence of this union's exposure is the opinion itself: read it BEFORE removing it
+			pantheon_union_undo_relations_effect = yes
+			remove_opinion = { target = scope:pantheon_union_target modifier = slept_with_spouse_exposed_opinion }
+			remove_opinion = { target = scope:pantheon_union_target modifier = slept_with_spouse_discovered_opinion }
+			remove_opinion = { target = scope:pantheon_union_target modifier = unfaithful_spouse_exposed_opinion }
+			remove_opinion = { target = scope:pantheon_union_target modifier = unfaithful_spouse_discovered_opinion }
+		}
+	}
+	if = {
+		limit = { scope:pantheon_union_member = { NOT = { has_trait = pantheon_divine } } }
+		every_in_list = {
+			list = pantheon_union
+			limit = { has_trait = pantheon_divine }
+			save_temporary_scope_as = pantheon_union_god
+			scope:pantheon_union_holder = {
+				if = {
+					limit = { NOT = { has_opinion_modifier = { target = scope:pantheon_union_god modifier = pantheon_honoured_spouse_opinion } } }
+					add_opinion = { target = scope:pantheon_union_god modifier = pantheon_honoured_spouse_opinion }
+				}
+			}
+		}
+	}
+}
+
+# Holder scope; scope:pantheon_union_target a union member, scope:pantheon_union_mother the mother holding the
+# provenance. Only while the union is open, only if the holder was snapshotted and had NO such relation with
+# that member at conception, AND only with evidence the exposure happened: vanilla's adultery exposure adds
+# slept_with_spouse_exposed_opinion toward the lover in the same block that sets the nemesis / progresses the
+# rivalry (00_adultery_effects.txt), so a holder without that opinion toward the member keeps the relation.
+pantheon_union_undo_relations_effect = {
+	if = {
+		limit = {
+			scope:pantheon_union_mother = {
+				has_character_flag = pantheon_union_open
+				is_target_in_variable_list = { name = pantheon_union_snapshotted target = scope:pantheon_union_holder }
+			}
+			OR = {
+				has_opinion_modifier = { target = scope:pantheon_union_target modifier = slept_with_spouse_exposed_opinion }
+				has_opinion_modifier = { target = scope:pantheon_union_target modifier = slept_with_spouse_discovered_opinion }
+			}
+			OR = {
+				AND = {
+					scope:pantheon_union_target = scope:pantheon_union_mother
+					NOT = { scope:pantheon_union_mother = { is_target_in_variable_list = { name = pantheon_union_prior_rel_mother target = scope:pantheon_union_holder } } }
+				}
+				AND = {
+					NOT = { scope:pantheon_union_target = scope:pantheon_union_mother }
+					NOT = { scope:pantheon_union_mother = { is_target_in_variable_list = { name = pantheon_union_prior_rel_father target = scope:pantheon_union_holder } } }
+				}
+			}
+		}
+		if = { limit = { has_relation_rival = scope:pantheon_union_target } remove_relation_rival = scope:pantheon_union_target }
+		if = { limit = { has_relation_nemesis = scope:pantheon_union_target } remove_relation_nemesis = scope:pantheon_union_target }
+		if = { limit = { has_relation_grudge = scope:pantheon_union_target } remove_relation_grudge = scope:pantheon_union_target }
+		if = { limit = { has_relation_potential_rival = scope:pantheon_union_target } remove_relation_potential_rival = scope:pantheon_union_target }
+	}
+}
+
+# Root is the mother, a day after the birth (pantheon.0042): the last sanctify, then the union is closed so a
+# later rivalry between the same people is never mistaken for this union's.
+pantheon_close_union_effect = {
+	pantheon_sanctify_union_effect = yes
+	# Only THIS mother's provenance is cleared; another pregnancy by the same god keeps its own
+	pantheon_clear_union_provenance_effect = yes
+	if = { limit = { has_character_flag = pantheon_union_open } remove_character_flag = pantheon_union_open }
 }
 
 # Divine Healing (1.3, a prayer answer): every disease and wound cured. Root is the god.

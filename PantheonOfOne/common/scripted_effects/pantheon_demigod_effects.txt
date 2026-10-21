@@ -368,3 +368,92 @@ pantheon_mark_wed_spouse_effect = {
 		}
 	}
 }
+
+# ---- 2.2.2 ----------------------------------------------------------------------------------------------
+
+# Root is the god. (#12) Every living demigod carries blocked_from_leaving (vanilla's courtier_allowed_to_leave_
+# and guest_allowed_to_leave_trigger honour it; a lent or wed demigod is still the god's child, so is covered),
+# and (R1 safety net) none carries a bastard brand. Idempotent; the god's quarterly and monthly ticks both call it.
+pantheon_demigod_upkeep_effect = {
+	save_temporary_scope_as = pantheon_unbrand_god
+	every_child = {
+		limit = { has_trait = pantheon_demigod is_alive = yes }
+		if = {
+			limit = { NOT = { has_character_flag = blocked_from_leaving } }
+			add_character_flag = blocked_from_leaving
+		}
+		pantheon_unbrand_demigod_effect = yes
+	}
+}
+
+# Root is a demigod. set_child_of_concubine_on_pregnancy (the bastard-prevention at conception) makes the engine
+# give the newborn Child of Concubine (-1 Diplomacy); a demigod never carries it. Only removes, idempotent.
+pantheon_remove_concubine_brand_effect = {
+	if = {
+		limit = { has_trait = child_of_concubine_male }
+		remove_trait = child_of_concubine_male
+	}
+	if = {
+		limit = { has_trait = child_of_concubine_female }
+		remove_trait = child_of_concubine_female
+	}
+}
+
+# Root is a demigod; scope:pantheon_unbrand_god (optional) the god. A demigod is never a bastard: take the
+# brands off, and if a legitimisation happened anyway, undo the opinions it cost the god's household
+# (legitimized_a_bastard_opinion toward the god, legitimized_bastard_opinion toward the demigod) -- only then.
+pantheon_unbrand_demigod_effect = {
+	save_temporary_scope_as = pantheon_unbrand_demigod
+	# also removes Child of Concubine (runs from the upkeep and from pantheon.0041 a day after birth)
+	pantheon_remove_concubine_brand_effect = yes
+	if = {
+		limit = { has_trait = bastard }
+		remove_trait = bastard
+	}
+	if = {
+		limit = { has_trait = wild_oat }
+		remove_trait = wild_oat
+	}
+	if = {
+		limit = { has_trait = disputed_heritage }
+		remove_trait = disputed_heritage
+	}
+	if = {
+		limit = { has_trait = legitimized_bastard }
+		remove_trait = legitimized_bastard
+		scope:pantheon_unbrand_god ?= {
+			every_consort = {
+				remove_opinion = { target = scope:pantheon_unbrand_god modifier = legitimized_a_bastard_opinion }
+				remove_opinion = { target = scope:pantheon_unbrand_demigod modifier = legitimized_bastard_opinion }
+			}
+			every_child = {
+				remove_opinion = { target = scope:pantheon_unbrand_god modifier = legitimized_a_bastard_opinion }
+				remove_opinion = { target = scope:pantheon_unbrand_demigod modifier = legitimized_bastard_opinion }
+			}
+			house ?= {
+				house_head ?= {
+					remove_opinion = { target = scope:pantheon_unbrand_god modifier = legitimized_a_bastard_opinion }
+				}
+			}
+		}
+	}
+}
+
+# Root is the god. 2.2.1 -> 2.2.2 migration (R5), once per god, on the first monthly tick after loading:
+# the god's own consorts lose the honoured line 2.2.1 wrongly gave them (it is for the mortal parent's spouse);
+# the demigod upkeep that follows sets blocked_from_leaving and strips bastard / legitimised brands and the
+# opinions their legitimisation caused. Not recovered: demigods who already left, events already shown, and the
+# adultery opinions/rivalries 2.2.1 left (no record of where they came from).
+pantheon_repair_221_effect = {
+	if = {
+		limit = { NOT = { has_variable = pantheon_repair_222 } }
+		set_variable = pantheon_repair_222
+		save_temporary_scope_as = pantheon_repair_god
+		every_consort = {
+			if = {
+				limit = { has_opinion_modifier = { target = scope:pantheon_repair_god modifier = pantheon_honoured_spouse_opinion } }
+				remove_opinion = { target = scope:pantheon_repair_god modifier = pantheon_honoured_spouse_opinion }
+			}
+		}
+	}
+}

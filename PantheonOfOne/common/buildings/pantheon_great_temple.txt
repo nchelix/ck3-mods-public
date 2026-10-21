@@ -17,6 +17,10 @@ pantheon_great_temple_01 = {
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_01.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
+	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
+	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	next_building = pantheon_great_temple_02
+
 	asset = {
 		type = pdxmesh
 		name = "pantheon_great_temple_01_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
@@ -50,6 +54,10 @@ pantheon_great_temple_02 = {
 	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_02.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
+	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	next_building = pantheon_great_temple_03
 
 	asset = {
 		type = pdxmesh
@@ -89,6 +97,10 @@ pantheon_great_temple_03 = {
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_03.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
+	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
+	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	next_building = pantheon_great_temple_04
+
 	asset = {
 		type = pdxmesh
 		name = "pantheon_great_temple_03_mesh" # 2.2 Task 6: the custom Meshy model (gfx/models/buildings/pantheon_great_temple/)
@@ -127,6 +139,10 @@ pantheon_great_temple_04 = {
 	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_04.dds" # 2.2 Task 6 (R14): a render of this tier's own model
+
+	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
+	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	next_building = pantheon_great_temple_05
 
 	asset = {
 		type = pdxmesh
