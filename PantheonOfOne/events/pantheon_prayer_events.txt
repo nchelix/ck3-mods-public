@@ -12,41 +12,61 @@ pantheon.0050 = {
 			limit = { NOT = { has_game_rule = pantheon_prayers_off } }
 			pantheon_send_prayer_effect = yes
 		}
+		# 2.3 (R4): a saved scope is inherited by this timer chain; never let the next pass see a stale candidate
+		pantheon_prayer_clear_delivery_effect = yes
 		trigger_event = { id = pantheon.0050 days = pantheon_prayer_interval_days }
 	}
 }
 
 # A prayer. Root is the god; scope:pantheon_suppliant is whoever prayed (a follower, or about one time in
-# eight a bordering stranger of another faith). pantheon_prayer_need (1-6, set when they were picked, common/
-# scripted_effects/pantheon_devotion_effects.txt) names which need they bring, unless they are a stranger
-# with their own offer. Three options, well within the three-greyed cap (proven in game).
+# eight a bordering stranger of another faith); scope:pantheon_prayer_delivered is the number of their prayer RECORD
+# (common/scripted_effects/pantheon_prayer_effects.txt), delivered with the event as persistent saved scopes by
+# pantheon_deliver_prayer_effect. pantheon_prayer_need (1-8, set when they were picked) names which need they bring.
+# The trigger accepts a prayer whose record is open with the SAME token (an answered or replaced one stays out), or the
+# 2.2.2 legacy case: no token delivered and the god still has pantheon_suppliant_var for someone with no record. The
+# immediate adopts that legacy prayer once (a record, six months to answer) and forgets the variable.
+# Options: Grant, Sign (followers), Send a child, Let it wait, Refuse (followers) or Dismiss (strangers). At most
+# three can grey (Grant, Sign, Send), well within the cap (proven in game). Every answer option calls the adopt step
+# first, so a 2.2.2 event that was already on screen when the save loaded still works.
 pantheon.0060 = {
 	type = character_event
 	trigger = {
-		exists = var:pantheon_suppliant_var
-		var:pantheon_suppliant_var = { is_alive = yes }
+		OR = {
+			AND = {
+				exists = scope:pantheon_suppliant
+				exists = scope:pantheon_prayer_delivered
+				pantheon_prayer_is_open_trigger = yes
+				pantheon_prayer_token_ok_trigger = yes
+			}
+			AND = {
+				NOT = { exists = scope:pantheon_prayer_delivered }
+				exists = var:pantheon_suppliant_var
+				var:pantheon_suppliant_var = {
+					is_alive = yes
+					NOT = { has_variable = pantheon_prayer_open }
+				}
+			}
+		}
 	}
 	immediate = {
+		# Legacy (2.2.2 save): the suppliant was only kept on the god. Pick them up and adopt the prayer, once.
 		if = {
-			limit = { exists = scope:pantheon_suppliant }
-			clear_saved_scope = pantheon_suppliant
+			limit = {
+				NOT = { exists = scope:pantheon_suppliant }
+				exists = var:pantheon_suppliant_var
+			}
+			var:pantheon_suppliant_var = { save_scope_as = pantheon_suppliant }
 		}
-		var:pantheon_suppliant_var = { save_scope_as = pantheon_suppliant }
+		pantheon_prayer_adopt_legacy_effect = yes
 		# 1.6: can one of the god's free demigods wed this suppliant? Worked out with the marriage block lifted.
 		if = { limit = { has_variable = pantheon_send_wed_ok } remove_variable = pantheon_send_wed_ok }
 		pantheon_lift_marriage_block_effect = yes
 		pantheon_mark_wed_spouse_effect = { SPOUSE = scope:pantheon_suppliant }
 		if = { limit = { any_child = { has_variable = pantheon_can_wed_here } } set_variable = pantheon_send_wed_ok }
 		pantheon_restore_marriage_block_effect = yes
-		# Costs read the suppliant, which button text cannot: store them now (error.log, 1.3 test)
-		set_variable = {
-			name = pantheon_prayer_cost_now
-			value = pantheon_prayer_cost
-		}
-		set_variable = {
-			name = pantheon_prayer_sign_now
-			value = pantheon_prayer_sign_cost
-		}
+		# 2.3 (R1/R14): the prices live on the suppliant's RECORD (snapshotted when the prayer opened), never in a
+		# god-wide variable: two prayers open at once cannot overwrite each other's price. Button text cannot read the
+		# suppliant (error.log, 1.3 test), so the prices are shown in the desc below, which can.
 	}
 	title = pantheon.0060.t
 	desc = {
@@ -124,6 +144,25 @@ pantheon.0060 = {
 			trigger = { scope:pantheon_suppliant = { pantheon_devout_trigger = yes } }
 			desc = pantheon.0060.devotion_devout
 		}
+		# 2.3 (R14): what answering costs, read from the prayer RECORD (a legacy event adopted later has none yet)
+		triggered_desc = {
+			trigger = {
+				scope:pantheon_suppliant = {
+					has_variable = pantheon_prayer_price
+					faith = root.faith
+				}
+			}
+			desc = pantheon.0060.prices
+		}
+		triggered_desc = {
+			trigger = {
+				scope:pantheon_suppliant = {
+					has_variable = pantheon_prayer_price
+					NOT = { faith = root.faith }
+				}
+			}
+			desc = pantheon.0060.prices_stranger
+		}
 	}
 	theme = faith
 	left_portrait = {
@@ -134,30 +173,59 @@ pantheon.0060 = {
 	option = {
 		name = pantheon.0060.grant
 		trigger = {
-			custom_tooltip = { text = pantheon_needs_worship_prayer_tt var:pantheon_worship >= var:pantheon_prayer_cost_now }
+			custom_tooltip = {
+				text = pantheon_needs_worship_prayer_tt
+				OR = {
+					scope:pantheon_suppliant = { NOT = { has_variable = pantheon_prayer_price } }
+					var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_prayer_price
+				}
+			}
 		}
 		show_as_unavailable = { always = yes }
 		custom_tooltip = pantheon.0060.grant.tt
-		hidden_effect = { pantheon_grant_prayer_effect = yes }
-		custom_tooltip = pantheon_worship_line_prayer
+		hidden_effect = {
+			pantheon_prayer_adopt_legacy_effect = yes
+			pantheon_grant_prayer_effect = yes
+		}
+		# fix round 1 (F8): the cost line is read from the RECORD's snapshot; a record-less legacy event shows nothing
+		if = {
+			limit = { scope:pantheon_suppliant = { has_variable = pantheon_prayer_price } }
+			custom_tooltip = pantheon_worship_line_record_prayer
+		}
 	}
 
 	option = {
 		name = pantheon.0060.sign
 		trigger = {
 			scope:pantheon_suppliant = { faith = root.faith }
-			custom_tooltip = { text = pantheon_needs_worship_sign_tt var:pantheon_worship >= var:pantheon_prayer_sign_now }
+			custom_tooltip = {
+				text = pantheon_needs_worship_sign_tt
+				OR = {
+					scope:pantheon_suppliant = { NOT = { has_variable = pantheon_prayer_sign_price } }
+					var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_prayer_sign_price
+				}
+			}
 		}
 		show_as_unavailable = {
 			scope:pantheon_suppliant = { faith = root.faith }
 		}
 		custom_tooltip = pantheon.0060.sign.tt
-		hidden_effect = { pantheon_sign_prayer_effect = yes }
-		custom_tooltip = pantheon_worship_line_sign
+		hidden_effect = {
+			pantheon_prayer_adopt_legacy_effect = yes
+			pantheon_sign_prayer_effect = yes
+		}
+		if = {
+			limit = { scope:pantheon_suppliant = { has_variable = pantheon_prayer_sign_price } }
+			custom_tooltip = pantheon_worship_line_record_sign
+		}
 	}
 
 	# 1.6: Send one of your children. Host -> a demigod lent as Commander; Spouse -> a demigod wed to them.
-	# Charged at the lend or wed price (its Devotion, once). The third greyable option; Refuse never greys.
+	# The third greyable option; Refuse never greys.
+	# 2.3 B4: it starts SENDING MODE and does not answer the prayer: the pending send is stored on the god (kind 1 Host /
+	# 2 Spouse, recipient, the prayer's token), the Pantheon window opens on the Children tab, and a demigod's Send button
+	# there lends / weds them at the usual price and then closes the prayer. If the send is cancelled the prayer stays
+	# open (this event's other options and the Prayers tab still answer it). It no longer opens pantheon_menu.0510.
 	option = {
 		name = pantheon.0060.send
 		trigger = {
@@ -191,28 +259,53 @@ pantheon.0060 = {
 			}
 		}
 		custom_tooltip = pantheon.0060.send.tt
-		set_variable = { name = pantheon_demigod_host value = scope:pantheon_suppliant }
-		scope:pantheon_suppliant = { save_scope_as = pantheon_target }
-		if = {
-			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
-			set_variable = { name = pantheon_demigod_mode value = 3 }
+		hidden_effect = {
+			pantheon_prayer_adopt_legacy_effect = yes
+			pantheon_prayer_send_entry_effect = yes
 		}
-		else = {
-			set_variable = { name = pantheon_demigod_mode value = 4 }
-		}
-		trigger_event = pantheon_menu.0510
-		if = {
-			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
-			custom_tooltip = pantheon_worship_line_lend
-		}
-		else = {
-			custom_tooltip = pantheon_worship_line_wed
-		}
+	}
+
+	# 2.3: close this event and leave the prayer open (the Prayers tab answers it later, until it lapses)
+	option = {
+		name = pantheon.0060.wait
+		custom_tooltip = pantheon.0060.wait.tt
+		# 2.3 review fix: an already-displayed 2.2.2 event has no record yet; waiting must create it like every answer does
+		hidden_effect = { pantheon_prayer_adopt_legacy_effect = yes }
 	}
 
 	option = {
 		name = pantheon.0060.refuse
+		trigger = {
+			scope:pantheon_suppliant = { faith = root.faith }
+		}
 		custom_tooltip = pantheon.0060.refuse.tt
-		hidden_effect = { pantheon_refuse_prayer_effect = yes }
+		hidden_effect = {
+			pantheon_prayer_adopt_legacy_effect = yes
+			pantheon_refuse_prayer_effect = yes
+		}
+	}
+
+	# A bordering stranger's plea is turned away: nothing happens to them
+	option = {
+		name = pantheon.0060.dismiss
+		trigger = {
+			scope:pantheon_suppliant = { NOT = { faith = root.faith } }
+		}
+		custom_tooltip = pantheon.0060.dismiss.tt
+		hidden_effect = {
+			pantheon_prayer_adopt_legacy_effect = yes
+			pantheon_dismiss_prayer_effect = yes
+		}
+	}
+}
+
+# 2.3 (R2): the deadline of one prayer, scheduled by pantheon_prayer_create_effect six months after it opened.
+# Hidden; root is the god; it carries the suppliant and the token of the prayer it was scheduled for. See
+# pantheon_prayer_deadline_effect: invalidation first, then the lapse (a follower -5 Devotion, both a toast).
+pantheon.0061 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		pantheon_prayer_deadline_effect = yes
 	}
 }

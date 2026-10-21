@@ -7,7 +7,8 @@ pantheon_ui_is_god = {
 	is_valid = { has_trait = pantheon_divine }
 }
 
-# Open (rebuilding the lists first) or close the window
+# Open (rebuilding the lists first) or close the window. 2.3 B4: closing KEEPS a pending send (pantheon_send_kind /
+# _recipient / _token); reopening rebuilds (which drops it if its source is gone) and the Children banner shows again.
 pantheon_ui_toggle = {
 	scope = character
 	is_valid = { has_trait = pantheon_divine }
@@ -20,12 +21,18 @@ pantheon_ui_toggle = {
 			clear_variable_list = pantheon_ui_blessed
 			clear_variable_list = pantheon_ui_demigods
 			clear_variable_list = pantheon_ui_houses
+			clear_variable_list = pantheon_ui_prayers
 			# Batch 2r1 (repair 4): closing the window must not leave a miracle armed.
 			pantheon_temple_clear_confirm_effect = yes
 		}
 		else = {
 			if = { limit = { NOT = { has_variable = pantheon_ui_tab } } set_variable = { name = pantheon_ui_tab value = 1 } }
 			pantheon_ui_rebuild_effect = yes
+			# Fix round 2 (Codex): reopening on the Prayers tab picks the first non-empty sub-tab again
+			if = {
+				limit = { var:pantheon_ui_tab = 5 }
+				pantheon_ui_pick_ptab_effect = yes
+			}
 			# Batch 2r1 (repair 4): re-opening must not resume with a stale armed miracle either.
 			pantheon_temple_clear_confirm_effect = yes
 			set_variable = pantheon_ui_open
@@ -34,6 +41,7 @@ pantheon_ui_toggle = {
 }
 
 # The header's close button (M10): no is_valid, so losing pantheon_divine while the window is open can't trap it.
+# Like the toggle it keeps a pending send (2.3 B4); only Cancel, an answer or the source closing drops it.
 pantheon_ui_close = {
 	scope = character
 	effect = {
@@ -42,6 +50,7 @@ pantheon_ui_close = {
 		clear_variable_list = pantheon_ui_blessed
 		clear_variable_list = pantheon_ui_demigods
 		clear_variable_list = pantheon_ui_houses
+		clear_variable_list = pantheon_ui_prayers
 		# Batch 2r1 (repair 4): same guard as the toggle's close branch.
 		pantheon_temple_clear_confirm_effect = yes
 	}
@@ -63,6 +72,39 @@ pantheon_ui_tab_children = {
 		set_variable = { name = pantheon_ui_tab value = 2 }
 		pantheon_temple_clear_confirm_effect = yes
 		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_tab_prayers = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_tab value = 5 }
+		pantheon_temple_clear_confirm_effect = yes
+		pantheon_ui_rebuild_effect = yes
+		# Fix round 2 (H3, Codex): pick the sub-tab AFTER the rebuild has pruned stale records
+		pantheon_ui_pick_ptab_effect = yes
+	}
+}
+
+# Fix round 2 (H3): the Prayers tab's sub-tabs (pantheon_ui_ptab: 1 Prayers, 2 Retribution, 3 Great Prayers)
+pantheon_ui_ptab_prayers = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ptab value = 1 }
+	}
+}
+
+pantheon_ui_ptab_retris = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ptab value = 2 }
+	}
+}
+
+pantheon_ui_ptab_great = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ptab value = 3 }
 	}
 }
 
@@ -353,5 +395,423 @@ pantheon_ui_miracle_victory_armed = {
 	is_valid = {
 		has_variable = pantheon_temple_confirm
 		var:pantheon_temple_confirm = 3
+	}
+}
+
+# ---- 2.3 B3: the Prayers tab's row buttons. Each is called with GuiScope.SetRoot( GetPlayer.MakeScope ) and the row's
+# suppliant as the saved scope pantheon_suppliant (AddScope( 'pantheon_suppliant', Character.MakeScope )) -- the very
+# name the answer effects (pantheon_devotion_effects.txt) read, so nothing is re-saved. No scope:pantheon_prayer_delivered
+# exists here, so pantheon_prayer_token_ok_trigger passes (the record itself is the authority). is_valid mirrors
+# eligibility and affordability, with a custom_tooltip reason per failure (never custom_description).
+
+pantheon_ui_prayer_grant = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_prayer_no_longer_tt
+			pantheon_prayer_is_eligible_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_ui_prayer_worship_grant_tt
+			var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_prayer_price
+		}
+	}
+	effect = {
+		pantheon_grant_prayer_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Followers only
+pantheon_ui_prayer_sign = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_shown = {
+		scope:pantheon_suppliant = { faith = root.faith }
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_prayer_no_longer_tt
+			pantheon_prayer_is_eligible_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_ui_prayer_worship_sign_tt
+			var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_prayer_sign_price
+		}
+	}
+	effect = {
+		pantheon_sign_prayer_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Followers only, free
+pantheon_ui_prayer_refuse = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_shown = {
+		scope:pantheon_suppliant = { faith = root.faith }
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_prayer_no_longer_tt
+			pantheon_prayer_is_open_trigger = yes
+		}
+	}
+	effect = {
+		pantheon_refuse_prayer_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Strangers only, free
+pantheon_ui_prayer_dismiss = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_shown = {
+		scope:pantheon_suppliant = { NOT = { faith = root.faith } }
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_prayer_no_longer_tt
+			pantheon_prayer_is_open_trigger = yes
+		}
+	}
+	effect = {
+		pantheon_dismiss_prayer_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Send a child (Host need 1 / Spouse need 8). B4: starts sending mode -- stores the pending send (kind 1 Host / 2
+# Spouse, recipient = the suppliant, token = this prayer's), opens the window if closed and shows the Children tab.
+# The prayer stays open; a demigod's Send button there answers it. Valid when a free demigod exists and the Worship is
+# there, as before.
+pantheon_ui_prayer_send = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_prayer_no_longer_tt
+			pantheon_prayer_is_eligible_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_has_free_demigod_tt
+			any_child = { pantheon_free_demigod_trigger = { GOD = root } }
+		}
+		custom_tooltip = {
+			text = pantheon_needs_worship_lend_tt
+			OR = {
+				AND = {
+					scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 }
+					var:pantheon_worship >= pantheon_cost_lend
+				}
+				AND = {
+					scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 }
+					var:pantheon_worship >= pantheon_cost_wed
+				}
+			}
+		}
+	}
+	effect = {
+		pantheon_prayer_send_entry_effect = yes
+	}
+}
+
+# ---- 2.3 B4: sending mode and the Children tab's row buttons.
+
+# The banner's Cancel: forget the pending send. The prayer (or call) it was for stays open. Closing the window does
+# NOT do this: pantheon_ui_toggle and pantheon_ui_close leave the pending send, and the banner returns on reopening.
+pantheon_ui_send_cancel = {
+	scope = character
+	effect = {
+		pantheon_send_clear_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# A demigod row's Send, while sending. Called with GuiScope.SetRoot( GetPlayer.MakeScope ) and the row's demigod as the
+# saved scope pantheon_send_demigod. is_valid names the reason a row is greyed (never custom_description).
+pantheon_ui_send_demigod = {
+	scope = character
+	saved_scopes = { pantheon_send_demigod }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_ui_send_gone_tt
+			pantheon_send_source_ok_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_ui_send_not_free_tt
+			scope:pantheon_send_demigod = { pantheon_free_demigod_trigger = { GOD = root } }
+		}
+		trigger_if = {
+			limit = {
+				has_variable = pantheon_send_kind
+				var:pantheon_send_kind = 2
+			}
+			custom_tooltip = {
+				text = pantheon_ui_send_married_tt
+				scope:pantheon_send_demigod = { is_married = no }
+			}
+			custom_tooltip = {
+				text = pantheon_cannot_wed_tt
+				var:pantheon_send_recipient ?= { pantheon_could_wed_demigod_trigger = { DEMIGOD = scope:pantheon_send_demigod } }
+			}
+			custom_tooltip = {
+				text = pantheon_needs_worship_wed_tt
+				var:pantheon_worship >= pantheon_cost_wed
+			}
+		}
+		trigger_else = {
+			custom_tooltip = {
+				text = pantheon_needs_worship_lend_tt
+				var:pantheon_worship >= pantheon_cost_lend
+			}
+		}
+	}
+	effect = {
+		pantheon_send_demigod_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Outside sending mode (R9): a demigod row's Lend / Wed open the vanilla interaction window with this demigod as the
+# secondary actor and the follower selected in the Followers tab (pantheon_ui_target) as the recipient. They mirror the
+# interactions' is_shown (a landed follower of the faith to lend to; a ruler with a house to wed into).
+pantheon_ui_row_lend = {
+	scope = character
+	saved_scopes = { pantheon_row_demigod }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_ui_row_select_tt
+			has_variable = pantheon_ui_target
+			var:pantheon_ui_target ?= {
+				is_alive = yes
+				faith = root.faith
+				NOT = { this = root }
+			}
+		}
+		custom_tooltip = {
+			text = pantheon_ui_row_landed_tt
+			var:pantheon_ui_target ?= { is_landed = yes }
+		}
+		custom_tooltip = {
+			text = pantheon_ui_row_free_tt
+			scope:pantheon_row_demigod = { pantheon_free_demigod_trigger = { GOD = root } }
+		}
+		custom_tooltip = {
+			text = pantheon_ui_row_enthroned_tt
+			has_variable = pantheon_enthroned
+		}
+	}
+	effect = {
+		var:pantheon_ui_target ?= { save_scope_as = pantheon_row_recipient }
+		open_interaction_window = {
+			interaction = pantheon_lend_interaction
+			actor = root
+			recipient = scope:pantheon_row_recipient
+			secondary_actor = scope:pantheon_row_demigod
+		}
+	}
+}
+
+pantheon_ui_row_wed = {
+	scope = character
+	saved_scopes = { pantheon_row_demigod }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_ui_row_select_tt
+			has_variable = pantheon_ui_target
+			var:pantheon_ui_target ?= {
+				is_alive = yes
+				faith = root.faith
+				NOT = { this = root }
+			}
+		}
+		custom_tooltip = {
+			text = pantheon_ui_row_ruler_tt
+			var:pantheon_ui_target ?= {
+				is_ruler = yes
+				exists = house
+			}
+		}
+		custom_tooltip = {
+			text = pantheon_ui_row_free_tt
+			scope:pantheon_row_demigod = {
+				pantheon_free_demigod_trigger = { GOD = root }
+				is_married = no
+			}
+		}
+		custom_tooltip = {
+			text = pantheon_ui_row_enthroned_tt
+			has_variable = pantheon_enthroned
+		}
+	}
+	effect = {
+		var:pantheon_ui_target ?= { save_scope_as = pantheon_row_recipient }
+		open_interaction_window = {
+			interaction = pantheon_wed_interaction
+			actor = root
+			recipient = scope:pantheon_row_recipient
+			secondary_actor = scope:pantheon_row_demigod
+		}
+	}
+}
+
+# ---- 2.3 B5: the Prayers tab's Calls for Retribution and the sworn oath's button. Each Retribution button is called with
+# GuiScope.SetRoot( GetPlayer.MakeScope ) and the row's ATTACKER (the record's key, fix round 1) as the saved scope
+# pantheon_retri_attacker. The effect reads the defender and token off the attacker's record (pantheon_retri_enter_effect),
+# then runs the SAME answer effect
+# pantheon.0080's option runs (common/scripted_effects/pantheon_retribution_effects.txt), which re-validates the call and
+# closes it when the answer is committed. is_valid mirrors 0080's option triggers, one custom_tooltip reason per failure.
+
+pantheon_ui_retri_smite = {
+	scope = character
+	saved_scopes = { pantheon_retri_attacker }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_retri_gone_tt
+			scope:pantheon_retri_attacker = { pantheon_retri_live_here_trigger = { GOD = root } }
+		}
+		scope:pantheon_retri_attacker = {
+			custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
+			custom_tooltip = { text = pantheon_wrath_protected_tt NOT = { pantheon_wrath_protected_trigger = { GOD = root } } }
+		}
+		custom_tooltip = {
+			text = pantheon_needs_worship_curse_tt
+			var:pantheon_worship >= pantheon_cost_curse
+		}
+	}
+	effect = {
+		pantheon_retri_enter_effect = yes
+		pantheon_retri_answer_smite_effect = yes
+		pantheon_retri_clear_frame_effect = yes
+		pantheon_retri_clear_scopes_effect = yes
+	}
+}
+
+pantheon_ui_retri_lands = {
+	scope = character
+	saved_scopes = { pantheon_retri_attacker }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_retri_gone_tt
+			scope:pantheon_retri_attacker = { pantheon_retri_live_here_trigger = { GOD = root } }
+		}
+		scope:pantheon_retri_attacker = {
+			custom_tooltip = { text = pantheon_wrath_cooldown_tt NOT = { has_variable = pantheon_wrath_cooldown } }
+			custom_tooltip = { text = pantheon_wrath_protected_tt NOT = { pantheon_wrath_protected_trigger = { GOD = root } } }
+		}
+		custom_tooltip = {
+			text = pantheon_needs_worship_disaster_tt
+			var:pantheon_worship >= pantheon_cost_disaster
+		}
+	}
+	effect = {
+		pantheon_retri_enter_effect = yes
+		pantheon_retri_answer_lands_effect = yes
+		pantheon_retri_clear_frame_effect = yes
+		pantheon_retri_clear_scopes_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_retri_host = {
+	scope = character
+	saved_scopes = { pantheon_retri_attacker }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_retri_gone_tt
+			scope:pantheon_retri_attacker = { pantheon_retri_live_here_trigger = { GOD = root } }
+		}
+		custom_tooltip = {
+			text = pantheon_needs_worship_host_tt
+			var:pantheon_worship >= pantheon_cost_host
+		}
+		custom_tooltip = {
+			text = pantheon_retri_host_none_tt
+			scope:pantheon_retri_attacker = {
+				var:pantheon_retri_defender ?= {
+					is_landed = yes
+					is_at_war = yes
+					any_character_war = { NOT = { has_variable = pantheon_host_called } }
+				}
+			}
+		}
+	}
+	effect = {
+		pantheon_retri_enter_effect = yes
+		pantheon_retri_answer_host_effect = yes
+		pantheon_retri_clear_frame_effect = yes
+		pantheon_retri_clear_scopes_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Hidden for the god's own call, like 0080's option
+pantheon_ui_retri_send = {
+	scope = character
+	saved_scopes = { pantheon_retri_attacker }
+	is_shown = {
+		NOT = { scope:pantheon_retri_attacker = { var:pantheon_retri_defender ?= root } }
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_retri_gone_tt
+			scope:pantheon_retri_attacker = { pantheon_retri_live_here_trigger = { GOD = root } }
+		}
+		custom_tooltip = {
+			text = pantheon_retri_defender_landless_tt
+			scope:pantheon_retri_attacker = { var:pantheon_retri_defender ?= { is_landed = yes } }
+		}
+		custom_tooltip = {
+			text = pantheon_has_free_demigod_tt
+			any_child = { pantheon_free_demigod_trigger = { GOD = root } }
+		}
+		custom_tooltip = {
+			text = pantheon_needs_worship_lend_tt
+			var:pantheon_worship >= pantheon_cost_lend
+		}
+	}
+	effect = {
+		pantheon_retri_enter_effect = yes
+		pantheon_retri_answer_send_effect = yes
+		pantheon_retri_clear_frame_effect = yes
+		pantheon_retri_clear_scopes_effect = yes
+	}
+}
+
+pantheon_ui_retri_mortals = {
+	scope = character
+	saved_scopes = { pantheon_retri_attacker }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_retri_gone_tt
+			scope:pantheon_retri_attacker = { pantheon_retri_live_here_trigger = { GOD = root } }
+		}
+	}
+	effect = {
+		pantheon_retri_enter_effect = yes
+		pantheon_retri_answer_mortals_effect = yes
+		pantheon_retri_clear_frame_effect = yes
+		pantheon_retri_clear_scopes_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# The sworn oath panel's button: re-open the sworn Judgement page (0070) on the offender, in context 1. Valid while the
+# oath is on and its offender lives.
+pantheon_ui_oath_judge = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_ui_oath_gone_tt
+			has_variable = pantheon_great_prayer_active
+			var:pantheon_great_prayer_offender ?= { is_alive = yes }
+		}
+	}
+	effect = {
+		pantheon_oath_open_judgement_effect = yes
 	}
 }

@@ -281,9 +281,8 @@ pantheon_on_war_started = {
 			save_scope_as = pantheon_god
 			if = {
 				limit = { pantheon_retribution_war_trigger = { GOD = scope:pantheon_god } }
-				set_variable = { name = pantheon_wrath_target value = scope:attacker }
-				set_variable = { name = pantheon_retribution_defender value = scope:defender }
-				trigger_event = pantheon.0080
+				# 2.3 (R10): a record on the defender and the god's list, not the two single slots; 0080 carries it
+				pantheon_retri_open_effect = yes
 			}
 		}
 	}
@@ -295,7 +294,26 @@ pantheon_on_war_started = {
 # Murdered kin. death_reason cannot be read while the character still lives, so remember the dying and
 # read it a day later (pantheon.0090). Root = the dying character.
 on_death = {
-	on_actions = { pantheon_on_death }
+	on_actions = { pantheon_on_death pantheon_on_death_oath }
+}
+
+# 2.3 (R17): a sworn oath whose offender dies by ANY means is released (toast once, no penalty). Deliberately NOT gated on
+# scope:killer like the murder hook below: natural deaths, executions and wars all reach it. A wrath (Strike) that
+# fulfilled the oath did so BEFORE the death, so the oath is already gone and this finds nothing -- no double notice.
+# Root = the dying character.
+pantheon_on_death_oath = {
+	effect = {
+		save_temporary_scope_as = pantheon_dying_one
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+				has_variable = pantheon_great_prayer_active
+				var:pantheon_great_prayer_offender ?= scope:pantheon_dying_one
+			}
+			pantheon_oath_release_effect = yes
+		}
+	}
 }
 
 pantheon_on_death = {

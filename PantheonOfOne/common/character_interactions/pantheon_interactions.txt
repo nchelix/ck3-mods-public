@@ -123,22 +123,13 @@ pantheon_judgement_interaction = {
 		if = { limit = { scope:pantheon_judge_curse = yes } custom_tooltip = pantheon_worship_line_curse }
 		hidden_effect = {
 			scope:actor = {
-				# A wrath on the sworn offender answers the oath itself: pantheon_wrath_landed_effect must still
-				# see pantheon_great_prayer_active (M9).
-				if = {
-					limit = { NOT = { var:pantheon_great_prayer_offender ?= scope:recipient } }
-					pantheon_end_oath_effect = yes
-				}
+				# 2.3 (R8, R18): context 3 (Judgement interaction). A sworn oath is neither ended nor consulted here: a wrath on
+				# someone else leaves it open, and one on the sworn offender fulfils it inside pantheon_wrath_landed_effect
+				# (which also decides, by the wrath's KIND, whether a harsh oath is fulfilled). The route starts with the
+				# page restrictions clear. A sin-only recipient (a sin weighs less than a crime) is limited by the pages' own
+				# triggers (pantheon_wrath_page_light_trigger, from the saved context), not by a god-wide flag.
+				pantheon_wrath_set_context_effect = { CTX = 3 }
 				set_variable = { name = pantheon_wrath_target value = scope:recipient }
-				# A sin weighs less than a crime (the Great Prayer pages still read this)
-				if = {
-					limit = { scope:recipient = { pantheon_sin_only_trigger = { GOD = scope:actor } } }
-					set_variable = pantheon_wrath_light
-				}
-				else_if = {
-					limit = { has_variable = pantheon_wrath_light }
-					remove_variable = pantheon_wrath_light
-				}
 				if = { limit = { scope:pantheon_judge_strike = yes } set_variable = { name = pantheon_ui_choice value = flag:strike } }
 				else_if = { limit = { scope:pantheon_judge_maimed = yes } set_variable = { name = pantheon_ui_choice value = flag:maimed } }
 				else_if = { limit = { scope:pantheon_judge_blind = yes } set_variable = { name = pantheon_ui_choice value = flag:blind } }
@@ -226,11 +217,8 @@ pantheon_lands_interaction = {
 		if = { limit = { scope:pantheon_lands_disaster = yes } custom_tooltip = pantheon_worship_line_disaster }
 		hidden_effect = {
 			scope:actor = {
-				# A wrath on the sworn offender answers the oath itself (M9, as Judgement)
-				if = {
-					limit = { NOT = { var:pantheon_great_prayer_offender ?= scope:recipient } }
-					pantheon_end_oath_effect = yes
-				}
+				# 2.3 (R8, R18): context 4 (Lands interaction); the sworn oath is left alone, as in Judgement
+				pantheon_wrath_set_context_effect = { CTX = 4 }
 				set_variable = { name = pantheon_wrath_target value = scope:recipient }
 				set_variable = { name = pantheon_wrath_county value = scope:target }
 				if = { limit = { scope:pantheon_lands_pestilence = yes } set_variable = { name = pantheon_ui_choice value = flag:pestilence } }

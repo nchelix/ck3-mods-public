@@ -667,3 +667,237 @@ pantheon_boon_affordable_kind_trigger = {
 	}
 	trigger_else = { always = no }
 }
+
+# ---- 2.3 Persistent prayers (record model: common/scripted_effects/pantheon_prayer_effects.txt)
+
+# In the SUPPLIANT's scope; $GOD$ is the god (pass root or a saved scope, never `this`): the suppliant is alive,
+# carries an open record, and is on the god's list pantheon_open_prayers.
+pantheon_prayer_open_here_trigger = {
+	is_alive = yes
+	has_variable = pantheon_prayer_open
+	$GOD$ = { is_target_in_variable_list = { name = pantheon_open_prayers target = prev } }
+}
+
+# In the suppliant's scope: does the need they prayed for still hold? (the same triggers that picked them)
+pantheon_prayer_need_valid_trigger = {
+	OR = {
+		AND = { var:pantheon_prayer_need = 1 pantheon_need_host_trigger = yes }
+		AND = { var:pantheon_prayer_need = 2 pantheon_need_fertility_trigger = yes }
+		AND = { var:pantheon_prayer_need = 3 pantheon_need_vigor_trigger = yes }
+		AND = { var:pantheon_prayer_need = 4 pantheon_need_warding_trigger = yes }
+		AND = { var:pantheon_prayer_need = 5 pantheon_need_harvest_trigger = yes }
+		AND = { var:pantheon_prayer_need = 6 pantheon_need_gift_trigger = yes }
+		AND = { var:pantheon_prayer_need = 7 pantheon_need_healing_trigger = yes }
+		AND = { var:pantheon_prayer_need = 8 pantheon_need_spouse_trigger = yes }
+	}
+}
+
+# In the suppliant's scope: open AND still answerable. A follower-origin prayer needs a suppliant still of the god's
+# faith; a stranger-origin one needs them still outside it (a stranger who joined by other means got their wish);
+# and the need must still hold. Records that fail this are pruned silently / closed with "no longer needed".
+pantheon_prayer_eligible_here_trigger = {
+	pantheon_prayer_open_here_trigger = { GOD = $GOD$ }
+	OR = {
+		AND = {
+			var:pantheon_prayer_origin = 1
+			faith = $GOD$.faith
+		}
+		AND = {
+			var:pantheon_prayer_origin = 2
+			NOT = { faith = $GOD$.faith }
+		}
+	}
+	pantheon_prayer_need_valid_trigger = yes
+}
+
+# In the GOD's scope (root = the god), with scope:pantheon_suppliant: is there an open record for them?
+pantheon_prayer_is_open_trigger = {
+	exists = scope:pantheon_suppliant
+	scope:pantheon_suppliant = { pantheon_prayer_open_here_trigger = { GOD = root } }
+}
+
+# In the god's scope, with scope:pantheon_suppliant: open and still answerable (see the _here_ trigger).
+pantheon_prayer_is_eligible_trigger = {
+	exists = scope:pantheon_suppliant
+	scope:pantheon_suppliant = { pantheon_prayer_eligible_here_trigger = { GOD = root } }
+}
+
+# In the god's scope: no token was delivered (a front-end that has none, like the Prayers tab), or the delivered
+# token (scope:pantheon_prayer_delivered) is the one on the suppliant's record. A stale event for a prayer that was
+# closed and later reopened fails this.
+pantheon_prayer_token_ok_trigger = {
+	OR = {
+		NOT = { exists = scope:pantheon_prayer_delivered }
+		scope:pantheon_suppliant = {
+			has_variable = pantheon_prayer_token
+			var:pantheon_prayer_token = scope:pantheon_prayer_delivered
+		}
+	}
+}
+
+# ---- 2.3 B4: the pending send (sending mode). On the god: pantheon_send_kind (1 Host prayer, 2 Spouse prayer,
+# 3 Retribution), pantheon_send_recipient, pantheon_send_token (the prayer's token; B5: the Retribution record's).
+# Fix round 1: for kind 3 the recipient stays the DEFENDER (the demigod is lent to them) and pantheon_send_call is the
+# ATTACKER whose call (the record key) the send answers.
+
+# In the SUPPLIANT's scope; $GOD$ is the god (root): the prayer is open and eligible, is the very prayer the pending
+# send was started for (same token), and still brings $NEED$ (1 Host, 8 Spouse).
+pantheon_send_prayer_source_here_trigger = {
+	pantheon_prayer_eligible_here_trigger = { GOD = $GOD$ }
+	has_variable = pantheon_prayer_token
+	var:pantheon_prayer_token = $GOD$.var:pantheon_send_token
+	var:pantheon_prayer_need = $NEED$
+}
+
+# In the GOD's scope (root = the god): is the pending send still backed by a live source? Used by the window rebuild
+# (drops a send that fails), by the Send button and by the send effect.
+pantheon_send_source_ok_trigger = {
+	has_variable = pantheon_send_kind
+	has_variable = pantheon_send_recipient
+	has_variable = pantheon_send_token
+	var:pantheon_send_recipient ?= { is_alive = yes }
+	trigger_if = {
+		limit = { var:pantheon_send_kind = 3 }
+		# 2.3 B5: the call (the ATTACKER the send began for) is still OPEN and LIVE with the very token the send began with
+		has_variable = pantheon_send_call
+		var:pantheon_send_call ?= {
+			pantheon_retri_live_here_trigger = { GOD = root }
+			var:pantheon_retri_token = root.var:pantheon_send_token
+		}
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_send_kind = 1 }
+		var:pantheon_send_recipient ?= { pantheon_send_prayer_source_here_trigger = { GOD = root NEED = 1 } }
+	}
+	trigger_else = {
+		var:pantheon_send_recipient ?= { pantheon_send_prayer_source_here_trigger = { GOD = root NEED = 8 } }
+	}
+}
+
+# ---- 2.3 B5: Retribution records (R10, R19). On the ATTACKER: pantheon_retri_defender, pantheon_retri_token (from the
+# god's counter pantheon_retri_seq); on the god: the list pantheon_open_retributions (ATTACKERS). One open call per
+# attacker (fix round 1). The war itself is not stored: a call is LIVE while both are alive, the defender is still of the
+# god's faith and the attacker is at war with the defender (is_at_war_with ignores lieges' wars; the attacker's faith is
+# irrelevant).
+
+# In the ATTACKER's scope; $GOD$ is the god (pass root or a saved scope, never `this`): an open call, on the god's list.
+pantheon_retri_open_here_trigger = {
+	is_alive = yes
+	has_variable = pantheon_retri_token
+	has_variable = pantheon_retri_defender
+	$GOD$ = { is_target_in_variable_list = { name = pantheon_open_retributions target = prev } }
+}
+
+# In the ATTACKER's scope: open AND live (see above). Records that fail this are pruned silently.
+pantheon_retri_live_here_trigger = {
+	pantheon_retri_open_here_trigger = { GOD = $GOD$ }
+	var:pantheon_retri_defender ?= {
+		is_alive = yes
+		faith = $GOD$.faith
+	}
+	is_at_war_with = var:pantheon_retri_defender
+}
+
+# In the GOD's scope (root = the god): the Retribution chain's identity -- scope:pantheon_retri_defender,
+# scope:pantheon_retri_attacker and the value scope:pantheon_retri_token, all PERSISTENT saved scopes carried by 0080,
+# 0070-0073 and every effect they run -- still names the attacker's open, live call with the same token and defender.
+# A replaced call (new token), an ended war, a dead side or a defender who left the faith all fail it.
+pantheon_retri_chain_ok_trigger = {
+	exists = scope:pantheon_retri_defender
+	exists = scope:pantheon_retri_attacker
+	exists = scope:pantheon_retri_token
+	scope:pantheon_retri_attacker = {
+		pantheon_retri_live_here_trigger = { GOD = root }
+		var:pantheon_retri_token = scope:pantheon_retri_token
+		var:pantheon_retri_defender = scope:pantheon_retri_defender
+	}
+}
+
+# ---- 2.3 B5: wrath context (R18). scope:pantheon_wrath_ctx (a persistent saved value, set by the entry route and
+# carried through the page chain): 1 sworn oath, 2 Retribution call, 3 Judgement interaction, 4 Lands interaction.
+
+pantheon_wrath_ctx_is_retri_trigger = {
+	exists = scope:pantheon_wrath_ctx
+	scope:pantheon_wrath_ctx = 2
+}
+
+pantheon_wrath_ctx_is_oath_trigger = {
+	exists = scope:pantheon_wrath_ctx
+	scope:pantheon_wrath_ctx = 1
+}
+
+# Root = the god. A wrath page (0070-0073) may open: a Retribution chain must still match its call (context 2 + token);
+# any chain needs its victim alive -- the saved victim when the chain has one, else the god's variable (the route that
+# sets it before the first page).
+pantheon_wrath_page_ok_trigger = {
+	trigger_if = {
+		limit = { pantheon_wrath_ctx_is_retri_trigger = yes }
+		pantheon_retri_chain_ok_trigger = yes
+	}
+	trigger_if = {
+		limit = { exists = scope:pantheon_victim }
+		scope:pantheon_victim = { is_alive = yes }
+	}
+	trigger_else = {
+		exists = var:pantheon_wrath_target
+		var:pantheon_wrath_target = { is_alive = yes }
+	}
+}
+
+# Root = the god. A wrath may still be carried out: a Retribution chain re-validates its call right before it charges.
+pantheon_wrath_mutation_ok_trigger = {
+	trigger_if = {
+		limit = { pantheon_wrath_ctx_is_retri_trigger = yes }
+		pantheon_retri_chain_ok_trigger = yes
+	}
+	trigger_else = {
+		always = yes
+	}
+}
+
+# Root = the god. The page belongs to the SWORN OATH (context 1) and its victim is the sworn offender: only then does
+# Stay break the oath.
+# 2.3 review fix: a 2.2.2 sworn page that was already on screen when the save loaded has no saved context; it counts as
+# the sworn oath's page too (narrowly: NO saved context at all, an oath is active and the page's victim is its offender).
+pantheon_wrath_oath_page_trigger = {
+	OR = {
+		pantheon_wrath_ctx_is_oath_trigger = yes
+		# a legacy page: no saved context, and not a 2.2.2 Retribution page (those carry scope:pantheon_defender)
+		AND = {
+			NOT = { exists = scope:pantheon_wrath_ctx }
+			NOT = { exists = scope:pantheon_defender }
+		}
+	}
+	has_variable = pantheon_great_prayer_active
+	exists = scope:pantheon_victim
+	var:pantheon_great_prayer_offender ?= scope:pantheon_victim
+}
+
+# 2.3 review fix: the page restrictions are derived from the page's OWN saved context, never from god-wide flags that
+# another open page's route could overwrite. Root = the god, scope:pantheon_victim the page's victim.
+# Harsh (only Strike or Maim offered): the sworn oath's page (context 1, or a legacy one) about the sworn offender, when
+# the oath is harsh. A Retribution page (context 2) is never restricted.
+pantheon_wrath_page_harsh_trigger = {
+	pantheon_wrath_oath_page_trigger = yes
+	pantheon_oath_harsh_trigger = yes
+}
+
+# Light (only Curse or Maim): the Judgement route (context 3) on a sin-only recipient -- a sin weighs less than a crime.
+pantheon_wrath_page_light_trigger = {
+	exists = scope:pantheon_wrath_ctx
+	scope:pantheon_wrath_ctx = 3
+	exists = scope:pantheon_victim
+	scope:pantheon_victim = { pantheon_sin_only_trigger = { GOD = root } }
+}
+
+# Root = the god. Is the sworn oath a harsh one (a torture: only Strike or Maim fulfils it)? The persistent
+# pantheon_great_prayer_harsh, or -- for an oath sworn before 2.3 and not yet migrated -- the old page flag.
+pantheon_oath_harsh_trigger = {
+	OR = {
+		has_variable = pantheon_great_prayer_harsh
+		AND = {
+			NOT = { has_variable = pantheon_great_prayer_kind }
+			has_variable = pantheon_wrath_harsh
+		}
+	}
+}

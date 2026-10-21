@@ -1,0 +1,290 @@
+﻿# Pantheon of One 2.3 (B5): Retribution calls as RECORDS (R10, R19). A war that triggers Divine Retribution no longer
+# lives in two single slots on the god (pantheon_wrath_target / pantheon_retribution_defender, which two wars at once
+# overwrote): it is a record on the ATTACKER plus membership in the god's variable list.
+#
+#   On the attacker:  pantheon_retri_defender, pantheon_retri_token (a number from the god's counter pantheon_retri_seq)
+#   On the god:       pantheon_retri_seq, the list pantheon_open_retributions (ATTACKERS)
+#
+# One open call per ATTACKER (fix round 1: keyed on the defender, a second attacker on the same god or follower replaced
+# the first call and left one row); a newer war by the same attacker replaces it (its token changes, so anything still
+# carrying the old one fails pantheon_retri_chain_ok_trigger). Two attackers on one defender are two calls. The rarer
+# collision is the other way round: one attacker fighting two defenders of the faith at once keeps only the newest call.
+# A call is LIVE while both are alive, the defender is of the god's faith and at war with the attacker
+# (pantheon_retri_live_here_trigger, run in the attacker's scope); anything else is pruned silently.
+#
+# The chain's identity is three PERSISTENT saved scopes: scope:pantheon_retri_defender, scope:pantheon_retri_attacker and
+# the value scope:pantheon_retri_token. They ride through 0080, 0070-0073 and the answer effects (trigger_event copies
+# them), so every page and every mutation re-validates the same call. Whoever sets them clears them again afterwards:
+# a saved scope would also ride into the recurring timer chains. Root/this is the god in every effect below.
+
+# Forget the delivered identity scopes (a no-op when absent).
+pantheon_retri_clear_scopes_effect = {
+	if = {
+		limit = { exists = scope:pantheon_retri_defender }
+		clear_saved_scope = pantheon_retri_defender
+	}
+	if = {
+		limit = { exists = scope:pantheon_retri_attacker }
+		clear_saved_scope = pantheon_retri_attacker
+	}
+	if = {
+		limit = { exists = scope:pantheon_retri_token }
+		clear_saved_scope = pantheon_retri_token
+	}
+}
+
+# Forget the page-side scopes a Retribution answer set up (victim, defender, context).
+pantheon_retri_clear_frame_effect = {
+	if = {
+		limit = { exists = scope:pantheon_victim }
+		clear_saved_scope = pantheon_victim
+	}
+	if = {
+		limit = { exists = scope:pantheon_defender }
+		clear_saved_scope = pantheon_defender
+	}
+	if = {
+		limit = { exists = scope:pantheon_wrath_ctx }
+		clear_saved_scope = pantheon_wrath_ctx
+	}
+}
+
+# Close the call of the ATTACKER $WHO$ (a scope reference), silently: off the god's list, the record's variables cleared,
+# and a pending send for exactly this call dropped (a send for another call or a prayer is left alone). Idempotent.
+# Never refreshes the window (the rebuild prunes through here).
+pantheon_retri_close_core_effect = {
+	if = {
+		limit = {
+			has_variable = pantheon_send_kind
+			has_variable = pantheon_send_call
+			var:pantheon_send_kind = 3
+			var:pantheon_send_call = $WHO$
+		}
+		pantheon_send_clear_effect = yes
+	}
+	if = {
+		limit = { is_target_in_variable_list = { name = pantheon_open_retributions target = $WHO$ } }
+		remove_list_variable = { name = pantheon_open_retributions target = $WHO$ }
+	}
+	$WHO$ = {
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_token }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_defender }
+	}
+}
+
+# Close the call the chain names -- ONLY if the chain still matches it (same token and defender, live): a replaced call
+# or a stale page closes nothing. Called when an answer is committed. Refreshes an open window afterwards, so the row
+# of the closed call goes at once (never call this from the prune or the rebuild).
+pantheon_retri_close_matching_effect = {
+	if = {
+		limit = { pantheon_retri_chain_ok_trigger = yes }
+		pantheon_retri_close_core_effect = { WHO = scope:pantheon_retri_attacker }
+		pantheon_ui_refresh_if_open_effect = yes
+	}
+}
+
+# Drop every call that is no longer live (a dead side, a war that ended, a defender who left the faith), silently. The
+# stale ones are gathered first and closed afterwards: a list is never edited while it is walked. Called by the window
+# rebuild and the god's monthly upkeep.
+pantheon_retri_prune_effect = {
+	save_temporary_scope_as = pantheon_retri_god
+	every_in_list = {
+		variable = pantheon_open_retributions
+		limit = { NOT = { pantheon_retri_live_here_trigger = { GOD = scope:pantheon_retri_god } } }
+		add_to_temporary_list = pantheon_retri_stale
+	}
+	every_in_list = {
+		list = pantheon_retri_stale
+		save_temporary_scope_as = pantheon_retri_stale_one
+		scope:pantheon_retri_god = {
+			pantheon_retri_close_core_effect = { WHO = scope:pantheon_retri_stale_one }
+		}
+	}
+}
+
+# The monthly upkeep (pantheon.0011).
+pantheon_retri_upkeep_effect = {
+	pantheon_retri_prune_effect = yes
+}
+
+# Write the record for scope:pantheon_retri_defender / scope:pantheon_retri_attacker: a fresh token from the god's counter
+# (left as scope:pantheon_retri_token), an older call of the same ATTACKER closed first (the newer replaces it), the
+# attacker's two variables and the list entry.
+pantheon_retri_write_effect = {
+	if = {
+		limit = { NOT = { has_variable = pantheon_retri_seq } }
+		set_variable = { name = pantheon_retri_seq value = 0 }
+	}
+	change_variable = { name = pantheon_retri_seq add = 1 }
+	if = {
+		limit = { scope:pantheon_retri_attacker = { has_variable = pantheon_retri_token } }
+		pantheon_retri_close_core_effect = { WHO = scope:pantheon_retri_attacker }
+	}
+	if = {
+		limit = { exists = scope:pantheon_retri_token }
+		clear_saved_scope = pantheon_retri_token
+	}
+	save_scope_value_as = {
+		name = pantheon_retri_token
+		value = {
+			value = var:pantheon_retri_seq
+		}
+	}
+	scope:pantheon_retri_attacker = {
+		set_variable = { name = pantheon_retri_defender value = scope:pantheon_retri_defender }
+		set_variable = { name = pantheon_retri_token value = scope:pantheon_retri_token }
+	}
+	if = {
+		limit = { NOT = { is_target_in_variable_list = { name = pantheon_open_retributions target = scope:pantheon_retri_attacker } } }
+		add_to_variable_list = { name = pantheon_open_retributions target = scope:pantheon_retri_attacker }
+	}
+}
+
+# on_war_started, once the war has been judged a Retribution (pantheon_retribution_war_trigger): open the call and show
+# pantheon.0080 carrying the defender, the attacker and the token. scope:attacker / scope:defender are the war's.
+pantheon_retri_open_effect = {
+	pantheon_retri_clear_scopes_effect = yes
+	scope:defender = { save_scope_as = pantheon_retri_defender }
+	scope:attacker = { save_scope_as = pantheon_retri_attacker }
+	pantheon_retri_write_effect = yes
+	trigger_event = pantheon.0080
+	pantheon_retri_clear_scopes_effect = yes
+}
+
+# Set up the wrath chain's own scopes from the identity scopes: the aggressor is the one struck (scope:pantheon_victim),
+# the defender is scope:pantheon_defender, the context is 2 (a value, carried through the pages) and the god's page
+# restrictions start clear. Idempotent. Called by 0080's immediate and by every tab answer.
+pantheon_retri_frame_effect = {
+	pantheon_retri_clear_frame_effect = yes
+	scope:pantheon_retri_attacker = { save_scope_as = pantheon_victim }
+	scope:pantheon_retri_defender = { save_scope_as = pantheon_defender }
+	save_scope_value_as = { name = pantheon_wrath_ctx value = 2 }
+	pantheon_wrath_set_context_effect = { CTX = 2 }
+}
+
+# A Prayers-tab button (scope:pantheon_retri_attacker = the row): read the defender and token off the attacker's record
+# into the identity scopes and frame the chain. Does nothing if the row has no record any more.
+pantheon_retri_enter_effect = {
+	pantheon_retri_clear_frame_effect = yes
+	if = {
+		limit = { exists = scope:pantheon_retri_defender }
+		clear_saved_scope = pantheon_retri_defender
+	}
+	if = {
+		limit = { exists = scope:pantheon_retri_token }
+		clear_saved_scope = pantheon_retri_token
+	}
+	if = {
+		limit = {
+			scope:pantheon_retri_attacker = {
+				has_variable = pantheon_retri_token
+				has_variable = pantheon_retri_defender
+			}
+		}
+		scope:pantheon_retri_attacker.var:pantheon_retri_defender = { save_scope_as = pantheon_retri_defender }
+		save_scope_value_as = {
+			name = pantheon_retri_token
+			value = {
+				value = scope:pantheon_retri_attacker.var:pantheon_retri_token
+			}
+		}
+		pantheon_retri_frame_effect = yes
+	}
+}
+
+# 2.2.2 saves: a pending pantheon.0080 only has the god's two single slots. If no token came with the event and the slots
+# are there, turn them into a record once (when that war is still on), frame it, and forget the slot
+# pantheon_retribution_defender (nothing writes it any more). pantheon_wrath_target is left alone: Judgement and the
+# sworn oath still use it. Run first by 0080's immediate and by every answer option of an event already on screen.
+pantheon_retri_adopt_legacy_effect = {
+	if = {
+		limit = {
+			NOT = { exists = scope:pantheon_retri_token }
+			exists = var:pantheon_wrath_target
+			exists = var:pantheon_retribution_defender
+		}
+		pantheon_retri_clear_scopes_effect = yes
+		var:pantheon_retribution_defender ?= { save_scope_as = pantheon_retri_defender }
+		var:pantheon_wrath_target ?= { save_scope_as = pantheon_retri_attacker }
+		if = {
+			limit = {
+				scope:pantheon_retri_attacker = { is_alive = yes }
+				scope:pantheon_retri_defender = {
+					is_alive = yes
+					faith = root.faith
+					is_at_war_with = scope:pantheon_retri_attacker
+				}
+			}
+			pantheon_retri_write_effect = yes
+			pantheon_retri_frame_effect = yes
+		}
+		else = {
+			pantheon_retri_clear_scopes_effect = yes
+		}
+		remove_variable = pantheon_retribution_defender
+	}
+}
+
+# Every 0080 answer starts here: adopt a legacy event's slots (once), then frame the chain if it has identity scopes.
+pantheon_retri_prepare_effect = {
+	pantheon_retri_adopt_legacy_effect = yes
+	if = {
+		limit = {
+			exists = scope:pantheon_retri_defender
+			exists = scope:pantheon_retri_attacker
+			exists = scope:pantheon_retri_token
+		}
+		pantheon_retri_frame_effect = yes
+	}
+}
+
+# ---- The answers. Each re-validates the call (pantheon_retri_chain_ok_trigger) before it mutates, and closes ONLY the
+# matching call once it is committed. Shared by pantheon.0080's options and the Prayers tab's buttons.
+
+# Smite the aggressor: open the person page (0071) in context 2; the call closes when a wrath lands (pantheon_wrath_landed_effect).
+pantheon_retri_answer_smite_effect = {
+	if = {
+		limit = { pantheon_retri_chain_ok_trigger = yes }
+		trigger_event = pantheon.0071
+	}
+}
+
+# Curse their lands: the disaster wrath (it closes the call itself when it lands).
+pantheon_retri_answer_lands_effect = {
+	if = {
+		limit = { pantheon_retri_chain_ok_trigger = yes }
+		pantheon_wrath_disaster_effect = yes
+	}
+}
+
+# Send the Host: closes the call when the effect has run.
+pantheon_retri_answer_host_effect = {
+	if = {
+		limit = { pantheon_retri_chain_ok_trigger = yes }
+		pantheon_retribution_host_effect = yes
+		pantheon_retri_close_matching_effect = yes
+	}
+}
+
+# Send a child: starts sending mode (kind 3) for this call (the defender receives the demigod; pantheon_send_call names
+# the attacker whose call it answers); the call stays open until the Send runs
+# (pantheon_send_finish_effect closes it), so Cancel leaves it answerable.
+pantheon_retri_answer_send_effect = {
+	if = {
+		limit = { pantheon_retri_chain_ok_trigger = yes }
+		pantheon_begin_send_call_effect = {
+			RECIPIENT = scope:pantheon_retri_defender
+			TOKEN = scope:pantheon_retri_token
+			CALL = scope:pantheon_retri_attacker
+		}
+	}
+}
+
+# Let mortals settle it: closes the call at once.
+pantheon_retri_answer_mortals_effect = {
+	if = {
+		limit = { pantheon_retri_chain_ok_trigger = yes }
+		pantheon_retribution_mortals_effect = yes
+		pantheon_retri_close_matching_effect = yes
+	}
+}

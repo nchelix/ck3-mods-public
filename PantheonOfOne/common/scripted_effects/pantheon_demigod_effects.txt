@@ -457,3 +457,18 @@ pantheon_repair_221_effect = {
 		}
 	}
 }
+
+# ---- 2.3 B4 ----------------------------------------------------------------------------------------------
+
+# Wed the chosen demigod to the chosen spouse AND remember whom (pantheon_wed_spouse, shown on the Children tab), set
+# only if the wedding happened. Root is the god; vars pantheon_demigod_host, pantheon_chosen_demigod and
+# pantheon_chosen_spouse as for pantheon.0103, which calls this, and the Children tab's Send.
+pantheon_wed_recorded_effect = {
+	pantheon_wed_demigod_effect = yes
+	var:pantheon_chosen_demigod = {
+		if = {
+			limit = { has_variable = pantheon_wed_to_house }
+			set_variable = { name = pantheon_wed_spouse value = root.var:pantheon_chosen_spouse }
+		}
+	}
+}

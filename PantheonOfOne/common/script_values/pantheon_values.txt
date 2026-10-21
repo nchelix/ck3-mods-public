@@ -629,14 +629,54 @@ pantheon_worship_after_temple_next_cost = {
 	subtract = pantheon_temple_next_cost
 }
 
-# The prayer event stores its prices when it opens (the suppliant cannot be read from button text, error.log 1.3
-# test); the check, the hover and the debit all read these two stored numbers.
-pantheon_worship_after_prayer = {
-	value = var:pantheon_worship
-	subtract = var:pantheon_prayer_cost_now
+# 2.3: how many prayers, Retribution calls and sworn oaths wait on the god. The Prayers tab's sub-tabs show one each
+# (fix round 2, H3); pantheon_ui_open_prayer_count is their sum (the tab label, the Pantheon button's badge and the alert).
+# The lists pantheon_open_prayers / pantheon_open_retributions are created by the records; until then they are absent and
+# these are 0. Counted by thresholds (up to 8 of each; the prayer cap is 6). variable_list_size on a list that does not
+# exist is an error (error.log, fix round 1): the whole ladder is guarded.
+pantheon_ui_count_prayers = {
+	value = 0
+	if = {
+		limit = { has_variable_list = pantheon_open_prayers }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 1 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 2 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 3 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 4 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 5 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 6 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 7 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_prayers value >= 8 } } add = 1 }
+	}
 }
 
-pantheon_worship_after_sign = {
-	value = var:pantheon_worship
-	subtract = var:pantheon_prayer_sign_now
+# the open Retribution calls (the list holds the attackers)
+pantheon_ui_count_retris = {
+	value = 0
+	if = {
+		limit = { has_variable_list = pantheon_open_retributions }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 1 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 2 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 3 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 4 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 5 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 6 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 7 } } add = 1 }
+		if = { limit = { variable_list_size = { name = pantheon_open_retributions value >= 8 } } add = 1 }
+	}
+}
+
+# fix round 2 (H2): a sworn oath is one more thing waiting on the god
+pantheon_ui_count_great = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_great_prayer_active }
+		add = 1
+	}
+}
+
+pantheon_ui_open_prayer_count = {
+	value = 0
+	add = pantheon_ui_count_prayers
+	add = pantheon_ui_count_retris
+	add = pantheon_ui_count_great
 }

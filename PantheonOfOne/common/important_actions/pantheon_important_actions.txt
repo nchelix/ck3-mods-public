@@ -1,0 +1,22 @@
+﻿# Fix round 2 (H5): the alert diamond at the top of the screen while prayers, Retribution calls or a sworn oath wait on
+# the god (the same count as the Pantheon button's badge). Format: game/common/important_actions/_important_actions.info.
+# The click cannot open the window (it opens through a game-state variable, and important-action effects are interface
+# effects only), so the effect is empty and the _click line says where to go. Icon: gfx/interface/icons/alerts/<key>.dds.
+action_pantheon_prayers_waiting = {
+	type = alert
+
+	check_create_action = {
+		if = {
+			limit = {
+				has_trait = pantheon_divine
+				pantheon_ui_open_prayer_count > 0
+			}
+			try_create_important_action = {
+				important_action_type = action_pantheon_prayers_waiting
+				actor = root
+			}
+		}
+	}
+
+	effect = {}
+}

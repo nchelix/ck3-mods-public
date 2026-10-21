@@ -279,6 +279,10 @@ pantheon.0011 = {
 		# demigod upkeep (the blocked_from_leaving flag and the bastard safety net) runs every month
 		pantheon_repair_221_effect = yes
 		pantheon_demigod_upkeep_effect = yes
+		# 2.3 (B5): Retribution calls that are no longer live go silently; a sworn oath is migrated, and released if its
+		# offender no longer exists (the safety net behind the on_death hook)
+		pantheon_retri_upkeep_effect = yes
+		pantheon_oath_upkeep_effect = yes
 		# 2.2 R6: the Great Temple's build timer is a months-left counter counted down here, not a delayed
 		# event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215) nor a date (no vanilla
 		# precedent for adding days to current_date); completion when it reaches 0.

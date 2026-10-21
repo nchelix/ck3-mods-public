@@ -91,8 +91,16 @@ pantheon.0065 = {
 		animation = anger
 	}
 
+	# 2.3 review fix: greyed while another oath is outstanding (one oath at a time; the effect re-checks)
 	option = {
 		name = pantheon.0065.swear
+		trigger = {
+			custom_tooltip = {
+				text = pantheon.0065.swear_busy_tt
+				NOT = { has_variable = pantheon_great_prayer_active }
+			}
+		}
+		show_as_unavailable = { always = yes }
 		custom_tooltip = pantheon.0065.swear.tt
 		hidden_effect = { pantheon_swear_vengeance_effect = yes }
 	}

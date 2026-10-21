@@ -118,16 +118,60 @@ pantheon_pick_great_prayer_effect = {
 
 # Swear vengeance: the sworn state lives on the god (it must survive the Judgement page chain), and Judgement
 # opens at the offender with every wrath on offer (no sin-only limit; the cooldown is not re-checked there).
+# 2.3 (R8, R17, R18): the wrong is SNAPSHOT at swearing (pantheon_great_prayer_kind 1-5, 0 = unknown) and so is whether it
+# is harsh (pantheon_great_prayer_harsh, a torture: answered only by Strike down or Maim, user 2026-10-05) -- the page
+# restrictions are derived by the page triggers from the page's saved context (pantheon_wrath_page_harsh_trigger), not stored.
 pantheon_swear_vengeance_effect = {
-	pantheon_end_oath_effect = yes
-	set_variable = { name = pantheon_great_prayer_active value = yes }
-	set_variable = { name = pantheon_great_prayer_suppliant value = scope:pantheon_great_suppliant }
-	set_variable = { name = pantheon_great_prayer_offender value = scope:pantheon_great_offender }
-	set_variable = { name = pantheon_wrath_target value = scope:pantheon_great_offender }
-	if = { limit = { has_variable = pantheon_wrath_light } remove_variable = pantheon_wrath_light }
-	# A torture is answered only by Strike down or Maim (user, 2026-10-05)
-	if = { limit = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 5 } } set_variable = { name = pantheon_wrath_harsh value = yes } }
-	trigger_event = pantheon.0070
+	# 2.3 review fix: a live oath is never replaced. A Great Prayer event that was already open when another oath was sworn
+	# (the option is greyed, but an event on screen is not re-evaluated) does nothing here; the prayer stays unanswered
+	# (Refuse it, or swear once the first oath is over).
+	if = {
+		limit = { NOT = { has_variable = pantheon_great_prayer_active } }
+		pantheon_end_oath_effect = yes
+		set_variable = { name = pantheon_great_prayer_active value = yes }
+		set_variable = { name = pantheon_great_prayer_suppliant value = scope:pantheon_great_suppliant }
+		set_variable = { name = pantheon_great_prayer_offender value = scope:pantheon_great_offender }
+		set_variable = { name = pantheon_great_prayer_kind value = 0 }
+		if = {
+			limit = { scope:pantheon_great_suppliant = { has_variable = pantheon_grievance_kind } }
+			set_variable = { name = pantheon_great_prayer_kind value = scope:pantheon_great_suppliant.var:pantheon_grievance_kind }
+		}
+		if = {
+			limit = { var:pantheon_great_prayer_kind = 5 }
+			set_variable = { name = pantheon_great_prayer_harsh value = yes }
+		}
+		set_variable = { name = pantheon_wrath_target value = scope:pantheon_great_offender }
+		pantheon_wrath_set_context_effect = { CTX = 1 }
+		pantheon_wrath_save_ctx_effect = { CTX = 1 }
+		trigger_event = pantheon.0070
+		if = {
+			limit = { exists = scope:pantheon_wrath_ctx }
+			clear_saved_scope = pantheon_wrath_ctx
+		}
+	}
+}
+
+# 2.3: the Prayers tab's "Open the Judgement" on the sworn oath: re-open the sworn page (pantheon.0070) on the offender in
+# context 1. The page's option triggers derive the restrictions from its context and the oath, so another route cannot block it.
+# Does nothing if the oath is gone or its offender is dead. Root is the god.
+pantheon_oath_open_judgement_effect = {
+	if = {
+		limit = {
+			has_variable = pantheon_great_prayer_active
+			var:pantheon_great_prayer_offender ?= { is_alive = yes }
+		}
+		if = {
+			limit = { exists = scope:pantheon_victim }
+			clear_saved_scope = pantheon_victim
+		}
+		var:pantheon_great_prayer_offender ?= { save_scope_as = pantheon_victim }
+		set_variable = { name = pantheon_wrath_target value = scope:pantheon_victim }
+		pantheon_wrath_set_context_effect = { CTX = 1 }
+		pantheon_wrath_save_ctx_effect = { CTX = 1 }
+		trigger_event = pantheon.0070
+		clear_saved_scope = pantheon_victim
+		clear_saved_scope = pantheon_wrath_ctx
+	}
 }
 
 # Refuse a Great Prayer: -30 and the refused-prayer opinion.
@@ -180,14 +224,88 @@ pantheon_broken_oath_effect = {
 	}
 	set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
 	pantheon_end_oath_effect = yes
+	pantheon_ui_refresh_if_open_effect = yes
 }
 
-# The oath is over (answered, broken, or replaced by a fresh Judgement or Retribution).
+# The oath is over: fulfilled, broken (Stay), released (the offender died) or replaced by a newly sworn one. 2.3 (R8): no
+# Judgement, Lands or Retribution route ends it any more -- a wrath on someone else leaves it open.
 pantheon_end_oath_effect = {
 	if = { limit = { has_variable = pantheon_great_prayer_active } remove_variable = pantheon_great_prayer_active }
 	if = { limit = { has_variable = pantheon_great_prayer_suppliant } remove_variable = pantheon_great_prayer_suppliant }
 	if = { limit = { has_variable = pantheon_great_prayer_offender } remove_variable = pantheon_great_prayer_offender }
+	if = { limit = { has_variable = pantheon_great_prayer_kind } remove_variable = pantheon_great_prayer_kind }
+	if = { limit = { has_variable = pantheon_great_prayer_harsh } remove_variable = pantheon_great_prayer_harsh }
 	if = { limit = { has_variable = pantheon_wrath_harsh } remove_variable = pantheon_wrath_harsh }
+}
+
+# 2.3 (R17): the sworn offender died by any other means than a wrath that already fulfilled the oath: it is released, with no
+# penalty and no cooldown, and the god is told once. The suppliant's grievance, which named the dead, is forgotten.
+# Root is the god. Called by the ungated on_death hook (pantheon_on_death_oath) and by the monthly safety net.
+pantheon_oath_release_effect = {
+	if = {
+		limit = { has_variable = pantheon_great_prayer_active }
+		save_temporary_scope_as = pantheon_oath_god
+		if = {
+			limit = { exists = scope:pantheon_target }
+			clear_saved_scope = pantheon_target
+		}
+		var:pantheon_great_prayer_suppliant ?= { if = { limit = { is_alive = yes } save_scope_as = pantheon_target } }
+		if = {
+			limit = { exists = scope:pantheon_target }
+			scope:pantheon_target = { pantheon_clear_grievance_effect = yes }
+			send_interface_toast = {
+				type = event_toast_effect_neutral
+				title = pantheon_oath_released_t
+				left_icon = scope:pantheon_target
+			}
+		}
+		else = {
+			send_interface_toast = {
+				type = event_toast_effect_neutral
+				title = pantheon_oath_released_t
+				left_icon = scope:pantheon_oath_god
+			}
+		}
+		pantheon_end_oath_effect = yes
+		pantheon_ui_refresh_if_open_effect = yes
+	}
+}
+
+# 2.3: an oath sworn before 2.3 has no snapshot. Save it once: the wrong from the suppliant's grievance if it is still there
+# (else 0 = unknown, shown as "the wrong done to them"), and harshness from the old page flag. Root is the god. Run by
+# the monthly upkeep, the window rebuild, and every route that is about to clear the page flags.
+pantheon_oath_migrate_effect = {
+	if = {
+		limit = {
+			has_variable = pantheon_great_prayer_active
+			NOT = { has_variable = pantheon_great_prayer_kind }
+		}
+		set_variable = { name = pantheon_great_prayer_kind value = 0 }
+		if = {
+			limit = { var:pantheon_great_prayer_suppliant ?= { has_variable = pantheon_grievance_kind } }
+			set_variable = { name = pantheon_great_prayer_kind value = var:pantheon_great_prayer_suppliant.var:pantheon_grievance_kind }
+		}
+		if = {
+			limit = {
+				has_variable = pantheon_wrath_harsh
+				NOT = { has_variable = pantheon_great_prayer_harsh }
+			}
+			set_variable = { name = pantheon_great_prayer_harsh value = yes }
+		}
+	}
+}
+
+# The god's monthly upkeep (pantheon.0011): migrate an old oath, and release one whose offender no longer exists (the
+# safety net behind the on_death hook).
+pantheon_oath_upkeep_effect = {
+	pantheon_oath_migrate_effect = yes
+	if = {
+		limit = {
+			has_variable = pantheon_great_prayer_active
+			NOT = { var:pantheon_great_prayer_offender ?= { is_alive = yes } }
+		}
+		pantheon_oath_release_effect = yes
+	}
 }
 
 # A sworn Great Prayer, answered (called from pantheon_wrath_landed_effect, after the 1.4 Devotion sweep and
@@ -229,4 +347,5 @@ pantheon_great_prayer_answered_effect = {
 	}
 	set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
 	pantheon_end_oath_effect = yes
+	pantheon_ui_refresh_if_open_effect = yes
 }

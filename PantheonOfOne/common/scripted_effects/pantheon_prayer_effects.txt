@@ -1,0 +1,401 @@
+﻿# Pantheon of One 2.3: persistent prayers (the record model). A prayer is no longer only a pending event: it is a
+# RECORD on the suppliant plus membership in the god's variable list pantheon_open_prayers.
+#
+#   On the suppliant:  pantheon_prayer_open    (presence = open; no timer, so it never silently expires)
+#                      pantheon_prayer_token   (number from the god's counter pantheon_prayer_seq; identity)
+#                      pantheon_prayer_origin  (1 follower, 2 stranger -- decided once, when the prayer opens)
+#                      pantheon_prayer_need / _gift   (as ever, set when they were picked)
+#                      pantheon_prayer_price / _sign_price   (snapshotted when the prayer opens: fixed for its life)
+#                      pantheon_prayer_window  (days = 182, DISPLAY only: the Prayers tab's time left)
+#   On the god:        pantheon_prayer_seq, the list pantheon_open_prayers, and (B4) the pending send
+#                      pantheon_send_kind / _recipient / _token (and, for a Retribution send, _call).
+#
+# The deadline is a hidden event (pantheon.0061) scheduled on the god when the prayer opens, carrying the suppliant
+# and token. Effects below: root/this = the god; scope:pantheon_suppliant = the suppliant; the delivered token is
+# scope:pantheon_prayer_delivered. Both scopes are PERSISTENT saved scopes (a delayed event inherits them), so every
+# caller clears them again afterwards (a saved scope also rides into the recurring pantheon.0050 timer chain).
+
+# Remove one variable from the character in scope, if it is there.
+pantheon_prayer_forget_var_effect = {
+	if = {
+		limit = { has_variable = $NAME$ }
+		remove_variable = $NAME$
+	}
+}
+
+# Open a prayer for scope:pantheon_suppliant, whose pantheon_prayer_need (and gift) are already set. Takes a fresh
+# token from the god's counter and leaves it as scope:pantheon_prayer_delivered (a saved value) for the caller to deliver
+# with the event. Prices are snapshotted here. Also schedules the deadline. A suppliant has at most one open prayer:
+# the caller guarantees it (the pickers skip anyone who prayed in the last 3 years, the legacy adoption requires no
+# open record; a debug helper closes the old one FIRST, because closing clears the need this reads). This does NOT
+# fire pantheon.0060 and does NOT check the cap (the caller does).
+pantheon_prayer_create_effect = {
+	if = {
+		limit = { NOT = { has_variable = pantheon_prayer_seq } }
+		set_variable = { name = pantheon_prayer_seq value = 0 }
+	}
+	change_variable = { name = pantheon_prayer_seq add = 1 }
+	if = {
+		limit = { exists = scope:pantheon_prayer_delivered }
+		clear_saved_scope = pantheon_prayer_delivered
+	}
+	save_scope_value_as = {
+		name = pantheon_prayer_delivered
+		value = {
+			value = var:pantheon_prayer_seq
+		}
+	}
+	# 2.3 review fix: both prices are worked out HERE, in the god's scope (the cost values resolve the temple discount through
+	# the current character's faith head, which for a stranger would be the stranger's), then stored on the suppliant.
+	if = {
+		limit = { exists = scope:pantheon_prayer_price_now }
+		clear_saved_scope = pantheon_prayer_price_now
+	}
+	if = {
+		limit = { exists = scope:pantheon_prayer_sign_price_now }
+		clear_saved_scope = pantheon_prayer_sign_price_now
+	}
+	save_scope_value_as = {
+		name = pantheon_prayer_price_now
+		value = {
+			value = pantheon_prayer_cost
+		}
+	}
+	save_scope_value_as = {
+		name = pantheon_prayer_sign_price_now
+		value = {
+			value = pantheon_prayer_sign_cost
+		}
+	}
+	scope:pantheon_suppliant = {
+		set_variable = { name = pantheon_prayer_open value = yes }
+		set_variable = { name = pantheon_prayer_token value = scope:pantheon_prayer_delivered }
+		set_variable = { name = pantheon_prayer_price value = scope:pantheon_prayer_price_now }
+		set_variable = { name = pantheon_prayer_sign_price value = scope:pantheon_prayer_sign_price_now }
+		set_variable = { name = pantheon_prayer_window value = yes days = 182 }
+		# a follower of this faith, or a stranger of another (decided once; see the eligibility trigger)
+		if = {
+			limit = { faith = prev.faith }
+			set_variable = { name = pantheon_prayer_origin value = 1 }
+		}
+		else = {
+			set_variable = { name = pantheon_prayer_origin value = 2 }
+		}
+	}
+	if = {
+		limit = { NOT = { is_target_in_variable_list = { name = pantheon_open_prayers target = scope:pantheon_suppliant } } }
+		add_to_variable_list = { name = pantheon_open_prayers target = scope:pantheon_suppliant }
+	}
+	# The deadline: six months. It carries scope:pantheon_suppliant and scope:pantheon_prayer_delivered.
+	trigger_event = { id = pantheon.0061 days = 182 }
+}
+
+# Close the prayer record of $WHO$ (a scope reference), silently: off the god's list, the record's variables
+# cleared, and a pending send for exactly this prayer dropped (a send for another prayer or a Retribution call is
+# left alone). Idempotent. Root/this is the god.
+pantheon_prayer_close_core_effect = {
+	if = {
+		limit = {
+			has_variable = pantheon_send_token
+			has_variable = pantheon_send_kind
+			OR = {
+				var:pantheon_send_kind = 1
+				var:pantheon_send_kind = 2
+			}
+			$WHO$ = { has_variable = pantheon_prayer_token }
+			var:pantheon_send_token = $WHO$.var:pantheon_prayer_token
+		}
+		remove_variable = pantheon_send_kind
+		remove_variable = pantheon_send_token
+		if = {
+			limit = { has_variable = pantheon_send_recipient }
+			remove_variable = pantheon_send_recipient
+		}
+	}
+	if = {
+		limit = { is_target_in_variable_list = { name = pantheon_open_prayers target = $WHO$ } }
+		remove_list_variable = { name = pantheon_open_prayers target = $WHO$ }
+	}
+	$WHO$ = {
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_open }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_token }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_origin }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_need }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_gift }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_price }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_sign_price }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_window }
+	}
+}
+
+# Close scope:pantheon_suppliant's prayer. Root/this is the god. An open window is refreshed afterwards (fix round 1), so
+# the row of a prayer closed by an answer, the deadline or a Send goes at once.
+pantheon_prayer_close_effect = {
+	pantheon_prayer_close_core_effect = { WHO = scope:pantheon_suppliant }
+	pantheon_ui_refresh_if_open_effect = yes
+}
+
+# Drop every record that is no longer eligible (suppliant dead, wrong faith for its origin, need gone), silently,
+# before anything counts or lists them. The stale ones are gathered first and closed afterwards: a list is never
+# edited while it is walked. Root/this is the god. Called by pantheon_send_prayer_effect (before the cap is
+# counted) and by the window rebuild.
+pantheon_prayer_prune_effect = {
+	save_temporary_scope_as = pantheon_prayer_god
+	every_in_list = {
+		variable = pantheon_open_prayers
+		limit = { NOT = { pantheon_prayer_eligible_here_trigger = { GOD = scope:pantheon_prayer_god } } }
+		add_to_temporary_list = pantheon_prayer_stale
+	}
+	every_in_list = {
+		list = pantheon_prayer_stale
+		save_temporary_scope_as = pantheon_prayer_stale_one
+		scope:pantheon_prayer_god = {
+			pantheon_prayer_close_core_effect = { WHO = scope:pantheon_prayer_stale_one }
+		}
+	}
+}
+
+# An answer that found the prayer open but no longer needed (the need is gone, or the suppliant changed faith):
+# close it and say so. Only for an answer the player pressed; the deadline and the prune close silently.
+pantheon_prayer_gone_effect = {
+	send_interface_toast = {
+		type = event_toast_effect_neutral
+		title = pantheon_prayer_gone_t
+		left_icon = scope:pantheon_suppliant
+	}
+	pantheon_prayer_close_effect = yes
+}
+
+# pantheon.0061, six months after a prayer opened: if the SAME prayer (same token) is still on the books, settle it
+# exactly once. Invalidation first (a prayer that stopped being eligible is closed silently and never lapses), then
+# the lapse: a follower loses 5 Devotion and the god is told; a stranger's plea only costs a toast. Anything already
+# answered, closed or replaced (token differs or gone) does nothing. Root/this is the god.
+pantheon_prayer_deadline_effect = {
+	if = {
+		limit = {
+			exists = scope:pantheon_suppliant
+			exists = scope:pantheon_prayer_delivered
+			scope:pantheon_suppliant = {
+				has_variable = pantheon_prayer_open
+				has_variable = pantheon_prayer_token
+				var:pantheon_prayer_token = scope:pantheon_prayer_delivered
+			}
+		}
+		if = {
+			limit = { NOT = { pantheon_prayer_is_eligible_trigger = yes } }
+			pantheon_prayer_close_effect = yes
+		}
+		else_if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_origin = 1 } }
+			scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+			pantheon_change_devotion_effect = { AMOUNT = -5 }
+			send_interface_toast = {
+				type = event_toast_effect_bad
+				title = pantheon_prayer_lapsed_t
+				left_icon = scope:pantheon_suppliant
+			}
+			pantheon_prayer_close_effect = yes
+		}
+		else = {
+			send_interface_toast = {
+				type = event_toast_effect_neutral
+				title = pantheon_prayer_lapsed_stranger_t
+				left_icon = scope:pantheon_suppliant
+			}
+			pantheon_prayer_close_effect = yes
+		}
+	}
+}
+
+# 2.2.2 saves: a prayer that was a pending pantheon.0060 with no record. If no token was delivered and
+# scope:pantheon_suppliant has a need but no open record, make the record now (fresh token, snapshotted prices, the
+# normal six-month deadline; it ignores the cap) and forget the old god variable pantheon_suppliant_var. Run once by
+# pantheon.0060's immediate, and first by every answer option of a legacy event that was already on screen.
+pantheon_prayer_adopt_legacy_effect = {
+	if = {
+		limit = {
+			NOT = { exists = scope:pantheon_prayer_delivered }
+			exists = scope:pantheon_suppliant
+			scope:pantheon_suppliant = {
+				is_alive = yes
+				has_variable = pantheon_prayer_need
+				NOT = { has_variable = pantheon_prayer_open }
+			}
+		}
+		pantheon_prayer_create_effect = yes
+		if = {
+			limit = {
+				exists = var:pantheon_suppliant_var
+				var:pantheon_suppliant_var = { this = scope:pantheon_suppliant }
+			}
+			remove_variable = pantheon_suppliant_var
+		}
+	}
+}
+
+# ---- 2.3 B4: the pending send (R7). Root/this is the god. The three variables on the god: pantheon_send_kind (1 Host
+# prayer, 2 Spouse prayer, 3 Retribution), pantheon_send_recipient and pantheon_send_token (kind 3 adds pantheon_send_call,
+# the attacker whose call it answers; the recipient is the defender). A new send replaces an
+# old one (the old source stays open). Closing the source clears a matching one (pantheon_prayer_close_core_effect);
+# Cancel clears it; closing the WINDOW keeps it.
+
+# Forget the pending send, if any.
+pantheon_send_clear_effect = {
+	pantheon_prayer_forget_var_effect = { NAME = pantheon_send_kind }
+	pantheon_prayer_forget_var_effect = { NAME = pantheon_send_recipient }
+	pantheon_prayer_forget_var_effect = { NAME = pantheon_send_token }
+	pantheon_prayer_forget_var_effect = { NAME = pantheon_send_call }
+}
+
+# Start sending mode: store the pending send ($KIND$ 1-2, $RECIPIENT$ a scope reference, $TOKEN$ the source's token),
+# open the window if it is closed, show the Children tab and rebuild. The source (prayer or call) is NOT touched: it
+# stays open and answerable if the send is cancelled.
+pantheon_begin_send_effect = {
+	pantheon_prayer_forget_var_effect = { NAME = pantheon_send_call }
+	set_variable = { name = pantheon_send_kind value = $KIND$ }
+	set_variable = { name = pantheon_send_recipient value = $RECIPIENT$ }
+	set_variable = { name = pantheon_send_token value = $TOKEN$ }
+	pantheon_send_show_effect = yes
+}
+
+# Fix round 1: the Retribution send (kind 3). The demigod is lent to $RECIPIENT$ (the DEFENDER); $CALL$ is the ATTACKER
+# whose call (and $TOKEN$) it answers. All four variables are set BEFORE the rebuild validates the send.
+pantheon_begin_send_call_effect = {
+	set_variable = { name = pantheon_send_kind value = 3 }
+	set_variable = { name = pantheon_send_recipient value = $RECIPIENT$ }
+	set_variable = { name = pantheon_send_token value = $TOKEN$ }
+	set_variable = { name = pantheon_send_call value = $CALL$ }
+	pantheon_send_show_effect = yes
+}
+
+# The window half of both: the Children tab, any armed miracle disarmed, a rebuild, the window opened.
+pantheon_send_show_effect = {
+	set_variable = { name = pantheon_ui_tab value = 2 }
+	pantheon_temple_clear_confirm_effect = yes
+	pantheon_ui_rebuild_effect = yes
+	if = {
+		limit = { NOT = { has_variable = pantheon_ui_open } }
+		set_variable = pantheon_ui_open
+	}
+}
+
+# 2.3 review fix: the ONE way a prayer starts sending mode, for the event's Send option and the Prayers tab's Send button.
+# Root is the god, scope:pantheon_suppliant the prayer's owner. The record must be open and still answerable, and a
+# delivered token (the event path; the tab has none) must be the record's own, so an old event can never start a send for
+# a newer prayer by the same character. Need 1 (Host) = kind 1, need 8 (Spouse) = kind 2; anything else does nothing.
+pantheon_prayer_send_entry_effect = {
+	if = {
+		limit = {
+			pantheon_prayer_is_open_trigger = yes
+			pantheon_prayer_is_eligible_trigger = yes
+			pantheon_prayer_token_ok_trigger = yes
+		}
+		if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
+			pantheon_begin_send_effect = {
+				KIND = 1
+				RECIPIENT = scope:pantheon_suppliant
+				TOKEN = scope:pantheon_suppliant.var:pantheon_prayer_token
+			}
+		}
+		else_if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 } }
+			pantheon_begin_send_effect = {
+				KIND = 2
+				RECIPIENT = scope:pantheon_suppliant
+				TOKEN = scope:pantheon_suppliant.var:pantheon_prayer_token
+			}
+		}
+	}
+}
+
+# Drop the pending send if its source is gone (recipient dead, prayer closed or replaced). Called by the rebuild.
+pantheon_send_validate_effect = {
+	if = {
+		limit = {
+			OR = {
+				has_variable = pantheon_send_kind
+				has_variable = pantheon_send_recipient
+				has_variable = pantheon_send_token
+			}
+			NOT = { pantheon_send_source_ok_trigger = yes }
+		}
+		pantheon_send_clear_effect = yes
+	}
+}
+
+# The Send button of a demigod row (root = the god, scope:pantheon_send_demigod = the row's demigod). Revalidates the
+# source, the demigod and the Worship, then runs what mode 3 / mode 4 did: Host and Retribution lend the demigod as
+# Commander (pantheon_lend_demigod_effect: its own charge and +20 Devotion; with no army the demigod still joins the
+# court, as before), Spouse weds them to the suppliant (pantheon_wed_recorded_effect: charge, +30 Devotion and the
+# pantheon_wed_spouse bookkeeping of pantheon.0103). Success = the demigod is now lent / wed. Then the PRAYER closes
+# WITHOUT Grant's rewards or debit and the pending send is dropped. A failed revalidation changes nothing.
+pantheon_send_demigod_effect = {
+	if = {
+		limit = {
+			pantheon_send_source_ok_trigger = yes
+			scope:pantheon_send_demigod = { pantheon_free_demigod_trigger = { GOD = root } }
+		}
+		var:pantheon_send_recipient = { save_scope_as = pantheon_send_target }
+		if = {
+			limit = {
+				OR = {
+					var:pantheon_send_kind = 1
+					var:pantheon_send_kind = 3
+				}
+				var:pantheon_worship >= pantheon_cost_lend
+			}
+			set_variable = { name = pantheon_demigod_host value = scope:pantheon_send_target }
+			set_variable = { name = pantheon_chosen_demigod value = scope:pantheon_send_demigod }
+			pantheon_lend_demigod_effect = { ROLE = commander }
+			if = {
+				limit = { scope:pantheon_send_demigod = { has_variable = pantheon_lent_to } }
+				pantheon_send_finish_effect = yes
+			}
+		}
+		else_if = {
+			limit = {
+				var:pantheon_send_kind = 2
+				var:pantheon_worship >= pantheon_cost_wed
+				scope:pantheon_send_demigod = { is_married = no }
+				scope:pantheon_send_target = { pantheon_could_wed_demigod_trigger = { DEMIGOD = scope:pantheon_send_demigod } }
+			}
+			set_variable = { name = pantheon_demigod_host value = scope:pantheon_send_target }
+			set_variable = { name = pantheon_chosen_demigod value = scope:pantheon_send_demigod }
+			set_variable = { name = pantheon_chosen_spouse value = scope:pantheon_send_target }
+			pantheon_wed_recorded_effect = yes
+			if = {
+				limit = { scope:pantheon_send_demigod = { has_variable = pantheon_wed_to_house } }
+				pantheon_send_finish_effect = yes
+			}
+		}
+	}
+}
+
+# The send succeeded: close the prayer it answered (kinds 1 and 2; no Grant rewards, no Grant debit: the lend or wed
+# effect already charged) or, for kind 3, the Retribution call it answered, and forget the pending send.
+pantheon_send_finish_effect = {
+	if = {
+		limit = {
+			OR = {
+				var:pantheon_send_kind = 1
+				var:pantheon_send_kind = 2
+			}
+		}
+		var:pantheon_send_recipient = { save_scope_as = pantheon_suppliant }
+		pantheon_prayer_close_effect = yes
+	}
+	else_if = {
+		limit = { var:pantheon_send_kind = 3 }
+		# the call is the ATTACKER's (pantheon_send_call): close it, whatever the page that began the send has since done
+		if = {
+			limit = { has_variable = pantheon_send_call }
+			var:pantheon_send_call = { save_scope_as = pantheon_retri_closing }
+			pantheon_retri_close_core_effect = { WHO = scope:pantheon_retri_closing }
+			clear_saved_scope = pantheon_retri_closing
+		}
+	}
+	pantheon_send_clear_effect = yes
+	# fix round 1: the closed prayer or call leaves an open window's list at once
+	pantheon_ui_refresh_if_open_effect = yes
+}

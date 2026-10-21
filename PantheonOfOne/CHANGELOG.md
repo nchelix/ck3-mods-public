@@ -1,5 +1,53 @@
 # Changelog — Pantheon of One
 
+## [2.3] — 2026-10-21
+
+The panel release: the window gets side tabs and a Prayers tab, prayers wait for your answer, and the Children tab
+becomes the place to send a demigod. Tested on CK3 1.20.1.2.
+
+### Added
+- **Side tabs.** The Pantheon window is wider (1000 px) with its tabs in a column on the left, like One Trait's
+  panel: Followers, Prayers, Children, The God, Temple.
+- **The Prayers tab**, with three sub-tabs, each counted:
+  - **Prayers:** every open prayer, oldest first: who prays, for what, the time left and the price, with Grant,
+    Send a sign, Send a child and Refuse (Turn them away for strangers).
+  - **Retribution:** every open call for Divine Retribution, one per attacker, with its answers.
+  - **Great Prayers:** your sworn oath: who it is for, the offender, the wrong, what fulfils it, and a button to
+    pass judgement.
+  The tab's button counts everything waiting.
+- **A reminder while anything waits:** an alert in the row at the top of the screen lists the open prayers, calls
+  and oath, and the Pantheon button shows a count badge.
+- **Bide your time:** after swearing an oath, the Judgement page can be closed without acting; the oath waits under
+  Great Prayers.
+- Grant and Send a sign show their Worship cost again, in the event and the tab.
+- **Prayers wait for you.** The prayer and Retribution events gain **Let it wait**: the prayer stays open in the
+  Prayers tab. Up to six prayers can be open (Great Prayers and Great Boons are not limited). An unanswered prayer
+  lapses after six months: the follower loses 5 Devotion (a stranger just goes away). A prayer that no longer makes
+  sense (the follower died, left the faith, or the need is gone) closes quietly. The price is fixed when the prayer
+  arrives and is shown in the event and the tab; you pay once, wherever you answer.
+- **The Children tab is the demigod picker.** Send a child (from a prayer, the Prayers tab or Retribution) opens the
+  Children tab with a banner: choose a child, each row shows Send (greyed with the reason when that child can't go),
+  or Cancel. Closing the window keeps the choice waiting. Outside a send, each demigod row has Lend and Wed for the
+  follower selected in the Followers tab.
+- **A praying marker** on follower rows; click it to open the Prayers tab.
+- Debug helpers (debug mod): open prayers of each kind, age and expire them, start Retribution calls, swear oaths,
+  show the pending send.
+
+### Changed
+- **Great Prayer oaths keep their word.** The wrong is remembered when you swear. A torture oath is fulfilled only by
+  Strike down or Maim (other wrath leaves it open). Wrath on someone else, a Judgement or a Retribution no longer
+  silently ends the oath, and "Stay your hand" breaks it only on the oath's own page. If the offender dies by other
+  means, the oath is released without penalty.
+- Divine Retribution remembers each attacker separately: two wars at once no longer overwrite each other.
+
+### Fixed
+- Backing out of the old Send-a-child menu used up the prayer without answering it.
+- Turning away a stranger's prayer showed a toast claiming "Devotion -15".
+
+### Compatibility
+- Saves from 2.2.2: a prayer or Retribution event still waiting is picked up; an oath already sworn gains the new
+  rules (its wrong shows as "the wrong done to them" if it can't be recovered).
+
 ## [2.2.2] — 2026-10-20
 
 Bug fixes and one change. Tested on CK3 1.20.1.

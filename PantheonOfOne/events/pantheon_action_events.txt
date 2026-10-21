@@ -60,13 +60,7 @@ pantheon.0103 = {
 	hidden = yes
 	immediate = {
 		var:pantheon_demigod_host ?= { save_scope_as = pantheon_target }
-		pantheon_wed_demigod_effect = yes
-		var:pantheon_chosen_demigod = {
-			if = {
-				limit = { has_variable = pantheon_wed_to_house }
-				set_variable = { name = pantheon_wed_spouse value = root.var:pantheon_chosen_spouse }
-			}
-		}
+		pantheon_wed_recorded_effect = yes
 	}
 }
 
@@ -92,30 +86,45 @@ pantheon.0105 = {
 	}
 }
 
-# Pass Judgement: var:pantheon_wrath_target is the judged, var:pantheon_ui_choice the wrath.
+# Pass Judgement: var:pantheon_wrath_target is the judged, var:pantheon_ui_choice the wrath. 2.3 (R18): the Judgement
+# interaction's route -- it announces context 3 (var:pantheon_wrath_context) and this runs only for that context, so
+# a Retribution call is neither read nor closed here (the landed effect closes calls only in context 2).
 pantheon.0106 = {
 	type = character_event
 	hidden = yes
 	immediate = {
-		var:pantheon_wrath_target ?= { save_scope_as = pantheon_victim }
-		if = { limit = { var:pantheon_ui_choice = flag:strike } pantheon_wrath_strike_effect = yes }
-		else_if = { limit = { var:pantheon_ui_choice = flag:maimed } pantheon_wrath_maim_effect = { TRAIT = maimed } }
-		else_if = { limit = { var:pantheon_ui_choice = flag:blind } pantheon_wrath_maim_effect = { TRAIT = blind } }
-		else_if = { limit = { var:pantheon_ui_choice = flag:wound } pantheon_wrath_maim_effect = { TRAIT = wounded_3 } }
-		else_if = { limit = { var:pantheon_ui_choice = flag:curse } pantheon_wrath_curse_effect = yes }
+		if = {
+			limit = {
+				has_variable = pantheon_wrath_context
+				var:pantheon_wrath_context = 3
+			}
+			var:pantheon_wrath_target ?= { save_scope_as = pantheon_victim }
+			if = { limit = { var:pantheon_ui_choice = flag:strike } pantheon_wrath_strike_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:maimed } pantheon_wrath_maim_effect = { TRAIT = maimed } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:blind } pantheon_wrath_maim_effect = { TRAIT = blind } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:wound } pantheon_wrath_maim_effect = { TRAIT = wounded_3 } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:curse } pantheon_wrath_curse_effect = yes }
+		}
 		remove_variable = pantheon_ui_choice
 	}
 }
 
 # Wrath upon their lands: as above, plus var:pantheon_wrath_county (read by pantheon_wrath_origin_effect).
+# 2.3 (R18): the Lands interaction's route, context 4, as 0106 is context 3.
 pantheon.0107 = {
 	type = character_event
 	hidden = yes
 	immediate = {
-		var:pantheon_wrath_target ?= { save_scope_as = pantheon_victim }
-		if = { limit = { var:pantheon_ui_choice = flag:pestilence } pantheon_wrath_plague_effect = { INTENSITY = minor COST = pantheon_cost_pestilence } }
-		else_if = { limit = { var:pantheon_ui_choice = flag:great_dying } pantheon_wrath_plague_effect = { INTENSITY = major COST = pantheon_cost_great_dying } }
-		else_if = { limit = { var:pantheon_ui_choice = flag:disaster } pantheon_wrath_disaster_effect = yes }
+		if = {
+			limit = {
+				has_variable = pantheon_wrath_context
+				var:pantheon_wrath_context = 4
+			}
+			var:pantheon_wrath_target ?= { save_scope_as = pantheon_victim }
+			if = { limit = { var:pantheon_ui_choice = flag:pestilence } pantheon_wrath_plague_effect = { INTENSITY = minor COST = pantheon_cost_pestilence } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:great_dying } pantheon_wrath_plague_effect = { INTENSITY = major COST = pantheon_cost_great_dying } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:disaster } pantheon_wrath_disaster_effect = yes }
+		}
 		remove_variable = pantheon_ui_choice
 		# A send with nothing selected leaves this on the god; never leave it to strike a later, different
 		# victim (I1 scenario B).

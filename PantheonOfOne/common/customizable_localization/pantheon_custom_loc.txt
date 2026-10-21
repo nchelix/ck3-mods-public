@@ -117,3 +117,22 @@ pantheon_great_boon_kind = {
 	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 5 } localization_key = pantheon_great_boon_kind_5 }
 	text = { fallback = yes localization_key = pantheon_great_boon_kind_6 }
 }
+
+# 2.3 B3: what a suppliant prays for, in words, for the Prayers tab and the praying marker's tooltip
+# ([Character.Custom('pantheon_prayer_need_words')]). Reads pantheon_prayer_need / _gift on the character.
+pantheon_prayer_need_words = {
+	type = character
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 1 } localization_key = pantheon_prayer_need_host }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 2 } localization_key = pantheon_prayer_need_fertility }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 3 } localization_key = pantheon_prayer_need_vigor }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 4 } localization_key = pantheon_prayer_need_warding }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 5 NOT = { any_held_county = { always = yes } } } localization_key = pantheon_prayer_need_debt }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 5 } localization_key = pantheon_prayer_need_harvest }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 6 has_variable = pantheon_prayer_gift var:pantheon_prayer_gift = 1 } localization_key = pantheon_prayer_need_champion }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 6 has_variable = pantheon_prayer_gift var:pantheon_prayer_gift = 2 } localization_key = pantheon_prayer_need_warlord }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 6 has_variable = pantheon_prayer_gift var:pantheon_prayer_gift = 3 } localization_key = pantheon_prayer_need_sovereign }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 6 has_variable = pantheon_prayer_gift var:pantheon_prayer_gift = 4 } localization_key = pantheon_prayer_need_sage }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 7 } localization_key = pantheon_prayer_need_healing }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 8 } localization_key = pantheon_prayer_need_spouse }
+	text = { fallback = yes localization_key = pantheon_prayer_need_gift }
+}

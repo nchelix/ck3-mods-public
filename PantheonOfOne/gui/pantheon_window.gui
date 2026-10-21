@@ -16,7 +16,8 @@ widget = {
 		size = { 44 44 }
 		visible = "[GetScriptedGui('pantheon_ui_is_god').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 		onclick = "[GetScriptedGui('pantheon_ui_toggle').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-		tooltip = "pantheon_ui_button_tt"
+		# Fix round 2 (H4): with prayers or calls waiting, a second line says how many
+		tooltip = "[Select_CString( GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count'), '(CFixedPoint)0' ), Localize( 'pantheon_ui_button_tt_n' ), Localize( 'pantheon_ui_button_tt' ) )]"
 
 		icon = {
 			parentanchor = center
@@ -29,6 +30,24 @@ widget = {
 			}
 		}
 	}
+
+	# Fix round 2 (H4): the count badge at the button's top-right corner, only while something waits. Vanilla's own
+	# number-on-a-badge pattern: game/gui/hud.gui icon_power_sharing_level (highlight_icon + regency_level_button_badge.dds
+	# + a centred text_single).
+	highlight_icon = {
+		visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count'), '(CFixedPoint)0' )]"
+		parentanchor = top|right
+		position = { 6 -6 }
+		size = { 28 28 }
+		alwaystransparent = yes
+		texture = "gfx/interface/window_regency/regency_level_button_badge.dds"
+
+		text_single = {
+			align = nobaseline
+			parentanchor = center
+			text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count')|0]"
+		}
+	}
 }
 
 # The Pantheon window, shown while the god has pantheon_ui_open. Rows follow Divine Intervention's pinned-character
@@ -38,7 +57,7 @@ window = {
 	position = { 0 20 }
 	parentanchor = center
 	layer = middle
-	size = { 780 900 }
+	size = { 1000 900 }
 	visible = "[And( GetPlayer.IsValid, GetPlayer.MakeScope.Var('pantheon_ui_open').IsSet )]"
 
 	using = Window_Background
@@ -66,58 +85,84 @@ window = {
 			text = "pantheon_ui_worship_line"
 		}
 
-		# The tabs: 1 Followers, 2 Children, 3 The God, 4 The Temple (batch u1 repair, row 1).
-		# Batch u2 repair (item 2, row 1): u1's `layoutpolicy_horizontal = expanding` let each
-		# tab's own icon+text content set its minimum width, so the fourth tab's minimum could run
-		# past the window's right edge. Fixed 170px cells (4*170 + 3*2 spacing = 686, comfortably
-		# under the vbox's 716px content width: window size 780 minus margin {32 20}) make the row's
-		# total width deterministic instead of content-dependent.
+		# The tabs, a left sidebar column like One Trait's (2.3 B1): 1 Followers, 5 Prayers, 2 Children, 3 The God,
+		# 4 The Temple. Values are kept from 2.2 (Prayers is the new 5) so an old save's stored tab stays valid.
+		# Fixed 170x40 buttons and a trailing expand = {} keep the column top-aligned and its width deterministic.
+		# Content width: 1000 window - 64 margin - 186 sidebar (170 + 2*8 margin) - 8 spacing = 742, less a 20 right margin
+		# (fix round 1) so no tab runs flush to the frame = 722.
 		hbox = {
 			layoutpolicy_horizontal = expanding
-			spacing = 2
-			button_tab = {
-				layoutpolicy_horizontal = fixed
-				size = { 170 40 }
-				onclick = "[GetScriptedGui('pantheon_ui_tab_followers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
-				hbox = {
-					spacing = 3
-					icon = {
-						size = { 22 22 }
-						texture = "gfx/interface/icons/pantheon/pantheon_tab_followers.dds"
-					}
-					text_single = { text = "pantheon_ui_tab_followers" }
-				}
-			}
-			button_tab = {
-				layoutpolicy_horizontal = fixed
-				size = { 170 40 }
-				onclick = "[GetScriptedGui('pantheon_ui_tab_children').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
-				hbox = {
-					spacing = 3
-					icon = {
-						size = { 22 22 }
-						texture = "gfx/interface/icons/traits/pantheon_demigod.dds"
-					}
-					text_single = { text = "pantheon_ui_tab_children" }
-				}
-			}
-			button_tab = {
-				layoutpolicy_horizontal = fixed
-				size = { 170 40 }
-				onclick = "[GetScriptedGui('pantheon_ui_tab_god').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
-				hbox = {
-					spacing = 3
-					icon = {
-						size = { 22 22 }
-						texture = "gfx/interface/icons/traits/pantheon_divine.dds"
-					}
-					text_single = { text = "pantheon_ui_tab_god" }
+			layoutpolicy_vertical = expanding
+			spacing = 8
+			vbox = {
+				layoutpolicy_vertical = expanding
+				margin = { 8 8 }
+				spacing = 4
+				background = { using = Background_Area_Dark }
+				button_standard = {
+					layoutpolicy_horizontal = fixed
+					size = { 170 40 }
+					onclick = "[GetScriptedGui('pantheon_ui_tab_followers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
+					hbox = {
+						spacing = 3
+						icon = {
+							size = { 22 22 }
+							texture = "gfx/interface/icons/pantheon/pantheon_tab_followers.dds"
+						}
+						text_single = { text = "pantheon_ui_tab_followers" }
 					}
 				}
-				button_tab = {
+				button_standard = {
+					layoutpolicy_horizontal = fixed
+					size = { 170 40 }
+					onclick = "[GetScriptedGui('pantheon_ui_tab_prayers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)5' )]"
+					hbox = {
+						spacing = 3
+						icon = {
+							size = { 22 22 }
+							texture = "gfx/interface/icons/pantheon/pantheon_tab_prayers.dds"
+						}
+						text_single = {
+							visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count'), '(CFixedPoint)0' )]"
+							text = "pantheon_ui_tab_prayers"
+						}
+						text_single = {
+							visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count'), '(CFixedPoint)0' )]"
+							text = "pantheon_ui_tab_prayers_n"
+						}
+					}
+				}
+				button_standard = {
+					layoutpolicy_horizontal = fixed
+					size = { 170 40 }
+					onclick = "[GetScriptedGui('pantheon_ui_tab_children').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
+					hbox = {
+						spacing = 3
+						icon = {
+							size = { 22 22 }
+							texture = "gfx/interface/icons/traits/pantheon_demigod.dds"
+						}
+						text_single = { text = "pantheon_ui_tab_children" }
+					}
+				}
+				button_standard = {
+					layoutpolicy_horizontal = fixed
+					size = { 170 40 }
+					onclick = "[GetScriptedGui('pantheon_ui_tab_god').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
+					hbox = {
+						spacing = 3
+						icon = {
+							size = { 22 22 }
+							texture = "gfx/interface/icons/traits/pantheon_divine.dds"
+						}
+						text_single = { text = "pantheon_ui_tab_god" }
+					}
+				}
+				button_standard = {
 					layoutpolicy_horizontal = fixed
 					size = { 170 40 }
 					onclick = "[GetScriptedGui('pantheon_ui_tab_temple').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
@@ -126,698 +171,809 @@ window = {
 						spacing = 3
 						icon = {
 							size = { 22 22 }
-							# R14: the painted Temple tab icon (tools/build_pantheon_icons.py).
 							texture = "gfx/interface/icons/pantheon/pantheon_tab_temple.dds"
 						}
 						text_single = { text = "pantheon_ui_tab_temple" }
+					}
 				}
+				expand = {}
 			}
-		}
 
-		# ---- Tab 1: Followers
-		vbox = {
-			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
-			layoutpolicy_horizontal = expanding
-			layoutpolicy_vertical = expanding
-			spacing = 6
-
-			# The selected follower. A vbox, not a widget: a widget does not size to its children, so in round 1 the
-			# pane collapsed under the list and its buttons could not be clicked. Gated on IsAlive (I3).
+			# Content (right): the tab bodies; fixed-width rows below fit the 722px width (742 less the 20px right margin).
 			vbox = {
-				visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
-				datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
 				layoutpolicy_horizontal = expanding
-				margin = { 8 8 }
-				spacing = 6
-				background = { using = Background_Area_With_Header }
+				layoutpolicy_vertical = expanding
+				margin_right = 20
+				spacing = 8
 
-				hbox = {
+				# ---- Tab 5: Prayers (2.3 B3). The open prayers, oldest first (pantheon_ui_prayers, built by
+				# pantheon_ui_rebuild_effect). Rows are fixed-size cells of the same grid form as the follower rows.
+				vbox = {
+					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)5' )]"
 					layoutpolicy_horizontal = expanding
-					spacing = 10
-					portrait_head = {}
-					vbox = {
+					layoutpolicy_vertical = expanding
+					spacing = 8
+					# Fix round 2 (H3): the Prayers tab's sub-tabs. pantheon_ui_ptab: 1 Prayers (also when absent), 2 Retribution,
+					# 3 Great Prayers. Vanilla tab buttons (button_tab, as the character window's Family/Relations/Court tabs; polish
+					# 2026-10-21), the count beside the label only when above 0; one section is shown below at the tab's full height.
+					hbox = {
 						layoutpolicy_horizontal = expanding
-						spacing = 3
-						hbox = {
+						spacing = 0
+
+						button_tab = {
+							onclick = "[GetScriptedGui('pantheon_ui_ptab_prayers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_ui_ptab').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)1' ) )]"
+							blockoverride "tab_label" {
+								text = "pantheon_ui_ptab_prayers"
+							}
+							blockoverride "extra_info" {
+								text_single = {
+									visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_prayers'), '(CFixedPoint)0' )]"
+									text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_prayers')|0]"
+									align = nobaseline
+									default_format = "#low"
+									margin_top = 3
+								}
+							}
+						}
+						button_tab = {
+							onclick = "[GetScriptedGui('pantheon_ui_ptab_retris').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)2' )]"
+							blockoverride "tab_label" {
+								text = "pantheon_ui_ptab_retris"
+							}
+							blockoverride "extra_info" {
+								text_single = {
+									visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_retris'), '(CFixedPoint)0' )]"
+									text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_retris')|0]"
+									align = nobaseline
+									default_format = "#low"
+									margin_top = 3
+								}
+							}
+						}
+						button_tab = {
+							onclick = "[GetScriptedGui('pantheon_ui_ptab_great').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)3' )]"
+							blockoverride "tab_label" {
+								text = "pantheon_ui_ptab_great"
+							}
+							blockoverride "extra_info" {
+								text_single = {
+									visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_great'), '(CFixedPoint)0' )]"
+									text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_great')|0]"
+									align = nobaseline
+									default_format = "#low"
+									margin_top = 3
+								}
+							}
+						}
+					}
+
+					text_single = {
+						visible = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_ui_ptab').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)1' ) )]"
+						text = "pantheon_ui_prayers_header"
+						using = Font_Size_Medium
+					}
+					scrollbox = {
+						visible = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_ui_ptab').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)1' ) )]"
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						blockoverride "scrollbox_empty" {
+							text = "pantheon_ui_prayers_empty"
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_prayers') )]"
+						}
+						blockoverride "scrollbox_content" {
+							vbox = {
+								fixedgridbox = {
+									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_prayers')]"
+									addcolumn = 680
+									addrow = 120
+									setitemsizefromcell = yes
+									item = {
+										widget = {
+											size = { 676 116 }
+											visible = "[Scope.GetCharacter.MakeScope.Var('pantheon_prayer_open').IsSet]"
+											datacontext = "[Scope.GetCharacter]"
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 6
+												margin_right = 10
+												margin_top = 4
+												spacing = 8
+												portrait_head_small = {}
+												vbox = {
+													layoutpolicy_horizontal = expanding
+													spacing = 2
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 8
+														text_single = {
+															layoutpolicy_horizontal = expanding
+															autoresize = no
+															text = "[Character.GetUINameNoTooltip]"
+														}
+														text_single = {
+															visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)2' )]"
+															text = "pantheon_ui_prayer_stranger"
+														}
+														text_single = {
+															size = { 190 26 }
+															autoresize = no
+															align = right|vcenter
+															text = "pantheon_ui_prayer_time"
+														}
+													}
+													text_single = {
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_prayer_need_line"
+													}
+													text_single = {
+														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' )]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_prayer_price_follower"
+													}
+													text_single = {
+														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)2' )]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_prayer_price_stranger"
+													}
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 6
+													button_standard = {
+														size = { 110 30 }
+														text = "pantheon_ui_btn_prayer_grant"
+														enabled = "[GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_prayer_grant_after_tt' ), GetScriptedGui('pantheon_ui_prayer_grant').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_prayer_grant').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 120 30 }
+														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' )]"
+														text = "pantheon_ui_btn_prayer_sign"
+														enabled = "[GetScriptedGui('pantheon_ui_prayer_sign').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_sign').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_prayer_sign_after_tt' ), GetScriptedGui('pantheon_ui_prayer_sign').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_prayer_sign').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 130 30 }
+														visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' ), Or( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)8' ) ) )]"
+														text = "pantheon_ui_btn_prayer_send"
+														enabled = "[GetScriptedGui('pantheon_ui_prayer_send').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_send').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_prayer_send_after_tt' ), GetScriptedGui('pantheon_ui_prayer_send').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_prayer_send').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 100 30 }
+														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' )]"
+														text = "pantheon_ui_btn_prayer_refuse"
+														enabled = "[GetScriptedGui('pantheon_ui_prayer_refuse').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_refuse').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_prayer_refuse_after_tt' ), GetScriptedGui('pantheon_ui_prayer_refuse').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_prayer_refuse').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 140 30 }
+														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)2' )]"
+														text = "pantheon_ui_btn_prayer_dismiss"
+														enabled = "[GetScriptedGui('pantheon_ui_prayer_dismiss').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_dismiss').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_prayer_dismiss_after_tt' ), GetScriptedGui('pantheon_ui_prayer_dismiss').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_prayer_dismiss').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+													}
+														expand = {}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					# 2.3 B5: Calls for Retribution -- one row per open, live call (pantheon_ui_retris, built by
+					# pantheon_ui_rebuild_effect), oldest first. The row is the ATTACKER (the record's key, fix round 1); the buttons mirror pantheon.0080's options.
+					# Fix round 2 (H3): its own sub-tab (pantheon_ui_ptab 2); the list fills the tab's height.
+					text_single = {
+						visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)2' )]"
+						text = "pantheon_ui_retri_header"
+						using = Font_Size_Medium
+					}
+					scrollbox = {
+						visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)2' )]"
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						blockoverride "scrollbox_empty" {
+							text = "pantheon_ui_retri_empty"
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_retris') )]"
+						}
+						blockoverride "scrollbox_content" {
+							vbox = {
+								fixedgridbox = {
+									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_retris')]"
+									addcolumn = 680
+									addrow = 108
+									setitemsizefromcell = yes
+									item = {
+										widget = {
+											size = { 676 104 }
+											visible = "[Scope.GetCharacter.MakeScope.Var('pantheon_retri_token').IsSet]"
+											datacontext = "[Scope.GetCharacter]"
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 6
+												margin_right = 10
+												margin_top = 4
+												spacing = 8
+												# Fix round 2 (H1): the row's datacontext is the ATTACKER, so the head inherits it, as the prayer rows do (the old
+												# datacontext on the defender var rendered blank in game); the text names the defender.
+												portrait_head_small = {}
+												vbox = {
+													layoutpolicy_horizontal = expanding
+													spacing = 2
+													text_single = {
+														visible = "[Not( Character.MakeScope.Var('pantheon_retri_defender').GetCharacter.IsLocalPlayer )]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_retri_line"
+													}
+													text_single = {
+														visible = "[Character.MakeScope.Var('pantheon_retri_defender').GetCharacter.IsLocalPlayer]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_retri_line_you"
+													}
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 6
+														button_standard = {
+															size = { 110 30 }
+															text = "pantheon_ui_btn_retri_smite"
+															enabled = "[GetScriptedGui('pantheon_ui_retri_smite').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_retri_smite').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ), Localize( 'pantheon_ui_retri_smite_after_tt' ), GetScriptedGui('pantheon_ui_retri_smite').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_retri_smite').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+														}
+														button_standard = {
+															size = { 150 30 }
+															text = "pantheon_ui_btn_retri_lands"
+															enabled = "[GetScriptedGui('pantheon_ui_retri_lands').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_retri_lands').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ), Localize( 'pantheon_ui_retri_lands_after_tt' ), GetScriptedGui('pantheon_ui_retri_lands').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_retri_lands').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+														}
+														button_standard = {
+															size = { 150 30 }
+															text = "pantheon_ui_btn_retri_host"
+															enabled = "[GetScriptedGui('pantheon_ui_retri_host').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_retri_host').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ), Localize( 'pantheon_ui_retri_host_after_tt' ), GetScriptedGui('pantheon_ui_retri_host').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_retri_host').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+														}
+														expand = {}
+													}
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 6
+														button_standard = {
+															size = { 150 30 }
+															visible = "[GetScriptedGui('pantheon_ui_retri_send').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+															text = "pantheon_ui_btn_retri_send"
+															enabled = "[GetScriptedGui('pantheon_ui_retri_send').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_retri_send').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ), Localize( 'pantheon_ui_retri_send_after_tt' ), GetScriptedGui('pantheon_ui_retri_send').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_retri_send').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+														}
+														button_standard = {
+															size = { 190 30 }
+															text = "pantheon_ui_btn_retri_mortals"
+															enabled = "[GetScriptedGui('pantheon_ui_retri_mortals').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_retri_mortals').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ), Localize( 'pantheon_ui_retri_mortals_after_tt' ), GetScriptedGui('pantheon_ui_retri_mortals').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_retri_mortals').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_retri_attacker', Character.MakeScope ).End )]"
+														}
+														expand = {}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					# 2.3 B5: the sworn oath (when one is on): who swore it, against whom, the wrong, and exactly what fulfils it.
+					# A vbox with the panel background (a widget does not size to its children); the button re-opens the sworn
+					# Judgement page on the offender. Not sworn: only the cooldown line, if a Great Prayer cannot reach you yet.
+					# Fix round 1 (F7): the oath and the cooldown line sit under their own "Great Prayers" header, inside the
+					# content area with normal padding (the lone status line used to hang on the window's bottom edge).
+					vbox = {
+						# Fix round 2 (H3): its own sub-tab (pantheon_ui_ptab 3), shown in full
+						visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)3' )]"
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						spacing = 6
+						text_single = {
+							text = "pantheon_ui_greatp_header"
+							using = Font_Size_Medium
+						}
+						vbox = {
+							visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet]"
 							layoutpolicy_horizontal = expanding
-							spacing = 4
+							margin = { 8 6 }
+							spacing = 2
+							background = { using = Background_Area_With_Header }
+							hbox = {
+								layoutpolicy_horizontal = expanding
+								spacing = 8
+								text_single = {
+									layoutpolicy_horizontal = expanding
+									autoresize = no
+									text = "pantheon_ui_oath_header"
+									using = Font_Size_Medium
+								}
+								button_standard = {
+									size = { 230 30 }
+									text = "pantheon_ui_btn_oath_judge"
+									enabled = "[GetScriptedGui('pantheon_ui_oath_judge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_oath_judge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_ui_oath_judge_after_tt' ), GetScriptedGui('pantheon_ui_oath_judge').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[GetScriptedGui('pantheon_ui_oath_judge').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
 							text_single = {
 								layoutpolicy_horizontal = expanding
 								autoresize = no
-								text = "[Character.GetUINameNoTooltip]"
-								using = Font_Size_Medium
+								text = "pantheon_ui_oath_who"
 							}
-							hbox_skills_grid_character_model = {}
 							text_single = {
-								minimumsize = { 44 0 }
-								align = center|nobaseline
-								text = "pantheon_ui_prowess"
+								visible = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)0' ) )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_0"
+							}
+							text_single = {
+								visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)1' )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_1"
+							}
+							text_single = {
+								visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)2' )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_2"
+							}
+							text_single = {
+								visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)3' )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_3"
+							}
+							text_single = {
+								visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)4' )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_4"
+							}
+							text_single = {
+								visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)5' )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_5"
+							}
+							text_single = {
+								visible = "[Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_harsh').IsSet )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_rule"
+							}
+							text_single = {
+								visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_harsh').IsSet]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_rule_harsh"
 							}
 						}
-						text_single = { text = "pantheon_ui_devotion_line" }
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_trait').IsSet]"
-							text = "pantheon_ui_boon_trait"
+						vbox = {
+							visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet ), GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet )]"
+							layoutpolicy_horizontal = expanding
+							margin = { 8 6 }
+							background = { using = Background_Area }
+							text_single = {
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_cooldown_line"
+							}
 						}
 						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_harvest').IsSet]"
-							text = "pantheon_ui_boon_harvest"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_walls').IsSet]"
-							text = "pantheon_ui_boon_walls"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_warding').IsSet]"
-							text = "pantheon_ui_boon_warding"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_vigor').IsSet]"
-							text = "pantheon_ui_boon_vigor"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_fertility').IsSet]"
-							text = "pantheon_ui_boon_fertility"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_lineage').IsSet]"
-							text = "pantheon_ui_boon_lineage"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_great').IsSet]"
-							text = "pantheon_ui_boon_great"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_prayer').IsSet]"
-							text = "pantheon_ui_boon_prayer"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_boon_debt').IsSet]"
-							text = "pantheon_ui_boon_debt"
-						}
-						text_single = {
-							visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
-							text = "pantheon_ui_grievance_line"
-						}
-						text_single = {
-							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
-							text = "pantheon_ui_wants_1"
-						}
-						text_single = {
-							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
-							text = "pantheon_ui_wants_2"
-						}
-						text_single = {
-							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
-							text = "pantheon_ui_wants_3"
-						}
-						text_single = {
-							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
-							text = "pantheon_ui_wants_4"
-						}
-						text_single = {
-							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
-							text = "pantheon_ui_wants_5"
-						}
-						text_single = {
-							visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
-							text = "pantheon_ui_wants_6"
+							visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet ), Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet ) )]"
+							layoutpolicy_horizontal = expanding
+							autoresize = no
+							text = "pantheon_ui_greatp_empty"
 						}
 					}
 				}
 
-				hbox = {
+				# ---- Tab 1: Followers
+				vbox = {
+					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)1' )]"
 					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
 					spacing = 6
-					button_standard = {
-						size = { 110 30 }
-						text = "pantheon_ui_btn_bless"
-						visible = "[Character.IsPlayerInteractionShown('pantheon_bless_interaction')]"
-						enabled = "[Character.IsPlayerInteractionValid('pantheon_bless_interaction')]"
-						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_bless_interaction')]"
-						onclick = "[Character.OpenPlayerInteraction('pantheon_bless_interaction')]"
-					}
-					button_standard = {
-						size = { 110 30 }
-						text = "pantheon_ui_btn_lend"
-						visible = "[Character.IsPlayerInteractionShown('pantheon_lend_interaction')]"
-						enabled = "[Character.IsPlayerInteractionValid('pantheon_lend_interaction')]"
-						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lend_interaction')]"
-						onclick = "[Character.OpenPlayerInteraction('pantheon_lend_interaction')]"
-					}
-					button_standard = {
-						size = { 110 30 }
-						text = "pantheon_ui_btn_wed"
-						visible = "[Character.IsPlayerInteractionShown('pantheon_wed_interaction')]"
-						enabled = "[Character.IsPlayerInteractionValid('pantheon_wed_interaction')]"
-						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_wed_interaction')]"
-						onclick = "[Character.OpenPlayerInteraction('pantheon_wed_interaction')]"
-					}
-					button_standard = {
-						size = { 110 30 }
-						text = "pantheon_ui_btn_judge"
-						visible = "[Character.IsPlayerInteractionShown('pantheon_judgement_interaction')]"
-						enabled = "[Character.IsPlayerInteractionValid('pantheon_judgement_interaction')]"
-						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_judgement_interaction')]"
-						onclick = "[Character.OpenPlayerInteraction('pantheon_judgement_interaction')]"
-					}
-					button_standard = {
-						size = { 110 30 }
-						text = "pantheon_ui_btn_lands"
-						visible = "[Character.IsPlayerInteractionShown('pantheon_lands_interaction')]"
-						enabled = "[Character.IsPlayerInteractionValid('pantheon_lands_interaction')]"
-						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lands_interaction')]"
-						onclick = "[Character.OpenPlayerInteraction('pantheon_lands_interaction')]"
-					}
-					expand = {}
-					button_standard = {
-						size = { 90 30 }
-						text = "pantheon_ui_btn_clear"
-						tooltip = "pantheon_ui_btn_clear_tt"
-						onclick = "[GetScriptedGui('pantheon_ui_clear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					}
-				}
-				hbox = {
-					visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
-					layoutpolicy_horizontal = expanding
-					spacing = 6
-					button_standard = {
-						size = { 180 30 }
-						text = "pantheon_ui_btn_boon"
-						visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
-						enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
-						tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
-						onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
-					}
-					expand = {}
-				}
-			}
 
-			# Sort and filter
-			hbox = {
-				layoutpolicy_horizontal = expanding
-				spacing = 4
-				text_single = { text = "pantheon_ui_sort_by" }
-				button_standard = {
-					size = { 110 30 }
-					text = "pantheon_ui_sort_devotion"
-					tooltip = "pantheon_ui_sort_devotion_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)0' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_dip"
-					tooltip = "pantheon_ui_sort_dip_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)1' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_mar"
-					tooltip = "pantheon_ui_sort_mar_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)2' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_ste"
-					tooltip = "pantheon_ui_sort_ste_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)3' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_int"
-					tooltip = "pantheon_ui_sort_int_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)4' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_lea"
-					tooltip = "pantheon_ui_sort_lea_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)5' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_prw"
-					tooltip = "pantheon_ui_sort_prw_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)6' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_6').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				expand = {}
-				button_standard = {
-					size = { 200 30 }
-					onclick = "[GetScriptedGui('pantheon_ui_blessed_only').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					# Shows what the click will do next (M7), not a static label
-					text_single = {
-						parentanchor = center
-						visible = "[Not( GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet )]"
-						text = "pantheon_ui_show_blessed"
-					}
-					text_single = {
-						parentanchor = center
-						visible = "[GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet]"
-						text = "pantheon_ui_show_everyone"
-					}
-				}
-			}
-
-			scrollbox = {
-				layoutpolicy_horizontal = expanding
-				layoutpolicy_vertical = expanding
-				blockoverride "scrollbox_empty" {
-					text = "pantheon_ui_no_followers"
-					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_followers') )]"
-				}
-				blockoverride "scrollbox_content" {
+					# The selected follower. A vbox, not a widget: a widget does not size to its children, so in round 1 the
+					# pane collapsed under the list and its buttons could not be clicked. Gated on IsAlive (I3).
 					vbox = {
-						fixedgridbox = {
-							visible = "[Not( GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet )]"
-							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_followers')]"
-							addcolumn = 680
-							addrow = 76
-							setitemsizefromcell = yes
-							item = {
-								button_standard = {
-									datacontext = "[Scope.GetCharacter]"
-									size = { 676 72 }
-									onclick = "[GetScriptedGui('pantheon_ui_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'target', Character.MakeScope ).End )]"
-									hbox = {
-										spacing = 8
-										margin_left = 6
-										margin_right = 10
-										portrait_head_small = {}
-										vbox = {
-											layoutpolicy_horizontal = expanding
-											spacing = 2
-											hbox = {
-												layoutpolicy_horizontal = expanding
-												spacing = 4
-												text_single = {
-													layoutpolicy_horizontal = expanding
-													autoresize = no
-													text = "[Character.GetUINameNoTooltip]"
-												}
-												hbox_skills_grid_character_model = {}
-												text_single = {
-													minimumsize = { 44 0 }
-													align = center|nobaseline
-													text = "pantheon_ui_prowess"
-												}
-											}
-											hbox = {
-												layoutpolicy_horizontal = expanding
-												spacing = 12
-												text_single = { text = "pantheon_ui_devotion_line" }
-												text_single = {
-													visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_boon_count'), '(CFixedPoint)0' )]"
-													text = "pantheon_ui_blessed_mark"
-												}
-												text_single = {
-													visible = "[Character.MakeScope.Var('pantheon_aspiration').IsSet]"
-													text = "pantheon_ui_wants_mark"
-												}
-												expand = {}
-											}
-										}
-									}
-								}
-							}
-						}
-						fixedgridbox = {
-							visible = "[GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet]"
-							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_blessed')]"
-							addcolumn = 680
-							addrow = 76
-							setitemsizefromcell = yes
-							item = {
-								button_standard = {
-									datacontext = "[Scope.GetCharacter]"
-									size = { 676 72 }
-									onclick = "[GetScriptedGui('pantheon_ui_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'target', Character.MakeScope ).End )]"
-									hbox = {
-										spacing = 8
-										margin_left = 6
-										margin_right = 10
-										portrait_head_small = {}
-										vbox = {
-											layoutpolicy_horizontal = expanding
-											spacing = 2
-											hbox = {
-												layoutpolicy_horizontal = expanding
-												spacing = 4
-												text_single = {
-													layoutpolicy_horizontal = expanding
-													autoresize = no
-													text = "[Character.GetUINameNoTooltip]"
-												}
-												hbox_skills_grid_character_model = {}
-												text_single = {
-													minimumsize = { 44 0 }
-													align = center|nobaseline
-													text = "pantheon_ui_prowess"
-												}
-											}
-											hbox = {
-												layoutpolicy_horizontal = expanding
-												spacing = 12
-												text_single = { text = "pantheon_ui_devotion_line" }
-												text_single = {
-													visible = "[Character.MakeScope.Var('pantheon_aspiration').IsSet]"
-													text = "pantheon_ui_wants_mark"
-												}
-												expand = {}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+						visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
+						datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
+						layoutpolicy_horizontal = expanding
+						margin = { 8 8 }
+						spacing = 6
+						background = { using = Background_Area_With_Header }
 
-		# ---- Tab 2: Children
-		vbox = {
-			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
-			layoutpolicy_horizontal = expanding
-			layoutpolicy_vertical = expanding
-			spacing = 6
-
-			hbox = {
-				layoutpolicy_horizontal = expanding
-				spacing = 4
-				text_single = { text = "pantheon_ui_children_header" using = Font_Size_Medium }
-				expand = {}
-				text_single = { text = "pantheon_ui_sort_by" }
-				button_standard = {
-					size = { 110 30 }
-					text = "pantheon_ui_sort_best"
-					tooltip = "pantheon_ui_sort_best_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)0' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_dip"
-					tooltip = "pantheon_ui_sort_dip_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)1' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_mar"
-					tooltip = "pantheon_ui_sort_mar_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)2' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_ste"
-					tooltip = "pantheon_ui_sort_ste_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)3' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_int"
-					tooltip = "pantheon_ui_sort_int_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)4' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_lea"
-					tooltip = "pantheon_ui_sort_lea_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)5' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 44 30 }
-					text = "pantheon_ui_sort_prw"
-					tooltip = "pantheon_ui_sort_prw_tt"
-					down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)6' )]"
-					onclick = "[GetScriptedGui('pantheon_ui_sort_6').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-			}
-			scrollbox = {
-				layoutpolicy_horizontal = expanding
-				layoutpolicy_vertical = expanding
-				blockoverride "scrollbox_empty" {
-					text = "pantheon_ui_no_demigods"
-					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_demigods') )]"
-				}
-				blockoverride "scrollbox_content" {
-					fixedgridbox = {
-						datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_demigods')]"
-						addcolumn = 680
-						addrow = 80
-						setitemsizefromcell = yes
-						item = {
-							widget = {
-								datacontext = "[Scope.GetCharacter]"
-								size = { 676 76 }
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							spacing = 10
+							portrait_head = {}
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								spacing = 3
 								hbox = {
-									spacing = 8
-									margin_left = 6
-									margin_right = 10
-									background = { using = Background_Area_With_Header }
-									portrait_head_small = {}
-									vbox = {
-										layoutpolicy_horizontal = expanding
-										spacing = 2
-										hbox = {
-											layoutpolicy_horizontal = expanding
-											spacing = 4
-											text_single = {
-												layoutpolicy_horizontal = expanding
-												autoresize = no
-												text = "[Character.GetUINameNoTooltip]"
-											}
-											hbox_skills_grid_character_model = {}
-											text_single = {
-												minimumsize = { 44 0 }
-												align = center|nobaseline
-												text = "pantheon_ui_prowess"
-											}
-										}
-										hbox = {
-											layoutpolicy_horizontal = expanding
-											spacing = 8
-											text_single = {
-												visible = "[Character.MakeScope.Var('pantheon_lent_to').IsSet]"
-												text = "pantheon_ui_status_lent"
-											}
-											text_single = {
-												visible = "[Character.MakeScope.Var('pantheon_wed_spouse').IsSet]"
-												text = "pantheon_ui_status_wed"
-											}
-											text_single = {
-												visible = "[And( Character.MakeScope.Var('pantheon_wed_to_house').IsSet, Not( Character.MakeScope.Var('pantheon_wed_spouse').IsSet ) )]"
-												text = "pantheon_ui_status_wed_old"
-											}
-											text_single = {
-												visible = "[And( Not( Character.MakeScope.Var('pantheon_lent_to').IsSet ), Not( Character.MakeScope.Var('pantheon_wed_to_house').IsSet ) )]"
-												text = "pantheon_ui_status_home"
-											}
-											expand = {}
-											button_standard = {
-												size = { 110 28 }
-												text = "pantheon_ui_btn_call_home"
-												visible = "[Character.IsPlayerInteractionShown('pantheon_call_home_interaction')]"
-												tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_call_home_interaction')]"
-												onclick = "[Character.OpenPlayerInteraction('pantheon_call_home_interaction')]"
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
-			text_single = { text = "pantheon_ui_houses_header" using = Font_Size_Medium }
-			scrollbox = {
-				layoutpolicy_horizontal = expanding
-				size = { 0 220 }
-				blockoverride "scrollbox_empty" {
-					text = "pantheon_ui_no_houses"
-					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_houses') )]"
-				}
-				blockoverride "scrollbox_content" {
-					fixedgridbox = {
-						datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_houses')]"
-						addcolumn = 680
-						addrow = 70
-						setitemsizefromcell = yes
-						item = {
-							widget = {
-								datacontext = "[Scope.GetCharacter]"
-								size = { 676 66 }
-								hbox = {
-									spacing = 8
-									margin_left = 6
-									margin_right = 10
-									background = { using = Background_Area_With_Header }
-									portrait_head_small = {}
+									layoutpolicy_horizontal = expanding
+									spacing = 4
 									text_single = {
 										layoutpolicy_horizontal = expanding
 										autoresize = no
-										text = "pantheon_ui_house_line"
+										text = "[Character.GetUINameNoTooltip]"
+										using = Font_Size_Medium
 									}
+									hbox_skills_grid_character_model = {}
 									text_single = {
-										visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_house_revealed'), '(CFixedPoint)0' )]"
-										text = "pantheon_ui_house_revealed"
+										minimumsize = { 44 0 }
+										align = center|nobaseline
+										text = "pantheon_ui_prowess"
 									}
-									button_standard = {
-										size = { 110 30 }
-										text = "pantheon_ui_btn_reveal"
-										visible = "[Character.IsPlayerInteractionShown('pantheon_reveal_interaction')]"
-										tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_reveal_interaction')]"
-										onclick = "[Character.OpenPlayerInteraction('pantheon_reveal_interaction')]"
-									}
+								}
+								text_single = { text = "pantheon_ui_devotion_line" }
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_trait').IsSet]"
+									text = "pantheon_ui_boon_trait"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_harvest').IsSet]"
+									text = "pantheon_ui_boon_harvest"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_walls').IsSet]"
+									text = "pantheon_ui_boon_walls"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_warding').IsSet]"
+									text = "pantheon_ui_boon_warding"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_vigor').IsSet]"
+									text = "pantheon_ui_boon_vigor"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_fertility').IsSet]"
+									text = "pantheon_ui_boon_fertility"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_lineage').IsSet]"
+									text = "pantheon_ui_boon_lineage"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_great').IsSet]"
+									text = "pantheon_ui_boon_great"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_prayer').IsSet]"
+									text = "pantheon_ui_boon_prayer"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_debt').IsSet]"
+									text = "pantheon_ui_boon_debt"
+								}
+								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
+									text = "pantheon_ui_grievance_line"
+								}
+								text_single = {
+									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
+									text = "pantheon_ui_wants_1"
+								}
+								text_single = {
+									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
+									text = "pantheon_ui_wants_2"
+								}
+								text_single = {
+									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
+									text = "pantheon_ui_wants_3"
+								}
+								text_single = {
+									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
+									text = "pantheon_ui_wants_4"
+								}
+								text_single = {
+									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
+									text = "pantheon_ui_wants_5"
+								}
+								text_single = {
+									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
+									text = "pantheon_ui_wants_6"
 								}
 							}
 						}
-					}
-				}
-			}
-		}
 
-		# ---- Tab 3: The God
-		vbox = {
-			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
-			layoutpolicy_horizontal = expanding
-			layoutpolicy_vertical = expanding
-			spacing = 8
-			text_single = { text = "pantheon_ui_worship_line" using = Font_Size_Medium }
-			hbox = {
-				spacing = 6
-				button_standard = {
-					size = { 160 32 }
-					text = "pantheon_ui_btn_throne"
-					tooltip = "pantheon_menu.0001.throne.tt"
-					visible = "[GetScriptedGui('pantheon_ui_throne').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					onclick = "[GetScriptedGui('pantheon_ui_throne').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 160 32 }
-					text = "pantheon_ui_btn_proclaim"
-					tooltip = "pantheon_menu.0001.proclaim.tt"
-					visible = "[GetScriptedGui('pantheon_ui_proclaim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					onclick = "[GetScriptedGui('pantheon_ui_proclaim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 160 32 }
-					text = "pantheon_ui_btn_forswear"
-					tooltip = "pantheon_menu.0001.forswear.tt"
-					visible = "[GetScriptedGui('pantheon_ui_forswear').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					onclick = "[GetScriptedGui('pantheon_ui_forswear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				button_standard = {
-					size = { 160 32 }
-					text = "pantheon_ui_btn_embrace"
-					tooltip = "pantheon_menu.0001.embrace.tt"
-					visible = "[GetScriptedGui('pantheon_ui_embrace').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-			}
-			text_single = {
-				visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet]"
-				text = "pantheon_ui_oath_line"
-			}
-			text_single = {
-				visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet]"
-				text = "pantheon_ui_cooldown_line"
-			}
-			text_single = {
-				visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
-				text = "pantheon_ui_plague_line"
-				}
-			# 2.2 Task 4: one line for the Great Temple's tier and state. Batch u1 repair (row 34): the
-			# line always read the tier-5 name regardless of the real tier -- datacontext set directly on
-			# this leaf text_single was not honoured for its own text (the Temple tab's own header and the
-			# Followers list's devotion line both set it on an ANCESTOR instead, and both read correctly).
-			vbox = {
-				datacontext = "[GetPlayer]"
-				text_single = {
-					text = "pantheon_ui_temple_line"
-				}
-			}
-			expand = {}
-		}
-
-		# ---- Tab 4: The Temple (2.2 Task 4)
-		vbox = {
-			visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)4' )]"
-			layoutpolicy_horizontal = expanding
-			layoutpolicy_vertical = expanding
-			spacing = 8
-
-			# Before founding: the faith's holy sites, a scroll list (One Trait 2.7's proven list form,
-			# OneTraitToRuleThemAll/gui/one_trait_panel.gui, datamodel/AddScope('landed_title', Title.MakeScope)).
-			vbox = {
-				visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet )]"
-				layoutpolicy_horizontal = expanding
-				spacing = 8
-				text_single = {
-					multiline = yes
-					autoresize = yes
-					max_width = 680
-					text = "pantheon_ui_temple_intro"
-				}
-				text_single = {
-					visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites') )]"
-					text = "pantheon_ui_temple_no_sites"
-				}
-				scrollbox = {
-					size = { 680 260 }
-					blockoverride "scrollbox_content" {
-						vbox = {
+						hbox = {
 							layoutpolicy_horizontal = expanding
-							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites')]"
-							spacing = 4
-							item = {
-								widget = {
-									size = { 660 50 }
-									datacontext = "[Scope.GetLandedTitle]"
-									background = { using = Background_Area }
-									hbox = {
-										margin_left = 10
-										margin_right = 10
-										spacing = 10
-										text_single = {
-											layoutpolicy_horizontal = expanding
-											autoresize = no
-											text = "[Title.GetName]"
-										}
-										text_single = {
-											layoutpolicy_horizontal = expanding
-											autoresize = no
-											datacontext = "[Title.GetHolder]"
-											text = "[Character.GetShortUINameNoTooltip]"
-										}
-										# Batch 2r1 (repair 5): each row gave no idea what founding there would cost.
-										# Batch u1 repair (row 4): no size at all here rendered as a lone truncated "..."
-										# -- a fixed width gives the text room (One Trait 2.7's lesson again).
-										text_single = {
-											size = { 190 32 }
-											autoresize = no
-											align = left|vcenter
-											text = "pantheon_ui_temple_found_cost"
-											tooltip = "pantheon_temple_found_after_tt"
-										}
+							spacing = 6
+							button_standard = {
+								size = { 110 30 }
+								text = "pantheon_ui_btn_bless"
+								visible = "[Character.IsPlayerInteractionShown('pantheon_bless_interaction')]"
+								enabled = "[Character.IsPlayerInteractionValid('pantheon_bless_interaction')]"
+								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_bless_interaction')]"
+								onclick = "[Character.OpenPlayerInteraction('pantheon_bless_interaction')]"
+							}
+							button_standard = {
+								size = { 110 30 }
+								text = "pantheon_ui_btn_lend"
+								visible = "[Character.IsPlayerInteractionShown('pantheon_lend_interaction')]"
+								enabled = "[Character.IsPlayerInteractionValid('pantheon_lend_interaction')]"
+								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lend_interaction')]"
+								onclick = "[Character.OpenPlayerInteraction('pantheon_lend_interaction')]"
+							}
+							button_standard = {
+								size = { 110 30 }
+								text = "pantheon_ui_btn_wed"
+								visible = "[Character.IsPlayerInteractionShown('pantheon_wed_interaction')]"
+								enabled = "[Character.IsPlayerInteractionValid('pantheon_wed_interaction')]"
+								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_wed_interaction')]"
+								onclick = "[Character.OpenPlayerInteraction('pantheon_wed_interaction')]"
+							}
+							button_standard = {
+								size = { 110 30 }
+								text = "pantheon_ui_btn_judge"
+								visible = "[Character.IsPlayerInteractionShown('pantheon_judgement_interaction')]"
+								enabled = "[Character.IsPlayerInteractionValid('pantheon_judgement_interaction')]"
+								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_judgement_interaction')]"
+								onclick = "[Character.OpenPlayerInteraction('pantheon_judgement_interaction')]"
+							}
+							button_standard = {
+								size = { 110 30 }
+								text = "pantheon_ui_btn_lands"
+								visible = "[Character.IsPlayerInteractionShown('pantheon_lands_interaction')]"
+								enabled = "[Character.IsPlayerInteractionValid('pantheon_lands_interaction')]"
+								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lands_interaction')]"
+								onclick = "[Character.OpenPlayerInteraction('pantheon_lands_interaction')]"
+							}
+							expand = {}
+							button_standard = {
+								size = { 90 30 }
+								text = "pantheon_ui_btn_clear"
+								tooltip = "pantheon_ui_btn_clear_tt"
+								onclick = "[GetScriptedGui('pantheon_ui_clear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+						}
+						hbox = {
+							visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+							layoutpolicy_horizontal = expanding
+							spacing = 6
+							button_standard = {
+								size = { 180 30 }
+								text = "pantheon_ui_btn_boon"
+								visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+								enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
+								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
+								onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
+							}
+							expand = {}
+						}
+					}
+
+					# Sort and filter
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						spacing = 4
+						text_single = { text = "pantheon_ui_sort_by" }
+						button_standard = {
+							size = { 110 30 }
+							text = "pantheon_ui_sort_devotion"
+							tooltip = "pantheon_ui_sort_devotion_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)0' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_dip"
+							tooltip = "pantheon_ui_sort_dip_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)1' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_mar"
+							tooltip = "pantheon_ui_sort_mar_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)2' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_ste"
+							tooltip = "pantheon_ui_sort_ste_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)3' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_int"
+							tooltip = "pantheon_ui_sort_int_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)4' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_lea"
+							tooltip = "pantheon_ui_sort_lea_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)5' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_prw"
+							tooltip = "pantheon_ui_sort_prw_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)6' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_6').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						expand = {}
+						button_standard = {
+							size = { 200 30 }
+							onclick = "[GetScriptedGui('pantheon_ui_blessed_only').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							# Shows what the click will do next (M7), not a static label
+							text_single = {
+								parentanchor = center
+								visible = "[Not( GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet )]"
+								text = "pantheon_ui_show_blessed"
+							}
+							text_single = {
+								parentanchor = center
+								visible = "[GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet]"
+								text = "pantheon_ui_show_everyone"
+							}
+						}
+					}
+
+					scrollbox = {
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						blockoverride "scrollbox_empty" {
+							text = "pantheon_ui_no_followers"
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_followers') )]"
+						}
+						blockoverride "scrollbox_content" {
+							vbox = {
+								fixedgridbox = {
+									visible = "[Not( GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet )]"
+									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_followers')]"
+									addcolumn = 680
+									addrow = 76
+									setitemsizefromcell = yes
+									item = {
 										button_standard = {
-											size = { 150 32 }
-											text = "pantheon_ui_btn_temple_found"
-											enabled = "[GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
-											tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ), Localize( 'pantheon_temple_found_after_tt' ), GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
-											onclick = "[GetScriptedGui('pantheon_ui_temple_found').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+											datacontext = "[Scope.GetCharacter]"
+											size = { 676 72 }
+											onclick = "[GetScriptedGui('pantheon_ui_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'target', Character.MakeScope ).End )]"
+											hbox = {
+												spacing = 8
+												margin_left = 6
+												margin_right = 10
+												portrait_head_small = {}
+												vbox = {
+													layoutpolicy_horizontal = expanding
+													spacing = 2
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 4
+														text_single = {
+															layoutpolicy_horizontal = expanding
+															autoresize = no
+															text = "[Character.GetUINameNoTooltip]"
+														}
+														hbox_skills_grid_character_model = {}
+														text_single = {
+															minimumsize = { 44 0 }
+															align = center|nobaseline
+															text = "pantheon_ui_prowess"
+														}
+													}
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 12
+														text_single = { text = "pantheon_ui_devotion_line" }
+														text_single = {
+															visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_boon_count'), '(CFixedPoint)0' )]"
+															text = "pantheon_ui_blessed_mark"
+														}
+														text_single = {
+															visible = "[Character.MakeScope.Var('pantheon_aspiration').IsSet]"
+															text = "pantheon_ui_wants_mark"
+														}
+														button_standard = {
+															size = { 30 26 }
+															visible = "[Character.MakeScope.Var('pantheon_prayer_open').IsSet]"
+															tooltip = "pantheon_ui_praying_tt"
+															onclick = "[GetScriptedGui('pantheon_ui_tab_prayers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+															icon = {
+																parentanchor = center
+																size = { 24 24 }
+																texture = "gfx/interface/icons/pantheon/pantheon_praying.dds"
+															}
+														}
+														expand = {}
+													}
+												}
+											}
+										}
+									}
+								}
+								fixedgridbox = {
+									visible = "[GetPlayer.MakeScope.Var('pantheon_ui_blessed_only').IsSet]"
+									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_blessed')]"
+									addcolumn = 680
+									addrow = 76
+									setitemsizefromcell = yes
+									item = {
+										button_standard = {
+											datacontext = "[Scope.GetCharacter]"
+											size = { 676 72 }
+											onclick = "[GetScriptedGui('pantheon_ui_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'target', Character.MakeScope ).End )]"
+											hbox = {
+												spacing = 8
+												margin_left = 6
+												margin_right = 10
+												portrait_head_small = {}
+												vbox = {
+													layoutpolicy_horizontal = expanding
+													spacing = 2
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 4
+														text_single = {
+															layoutpolicy_horizontal = expanding
+															autoresize = no
+															text = "[Character.GetUINameNoTooltip]"
+														}
+														hbox_skills_grid_character_model = {}
+														text_single = {
+															minimumsize = { 44 0 }
+															align = center|nobaseline
+															text = "pantheon_ui_prowess"
+														}
+													}
+													hbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 12
+														text_single = { text = "pantheon_ui_devotion_line" }
+														text_single = {
+															visible = "[Character.MakeScope.Var('pantheon_aspiration').IsSet]"
+															text = "pantheon_ui_wants_mark"
+														}
+														button_standard = {
+															size = { 30 26 }
+															visible = "[Character.MakeScope.Var('pantheon_prayer_open').IsSet]"
+															tooltip = "pantheon_ui_praying_tt"
+															onclick = "[GetScriptedGui('pantheon_ui_tab_prayers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+															icon = {
+																parentanchor = center
+																size = { 24 24 }
+																texture = "gfx/interface/icons/pantheon/pantheon_praying.dds"
+															}
+														}
+														expand = {}
+													}
+												}
+											}
 										}
 									}
 								}
@@ -825,214 +981,626 @@ window = {
 						}
 					}
 				}
-			}
 
-			# After founding: header, bonuses, upgrade, the ladder, and the tier-5 miracles.
-			vbox = {
-				visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
-				layoutpolicy_horizontal = expanding
-				spacing = 8
-				datacontext = "[GetPlayer]"
-
-				text_single = { using = Font_Size_Medium text = "[Character.Custom('pantheon_temple_tier_name')]" }
-				text_single = { text = "[Character.Custom('pantheon_temple_state')]" }
-				# Batch 2r1 (repair 5): the header omitted which county holds the temple.
-				text_single = { text = "pantheon_ui_temple_county" }
-				text_single = { multiline = yes autoresize = yes max_width = 680 text = "[Character.Custom('pantheon_temple_tier_desc')]" }
-				# R13, batch 2b: the capital could not be made a holy site (e.g. the faith was already at its
-				# holy-site maximum). The temple itself still works fully.
-				text_single = {
-					visible = "[GetPlayer.MakeScope.Var('pantheon_temple_holy_site_refused').IsSet]"
-					text = "pantheon_ui_temple_holy_site_refused"
-				}
-
-				button_standard = {
-					size = { 260 32 }
-					text = "pantheon_ui_btn_temple_upgrade"
-					visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					enabled = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_temple_upgrade_after_tt' ), GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-					onclick = "[GetScriptedGui('pantheon_ui_temple_upgrade').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-				}
-				# Batch 2r1 (repair 5): the Upgrade button gave no idea what the next tier costs or what it is.
-				text_single = {
-					visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-					text = "pantheon_ui_temple_next_line"
-					tooltip = "pantheon_temple_upgrade_after_tt"
-				}
-
-				# The five-step ladder: a passive row of tab-styled cells, the current tier's cell down.
-				# Batch u2 repair (item 3, rows 8/13): the cells looked clickable (button_tab's own hover/
-				# press frames) but did nothing. `enabled = no` keeps the "down" toggle look for the current
-				# tier while turning off the button's own hover/pressed states and click handling (the same
-				# property button_standard already uses elsewhere in this file to grey out, just always off
-				# here); each cell's own tooltip gives that tier's bonuses and cost/years
-				# (pantheon_temple_ladder_tt_1..5, localization/english/pantheon_l_english.yml -- built from
-				# the per-tier script values Task 1 already defines, common/script_values/pantheon_values.txt).
-				hbox = {
-					spacing = 4
-					button_tab = {
-						# Batch u1 repair (row 2): a bare hbox sizing itself from five expanding, zero-width
-						# children collapsed to nothing and the five names overlapped at one spot -- fixed-size
-						# cells with an explicit width fix it (the lesson One Trait 2.7 already proved).
-						size = { 132 32 }
-						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' )]"
-						enabled = no
-						tooltip = "pantheon_temple_ladder_tt_1"
-						text_single = {
-							size = { 132 32 }
-							autoresize = no
-							align = center|vcenter
-							text = "building_type_pantheon_great_temple_01"
-						}
-					}
-					button_tab = {
-						size = { 132 32 }
-						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' )]"
-						enabled = no
-						tooltip = "pantheon_temple_ladder_tt_2"
-						text_single = {
-							size = { 132 32 }
-							autoresize = no
-							align = center|vcenter
-							text = "building_type_pantheon_great_temple_02"
-						}
-					}
-					button_tab = {
-						size = { 132 32 }
-						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' )]"
-						enabled = no
-						tooltip = "pantheon_temple_ladder_tt_3"
-						text_single = {
-							size = { 132 32 }
-							autoresize = no
-							align = center|vcenter
-							text = "building_type_pantheon_great_temple_03"
-						}
-					}
-					button_tab = {
-						size = { 132 32 }
-						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' )]"
-						enabled = no
-						tooltip = "pantheon_temple_ladder_tt_4"
-						text_single = {
-							size = { 132 32 }
-							autoresize = no
-							align = center|vcenter
-							text = "building_type_pantheon_great_temple_04"
-						}
-					}
-					button_tab = {
-						size = { 132 32 }
-						down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
-						enabled = no
-						tooltip = "pantheon_temple_ladder_tt_5"
-						text_single = {
-							size = { 132 32 }
-							autoresize = no
-							align = center|vcenter
-							text = "building_type_pantheon_great_temple_05"
-						}
-					}
-				}
-
-				# The miracles (tier 5): arm-then-confirm (pantheon_temple_confirm, One Trait's
-				# one_trait_ui_confirm form) and the Wrath note.
+				# ---- Tab 2: Children
 				vbox = {
-					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
+					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)2' )]"
 					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
 					spacing = 6
+
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						spacing = 4
+						text_single = { text = "pantheon_ui_children_header" using = Font_Size_Medium }
+						expand = {}
+						text_single = { text = "pantheon_ui_sort_by" }
+						button_standard = {
+							size = { 110 30 }
+							text = "pantheon_ui_sort_best"
+							tooltip = "pantheon_ui_sort_best_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)0' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_dip"
+							tooltip = "pantheon_ui_sort_dip_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)1' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_mar"
+							tooltip = "pantheon_ui_sort_mar_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)2' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_ste"
+							tooltip = "pantheon_ui_sort_ste_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)3' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_int"
+							tooltip = "pantheon_ui_sort_int_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)4' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_lea"
+							tooltip = "pantheon_ui_sort_lea_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)5' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 44 30 }
+							text = "pantheon_ui_sort_prw"
+							tooltip = "pantheon_ui_sort_prw_tt"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_sort').GetValue, '(CFixedPoint)6' )]"
+							onclick = "[GetScriptedGui('pantheon_ui_sort_6').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+					}
+					# 2.3 B4: SENDING MODE. Shown while the god has a pending send (a prayer's "Send a child" or Retribution's):
+					# who the child goes to, the price, and Cancel (clears the pending send; the prayer stays open). Closing
+					# the window keeps the pending send, so this shows again on reopening. A vbox (a widget does not size to
+					# its children); the recipient is the datacontext of the container (a leaf text's own is not honoured).
+					vbox = {
+						visible = "[And( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet, And( GetPlayer.MakeScope.Var('pantheon_send_recipient').IsSet, GetPlayer.MakeScope.Var('pantheon_send_recipient').GetCharacter.IsAlive ) )]"
+						datacontext = "[GetPlayer.MakeScope.Var('pantheon_send_recipient').GetCharacter]"
+						layoutpolicy_horizontal = expanding
+						margin = { 8 6 }
+						spacing = 2
+						background = { using = Background_Area_With_Header }
+						hbox = {
+							layoutpolicy_horizontal = expanding
+							spacing = 8
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								spacing = 2
+								text_single = {
+									visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_send_kind').GetValue, '(CFixedPoint)1' )]"
+									layoutpolicy_horizontal = expanding
+									autoresize = no
+									text = "pantheon_ui_send_banner_host"
+									using = Font_Size_Medium
+								}
+								text_single = {
+									visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_send_kind').GetValue, '(CFixedPoint)2' )]"
+									layoutpolicy_horizontal = expanding
+									autoresize = no
+									text = "pantheon_ui_send_banner_spouse"
+									using = Font_Size_Medium
+								}
+								text_single = {
+									visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_send_kind').GetValue, '(CFixedPoint)3' )]"
+									layoutpolicy_horizontal = expanding
+									autoresize = no
+									text = "pantheon_ui_send_banner_retri"
+									using = Font_Size_Medium
+								}
+								text_single = {
+									visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_send_kind').GetValue, '(CFixedPoint)2' ) )]"
+									layoutpolicy_horizontal = expanding
+									autoresize = no
+									text = "pantheon_ui_send_price_lend"
+								}
+								text_single = {
+									visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_send_kind').GetValue, '(CFixedPoint)2' )]"
+									layoutpolicy_horizontal = expanding
+									autoresize = no
+									text = "pantheon_ui_send_price_wed"
+								}
+							}
+							button_standard = {
+								size = { 110 30 }
+								text = "pantheon_ui_btn_send_cancel"
+								tooltip = "pantheon_ui_send_cancel_tt"
+								onclick = "[GetScriptedGui('pantheon_ui_send_cancel').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							}
+						}
+					}
+					scrollbox = {
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						blockoverride "scrollbox_empty" {
+							text = "pantheon_ui_no_demigods"
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_demigods') )]"
+						}
+						blockoverride "scrollbox_content" {
+							fixedgridbox = {
+								datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_demigods')]"
+								addcolumn = 680
+								addrow = 80
+								setitemsizefromcell = yes
+								item = {
+									widget = {
+										datacontext = "[Scope.GetCharacter]"
+										size = { 676 76 }
+										hbox = {
+											spacing = 8
+											margin_left = 6
+											margin_right = 10
+											background = { using = Background_Area_With_Header }
+											portrait_head_small = {}
+											vbox = {
+												layoutpolicy_horizontal = expanding
+												spacing = 2
+												hbox = {
+													layoutpolicy_horizontal = expanding
+													spacing = 4
+													text_single = {
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "[Character.GetUINameNoTooltip]"
+													}
+													hbox_skills_grid_character_model = {}
+													text_single = {
+														minimumsize = { 44 0 }
+														align = center|nobaseline
+														text = "pantheon_ui_prowess"
+													}
+												}
+												hbox = {
+													layoutpolicy_horizontal = expanding
+													spacing = 8
+													text_single = {
+														visible = "[Character.MakeScope.Var('pantheon_lent_to').IsSet]"
+														text = "pantheon_ui_status_lent"
+													}
+													text_single = {
+														visible = "[Character.MakeScope.Var('pantheon_wed_spouse').IsSet]"
+														text = "pantheon_ui_status_wed"
+													}
+													text_single = {
+														visible = "[And( Character.MakeScope.Var('pantheon_wed_to_house').IsSet, Not( Character.MakeScope.Var('pantheon_wed_spouse').IsSet ) )]"
+														text = "pantheon_ui_status_wed_old"
+													}
+													text_single = {
+														visible = "[And( Not( Character.MakeScope.Var('pantheon_lent_to').IsSet ), Not( Character.MakeScope.Var('pantheon_wed_to_house').IsSet ) )]"
+														text = "pantheon_ui_status_home"
+													}
+													expand = {}
+													# 2.3 B4/R9: outside sending mode Lend and Wed open the vanilla interaction window for the follower
+													# selected in the Followers tab with this demigod preselected; while sending, Send replaces them.
+													button_standard = {
+														size = { 56 28 }
+														visible = "[Not( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet )]"
+														text = "pantheon_ui_btn_lend"
+														enabled = "[GetScriptedGui('pantheon_ui_row_lend').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_row_lend').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End ), Localize( 'pantheon_ui_row_lend_tt' ), GetScriptedGui('pantheon_ui_row_lend').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_row_lend').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 56 28 }
+														visible = "[Not( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet )]"
+														text = "pantheon_ui_btn_wed"
+														enabled = "[GetScriptedGui('pantheon_ui_row_wed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_row_wed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End ), Localize( 'pantheon_ui_row_wed_tt' ), GetScriptedGui('pantheon_ui_row_wed').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_row_wed').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_demigod', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 120 28 }
+														visible = "[GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet]"
+														text = "pantheon_ui_btn_send_demigod"
+														enabled = "[GetScriptedGui('pantheon_ui_send_demigod').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_send_demigod', Character.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_send_demigod').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_send_demigod', Character.MakeScope ).End ), Select_CString( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_send_kind').GetValue, '(CFixedPoint)2' ), Localize( 'pantheon_ui_send_wed_tt' ), Localize( 'pantheon_ui_send_lend_tt' ) ), GetScriptedGui('pantheon_ui_send_demigod').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_send_demigod', Character.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_send_demigod').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_send_demigod', Character.MakeScope ).End )]"
+													}
+													button_standard = {
+														size = { 110 28 }
+														text = "pantheon_ui_btn_call_home"
+														visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet ), Character.IsPlayerInteractionShown('pantheon_call_home_interaction') )]"
+														tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_call_home_interaction')]"
+														onclick = "[Character.OpenPlayerInteraction('pantheon_call_home_interaction')]"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					text_single = { text = "pantheon_ui_houses_header" using = Font_Size_Medium }
+					scrollbox = {
+						layoutpolicy_horizontal = expanding
+						size = { 0 220 }
+						blockoverride "scrollbox_empty" {
+							text = "pantheon_ui_no_houses"
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_houses') )]"
+						}
+						blockoverride "scrollbox_content" {
+							fixedgridbox = {
+								datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_houses')]"
+								addcolumn = 680
+								addrow = 70
+								setitemsizefromcell = yes
+								item = {
+									widget = {
+										datacontext = "[Scope.GetCharacter]"
+										size = { 676 66 }
+										hbox = {
+											spacing = 8
+											margin_left = 6
+											margin_right = 10
+											background = { using = Background_Area_With_Header }
+											portrait_head_small = {}
+											text_single = {
+												layoutpolicy_horizontal = expanding
+												autoresize = no
+												text = "pantheon_ui_house_line"
+											}
+											text_single = {
+												visible = "[GreaterThan_CFixedPoint( Character.MakeScope.ScriptValue('pantheon_ui_house_revealed'), '(CFixedPoint)0' )]"
+												text = "pantheon_ui_house_revealed"
+											}
+											button_standard = {
+												size = { 110 30 }
+												text = "pantheon_ui_btn_reveal"
+												visible = "[Character.IsPlayerInteractionShown('pantheon_reveal_interaction')]"
+												tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_reveal_interaction')]"
+												onclick = "[Character.OpenPlayerInteraction('pantheon_reveal_interaction')]"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+
+				# ---- Tab 3: The God
+				vbox = {
+					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)3' )]"
+					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
+					spacing = 8
+					text_single = { text = "pantheon_ui_worship_line" using = Font_Size_Medium }
 					hbox = {
 						spacing = 6
 						button_standard = {
-							size = { 210 32 }
-							enabled = "[GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
-							# (and nothing at all while ready) -- now always shows what the miracle does, the reason
-							# (if any) on its own line below.
-							tooltip = "pantheon_ui_miracle_conversion_tt"
-							onclick = "[GetScriptedGui('pantheon_ui_miracle_conversion').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
-							# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
-							widget = {
-								size = { 210 32 }
-								text_single = {
-									visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									size = { 210 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "pantheon_ui_btn_miracle_conversion"
-								}
-								text_single = {
-									visible = "[GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									size = { 210 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "pantheon_ui_btn_confirm"
-								}
-							}
+							size = { 160 32 }
+							text = "pantheon_ui_btn_throne"
+							tooltip = "pantheon_menu.0001.throne.tt"
+							visible = "[GetScriptedGui('pantheon_ui_throne').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							onclick = "[GetScriptedGui('pantheon_ui_throne').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
-							size = { 210 32 }
-							enabled = "[GetScriptedGui('pantheon_ui_miracle_age').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
-							# (and nothing at all while ready) -- now always shows what the miracle does, the reason
-							# (if any) on its own line below.
-							tooltip = "pantheon_ui_miracle_age_tt"
-							onclick = "[GetScriptedGui('pantheon_ui_miracle_age').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							widget = {
-								size = { 210 32 }
-								text_single = {
-									visible = "[Not( GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									size = { 210 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "pantheon_ui_btn_miracle_age"
-								}
-								text_single = {
-									visible = "[GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									size = { 210 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "pantheon_ui_btn_confirm"
-								}
-							}
+							size = { 160 32 }
+							text = "pantheon_ui_btn_proclaim"
+							tooltip = "pantheon_menu.0001.proclaim.tt"
+							visible = "[GetScriptedGui('pantheon_ui_proclaim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							onclick = "[GetScriptedGui('pantheon_ui_proclaim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
-							size = { 210 32 }
-							enabled = "[GetScriptedGui('pantheon_ui_miracle_victory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
-							# (and nothing at all while ready) -- now always shows what the miracle does, the reason
-							# (if any) on its own line below.
-							tooltip = "pantheon_ui_miracle_victory_tt"
-							onclick = "[GetScriptedGui('pantheon_ui_miracle_victory').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							widget = {
-								size = { 210 32 }
-								text_single = {
-									visible = "[Not( GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									size = { 210 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "pantheon_ui_btn_miracle_victory"
-								}
-								text_single = {
-									visible = "[GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									size = { 210 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "pantheon_ui_btn_confirm"
-								}
-							}
+							size = { 160 32 }
+							text = "pantheon_ui_btn_forswear"
+							tooltip = "pantheon_menu.0001.forswear.tt"
+							visible = "[GetScriptedGui('pantheon_ui_forswear').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							onclick = "[GetScriptedGui('pantheon_ui_forswear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							size = { 160 32 }
+							text = "pantheon_ui_btn_embrace"
+							tooltip = "pantheon_menu.0001.embrace.tt"
+							visible = "[GetScriptedGui('pantheon_ui_embrace').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 					}
 					text_single = {
-						multiline = yes
-						autoresize = yes
-						max_width = 680
-						text = "pantheon_ui_wrath_note"
+						visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet]"
+						text = "pantheon_ui_oath_line"
+					}
+					text_single = {
+						visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet]"
+						text = "pantheon_ui_cooldown_line"
+					}
+					text_single = {
+						visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
+						text = "pantheon_ui_plague_line"
+						}
+					# 2.2 Task 4: one line for the Great Temple's tier and state. Batch u1 repair (row 34): the
+					# line always read the tier-5 name regardless of the real tier -- datacontext set directly on
+					# this leaf text_single was not honoured for its own text (the Temple tab's own header and the
+					# Followers list's devotion line both set it on an ANCESTOR instead, and both read correctly).
+					vbox = {
+						datacontext = "[GetPlayer]"
+						text_single = {
+							text = "pantheon_ui_temple_line"
+						}
+					}
+					expand = {}
+				}
+
+				# ---- Tab 4: The Temple (2.2 Task 4)
+				vbox = {
+					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)4' )]"
+					layoutpolicy_horizontal = expanding
+					layoutpolicy_vertical = expanding
+					spacing = 8
+
+					# Before founding: the faith's holy sites, a scroll list (One Trait 2.7's proven list form,
+					# OneTraitToRuleThemAll/gui/one_trait_panel.gui, datamodel/AddScope('landed_title', Title.MakeScope)).
+					vbox = {
+						visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet )]"
+						layoutpolicy_horizontal = expanding
+						spacing = 8
+						text_single = {
+							multiline = yes
+							autoresize = yes
+							max_width = 680
+							text = "pantheon_ui_temple_intro"
+						}
+						text_single = {
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites') )]"
+							text = "pantheon_ui_temple_no_sites"
+						}
+						scrollbox = {
+							size = { 680 480 }
+							blockoverride "scrollbox_content" {
+								vbox = {
+									layoutpolicy_horizontal = expanding
+									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites')]"
+									spacing = 4
+									item = {
+										widget = {
+											size = { 660 50 }
+											datacontext = "[Scope.GetLandedTitle]"
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 10
+												text_single = {
+													layoutpolicy_horizontal = expanding
+													autoresize = no
+													text = "[Title.GetName]"
+												}
+												text_single = {
+													layoutpolicy_horizontal = expanding
+													autoresize = no
+													datacontext = "[Title.GetHolder]"
+													text = "[Character.GetShortUINameNoTooltip]"
+												}
+												# Batch 2r1 (repair 5): each row gave no idea what founding there would cost.
+												# Batch u1 repair (row 4): no size at all here rendered as a lone truncated "..."
+												# -- a fixed width gives the text room (One Trait 2.7's lesson again).
+												text_single = {
+													size = { 190 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_temple_found_cost"
+													tooltip = "pantheon_temple_found_after_tt"
+												}
+												button_standard = {
+													size = { 150 32 }
+													text = "pantheon_ui_btn_temple_found"
+													enabled = "[GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ), Localize( 'pantheon_temple_found_after_tt' ), GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('pantheon_ui_temple_found').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
+					# After founding: header, bonuses, upgrade, the ladder, and the tier-5 miracles.
+					vbox = {
+						visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
+						layoutpolicy_horizontal = expanding
+						spacing = 8
+						datacontext = "[GetPlayer]"
+
+						text_single = { using = Font_Size_Medium text = "[Character.Custom('pantheon_temple_tier_name')]" }
+						text_single = { text = "[Character.Custom('pantheon_temple_state')]" }
+						# Batch 2r1 (repair 5): the header omitted which county holds the temple.
+						text_single = { text = "pantheon_ui_temple_county" }
+						text_single = { multiline = yes autoresize = yes max_width = 680 text = "[Character.Custom('pantheon_temple_tier_desc')]" }
+						# R13, batch 2b: the capital could not be made a holy site (e.g. the faith was already at its
+						# holy-site maximum). The temple itself still works fully.
+						text_single = {
+							visible = "[GetPlayer.MakeScope.Var('pantheon_temple_holy_site_refused').IsSet]"
+							text = "pantheon_ui_temple_holy_site_refused"
+						}
+
+						button_standard = {
+							size = { 260 32 }
+							text = "pantheon_ui_btn_temple_upgrade"
+							visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							enabled = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_temple_upgrade_after_tt' ), GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							onclick = "[GetScriptedGui('pantheon_ui_temple_upgrade').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						# Batch 2r1 (repair 5): the Upgrade button gave no idea what the next tier costs or what it is.
+						text_single = {
+							visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							text = "pantheon_ui_temple_next_line"
+							tooltip = "pantheon_temple_upgrade_after_tt"
+						}
+
+						# The five-step ladder: a passive row of tab-styled cells, the current tier's cell down.
+						# Batch u2 repair (item 3, rows 8/13): the cells looked clickable (button_tab's own hover/
+						# press frames) but did nothing. `enabled = no` keeps the "down" toggle look for the current
+						# tier while turning off the button's own hover/pressed states and click handling (the same
+						# property button_standard already uses elsewhere in this file to grey out, just always off
+						# here); each cell's own tooltip gives that tier's bonuses and cost/years
+						# (pantheon_temple_ladder_tt_1..5, localization/english/pantheon_l_english.yml -- built from
+						# the per-tier script values Task 1 already defines, common/script_values/pantheon_values.txt).
+						hbox = {
+							spacing = 4
+							button_tab = {
+								# Batch u1 repair (row 2): a bare hbox sizing itself from five expanding, zero-width
+								# children collapsed to nothing and the five names overlapped at one spot -- fixed-size
+								# cells with an explicit width fix it (the lesson One Trait 2.7 already proved).
+								size = { 132 32 }
+								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' )]"
+								enabled = no
+								tooltip = "pantheon_temple_ladder_tt_1"
+								text_single = {
+									size = { 132 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "building_type_pantheon_great_temple_01"
+								}
+							}
+							button_tab = {
+								size = { 132 32 }
+								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' )]"
+								enabled = no
+								tooltip = "pantheon_temple_ladder_tt_2"
+								text_single = {
+									size = { 132 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "building_type_pantheon_great_temple_02"
+								}
+							}
+							button_tab = {
+								size = { 132 32 }
+								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' )]"
+								enabled = no
+								tooltip = "pantheon_temple_ladder_tt_3"
+								text_single = {
+									size = { 132 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "building_type_pantheon_great_temple_03"
+								}
+							}
+							button_tab = {
+								size = { 132 32 }
+								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' )]"
+								enabled = no
+								tooltip = "pantheon_temple_ladder_tt_4"
+								text_single = {
+									size = { 132 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "building_type_pantheon_great_temple_04"
+								}
+							}
+							button_tab = {
+								size = { 132 32 }
+								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
+								enabled = no
+								tooltip = "pantheon_temple_ladder_tt_5"
+								text_single = {
+									size = { 132 32 }
+									autoresize = no
+									align = center|vcenter
+									text = "building_type_pantheon_great_temple_05"
+								}
+							}
+						}
+
+						# The miracles (tier 5): arm-then-confirm (pantheon_temple_confirm, One Trait's
+						# one_trait_ui_confirm form) and the Wrath note.
+						vbox = {
+							visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
+							layoutpolicy_horizontal = expanding
+							spacing = 6
+							hbox = {
+								spacing = 6
+								button_standard = {
+									size = { 210 32 }
+									enabled = "[GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+									# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+									# (if any) on its own line below.
+									tooltip = "pantheon_ui_miracle_conversion_tt"
+									onclick = "[GetScriptedGui('pantheon_ui_miracle_conversion').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
+									# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
+									widget = {
+										size = { 210 32 }
+										text_single = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 210 32 }
+											autoresize = no
+											align = center|vcenter
+											text = "pantheon_ui_btn_miracle_conversion"
+										}
+										text_single = {
+											visible = "[GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 210 32 }
+											autoresize = no
+											align = center|vcenter
+											text = "pantheon_ui_btn_confirm"
+										}
+									}
+								}
+								button_standard = {
+									size = { 210 32 }
+									enabled = "[GetScriptedGui('pantheon_ui_miracle_age').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+									# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+									# (if any) on its own line below.
+									tooltip = "pantheon_ui_miracle_age_tt"
+									onclick = "[GetScriptedGui('pantheon_ui_miracle_age').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									widget = {
+										size = { 210 32 }
+										text_single = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 210 32 }
+											autoresize = no
+											align = center|vcenter
+											text = "pantheon_ui_btn_miracle_age"
+										}
+										text_single = {
+											visible = "[GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 210 32 }
+											autoresize = no
+											align = center|vcenter
+											text = "pantheon_ui_btn_confirm"
+										}
+									}
+								}
+								button_standard = {
+									size = { 210 32 }
+									enabled = "[GetScriptedGui('pantheon_ui_miracle_victory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+									# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+									# (if any) on its own line below.
+									tooltip = "pantheon_ui_miracle_victory_tt"
+									onclick = "[GetScriptedGui('pantheon_ui_miracle_victory').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									widget = {
+										size = { 210 32 }
+										text_single = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 210 32 }
+											autoresize = no
+											align = center|vcenter
+											text = "pantheon_ui_btn_miracle_victory"
+										}
+										text_single = {
+											visible = "[GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											size = { 210 32 }
+											autoresize = no
+											align = center|vcenter
+											text = "pantheon_ui_btn_confirm"
+										}
+									}
+								}
+							}
+							text_single = {
+								multiline = yes
+								autoresize = yes
+								max_width = 680
+								text = "pantheon_ui_wrath_note"
+							}
+						}
+						expand = {}
 					}
 				}
-				expand = {}
 			}
 		}
 	}

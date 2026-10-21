@@ -3,6 +3,14 @@
 # The dead are dropped first. Saved scopes, not temporary ones, and never pantheon_target (1.4 lesson).
 pantheon_ui_rebuild_effect = {
 	pantheon_forget_the_dead_effect = yes
+	# 2.3 (R2): prayers that stopped being answerable leave the list silently before the window reads it
+	pantheon_prayer_prune_effect = yes
+	# 2.3 B5: Retribution calls that are no longer live (war over, a side dead, defender left the faith) go silently, and a
+	# pre-2.3 oath gets its snapshot before the Prayers tab reads it
+	pantheon_retri_prune_effect = yes
+	pantheon_oath_migrate_effect = yes
+	# 2.3 B4: a pending send whose source is gone (prayer closed, recipient dead) goes with it
+	pantheon_send_validate_effect = yes
 	save_scope_as = pantheon_ui_god
 	# Followers: every living ruler of the god's faith, plus anyone already counted (pantheon_known holds those who
 	# prayed or were blessed, landless or not). In-game round 1: pantheon_known alone left the tab empty until a blessing.
@@ -29,6 +37,47 @@ pantheon_ui_rebuild_effect = {
 		add_to_list = pantheon_ui_demigod_pool
 	}
 	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_demigod_pool TARGET = pantheon_ui_demigods DEFAULT = pantheon_total_skill }
+	# 2.3 B3: the Prayers tab's rows -- the god's open prayers (pruned above), OLDEST FIRST: the token only grows, so
+	# the lowest token is the prayer with the least time left. ordered_in_list takes the highest first, hence the
+	# negated token. Built from a temporary pool like the follower lists (a list is never ordered in place).
+	clear_variable_list = pantheon_ui_prayers
+	every_in_list = {
+		variable = pantheon_open_prayers
+		limit = { is_alive = yes has_variable = pantheon_prayer_token }
+		add_to_list = pantheon_ui_prayer_pool
+	}
+	ordered_in_list = {
+		list = pantheon_ui_prayer_pool
+		limit = { is_alive = yes has_variable = pantheon_prayer_token }
+		order_by = {
+			value = var:pantheon_prayer_token
+			multiply = -1
+		}
+		max = 300
+		check_range_bounds = no
+		save_scope_as = pantheon_ui_row
+		scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_prayers target = scope:pantheon_ui_row } }
+	}
+	# 2.3 B5: the Prayers tab's Calls for Retribution -- the open, live calls (pruned above), oldest first (lowest token), by the
+	# same negated-token ordering as the prayers. The row is the ATTACKER; its defender is on its record.
+	clear_variable_list = pantheon_ui_retris
+	every_in_list = {
+		variable = pantheon_open_retributions
+		limit = { is_alive = yes has_variable = pantheon_retri_token }
+		add_to_list = pantheon_ui_retri_pool
+	}
+	ordered_in_list = {
+		list = pantheon_ui_retri_pool
+		limit = { is_alive = yes has_variable = pantheon_retri_token }
+		order_by = {
+			value = var:pantheon_retri_token
+			multiply = -1
+		}
+		max = 100
+		check_range_bounds = no
+		save_scope_as = pantheon_ui_row
+		scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_retris target = scope:pantheon_ui_row } }
+	}
 	clear_variable_list = pantheon_ui_houses
 	every_child = {
 		limit = { has_trait = pantheon_demigod }
@@ -82,6 +131,40 @@ pantheon_ui_rebuild_effect = {
 			scope:pantheon_ui_god.capital_county = { save_scope_as = pantheon_ui_row }
 			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_temple_sites target = scope:pantheon_ui_row } }
 		}
+	}
+}
+
+# Fix round 1 (F5): a record closed from an EVENT (a wrath landing, a deadline, a Send, an oath ending) must also leave an
+# open window's lists, or its row stays behind with the record gone. Rebuilds only while the window is open (root = the
+# god). NEVER call this from the _core_ closers or the prune effects: the rebuild prunes through them (recursion).
+# Fix round 2 (H3): the Prayers tab opens on the first sub-tab that has something: Prayers, then Retribution, then
+# Great Prayers; all empty -> Prayers. Run AFTER pantheon_ui_rebuild_effect (it prunes stale records first). God scope.
+pantheon_ui_pick_ptab_effect = {
+	if = {
+		limit = { pantheon_ui_count_prayers > 0 }
+		set_variable = { name = pantheon_ui_ptab value = 1 }
+	}
+	else_if = {
+		limit = { pantheon_ui_count_retris > 0 }
+		set_variable = { name = pantheon_ui_ptab value = 2 }
+	}
+	else_if = {
+		limit = { pantheon_ui_count_great > 0 }
+		set_variable = { name = pantheon_ui_ptab value = 3 }
+	}
+	else = {
+		set_variable = { name = pantheon_ui_ptab value = 1 }
+	}
+}
+
+pantheon_ui_refresh_if_open_effect = {
+	if = {
+		# only as the god itself: the oath's death hook reaches here with root = the dying offender (Codex fix-round review)
+		limit = {
+			this = root
+			has_variable = pantheon_ui_open
+		}
+		pantheon_ui_rebuild_effect = yes
 	}
 }
 

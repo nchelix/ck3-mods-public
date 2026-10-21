@@ -3,6 +3,9 @@
 
 # Every wrath, as it lands: the 5-year cooldown, a toast for each side, and Devotion (spec, Devotion after a
 # wrath). Called BEFORE the wrath itself, so a target about to be struck down is still alive to be judged.
+# 2.3 (R16): $KIND$ says which wrath landed -- 1 strike, 2 maim, 3 curse, 4 plague, 5 disaster -- and every caller passes
+# it. A sworn Great Prayer is fulfilled HERE: the wrath landed on the sworn offender AND (the oath is not harsh OR the
+# wrath is a strike or a maim). A Retribution chain (context 2) also closes its call here, once the wrath has landed.
 pantheon_wrath_landed_effect = {
 	scope:pantheon_victim = {
 		set_variable = { name = pantheon_wrath_cooldown value = yes years = 5 }
@@ -18,39 +21,64 @@ pantheon_wrath_landed_effect = {
 		left_icon = scope:pantheon_victim
 	}
 	pantheon_wrath_devotion_effect = yes
-	# 1.5: a sworn Great Prayer is answered only by a wrath landing on the sworn offender (1.5 review)
+	# 1.5: a sworn Great Prayer is answered only by a wrath landing on the sworn offender (1.5 review). 2.3 (R16): a harsh
+	# oath (a torture) only by a strike or a maim.
+	save_temporary_scope_value_as = { name = pantheon_wrath_kind value = $KIND$ }
 	if = {
 		limit = {
 			has_variable = pantheon_great_prayer_active
 			scope:pantheon_victim = var:pantheon_great_prayer_offender
+			OR = {
+				NOT = { pantheon_oath_harsh_trigger = yes }
+				scope:pantheon_wrath_kind <= 2
+			}
 		}
 		pantheon_great_prayer_answered_effect = yes
 	}
+	# 2.3 (R10, R19): a Retribution call is answered once a wrath has landed on its aggressor; only the matching call closes
+	if = {
+		limit = {
+			pantheon_wrath_ctx_is_retri_trigger = yes
+			pantheon_retri_chain_ok_trigger = yes
+		}
+		pantheon_retri_close_matching_effect = yes
+	}
 }
 
+# Every wrath below first re-validates its chain (pantheon_wrath_mutation_ok_trigger: a Retribution chain must still match
+# its open call) and does nothing if it fails.
 pantheon_wrath_strike_effect = {
-	change_variable = { name = pantheon_worship subtract = pantheon_cost_strike }
-	set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_strike }
-	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_strike_t }
-	scope:pantheon_victim = {
-		death = { death_reason = death_pantheon_smitten killer = root }
+	if = {
+		limit = { pantheon_wrath_mutation_ok_trigger = yes }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_strike }
+		set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_strike }
+		pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_strike_t KIND = 1 }
+		scope:pantheon_victim = {
+			death = { death_reason = death_pantheon_smitten killer = root }
+		}
 	}
 }
 
 # $TRAIT$: maimed, blind or wounded_3 (the god picks on pantheon.0072)
 pantheon_wrath_maim_effect = {
-	change_variable = { name = pantheon_worship subtract = pantheon_cost_maim }
-	set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_maim }
-	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_maim_t }
-	scope:pantheon_victim = { add_trait = $TRAIT$ }
+	if = {
+		limit = { pantheon_wrath_mutation_ok_trigger = yes }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_maim }
+		set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_maim }
+		pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_maim_t KIND = 2 }
+		scope:pantheon_victim = { add_trait = $TRAIT$ }
+	}
 }
 
 pantheon_wrath_curse_effect = {
-	change_variable = { name = pantheon_worship subtract = pantheon_cost_curse }
-	set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_curse }
-	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_curse_t }
-	scope:pantheon_victim = {
-		add_character_modifier = { modifier = pantheon_cursed years = 10 }
+	if = {
+		limit = { pantheon_wrath_mutation_ok_trigger = yes }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_curse }
+		set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_curse }
+		pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_curse_t KIND = 3 }
+		scope:pantheon_victim = {
+			add_character_modifier = { modifier = pantheon_cursed years = 10 }
+		}
 	}
 }
 
@@ -72,55 +100,61 @@ pantheon_wrath_origin_effect = {
 # Pestilence (INTENSITY = minor) and The Great Dying (major). Proven: major swept Britain, minor stayed
 # contained. pantheon_plague_sent lets the quarterly tick charge followers it reaches (-5, once each).
 pantheon_wrath_plague_effect = {
-	change_variable = { name = pantheon_worship subtract = $COST$ }
-	set_variable = { name = pantheon_last_wrath_cost value = $COST$ }
-	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_plague_t }
-	pantheon_wrath_origin_effect = yes
-	var:pantheon_wrath_origin ?= {
-		create_epidemic_outbreak = { type = bubonic_plague intensity = $INTENSITY$ }
+	if = {
+		limit = { pantheon_wrath_mutation_ok_trigger = yes }
+		change_variable = { name = pantheon_worship subtract = $COST$ }
+		set_variable = { name = pantheon_last_wrath_cost value = $COST$ }
+		pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_plague_t KIND = 4 }
+		pantheon_wrath_origin_effect = yes
+		var:pantheon_wrath_origin ?= {
+			create_epidemic_outbreak = { type = bubonic_plague intensity = $INTENSITY$ }
+		}
+		set_variable = { name = pantheon_plague_sent value = yes years = 3 }
 	}
-	set_variable = { name = pantheon_plague_sent value = yes years = 3 }
 }
 
 # The kind follows the terrain where it lands (the chosen county, else the capital): a flood on coasts and
 # rivers, an earthquake in hills and mountains, a famine elsewhere. Only the target's own counties are struck.
 pantheon_wrath_disaster_effect = {
-	change_variable = { name = pantheon_worship subtract = pantheon_cost_disaster }
-	set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_disaster }
-	pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_disaster_t }
-	pantheon_wrath_origin_effect = yes
 	if = {
-		limit = {
-			var:pantheon_wrath_origin ?= {
-				OR = {
-					is_coastal = yes
-					is_riverside_province = yes
+		limit = { pantheon_wrath_mutation_ok_trigger = yes }
+		change_variable = { name = pantheon_worship subtract = pantheon_cost_disaster }
+		set_variable = { name = pantheon_last_wrath_cost value = pantheon_cost_disaster }
+		pantheon_wrath_landed_effect = { TOAST = pantheon_wrath_disaster_t KIND = 5 }
+		pantheon_wrath_origin_effect = yes
+		if = {
+			limit = {
+				var:pantheon_wrath_origin ?= {
+					OR = {
+						is_coastal = yes
+						is_riverside_province = yes
+					}
 				}
 			}
-		}
-		scope:pantheon_victim = {
-			every_held_county = { add_county_modifier = { modifier = pantheon_disaster_flood years = 5 } }
-		}
-	}
-	else_if = {
-		limit = {
-			var:pantheon_wrath_origin ?= {
-				OR = {
-					terrain = hills
-					terrain = mountains
-				}
+			scope:pantheon_victim = {
+				every_held_county = { add_county_modifier = { modifier = pantheon_disaster_flood years = 5 } }
 			}
 		}
-		scope:pantheon_victim = {
-			every_held_county = { add_county_modifier = { modifier = pantheon_disaster_quake years = 5 } }
+		else_if = {
+			limit = {
+				var:pantheon_wrath_origin ?= {
+					OR = {
+						terrain = hills
+						terrain = mountains
+					}
+				}
+			}
+			scope:pantheon_victim = {
+				every_held_county = { add_county_modifier = { modifier = pantheon_disaster_quake years = 5 } }
+			}
 		}
-	}
-	else = {
-		scope:pantheon_victim = {
-			every_held_county = { add_county_modifier = { modifier = pantheon_disaster_famine years = 5 } }
+		else = {
+			scope:pantheon_victim = {
+				every_held_county = { add_county_modifier = { modifier = pantheon_disaster_famine years = 5 } }
+			}
 		}
+		pantheon_wrath_wreck_building_effect = yes
 	}
-	pantheon_wrath_wreck_building_effect = yes
 }
 
 # A building always falls (user, 2026-10-03): where the wrath landed first (the chosen county or the capital),
@@ -328,11 +362,44 @@ pantheon_plague_devotion_effect = {
 # Every wrath page and Retribution: the target is saved as scope:pantheon_victim when the chain opens, from the
 # variable on the god. Saved scopes survive trigger_event, so later pages keep the chain's own target even if
 # another Judgement or Retribution has since overwritten the variable (final review, M1).
+# 2.3 review fix: the pages' restrictions are NOT stored on the god any more (open pages of different routes shared the
+# flags): the option triggers derive them from the page's own saved context (pantheon_wrath_page_harsh_trigger / _light_trigger).
 pantheon_wrath_open_page_effect = {
 	if = {
 		limit = { NOT = { exists = scope:pantheon_victim } }
 		var:pantheon_wrath_target = { save_scope_as = pantheon_victim }
 	}
+}
+
+# Clear the legacy (pre-2.3.1) page-restriction flags, if a save still carries them.
+pantheon_wrath_clear_restrictions_effect = {
+	if = {
+		limit = { has_variable = pantheon_wrath_harsh }
+		remove_variable = pantheon_wrath_harsh
+	}
+	if = {
+		limit = { has_variable = pantheon_wrath_light }
+		remove_variable = pantheon_wrath_light
+	}
+}
+
+# 2.3 (R18): every entry route announces itself on the god: $CTX$ 1 sworn oath, 2 Retribution call, 3 Judgement interaction,
+# 4 Lands interaction (variable pantheon_wrath_context), and starts with clear page restrictions -- after first making
+# sure a pre-2.3 oath has its harshness saved (the restriction below would otherwise wipe the only copy).
+# The pages carry the context as the persistent saved value scope:pantheon_wrath_ctx, set by the route.
+pantheon_wrath_set_context_effect = {
+	pantheon_oath_migrate_effect = yes
+	set_variable = { name = pantheon_wrath_context value = $CTX$ }
+	pantheon_wrath_clear_restrictions_effect = yes
+}
+
+# Save the route's context as a persistent value for the page chain (clearing an older one first).
+pantheon_wrath_save_ctx_effect = {
+	if = {
+		limit = { exists = scope:pantheon_wrath_ctx }
+		clear_saved_scope = pantheon_wrath_ctx
+	}
+	save_scope_value_as = { name = pantheon_wrath_ctx value = $CTX$ }
 }
 
 # Retribution, Send the Host: the existing Host boon, given to the defender (+10 Devotion, as any unasked boon,
