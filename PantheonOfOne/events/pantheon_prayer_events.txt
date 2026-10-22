@@ -225,7 +225,7 @@ pantheon.0060 = {
 	# 2.3 B4: it starts SENDING MODE and does not answer the prayer: the pending send is stored on the god (kind 1 Host /
 	# 2 Spouse, recipient, the prayer's token), the Pantheon window opens on the Children tab, and a demigod's Send button
 	# there lends / weds them at the usual price and then closes the prayer. If the send is cancelled the prayer stays
-	# open (this event's other options and the Prayers tab still answer it). It no longer opens pantheon_menu.0510.
+	# open (this event's other options and the Prayers tab still answer it).
 	option = {
 		name = pantheon.0060.send
 		trigger = {

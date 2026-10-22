@@ -137,7 +137,7 @@ pantheon_swear_vengeance_effect = {
 			set_variable = { name = pantheon_great_prayer_kind value = scope:pantheon_great_suppliant.var:pantheon_grievance_kind }
 		}
 		if = {
-			limit = { var:pantheon_great_prayer_kind = 5 }
+			limit = { var:pantheon_great_prayer_kind ?= 5 }
 			set_variable = { name = pantheon_great_prayer_harsh value = yes }
 		}
 		set_variable = { name = pantheon_wrath_target value = scope:pantheon_great_offender }

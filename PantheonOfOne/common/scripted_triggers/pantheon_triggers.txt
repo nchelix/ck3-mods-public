@@ -681,14 +681,14 @@ pantheon_prayer_open_here_trigger = {
 # In the suppliant's scope: does the need they prayed for still hold? (the same triggers that picked them)
 pantheon_prayer_need_valid_trigger = {
 	OR = {
-		AND = { var:pantheon_prayer_need = 1 pantheon_need_host_trigger = yes }
-		AND = { var:pantheon_prayer_need = 2 pantheon_need_fertility_trigger = yes }
-		AND = { var:pantheon_prayer_need = 3 pantheon_need_vigor_trigger = yes }
-		AND = { var:pantheon_prayer_need = 4 pantheon_need_warding_trigger = yes }
-		AND = { var:pantheon_prayer_need = 5 pantheon_need_harvest_trigger = yes }
-		AND = { var:pantheon_prayer_need = 6 pantheon_need_gift_trigger = yes }
-		AND = { var:pantheon_prayer_need = 7 pantheon_need_healing_trigger = yes }
-		AND = { var:pantheon_prayer_need = 8 pantheon_need_spouse_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 1 pantheon_need_host_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 2 pantheon_need_fertility_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 3 pantheon_need_vigor_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 4 pantheon_need_warding_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 5 pantheon_need_harvest_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 6 pantheon_need_gift_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 7 pantheon_need_healing_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 8 pantheon_need_spouse_trigger = yes }
 	}
 }
 

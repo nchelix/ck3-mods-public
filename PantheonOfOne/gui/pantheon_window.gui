@@ -1267,28 +1267,28 @@ window = {
 						button_standard = {
 							size = { 160 32 }
 							text = "pantheon_ui_btn_throne"
-							tooltip = "pantheon_menu.0001.throne.tt"
+							tooltip = "pantheon_tip.0001.throne.tt"
 							visible = "[GetScriptedGui('pantheon_ui_throne').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('pantheon_ui_throne').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 160 32 }
 							text = "pantheon_ui_btn_proclaim"
-							tooltip = "pantheon_menu.0001.proclaim.tt"
+							tooltip = "pantheon_tip.0001.proclaim.tt"
 							visible = "[GetScriptedGui('pantheon_ui_proclaim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('pantheon_ui_proclaim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 160 32 }
 							text = "pantheon_ui_btn_forswear"
-							tooltip = "pantheon_menu.0001.forswear.tt"
+							tooltip = "pantheon_tip.0001.forswear.tt"
 							visible = "[GetScriptedGui('pantheon_ui_forswear').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('pantheon_ui_forswear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 160 32 }
 							text = "pantheon_ui_btn_embrace"
-							tooltip = "pantheon_menu.0001.embrace.tt"
+							tooltip = "pantheon_tip.0001.embrace.tt"
 							visible = "[GetScriptedGui('pantheon_ui_embrace').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}

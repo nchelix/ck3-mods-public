@@ -1,5 +1,14 @@
 # Changelog — Pantheon of One
 
+## [2.3.1] — 2026-10-21
+
+A clean-up release with no gameplay changes. Tested on CK3 1.20.1.2.
+
+### Removed
+- The old right-click menu pages from before the 2.0 window (the boon pages, Your Blessed, the old demigod picker).
+  Players could no longer reach them; the Pantheon window and the interactions do everything they did. Their
+  tooltips live on under new names, word for word.
+
 ## [2.3] — 2026-10-21
 
 The panel release: the window gets side tabs and a Prayers tab, prayers wait for your answer, and the Children tab

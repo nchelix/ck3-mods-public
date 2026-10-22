@@ -64,7 +64,7 @@ pantheon.0103 = {
 	}
 }
 
-# Call home: var:pantheon_act_target is the lent demigod (as pantheon_menu.0300.recall_demigod did). Never
+# Call home: var:pantheon_act_target is the lent demigod. Never
 # var:pantheon_ui_target: Call home is not the window's own selection (I3).
 pantheon.0104 = {
 	type = character_event
@@ -154,7 +154,7 @@ pantheon.0109 = {
 	}
 	option = {
 		name = pantheon.0109.confirm
-		custom_tooltip = pantheon_menu.0001.forswear.tt
+		custom_tooltip = pantheon_tip.0001.forswear.tt
 		hidden_effect = { add_character_modifier = pantheon_forsworn }
 	}
 	option = {
@@ -174,7 +174,7 @@ pantheon.0110 = {
 	}
 	option = {
 		name = pantheon.0110.confirm
-		custom_tooltip = pantheon_menu.0001.embrace.tt
+		custom_tooltip = pantheon_tip.0001.embrace.tt
 		hidden_effect = { remove_character_modifier = pantheon_forsworn }
 	}
 	option = {

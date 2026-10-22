@@ -437,27 +437,27 @@ pantheon_bless_interaction = {
 
 	on_accept = {
 		# The preview follows the selected option (the page tooltips of 1.0-1.6)
-		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_menu.0100.champion.tt }
+		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_tip.0100.champion.tt }
 		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_worship_line_trait }
-		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_menu.0100.warlord.tt }
+		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_tip.0100.warlord.tt }
 		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_worship_line_trait }
-		if = { limit = { scope:pantheon_bless_sovereign = yes } custom_tooltip = pantheon_menu.0100.sovereign.tt }
+		if = { limit = { scope:pantheon_bless_sovereign = yes } custom_tooltip = pantheon_tip.0100.sovereign.tt }
 		if = { limit = { scope:pantheon_bless_sovereign = yes } custom_tooltip = pantheon_worship_line_trait }
-		if = { limit = { scope:pantheon_bless_sage = yes } custom_tooltip = pantheon_menu.0100.sage.tt }
+		if = { limit = { scope:pantheon_bless_sage = yes } custom_tooltip = pantheon_tip.0100.sage.tt }
 		if = { limit = { scope:pantheon_bless_sage = yes } custom_tooltip = pantheon_worship_line_trait }
-		if = { limit = { scope:pantheon_bless_harvest = yes } custom_tooltip = pantheon_menu.0200.harvest.tt }
+		if = { limit = { scope:pantheon_bless_harvest = yes } custom_tooltip = pantheon_tip.0200.harvest.tt }
 		if = { limit = { scope:pantheon_bless_harvest = yes } custom_tooltip = pantheon_worship_line_realm }
-		if = { limit = { scope:pantheon_bless_walls = yes } custom_tooltip = pantheon_menu.0200.walls.tt }
+		if = { limit = { scope:pantheon_bless_walls = yes } custom_tooltip = pantheon_tip.0200.walls.tt }
 		if = { limit = { scope:pantheon_bless_walls = yes } custom_tooltip = pantheon_worship_line_realm }
-		if = { limit = { scope:pantheon_bless_warding = yes } custom_tooltip = pantheon_menu.0200.warding.tt }
+		if = { limit = { scope:pantheon_bless_warding = yes } custom_tooltip = pantheon_tip.0200.warding.tt }
 		if = { limit = { scope:pantheon_bless_warding = yes } custom_tooltip = pantheon_worship_line_realm }
-		if = { limit = { scope:pantheon_bless_vigor = yes } custom_tooltip = pantheon_menu.0300.vigor.tt }
+		if = { limit = { scope:pantheon_bless_vigor = yes } custom_tooltip = pantheon_tip.0300.vigor.tt }
 		if = { limit = { scope:pantheon_bless_vigor = yes } custom_tooltip = pantheon_worship_line_life }
-		if = { limit = { scope:pantheon_bless_fertility = yes } custom_tooltip = pantheon_menu.0300.fertility.tt }
+		if = { limit = { scope:pantheon_bless_fertility = yes } custom_tooltip = pantheon_tip.0300.fertility.tt }
 		if = { limit = { scope:pantheon_bless_fertility = yes } custom_tooltip = pantheon_worship_line_life }
-		if = { limit = { scope:pantheon_bless_lineage = yes } custom_tooltip = pantheon_menu.0300.lineage.tt }
+		if = { limit = { scope:pantheon_bless_lineage = yes } custom_tooltip = pantheon_tip.0300.lineage.tt }
 		if = { limit = { scope:pantheon_bless_lineage = yes } custom_tooltip = pantheon_worship_line_life }
-		if = { limit = { scope:pantheon_bless_host = yes } custom_tooltip = pantheon_menu.0001.host.tt }
+		if = { limit = { scope:pantheon_bless_host = yes } custom_tooltip = pantheon_tip.0001.host.tt }
 		if = { limit = { scope:pantheon_bless_host = yes } custom_tooltip = pantheon_worship_line_host }
 		hidden_effect = {
 			scope:actor = {
@@ -512,7 +512,7 @@ pantheon_conception_interaction = {
 		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 	}
 	on_accept = {
-		custom_tooltip = pantheon_menu.0300.conception.tt
+		custom_tooltip = pantheon_tip.0300.conception.tt
 		hidden_effect = {
 			scope:actor = {
 				set_variable = { name = pantheon_act_target value = scope:recipient }
@@ -575,15 +575,15 @@ pantheon_lend_interaction = {
 	send_options_exclusive = yes
 	send_option = {
 		flag = pantheon_role_champion
-		localization = pantheon_menu.0520.champion
+		localization = pantheon_tip.0520.champion
 	}
 	send_option = {
 		flag = pantheon_role_councillor
-		localization = pantheon_menu.0520.councillor
+		localization = pantheon_tip.0520.councillor
 	}
 	send_option = {
 		flag = pantheon_role_commander
-		localization = pantheon_menu.0520.commander
+		localization = pantheon_tip.0520.commander
 		is_valid = {
 			scope:recipient = { custom_tooltip = { text = pantheon_no_army_tt any_army = { always = yes } } }
 		}
@@ -728,7 +728,7 @@ pantheon_reveal_interaction = {
 		}
 	}
 	on_accept = {
-		custom_tooltip = pantheon_menu.0500.reveal.tt
+		custom_tooltip = pantheon_tip.0500.reveal.tt
 		hidden_effect = {
 			scope:actor = {
 				# Hand off through pantheon_act_target only: this is not the window's selection (I3)
