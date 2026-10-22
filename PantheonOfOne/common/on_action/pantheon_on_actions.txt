@@ -255,6 +255,18 @@ pantheon_on_pregnancy_mother = {
 				# 2.2.2 (R1/R2): pregnancy.2001/.2002 have just run (events precede on_actions): clear the
 				# bastard flags they set at once, and again a day later (0040)
 				pantheon_clear_bastard_pregnancy_effect = yes
+				# 2.3.2: pregnancy.0001 (the reveal) may have set this flag; birth.3031 would then make the
+				# newborn Sickly 10-30 days after birth, after our clean-up. A demigod is never born sickly.
+				if = {
+					limit = { has_character_flag = birth_child_will_become_sickly }
+					remove_character_flag = birth_child_will_become_sickly
+				}
+				# 2.3.2: the engine does not add the Pregnant trait; vanilla's reveal events do (unmarried_mother_ and
+				# married_mother_pregnancy_effect), and for a god's child none of them fits (#14 override). Add it here.
+				if = {
+					limit = { NOT = { has_trait = pregnant } }
+					add_trait = pregnant
+				}
 				trigger_event = { id = pantheon.0040 days = 1 }
 			}
 		}
@@ -280,7 +292,11 @@ pantheon_on_war_started = {
 			}
 			save_scope_as = pantheon_god
 			if = {
-				limit = { pantheon_retribution_war_trigger = { GOD = scope:pantheon_god } }
+				limit = {
+					exists = scope:attacker
+					exists = scope:defender
+					pantheon_retribution_war_trigger = { GOD = scope:pantheon_god }
+				}
 				# 2.3 (R10): a record on the defender and the god's list, not the two single slots; 0080 carries it
 				pantheon_retri_open_effect = yes
 			}
@@ -354,6 +370,8 @@ pantheon_on_war_won_attacker = {
 			save_scope_as = pantheon_god
 			if = {
 				limit = {
+					exists = scope:attacker
+					exists = scope:defender
 					scope:defender = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
 					NOT = { scope:attacker = { faith = scope:pantheon_god.faith } }
 				}
@@ -377,6 +395,8 @@ pantheon_on_war_won_defender = {
 			save_scope_as = pantheon_god
 			if = {
 				limit = {
+					exists = scope:attacker
+					exists = scope:defender
 					scope:attacker = { pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god } }
 					NOT = { scope:defender = { faith = scope:pantheon_god.faith } }
 				}
@@ -394,6 +414,7 @@ on_title_gain = {
 
 pantheon_on_title_gain = {
 	trigger = {
+		exists = scope:title
 		scope:title = { tier = tier_county }
 	}
 	effect = {
@@ -411,6 +432,7 @@ pantheon_on_title_gain = {
 			if = {
 				limit = {
 					NOT = { scope:pantheon_site_taker = { faith = scope:pantheon_god.faith } }
+					exists = scope:title
 					scope:title = {
 						any_county_province = {
 							barony = { is_holy_site_of = scope:pantheon_god.faith }

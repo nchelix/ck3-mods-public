@@ -675,6 +675,10 @@ window = {
 									text = "pantheon_ui_boon_debt"
 								}
 								text_single = {
+									visible = "[Character.MakeScope.Var('pantheon_boon_conception').IsSet]"
+									text = "pantheon_ui_boon_conception"
+								}
+								text_single = {
 									visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
 									text = "pantheon_ui_grievance_line"
 								}
@@ -988,6 +992,17 @@ window = {
 					layoutpolicy_horizontal = expanding
 					layoutpolicy_vertical = expanding
 					spacing = 6
+
+					# 2.3.2: who Lend and Wed act on -- the follower selected in the Followers tab
+					text_single = {
+						visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
+						datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
+						text = "pantheon_ui_children_selected"
+					}
+					text_single = {
+						visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive ) )]"
+						text = "pantheon_ui_children_none"
+					}
 
 					hbox = {
 						layoutpolicy_horizontal = expanding

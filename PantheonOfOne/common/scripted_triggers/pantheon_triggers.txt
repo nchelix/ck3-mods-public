@@ -15,6 +15,7 @@ pantheon_has_any_boon_trigger = {
 		has_variable = pantheon_boon_great
 		has_variable = pantheon_boon_prayer
 		has_variable = pantheon_boon_debt
+		has_variable = pantheon_boon_conception
 	}
 }
 
@@ -40,14 +41,20 @@ pantheon_can_conceive_trigger = {
 
 # Below 25: gives no Worship, and is tested each year for leaving the faith.
 pantheon_wavering_trigger = {
-	has_variable = pantheon_devotion
-	var:pantheon_devotion < 25
+	trigger_if = {
+		limit = { has_variable = pantheon_devotion }
+		var:pantheon_devotion < 25
+	}
+	trigger_else = { always = no }
 }
 
 # 75 and up: double Worship, and never leaves the faith.
 pantheon_devout_trigger = {
-	has_variable = pantheon_devotion
-	var:pantheon_devotion >= 75
+	trigger_if = {
+		limit = { has_variable = pantheon_devotion }
+		var:pantheon_devotion >= 75
+	}
+	trigger_else = { always = no }
 }
 
 # The same disease traits pantheon_divine_health_effect cures on a god (common/scripted_effects/pantheon_effects.txt).
@@ -339,8 +346,11 @@ pantheon_retribution_war_trigger = {
 pantheon_grievance_eligible_trigger = {
 	is_alive = yes
 	faith = $GOD$.faith
-	has_variable = pantheon_devotion
-	var:pantheon_devotion >= 90
+	trigger_if = {
+		limit = { has_variable = pantheon_devotion }
+		var:pantheon_devotion >= 90
+	}
+	trigger_else = { always = no }
 }
 
 # A grievance the god can be asked to answer: still eligible, and the offender alive and not protected.
@@ -365,6 +375,15 @@ pantheon_has_a_great_prayer_trigger = {
 			faith = root.faith
 			pantheon_grievance_valid_trigger = { GOD = root }
 		}
+	}
+}
+
+# 2.3.2 (#14): root is a pregnant mother. A god's child is an honour, not a sin, so a pregnancy whose mother or
+# real father is a god is never a bastard pregnancy (see pantheon_vanilla_overrides.txt).
+pantheon_divine_pregnancy_trigger = {
+	OR = {
+		has_trait = pantheon_divine
+		pregnancy_real_father ?= { has_trait = pantheon_divine }
 	}
 }
 

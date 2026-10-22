@@ -590,6 +590,8 @@ pantheon_grant_conception_effect = {
 				}
 			}
 		}
+		# 2.3.2: the follower (the mother, or the goddess's partner) counts as Blessed for the usual period
+		pantheon_mark_timed_blessing_effect = { KEY = conception VALUE = 1 }
 		send_interface_toast = {
 			type = event_toast_effect_good
 			title = pantheon_conceived_t

@@ -1,5 +1,20 @@
 # Changelog — Pantheon of One
 
+## [2.3.2] — 2026-10-21
+
+A fix release. Tested on CK3 1.20.1.2.
+
+### Fixed
+- A widowed or divorced demigod is free again: she no longer stays "Wed into a house of the faithful", and Lend and Wed work for her.
+- A god's child no longer triggers vanilla's unwed-mother or married-mother "bastard" pop-ups (Beyond All Doubt). A pregnancy whose mother or real father is a god is never a bastard pregnancy.
+- A god's child shows the Pregnant trait once the pregnancy is known.
+- Less error.log noise: the Wrath judgement page's tooltips no longer log missing Devotion, and gaining a title or a war ending no longer logs an undefined `title`, `attacker` or `defender` scope.
+- Demigods are no longer born sickly: vanilla's reveal event could mark a god's pregnancy so the newborn fell Sickly a few weeks after birth.
+
+### Added
+- Divine Conception counts as a blessing: the follower shows as Blessed in the Followers tab for the usual blessing period.
+- The Children tab says who Lend and Wed act on (the follower selected in the Followers tab), or asks you to select one.
+
 ## [2.3.1] — 2026-10-21
 
 A clean-up release with no gameplay changes. Tested on CK3 1.20.1.2.

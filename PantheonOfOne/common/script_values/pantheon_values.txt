@@ -262,6 +262,7 @@ pantheon_ui_boon_count = {
 	if = { limit = { has_variable = pantheon_boon_great } add = 1 }
 	if = { limit = { has_variable = pantheon_boon_prayer } add = 1 }
 	if = { limit = { has_variable = pantheon_boon_debt } add = 1 }
+	if = { limit = { has_variable = pantheon_boon_conception } add = 1 }
 }
 
 # 2.0: on a house head, how many living members carry the god's blood (the Children tab)

@@ -735,4 +735,17 @@ pantheon_forget_the_dead_effect = {
 		limit = { var:pantheon_wed_spouse ?= { is_alive = no } }
 		remove_variable = pantheon_wed_spouse
 	}
+	# 2.3.2 (#18): a widowed or divorced demigod is free again. A still-married one (including the pre-2.0
+	# "wed_old" case: married, marker set, no recorded spouse) keeps her markers.
+	every_child = {
+		limit = {
+			has_variable = pantheon_wed_to_house
+			is_married = no
+		}
+		remove_variable = pantheon_wed_to_house
+		if = {
+			limit = { has_variable = pantheon_wed_spouse }
+			remove_variable = pantheon_wed_spouse
+		}
+	}
 }

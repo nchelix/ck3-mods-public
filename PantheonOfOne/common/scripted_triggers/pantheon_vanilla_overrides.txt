@@ -1,0 +1,22 @@
+﻿# Pantheon of One: vanilla overrides.
+#
+# This file replaces ONE vanilla scripted trigger by name: pregnancy_is_bastard (#14). Vanilla's unwed-mother
+# pop-up (pregnancy.2001, "Beyond All Doubt") and married-mother pop-up (pregnancy.2002) both require it, and a
+# god's child is an honour, not a sin. A pregnancy whose mother or real father is a god (see
+# pantheon_divine_pregnancy_trigger in pantheon_triggers.txt) is never a bastard pregnancy, so that check comes
+# FIRST and short-circuits before vanilla's own lines. The NOR block below is vanilla's, unchanged.
+#
+# Vanilla source: game/common/scripted_triggers/00_birth_triggers.txt, pregnancy_is_bastard (line 98 in 1.20).
+# Used only by game/events/pregnancy_events.txt.
+#
+# RECHECK THIS AFTER EACH CK3 PATCH: if vanilla changes the trigger, copy its new body below the divine check.
+# Whether a later file replaces a scripted trigger by name is proven in game by the Pantheon Debug Followers
+# readout and by error.log (look for "duplicate" lines naming pregnancy_is_bastard).
+
+pregnancy_is_bastard = {
+	NOT = { pantheon_divine_pregnancy_trigger = yes }
+	NOR = {
+		scope:real_father ?= { is_consort_of = root }
+		former_consort_was_father = yes
+	}
+}

@@ -130,6 +130,13 @@ pantheon.0010 = {
 				}
 				remove_variable = pantheon_ends_debt
 			}
+			if = {
+				limit = {
+					has_variable = pantheon_ends_conception
+					NOT = { has_variable = pantheon_boon_conception }
+				}
+				remove_variable = pantheon_ends_conception
+			}
 		}
 		# Forget followers who no longer carry a boon, or have died (two passes: never edit a list while walking it)
 		every_in_list = {
@@ -265,6 +272,11 @@ pantheon.0041 = {
 			real_father = { save_temporary_scope_as = pantheon_unbrand_god }
 		}
 		pantheon_unbrand_demigod_effect = yes
+		# 2.3.2: backstop if birth.3031 already fired (vanilla's sickly-child event, 10-30 days after birth)
+		if = {
+			limit = { has_trait = sickly }
+			remove_trait = sickly
+		}
 	}
 }
 
