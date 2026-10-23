@@ -35,7 +35,7 @@ divine regiment, keep raiders from holy ground.
 ## Worship and Devotion
 
 Every season, Worship flows to you from every county and every ruler of your
-faith, and a notification tells you how much. Every follower has a
+faith. Every follower has a
 **Devotion**: the devout give twice as much and never leave you; the
 wavering give nothing, and may turn to another faith.
 
@@ -43,7 +43,7 @@ wavering give nothing, and may turn to another faith.
 
 Your followers pray to you when they are in need: for the Host in a losing
 war, for children, a spouse, healing, long life, protection from plague,
-relief from debt (and a harvest, if they hold land), or a divine gift. **Grant** it, **send a sign**, or
+relief from debt (and a harvest, if they hold land), a divine gift, or freedom from a foreign prison. **Grant** it, **send a sign**, or
 **refuse**, now or later from the Prayers tab, and their Devotion follows. Strangers of other faiths may pray
 too, and follow you if you help them. Game rule: Prayer Frequency.
 
@@ -65,6 +65,9 @@ holy sites, or anyone makes war on you, **Divine Retribution** asks how you
 answer. Strike an enemy and your followers are in awe; strike your own and the
 faithful fear you.
 
+**Raiders** on your land answer to you: thin, break or annihilate their army,
+and a raider you strike is Marked: their next raid on you is destroyed.
+
 ## Great Prayers
 
 Your most devout remember who wronged them: a murdered kinsman, a war lost to
@@ -81,7 +84,8 @@ ruler's court for ten years, as champion, councillor or commander; or **wed**
 one into their house, so their children carry your blood. Keep that blood
 secret, or **reveal** it: every Godsblood of the house becomes Godsblooded,
 and their dynasty is exalted. Your children can also answer prayers and wars in
-person, and no one else may claim them in marriage.
+person, and no one else may claim them in marriage. **Free** one from another
+ruler's prison, or **dissolve** a match gone sour and bring them home.
 
 ---
 
@@ -129,14 +133,14 @@ They ask in prayer, or you grant the boon unasked from the Pantheon window, whic
 
 ## The Great Temple
 
-A wonder only a god can raise: five tiers (Shrine, Sanctuary, Temple, High Temple, Great Temple), founded on a holy site of your faith, or your own capital -- founding on a county that is not yet a holy site makes it one, where the faith has room for one (creation can be refused if your faith is already at its holy-site maximum). Each tier costs Worship and years to build, and compounds the one before it: more Worship, cheaper boons, a stronger Host of Heaven, and Devotion for the followers around it. Let its county fall from faithful hands, and its powers sleep until it returns.
+A wonder only a god can raise: five tiers (Shrine, Sanctuary, Temple, High Temple, Great Temple), founded on a holy site of your faith, or your own capital (it becomes a holy site if your faith has room). Each tier costs Worship and years to build, and compounds the one before it: more Worship, cheaper boons, a stronger Host of Heaven, and Devotion for the followers around it. Let its county fall from faithful hands, and its powers sleep until it returns.
 
 At the Great Temple, four miracles await, one at a time:
 
 - **Mass conversion**: every county for miles around takes your faith at once
 - **Age of faith**: for years, Worship doubles, your followers' Devotion swells, and fervor burns at its height
 - **Divine victory**: every war your followers lead against an unbeliever ends in their favour
-- **The Wrath of Heaven**: disaster, plague and fear fall on a huge swath of the world around any ruler you choose, sparing your own domain and the temple's county -- your other followers caught in it are not spared
+- **The Wrath of Heaven**: disaster, plague and fear fall on a huge swath of the world around any ruler you choose, sparing your own domain (other followers caught in it are not spared)
 
 ---
 
@@ -146,8 +150,8 @@ At the Great Temple, four miracles await, one at a time:
 
 ---
 
-For Crusader Kings III 1.20. Compatible with most mods: Pantheon of One only
-adds its own content and appends to vanilla hooks, replacing nothing.
+For Crusader Kings III 1.20. Compatible with most mods: it adds its own content
+and replaces nothing.
 
 ---
 
