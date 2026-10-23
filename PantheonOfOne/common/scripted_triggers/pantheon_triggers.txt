@@ -16,6 +16,8 @@ pantheon_has_any_boon_trigger = {
 		has_variable = pantheon_boon_prayer
 		has_variable = pantheon_boon_debt
 		has_variable = pantheon_boon_conception
+		# 2.4 repair 1 (R4): Freedom is a blessing
+		has_variable = pantheon_boon_freedom
 	}
 }
 
@@ -181,6 +183,72 @@ pantheon_need_spouse_trigger = {
 	trigger_if = { limit = { is_female = yes } is_pregnant = no }
 }
 
+# ---- 2.4 Freedom (need 9). Research (T1 step 1), from the 1.20 logs and vanilla:
+#  - place_in_line_of_succession is a LANDED_TITLE trigger, 1-BASED (1 = the first heir), used by vanilla's
+#    prisoners_of_war_trigger (00_war_and_peace_triggers.txt) as <war leader>.primary_title = { place_in_line_of_succession =
+#    { target = <prisoner> value <= 3 } }: vanilla's "third in line or higher".
+#  - ransom_cost_value is a vanilla script value read in the PRISONER's scope; it finds the jailer through `imprisoner`.
+#  - `imprisoner` is a character scope link (event_targets.log); in a prisoner's trigger it is the jailer.
+
+# In the prisoner's scope; no parameter. The prisoner leads one side of a war against their jailer's side
+# (the war collapses, and peace frees them: they get no Freedom prayer of either kind; only Bless can free them).
+pantheon_war_leader_prisoner_trigger = {
+	exists = imprisoner
+	any_character_war = {
+		is_war_leader = prev
+		OR = {
+			AND = { is_attacker = prev is_defender = prev.imprisoner }
+			AND = { is_defender = prev is_attacker = prev.imprisoner }
+		}
+	}
+}
+
+# In the prisoner's scope; no parameter. A valuable prisoner in vanilla's sense: their jailer is fighting a war whose
+# OTHER side is led by X, the prisoner is not X, and holds place 1-3 in the line of succession to X's primary title.
+pantheon_valuable_prisoner_trigger = {
+	exists = imprisoner
+	save_temporary_scope_as = pantheon_valuable_prisoner
+	imprisoner = {
+		any_character_war = {
+			OR = {
+				AND = {
+					is_attacker = prev
+					primary_defender = {
+						NOT = { this = scope:pantheon_valuable_prisoner }
+						primary_title ?= { place_in_line_of_succession = { target = scope:pantheon_valuable_prisoner value <= 3 } }
+					}
+				}
+				AND = {
+					is_defender = prev
+					primary_attacker = {
+						NOT = { this = scope:pantheon_valuable_prisoner }
+						primary_title ?= { place_in_line_of_succession = { target = scope:pantheon_valuable_prisoner value <= 3 } }
+					}
+				}
+			}
+		}
+	}
+}
+
+# In the candidate's scope; the god is ROOT (no parameter, like the other need triggers; called `= yes`). A follower of
+# the god's faith in someone else's prison: not a hostage, not a demigod, not held by the god, and neither a valuable
+# prisoner nor a war leader (kind 7 or nothing for them).
+pantheon_need_freedom_trigger = {
+	is_imprisoned = yes
+	exists = imprisoner
+	NOT = { is_imprisoned_by = root }
+	is_hostage = no
+	faith = root.faith
+	# 2.4 repair 1 (R1): a landed ruler, or a devout follower (Devotion 75+). A landless, non-devout prisoner is not prayed for.
+	OR = {
+		is_landed = yes
+		pantheon_devout_trigger = yes
+	}
+	NOT = { has_trait = pantheon_demigod }
+	pantheon_valuable_prisoner_trigger = no
+	pantheon_war_leader_prisoner_trigger = no
+}
+
 # ---- 1.4 Wrath. In each trigger below, this is the candidate and $GOD$ the god. Pass GOD as a saved scope
 # or root, never `this`: inside a nested block `this` changes, and $GOD$.faith would read the wrong faith.
 
@@ -299,6 +367,8 @@ pantheon_judgement_target_trigger = {
 		pantheon_criminal_trigger = { GOD = $GOD$ }
 		pantheon_sinner_trigger = { GOD = $GOD$ }
 		has_variable = pantheon_debug_enemy
+		# 2.4: a recent raider of this god's land (pantheon_raided_god, 5 years; set by the raid hook)
+		var:pantheon_raided_god ?= $GOD$
 	}
 }
 
@@ -357,6 +427,9 @@ pantheon_grievance_eligible_trigger = {
 pantheon_grievance_valid_trigger = {
 	pantheon_grievance_eligible_trigger = { GOD = $GOD$ }
 	has_variable = pantheon_grievance
+	# 2.4: freedom before vengeance. Jailed, they ask for their freedom first (the Freedom prayer); only a vengeful
+	# follower wants vengeance even from the cell.
+	trigger_if = { limit = { is_imprisoned = yes } has_trait = vengeful }
 	var:pantheon_grievance_target ?= {
 		is_alive = yes
 		NOT = { pantheon_wrath_protected_trigger = { GOD = $GOD$ } }
@@ -374,6 +447,38 @@ pantheon_has_a_great_prayer_trigger = {
 		any_courtier = {
 			faith = root.faith
 			pantheon_grievance_valid_trigger = { GOD = root }
+		}
+	}
+}
+
+# 2.4 (R7): the same, for a grievance that is NOT a raid grievance (kind 6). The scheduler tries these first.
+pantheon_has_a_strong_great_prayer_trigger = {
+	OR = {
+		any_ruler = {
+			faith = root.faith
+			pantheon_grievance_valid_trigger = { GOD = root }
+			NOT = { var:pantheon_grievance_kind ?= 6 }
+		}
+		any_courtier = {
+			faith = root.faith
+			pantheon_grievance_valid_trigger = { GOD = root }
+			NOT = { var:pantheon_grievance_kind ?= 6 }
+		}
+	}
+}
+
+# 2.4 (R7): a raid grievance (kind 6) is owed. The scheduler tries it last, only when nothing else was delivered.
+pantheon_has_a_raid_great_prayer_trigger = {
+	OR = {
+		any_ruler = {
+			faith = root.faith
+			pantheon_grievance_valid_trigger = { GOD = root }
+			var:pantheon_grievance_kind ?= 6
+		}
+		any_courtier = {
+			faith = root.faith
+			pantheon_grievance_valid_trigger = { GOD = root }
+			var:pantheon_grievance_kind ?= 6
 		}
 	}
 }
@@ -586,6 +691,15 @@ pantheon_boon_fortune_trigger = {
 	gold < 0
 }
 
+# 2.4 Kind 7: Freedom. In the follower's scope: still in a cell, not the god's own, still a valuable prisoner (so the
+# war that makes them one still runs). Ends the aspiration when they are freed, the war ends or they die (upkeep).
+pantheon_boon_freedom_trigger = {
+	is_alive = yes
+	is_imprisoned = yes
+	NOT = { is_imprisoned_by = $GOD$ }
+	pantheon_valuable_prisoner_trigger = yes
+}
+
 # The aspiration they hold is still valid (spec, Validity table), and they're still eligible to hold one
 pantheon_aspiration_valid_trigger = {
 	pantheon_boon_eligible_trigger = { GOD = $GOD$ }
@@ -609,6 +723,9 @@ pantheon_aspiration_valid_trigger = {
 	}
 	trigger_else_if = {
 		limit = { var:pantheon_aspiration_kind = 6 } pantheon_boon_fortune_trigger = yes
+	}
+	trigger_else_if = {
+		limit = { var:pantheon_aspiration_kind = 7 } pantheon_boon_freedom_trigger = { GOD = $GOD$ }
 	}
 	trigger_else = { always = no }
 }
@@ -655,6 +772,9 @@ pantheon_boon_affordable_trigger = {
 	trigger_else_if = {
 		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_fortune }
 	}
+	trigger_else_if = {
+		limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 7 } } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_freedom }
+	}
 	trigger_else = { always = no }
 }
 
@@ -684,6 +804,9 @@ pantheon_boon_affordable_kind_trigger = {
 	trigger_else_if = {
 		limit = { $KIND$ = 6 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_fortune }
 	}
+	trigger_else_if = {
+		limit = { $KIND$ = 7 } pantheon_can_afford_trigger = { COST = pantheon_cost_boon_freedom }
+	}
 	trigger_else = { always = no }
 }
 
@@ -699,15 +822,18 @@ pantheon_prayer_open_here_trigger = {
 
 # In the suppliant's scope: does the need they prayed for still hold? (the same triggers that picked them)
 pantheon_prayer_need_valid_trigger = {
+	# 2.4 (R1): while imprisoned, Freedom is the ONLY need; the older prayers 1-8 are invalid (pruned silently) in a cell.
+	# Need 9 (Freedom) reads the god as root (no parameter), like the need triggers it sits beside.
 	OR = {
-		AND = { var:pantheon_prayer_need ?= 1 pantheon_need_host_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 2 pantheon_need_fertility_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 3 pantheon_need_vigor_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 4 pantheon_need_warding_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 5 pantheon_need_harvest_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 6 pantheon_need_gift_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 7 pantheon_need_healing_trigger = yes }
-		AND = { var:pantheon_prayer_need ?= 8 pantheon_need_spouse_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 1 pantheon_need_host_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 2 pantheon_need_fertility_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 3 pantheon_need_vigor_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 4 pantheon_need_warding_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 5 pantheon_need_harvest_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 6 pantheon_need_gift_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 7 pantheon_need_healing_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 8 pantheon_need_spouse_trigger = yes }
+		AND = { var:pantheon_prayer_need ?= 9 pantheon_need_freedom_trigger = yes }
 	}
 }
 
@@ -902,11 +1028,20 @@ pantheon_wrath_page_harsh_trigger = {
 }
 
 # Light (only Curse or Maim): the Judgement route (context 3) on a sin-only recipient -- a sin weighs less than a crime.
+# 2.4 (R8): or the sworn oath's own page when the oath is light (a raid grievance, kind 6: pantheon_great_prayer_light).
 pantheon_wrath_page_light_trigger = {
-	exists = scope:pantheon_wrath_ctx
-	scope:pantheon_wrath_ctx = 3
-	exists = scope:pantheon_victim
-	scope:pantheon_victim = { pantheon_sin_only_trigger = { GOD = root } }
+	OR = {
+		AND = {
+			exists = scope:pantheon_wrath_ctx
+			scope:pantheon_wrath_ctx = 3
+			exists = scope:pantheon_victim
+			scope:pantheon_victim = { pantheon_sin_only_trigger = { GOD = root } }
+		}
+		AND = {
+			pantheon_wrath_oath_page_trigger = yes
+			has_variable = pantheon_great_prayer_light
+		}
+	}
 }
 
 # Root = the god. Is the sworn oath a harsh one (a torture: only Strike or Maim fulfils it)? The persistent

@@ -164,6 +164,101 @@ pantheon_prayer_cost = {
 		}
 		value = pantheon_cost_realm
 	}
+	# 2.4: Freedom (need 9)
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
+		value = pantheon_cost_freedom
+	}
+}
+
+# 2.4 Freedom: the ordinary prayer's price (and Bless: Freedom's, and freeing a demigod), house pattern.
+pantheon_cost_freedom = {
+	value = 900
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+	multiply = pantheon_temple_boon_factor
+}
+
+# 2.4 Freedom: the Great price (Great Prayer kind 7, and Bless: Freedom for a valuable prisoner or an enemy war leader).
+pantheon_cost_boon_freedom = {
+	value = 3600
+	if = { limit = { has_game_rule = pantheon_economy_sandbox } multiply = 0.08333 }
+	multiply = pantheon_temple_boon_factor
+}
+
+# 2.4 Dissolve the union. In the DEMIGOD's scope (a wed demigod of the god). 3 = the spouse is not of the god's faith;
+# 2 = the spouse is landless now and (was landed when wed, or the marriage has no record), or is Wavering; else 1, by
+# choice. The god is the demigod's divine parent. Every spouse read is ?=-guarded.
+pantheon_dissolve_reason = {
+	value = 1
+	if = {
+		limit = {
+			primary_spouse ?= { pantheon_wavering_trigger = yes }
+		}
+		value = 2
+	}
+	if = {
+		limit = {
+			primary_spouse ?= { is_landed = no }
+			OR = {
+				NOT = { has_variable = pantheon_wed_spouse_landed }
+				var:pantheon_wed_spouse_landed ?= 1
+			}
+		}
+		value = 2
+	}
+	if = {
+		limit = {
+			primary_spouse ?= { is_alive = yes }
+			any_parent = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+				NOT = { faith = prev.primary_spouse.faith }
+			}
+		}
+		value = 3
+	}
+}
+
+# Worship, from the god: 1200 by choice, 600 landless or sour, 300 when the spouse left the faith. House pattern
+# without the temple factor.
+pantheon_cost_dissolve = {
+	value = 1200
+	if = { limit = { pantheon_dissolve_reason = 2 } value = 600 }
+	else_if = { limit = { pantheon_dissolve_reason = 3 } value = 300 }
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+# Devotion the spouse and the Wed's host each lose: 30 by choice, 15 landless or sour, none when the spouse left.
+pantheon_dissolve_devotion_loss = {
+	value = 30
+	if = { limit = { pantheon_dissolve_reason = 2 } value = 15 }
+	else_if = { limit = { pantheon_dissolve_reason = 3 } value = 0 }
+}
+
+# 2.4 Freedom: the WHOLE Devotion reward (R3), by prayer or by Bless. Read in the PRISONER's scope while still jailed:
+# 20 + ransom/5, capped at 80 total (so +20..+80).
+pantheon_freedom_devotion = {
+	value = ransom_cost_value
+	divide = 5
+	add = 20
+	min = 20
+	max = 80
+}
+
+pantheon_worship_after_cost_freedom = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_freedom
+}
+
+pantheon_worship_after_cost_boon_freedom = {
+	value = var:pantheon_worship
+	subtract = pantheon_cost_boon_freedom
 }
 
 # Send a sign: a quarter of the prayer's cost, rounded (spec).
@@ -192,6 +287,32 @@ pantheon_cost_maim = {
 
 pantheon_cost_curse = {
 	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+# 2.4 Raiders on holy ground: what each strike on a raid costs (pantheon.0112). Sandbox-scaled, no temple factor, like the
+# wraths above.
+pantheon_cost_raid_thin = {
+	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_raid_break = {
+	value = 1200
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_raid_annihilate = {
+	value = 2400
 	if = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 0.08333
@@ -263,6 +384,8 @@ pantheon_ui_boon_count = {
 	if = { limit = { has_variable = pantheon_boon_prayer } add = 1 }
 	if = { limit = { has_variable = pantheon_boon_debt } add = 1 }
 	if = { limit = { has_variable = pantheon_boon_conception } add = 1 }
+	# 2.4 repair 1 (R4): freed from prison
+	if = { limit = { has_variable = pantheon_boon_freedom } add = 1 }
 }
 
 # 2.0: on a house head, how many living members carry the god's blood (the Children tab)
@@ -341,6 +464,7 @@ pantheon_boon_price = {
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } value = pantheon_cost_boon_heir }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } value = pantheon_cost_boon_conversion }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } value = pantheon_cost_boon_fortune }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 7 } value = pantheon_cost_boon_freedom }
 }
 
 # Character scope: the Devotion a refusal costs, bigger for a bigger ask (user, 2026-10-07)
@@ -352,6 +476,7 @@ pantheon_boon_refusal = {
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } value = -30 }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } value = -40 }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } value = -20 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 7 } value = -30 }
 }
 
 # Character scope: Restore my fortune pays max(500, 60 x max(0, monthly income)), evaluated at the grant
@@ -366,6 +491,7 @@ pantheon_boon_fortune_amount = {
 pantheon_boon_pick_score = {
 	value = 0
 	if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 2 } value = 6000 }
+	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 7 } value = 5500 }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 3 } value = 5000 }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 1 } value = 4000 }
 	else_if = { limit = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } value = 3000 }

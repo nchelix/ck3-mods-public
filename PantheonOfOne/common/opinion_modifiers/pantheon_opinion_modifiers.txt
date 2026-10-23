@@ -26,3 +26,22 @@ pantheon_answered_opinion = {
 pantheon_avenged_opinion = {
 	opinion = 30
 }
+
+# 2.4: the god freed a prisoner of theirs (10 years, given with years = 10). A jailer of the god's faith holds it lightly.
+pantheon_thwarted_jailer_opinion = {
+	opinion = -40
+}
+
+pantheon_thwarted_jailer_believer_opinion = {
+	opinion = -15
+}
+
+# 2.4: the god dissolved a union with their child (10 years, given with years = 10). The sour or landless match, and a
+# spouse who had left the faith, cost the lesser; a dissolution by choice the larger (plan R12).
+pantheon_dissolved_opinion = {
+	opinion = -20
+}
+
+pantheon_dissolved_choice_opinion = {
+	opinion = -40
+}

@@ -87,7 +87,7 @@ pantheon_temple_upgrade_effect = {
 # which tier just finished building, since a building key can't be assembled from a variable.
 pantheon_temple_complete_effect = {
 	if = {
-		limit = { var:pantheon_temple_build_tier = 1 }
+		limit = { var:pantheon_temple_build_tier ?= 1 }
 		if = {
 			limit = { var:pantheon_temple_province = { has_holding = yes has_special_building = no } }
 			var:pantheon_temple_province = { add_special_building = pantheon_great_temple_01 }
@@ -98,7 +98,7 @@ pantheon_temple_complete_effect = {
 		else = { pantheon_temple_lost_effect = yes }
 	}
 	else_if = {
-		limit = { var:pantheon_temple_build_tier = 2 }
+		limit = { var:pantheon_temple_build_tier ?= 2 }
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_01 } }
 			var:pantheon_temple_province = {
@@ -111,7 +111,7 @@ pantheon_temple_complete_effect = {
 		else = { pantheon_temple_lost_effect = yes }
 	}
 	else_if = {
-		limit = { var:pantheon_temple_build_tier = 3 }
+		limit = { var:pantheon_temple_build_tier ?= 3 }
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_02 } }
 			var:pantheon_temple_province = {
@@ -124,7 +124,7 @@ pantheon_temple_complete_effect = {
 		else = { pantheon_temple_lost_effect = yes }
 	}
 	else_if = {
-		limit = { var:pantheon_temple_build_tier = 4 }
+		limit = { var:pantheon_temple_build_tier ?= 4 }
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_03 } }
 			var:pantheon_temple_province = {
@@ -137,7 +137,7 @@ pantheon_temple_complete_effect = {
 		else = { pantheon_temple_lost_effect = yes }
 	}
 	else_if = {
-		limit = { var:pantheon_temple_build_tier = 5 }
+		limit = { var:pantheon_temple_build_tier ?= 5 }
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_04 } }
 			var:pantheon_temple_province = {

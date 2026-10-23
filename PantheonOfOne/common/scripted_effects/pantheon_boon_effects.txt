@@ -33,6 +33,11 @@ pantheon_clear_aspiration_effect = {
 
 # In the follower's scope: an aspiration ends (granted, refused, expired or invalid) and the retry delay starts
 pantheon_end_aspiration_effect = {
+	# 2.4: an ending Freedom (kind 7) also starts its own 2-year wait, read BEFORE the kind is cleared
+	if = {
+		limit = { var:pantheon_aspiration_kind ?= 7 }
+		set_variable = { name = pantheon_freedom_retry value = yes years = 2 }
+	}
 	pantheon_clear_aspiration_effect = yes
 	set_variable = { name = pantheon_aspiration_retry value = yes years = 2 }
 }
@@ -114,7 +119,7 @@ pantheon_boon_detect_one_effect = {
 		}
 	}
 	else_if = {
-		limit = { has_variable = pantheon_aspiration NOT = { var:pantheon_aspiration_kind = 2 } pantheon_boon_kin_trigger = yes }
+		limit = { has_variable = pantheon_aspiration NOT = { var:pantheon_aspiration_kind = 2 } pantheon_boon_kin_trigger = yes NOT = { var:pantheon_aspiration_kind ?= 7 } }
 		pantheon_boon_find_kin_effect = yes
 		pantheon_boon_new_request_effect = { KIND = 2 }
 		set_variable = { name = pantheon_aspiration_target value = scope:pantheon_boon_found }
@@ -170,6 +175,7 @@ pantheon_boon_store_price_effect = {
 	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 4 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_heir } }
 	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 5 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_conversion } }
 	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 6 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_fortune } }
+	else_if = { limit = { $WHO$ = { has_variable = pantheon_aspiration_kind var:pantheon_aspiration_kind = 7 } } set_variable = { name = pantheon_boon_price_now value = pantheon_cost_boon_freedom } }
 }
 
 # ---- Granting. Root is the god; scope:pantheon_boon_event_follower is the follower and scope:pantheon_boon_event_id
@@ -223,6 +229,7 @@ pantheon_boon_charge_effect = {
 	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 4 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_heir } }
 	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 5 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_conversion } }
 	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 6 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_fortune } }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 7 } } change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_freedom } }
 }
 
 pantheon_boon_act_effect = {
@@ -232,6 +239,15 @@ pantheon_boon_act_effect = {
 	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 4 } } pantheon_boon_heir_act_effect = yes }
 	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 5 } } pantheon_boon_conversion_act_effect = yes }
 	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 6 } } pantheon_boon_fortune_act_effect = yes }
+	else_if = { limit = { scope:pantheon_boon_event_follower = { var:pantheon_aspiration_kind = 7 } } pantheon_boon_freedom_act_effect = yes }
+}
+
+# 2.4 Kind 7, Freedom: the prisoner is released. The Devotion is the existing Great Boon +100 only (R3: one Devotion
+# total; the ransom-scaled Devotion belongs to the ordinary prayer and Bless). Root is the god.
+pantheon_boon_freedom_act_effect = {
+	if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+	pantheon_free_prisoner_core_effect = yes
 }
 
 # Raise my house: vanilla title creation (as `created`, proven in Task 0); vassals and counties are unchanged
@@ -411,12 +427,17 @@ pantheon_boon_close_event_effect = {
 # The prayer timer, after any Great Prayer: the follower holding the most urgent boon (then the most devout)
 # prays for it. The suppliant is kept in a variable; pantheon.0066 re-captures everything in its own immediate.
 pantheon_pick_great_boon_effect = {
-	ordered_in_list = {
-		variable = pantheon_boon_holders
-		limit = { pantheon_boon_sendable_trigger = { GOD = root } }
-		order_by = pantheon_boon_pick_score
-		root = { set_variable = { name = pantheon_boon_suppliant_var value = prev } }
+	# 2.4 repair 1b (G1): skipped while another dispatch of pantheon.0066 is pending (the freedom pass may just have sent one)
+	if = {
+		limit = { NOT = { has_variable = pantheon_boon_dispatch_pending } }
+		ordered_in_list = {
+			variable = pantheon_boon_holders
+			limit = { pantheon_boon_sendable_trigger = { GOD = root } }
+			order_by = pantheon_boon_pick_score
+			root = { set_variable = { name = pantheon_boon_suppliant_var value = prev } }
+		}
+		set_variable = { name = pantheon_boon_dispatch_pending value = yes days = 1 }
+		trigger_event = pantheon.0066
 	}
-	trigger_event = pantheon.0066
 }
 

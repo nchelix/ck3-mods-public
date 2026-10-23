@@ -1,5 +1,19 @@
 # Changelog — Pantheon of One
 
+## [2.4] — 2026-10-22
+
+The god intervenes: followers can pray to be freed, raiders on holy ground answer to you, and a demigod's marriage can be ended. Tested on CK3 1.20.1.2.
+
+### Added
+- Freedom prayers: a landed follower, or one at Devotion 75 or more, held in someone else's prison prays to be freed (at most once a year). Grant it for Worship and they walk out, gain Devotion and count as Blessed; the jailer resents you for ten years.
+- The Freedom Great Prayer and Bless: Freedom. A valuable prisoner or an enemy war leader of your faith can ask to be freed as a Great Prayer, at the Great price; Bless: Freedom frees any imprisoned follower you choose.
+- Freeing a demigod: the new Free from prison interaction (and a Free them button on the Children tab) opens another ruler's prison for your child.
+- Raiders on holy ground: when a raiding army starts on your land you are asked whether to thin it, break it, annihilate it or let it pass. A raider you strike is Marked by the god for ten years, and any raid a Marked raider starts on your land is destroyed at no cost.
+- Raiders as Judgement targets: a raider who struck your land can be judged for five years.
+- A raided follower's grievance: a follower whose barony is raided by anyone you do not protect (a fellow believer too) holds a light grievance, with a lighter oath and no Strike.
+- Dissolve the union: end your demigod child's marriage. They come home to your court; the price and the Devotion lost depend on why (by your choice, the match went sour, the spouse left the faith), and the spouse resents it.
+- The selected-follower strip: the follower you select in the Followers tab shows in a strip across the whole window, on every tab, with Change and Divine Conception buttons.
+
 ## [2.3.2] — 2026-10-21
 
 A fix release. Tested on CK3 1.20.1.2.

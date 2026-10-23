@@ -91,12 +91,14 @@ pantheon_pick_great_prayer_effect = {
 			any_ruler = {
 				faith = root.faith
 				pantheon_grievance_valid_trigger = { GOD = root }
+				NOT = { var:pantheon_grievance_kind ?= 6 }
 			}
 		}
 		random_ruler = {
 			limit = {
 				faith = root.faith
 				pantheon_grievance_valid_trigger = { GOD = root }
+				NOT = { var:pantheon_grievance_kind ?= 6 }
 			}
 			save_scope_as = pantheon_great_suppliant
 		}
@@ -106,12 +108,47 @@ pantheon_pick_great_prayer_effect = {
 			limit = {
 				faith = root.faith
 				pantheon_grievance_valid_trigger = { GOD = root }
+				NOT = { var:pantheon_grievance_kind ?= 6 }
 			}
 			save_scope_as = pantheon_great_suppliant
 		}
 	}
 	# Only send it if a fresh suppliant was saved this time (an inherited one would be stale): the caller
-	# already checked pantheon_has_a_great_prayer_trigger, so one of the two branches above saved someone.
+	# already checked pantheon_has_a_strong_great_prayer_trigger (2.4: a raid grievance, kind 6, is picked by
+	# pantheon_pick_raid_great_prayer_effect below, never here), so one of the two branches above saved someone.
+	set_variable = { name = pantheon_great_suppliant_var value = scope:pantheon_great_suppliant }
+	trigger_event = pantheon.0065
+}
+
+# 2.4 (R7): the same pick for a raid grievance (kind 6) ONLY. Called by the scheduler last, when nothing was delivered.
+pantheon_pick_raid_great_prayer_effect = {
+	if = {
+		limit = {
+			any_ruler = {
+				faith = root.faith
+				pantheon_grievance_valid_trigger = { GOD = root }
+				var:pantheon_grievance_kind ?= 6
+			}
+		}
+		random_ruler = {
+			limit = {
+				faith = root.faith
+				pantheon_grievance_valid_trigger = { GOD = root }
+				var:pantheon_grievance_kind ?= 6
+			}
+			save_scope_as = pantheon_great_suppliant
+		}
+	}
+	else = {
+		random_courtier = {
+			limit = {
+				faith = root.faith
+				pantheon_grievance_valid_trigger = { GOD = root }
+				var:pantheon_grievance_kind ?= 6
+			}
+			save_scope_as = pantheon_great_suppliant
+		}
+	}
 	set_variable = { name = pantheon_great_suppliant_var value = scope:pantheon_great_suppliant }
 	trigger_event = pantheon.0065
 }
@@ -139,6 +176,11 @@ pantheon_swear_vengeance_effect = {
 		if = {
 			limit = { var:pantheon_great_prayer_kind ?= 5 }
 			set_variable = { name = pantheon_great_prayer_harsh value = yes }
+		}
+		# 2.4 (R8): a raid grievance (kind 6) is a LIGHT oath: only Curse or Maim fulfils it
+		if = {
+			limit = { var:pantheon_great_prayer_kind ?= 6 }
+			set_variable = { name = pantheon_great_prayer_light value = yes }
 		}
 		set_variable = { name = pantheon_wrath_target value = scope:pantheon_great_offender }
 		pantheon_wrath_set_context_effect = { CTX = 1 }
@@ -235,6 +277,7 @@ pantheon_end_oath_effect = {
 	if = { limit = { has_variable = pantheon_great_prayer_offender } remove_variable = pantheon_great_prayer_offender }
 	if = { limit = { has_variable = pantheon_great_prayer_kind } remove_variable = pantheon_great_prayer_kind }
 	if = { limit = { has_variable = pantheon_great_prayer_harsh } remove_variable = pantheon_great_prayer_harsh }
+	if = { limit = { has_variable = pantheon_great_prayer_light } remove_variable = pantheon_great_prayer_light }
 	if = { limit = { has_variable = pantheon_wrath_harsh } remove_variable = pantheon_wrath_harsh }
 }
 

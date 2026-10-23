@@ -167,6 +167,22 @@ pantheon_wed_demigod_effect = {
 		if = { limit = { scope:pantheon_demigod = { is_male = yes } scope:pantheon_spouse = { is_female = yes } } scope:pantheon_spouse = { marry_matrilineal = scope:pantheon_demigod } }
 		else = { scope:pantheon_spouse = { marry = scope:pantheon_demigod } }
 		scope:pantheon_demigod = { set_variable = pantheon_wed_to_house }
+		# 2.4 (R10, R11): the marriage's own record, on the DEMIGOD. Landed: 1 or 0 for every new marriage (absent = a
+		# pre-2.4 marriage). Host: the follower who gets the +30 below; the god's pantheon_demigod_host is an operation
+		# slot that later actions overwrite, so Dissolve never reads it.
+		if = {
+			limit = { scope:pantheon_spouse = { is_landed = yes } }
+			scope:pantheon_demigod = { set_variable = { name = pantheon_wed_spouse_landed value = 1 } }
+		}
+		else = { scope:pantheon_demigod = { set_variable = { name = pantheon_wed_spouse_landed value = 0 } } }
+		if = {
+			limit = { exists = scope:pantheon_target }
+			scope:pantheon_demigod = { set_variable = { name = pantheon_wed_host value = scope:pantheon_target } }
+		}
+		else_if = {
+			limit = { scope:pantheon_demigod = { has_variable = pantheon_wed_host } }
+			scope:pantheon_demigod = { remove_variable = pantheon_wed_host }
+		}
 		scope:pantheon_spouse.house ?= { save_scope_as = pantheon_wed_house }
 		pantheon_change_devotion_effect = { AMOUNT = 30 }
 		send_interface_toast = {
@@ -325,6 +341,102 @@ pantheon_wed_recorded_effect = {
 		if = {
 			limit = { has_variable = pantheon_wed_to_house }
 			set_variable = { name = pantheon_wed_spouse value = root.var:pantheon_chosen_spouse }
+		}
+	}
+}
+
+# ---- 2.4 Dissolve the union --------------------------------------------------------------------------------------
+
+# Root is the god; scope:pantheon_dissolve_demigod is the wed demigod (pantheon.0114 saves it after re-checking it). The effect charges
+# the price itself, and only if the god can pay. Everything the divorce would erase is SNAPSHOT first (R11): the spouse, the reason, the loss and the host, so
+# nothing reads a marker after it is gone. The host is the follower the Wed rewarded, read from the DEMIGOD
+# (pantheon_wed_host), never from the god's pantheon_demigod_host; a pre-2.4 marriage has no record, so it falls back to
+# the spouse's house head. The Devotion loss falls on the spouse and the host, each only while of the god's faith, and
+# once if they are the same person. scope:pantheon_target is the follower while Devotion changes (the shared effect's slot).
+pantheon_dissolve_effect = {
+	scope:pantheon_dissolve_demigod = {
+		primary_spouse ?= { save_scope_as = pantheon_dissolve_spouse }
+		save_scope_value_as = { name = pantheon_dissolve_price_now value = pantheon_cost_dissolve }
+		save_scope_value_as = { name = pantheon_dissolve_reason_now value = pantheon_dissolve_reason }
+		save_scope_value_as = {
+			name = pantheon_dissolve_loss_now
+			value = {
+				value = pantheon_dissolve_devotion_loss
+				multiply = -1
+			}
+		}
+		var:pantheon_wed_host ?= { save_scope_as = pantheon_dissolve_host }
+	}
+	# Charge, only if the god can pay now (a stale click does nothing)
+	if = {
+		limit = { has_variable = pantheon_worship var:pantheon_worship >= scope:pantheon_dissolve_price_now }
+		change_variable = { name = pantheon_worship subtract = scope:pantheon_dissolve_price_now }
+		if = {
+			limit = { NOT = { exists = scope:pantheon_dissolve_host } exists = scope:pantheon_dissolve_spouse }
+			scope:pantheon_dissolve_spouse = {
+				house ?= { house_head ?= { save_scope_as = pantheon_dissolve_host } }
+			}
+		}
+		# The same person is hit once
+		if = {
+			limit = {
+				exists = scope:pantheon_dissolve_host
+				exists = scope:pantheon_dissolve_spouse
+				scope:pantheon_dissolve_host = scope:pantheon_dissolve_spouse
+			}
+			clear_saved_scope = pantheon_dissolve_host
+		}
+		# End the marriage, in the demigod's scope
+		if = {
+			limit = { exists = scope:pantheon_dissolve_spouse }
+			scope:pantheon_dissolve_demigod = { divorce = scope:pantheon_dissolve_spouse }
+		}
+		# The Devotion loss: only followers, only a real loss (the saved value is already negative)
+		if = {
+			limit = {
+				scope:pantheon_dissolve_loss_now < 0
+				exists = scope:pantheon_dissolve_spouse
+				scope:pantheon_dissolve_spouse = { is_alive = yes faith = root.faith }
+			}
+			if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+			scope:pantheon_dissolve_spouse = { save_scope_as = pantheon_target }
+			pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_dissolve_loss_now }
+		}
+		if = {
+			limit = {
+				scope:pantheon_dissolve_loss_now < 0
+				exists = scope:pantheon_dissolve_host
+				scope:pantheon_dissolve_host = { is_alive = yes faith = root.faith }
+			}
+			if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+			scope:pantheon_dissolve_host = { save_scope_as = pantheon_target }
+			pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_dissolve_loss_now }
+		}
+		# The spouse's opinion of the god, ten years: -40 by choice, -20 otherwise
+		if = {
+			limit = { exists = scope:pantheon_dissolve_spouse }
+			scope:pantheon_dissolve_spouse = {
+				if = {
+					limit = { scope:pantheon_dissolve_reason_now = 1 }
+					add_opinion = { target = root modifier = pantheon_dissolved_choice_opinion years = 10 }
+				}
+				else = {
+					add_opinion = { target = root modifier = pantheon_dissolved_opinion years = 10 }
+				}
+			}
+		}
+		# The markers go with the marriage; the demigod comes home. NOT the recall effect (-10 Devotion, orphan returns)
+		scope:pantheon_dissolve_demigod = {
+			if = { limit = { has_variable = pantheon_wed_to_house } remove_variable = pantheon_wed_to_house }
+			if = { limit = { has_variable = pantheon_wed_spouse } remove_variable = pantheon_wed_spouse }
+			if = { limit = { has_variable = pantheon_wed_spouse_landed } remove_variable = pantheon_wed_spouse_landed }
+			if = { limit = { has_variable = pantheon_wed_host } remove_variable = pantheon_wed_host }
+		}
+		root = { add_courtier = scope:pantheon_dissolve_demigod }
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = pantheon_dissolved_t
+			left_icon = scope:pantheon_dissolve_demigod
 		}
 	}
 }

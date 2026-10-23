@@ -85,6 +85,226 @@ window = {
 			text = "pantheon_ui_worship_line"
 		}
 
+		# The selected-follower strip (2.4 T5, layout A): across the whole window under the Worship line, visible on every
+		# tab. It moved here from the Followers tab. A vbox, not a widget: a widget does not size to its children, so in
+		# round 1 the pane collapsed under the list and its buttons could not be clicked. Gated on IsAlive (I3).
+		vbox = {
+			visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
+			datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
+			layoutpolicy_horizontal = expanding
+			margin = { 8 8 }
+			spacing = 6
+			background = { using = Background_Area_With_Header }
+
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 10
+				portrait_head = {}
+				vbox = {
+					layoutpolicy_horizontal = expanding
+					spacing = 3
+					hbox = {
+						layoutpolicy_horizontal = expanding
+						spacing = 4
+						text_single = {
+							layoutpolicy_horizontal = expanding
+							autoresize = no
+							text = "[Character.GetUINameNoTooltip]"
+							using = Font_Size_Medium
+						}
+						hbox_skills_grid_character_model = {}
+						text_single = {
+							minimumsize = { 44 0 }
+							align = center|nobaseline
+							text = "pantheon_ui_prowess"
+						}
+					}
+					text_single = { text = "pantheon_ui_devotion_line" }
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_trait').IsSet]"
+						text = "pantheon_ui_boon_trait"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_harvest').IsSet]"
+						text = "pantheon_ui_boon_harvest"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_walls').IsSet]"
+						text = "pantheon_ui_boon_walls"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_warding').IsSet]"
+						text = "pantheon_ui_boon_warding"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_vigor').IsSet]"
+						text = "pantheon_ui_boon_vigor"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_fertility').IsSet]"
+						text = "pantheon_ui_boon_fertility"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_lineage').IsSet]"
+						text = "pantheon_ui_boon_lineage"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_great').IsSet]"
+						text = "pantheon_ui_boon_great"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_prayer').IsSet]"
+						text = "pantheon_ui_boon_prayer"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_debt').IsSet]"
+						text = "pantheon_ui_boon_debt"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_conception').IsSet]"
+						text = "pantheon_ui_boon_conception"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_boon_freedom').IsSet]"
+						text = "pantheon_ui_boon_freedom"
+					}
+					text_single = {
+						visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
+						text = "pantheon_ui_grievance_line"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
+						text = "pantheon_ui_wants_1"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
+						text = "pantheon_ui_wants_2"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
+						text = "pantheon_ui_wants_3"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
+						text = "pantheon_ui_wants_4"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
+						text = "pantheon_ui_wants_5"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
+						text = "pantheon_ui_wants_6"
+					}
+					text_single = {
+						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ) )]"
+						text = "pantheon_ui_wants_7"
+					}
+				}
+			}
+
+			# Fixed-size buttons: 6 x 110 + Change 80 + Clear 80 + 7 gaps of 6 = 862, inside the 920 the card has (936 less its margins).
+			hbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 6
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_bless"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_bless_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_bless_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_bless_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_bless_interaction')]"
+				}
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_lend"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_lend_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_lend_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lend_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_lend_interaction')]"
+				}
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_wed"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_wed_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_wed_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_wed_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_wed_interaction')]"
+				}
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_judge"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_judgement_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_judgement_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_judgement_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_judgement_interaction')]"
+				}
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_lands"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_lands_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_lands_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lands_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_lands_interaction')]"
+				}
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_conception"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_conception_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_conception_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_conception_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_conception_interaction')]"
+				}
+				expand = {}
+				button_standard = {
+					size = { 80 30 }
+					text = "pantheon_ui_btn_change"
+					tooltip = "pantheon_ui_btn_change_tt"
+					onclick = "[GetScriptedGui('pantheon_ui_tab_followers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+				button_standard = {
+					size = { 80 30 }
+					text = "pantheon_ui_btn_clear"
+					tooltip = "pantheon_ui_btn_clear_tt"
+					onclick = "[GetScriptedGui('pantheon_ui_clear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+				}
+			}
+			hbox = {
+				visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+				layoutpolicy_horizontal = expanding
+				spacing = 6
+				button_standard = {
+					size = { 180 30 }
+					text = "pantheon_ui_btn_boon"
+					visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+					enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
+					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
+					onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
+				}
+				expand = {}
+			}
+		}
+
+		# No follower selected: visible exactly when the card above is not (its complement).
+		hbox = {
+			visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive ) )]"
+			layoutpolicy_horizontal = expanding
+			margin = { 8 4 }
+			spacing = 6
+			background = { using = Background_Area_With_Header }
+			text_single = {
+				layoutpolicy_horizontal = expanding
+				autoresize = no
+				text = "pantheon_ui_strip_none"
+			}
+			button_standard = {
+				size = { 80 30 }
+				text = "pantheon_ui_btn_change"
+				tooltip = "pantheon_ui_btn_change_tt"
+				onclick = "[GetScriptedGui('pantheon_ui_tab_followers').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+			}
+		}
+
 		# The tabs, a left sidebar column like One Trait's (2.3 B1): 1 Followers, 5 Prayers, 2 Children, 3 The God,
 		# 4 The Temple. Values are kept from 2.2 (Prayers is the new 5) so an old save's stored tab stays valid.
 		# Fixed 170x40 buttons and a trailing expand = {} keep the column top-aligned and its width deterministic.
@@ -310,10 +530,16 @@ window = {
 														text = "pantheon_ui_prayer_need_line"
 													}
 													text_single = {
-														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' )]"
+														visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' ), Not( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ) ) )]"
 														layoutpolicy_horizontal = expanding
 														autoresize = no
 														text = "pantheon_ui_prayer_price_follower"
+													}
+													text_single = {
+														visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ) )]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_prayer_price_freedom"
 													}
 													text_single = {
 														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)2' )]"
@@ -328,7 +554,7 @@ window = {
 														size = { 110 30 }
 														text = "pantheon_ui_btn_prayer_grant"
 														enabled = "[GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
-														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_prayer_grant_after_tt' ), GetScriptedGui('pantheon_ui_prayer_grant').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Select_CString( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ), Localize( 'pantheon_ui_prayer_grant_after_freedom_tt' ), Localize( 'pantheon_ui_prayer_grant_after_tt' ) ), GetScriptedGui('pantheon_ui_prayer_grant').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
 														onclick = "[GetScriptedGui('pantheon_ui_prayer_grant').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
 													}
 													button_standard = {
@@ -561,10 +787,22 @@ window = {
 								text = "pantheon_ui_oath_wrong_5"
 							}
 							text_single = {
-								visible = "[Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_harsh').IsSet )]"
+								visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_great_prayer_kind').GetValue, '(CFixedPoint)6' )]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_wrong_6"
+							}
+							text_single = {
+								visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_harsh').IsSet ), Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_light').IsSet ) )]"
 								layoutpolicy_horizontal = expanding
 								autoresize = no
 								text = "pantheon_ui_oath_rule"
+							}
+							text_single = {
+								visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_light').IsSet]"
+								layoutpolicy_horizontal = expanding
+								autoresize = no
+								text = "pantheon_ui_oath_rule_light"
 							}
 							text_single = {
 								visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_harsh').IsSet]"
@@ -600,181 +838,7 @@ window = {
 					layoutpolicy_vertical = expanding
 					spacing = 6
 
-					# The selected follower. A vbox, not a widget: a widget does not size to its children, so in round 1 the
-					# pane collapsed under the list and its buttons could not be clicked. Gated on IsAlive (I3).
-					vbox = {
-						visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
-						datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
-						layoutpolicy_horizontal = expanding
-						margin = { 8 8 }
-						spacing = 6
-						background = { using = Background_Area_With_Header }
-
-						hbox = {
-							layoutpolicy_horizontal = expanding
-							spacing = 10
-							portrait_head = {}
-							vbox = {
-								layoutpolicy_horizontal = expanding
-								spacing = 3
-								hbox = {
-									layoutpolicy_horizontal = expanding
-									spacing = 4
-									text_single = {
-										layoutpolicy_horizontal = expanding
-										autoresize = no
-										text = "[Character.GetUINameNoTooltip]"
-										using = Font_Size_Medium
-									}
-									hbox_skills_grid_character_model = {}
-									text_single = {
-										minimumsize = { 44 0 }
-										align = center|nobaseline
-										text = "pantheon_ui_prowess"
-									}
-								}
-								text_single = { text = "pantheon_ui_devotion_line" }
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_trait').IsSet]"
-									text = "pantheon_ui_boon_trait"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_harvest').IsSet]"
-									text = "pantheon_ui_boon_harvest"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_walls').IsSet]"
-									text = "pantheon_ui_boon_walls"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_warding').IsSet]"
-									text = "pantheon_ui_boon_warding"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_vigor').IsSet]"
-									text = "pantheon_ui_boon_vigor"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_fertility').IsSet]"
-									text = "pantheon_ui_boon_fertility"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_lineage').IsSet]"
-									text = "pantheon_ui_boon_lineage"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_great').IsSet]"
-									text = "pantheon_ui_boon_great"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_prayer').IsSet]"
-									text = "pantheon_ui_boon_prayer"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_debt').IsSet]"
-									text = "pantheon_ui_boon_debt"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_boon_conception').IsSet]"
-									text = "pantheon_ui_boon_conception"
-								}
-								text_single = {
-									visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
-									text = "pantheon_ui_grievance_line"
-								}
-								text_single = {
-									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
-									text = "pantheon_ui_wants_1"
-								}
-								text_single = {
-									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
-									text = "pantheon_ui_wants_2"
-								}
-								text_single = {
-									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
-									text = "pantheon_ui_wants_3"
-								}
-								text_single = {
-									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
-									text = "pantheon_ui_wants_4"
-								}
-								text_single = {
-									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
-									text = "pantheon_ui_wants_5"
-								}
-								text_single = {
-									visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
-									text = "pantheon_ui_wants_6"
-								}
-							}
-						}
-
-						hbox = {
-							layoutpolicy_horizontal = expanding
-							spacing = 6
-							button_standard = {
-								size = { 110 30 }
-								text = "pantheon_ui_btn_bless"
-								visible = "[Character.IsPlayerInteractionShown('pantheon_bless_interaction')]"
-								enabled = "[Character.IsPlayerInteractionValid('pantheon_bless_interaction')]"
-								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_bless_interaction')]"
-								onclick = "[Character.OpenPlayerInteraction('pantheon_bless_interaction')]"
-							}
-							button_standard = {
-								size = { 110 30 }
-								text = "pantheon_ui_btn_lend"
-								visible = "[Character.IsPlayerInteractionShown('pantheon_lend_interaction')]"
-								enabled = "[Character.IsPlayerInteractionValid('pantheon_lend_interaction')]"
-								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lend_interaction')]"
-								onclick = "[Character.OpenPlayerInteraction('pantheon_lend_interaction')]"
-							}
-							button_standard = {
-								size = { 110 30 }
-								text = "pantheon_ui_btn_wed"
-								visible = "[Character.IsPlayerInteractionShown('pantheon_wed_interaction')]"
-								enabled = "[Character.IsPlayerInteractionValid('pantheon_wed_interaction')]"
-								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_wed_interaction')]"
-								onclick = "[Character.OpenPlayerInteraction('pantheon_wed_interaction')]"
-							}
-							button_standard = {
-								size = { 110 30 }
-								text = "pantheon_ui_btn_judge"
-								visible = "[Character.IsPlayerInteractionShown('pantheon_judgement_interaction')]"
-								enabled = "[Character.IsPlayerInteractionValid('pantheon_judgement_interaction')]"
-								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_judgement_interaction')]"
-								onclick = "[Character.OpenPlayerInteraction('pantheon_judgement_interaction')]"
-							}
-							button_standard = {
-								size = { 110 30 }
-								text = "pantheon_ui_btn_lands"
-								visible = "[Character.IsPlayerInteractionShown('pantheon_lands_interaction')]"
-								enabled = "[Character.IsPlayerInteractionValid('pantheon_lands_interaction')]"
-								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lands_interaction')]"
-								onclick = "[Character.OpenPlayerInteraction('pantheon_lands_interaction')]"
-							}
-							expand = {}
-							button_standard = {
-								size = { 90 30 }
-								text = "pantheon_ui_btn_clear"
-								tooltip = "pantheon_ui_btn_clear_tt"
-								onclick = "[GetScriptedGui('pantheon_ui_clear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							}
-						}
-						hbox = {
-							visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
-							layoutpolicy_horizontal = expanding
-							spacing = 6
-							button_standard = {
-								size = { 180 30 }
-								text = "pantheon_ui_btn_boon"
-								visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
-								enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
-								tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
-								onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
-							}
-							expand = {}
-						}
-					}
+					# The selected follower now lives in the strip under the Worship line (2.4 T5), visible on every tab.
 
 					# Sort and filter
 					hbox = {
@@ -993,17 +1057,6 @@ window = {
 					layoutpolicy_vertical = expanding
 					spacing = 6
 
-					# 2.3.2: who Lend and Wed act on -- the follower selected in the Followers tab
-					text_single = {
-						visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive )]"
-						datacontext = "[GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter]"
-						text = "pantheon_ui_children_selected"
-					}
-					text_single = {
-						visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_ui_target').IsSet, GetPlayer.MakeScope.Var('pantheon_ui_target').GetCharacter.IsAlive ) )]"
-						text = "pantheon_ui_children_none"
-					}
-
 					hbox = {
 						layoutpolicy_horizontal = expanding
 						spacing = 4
@@ -1212,6 +1265,24 @@ window = {
 														visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet ), Character.IsPlayerInteractionShown('pantheon_call_home_interaction') )]"
 														tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_call_home_interaction')]"
 														onclick = "[Character.OpenPlayerInteraction('pantheon_call_home_interaction')]"
+													}
+													# 2.4: Free a demigod held by someone else (shown only while they are in a cell)
+													button_standard = {
+														size = { 110 28 }
+														text = "pantheon_ui_btn_free_demigod"
+														visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet ), Character.IsPlayerInteractionShown('pantheon_free_demigod_interaction') )]"
+														enabled = "[Character.IsPlayerInteractionValid('pantheon_free_demigod_interaction')]"
+														tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_free_demigod_interaction')]"
+														onclick = "[Character.OpenPlayerInteraction('pantheon_free_demigod_interaction')]"
+													}
+													# 2.4: Dissolve a wed demigod's marriage (shown only while they are wed and married)
+													button_standard = {
+														size = { 110 28 }
+														text = "pantheon_ui_btn_dissolve"
+														visible = "[And( Not( GetPlayer.MakeScope.Var('pantheon_send_kind').IsSet ), Character.IsPlayerInteractionShown('pantheon_dissolve_interaction') )]"
+														enabled = "[Character.IsPlayerInteractionValid('pantheon_dissolve_interaction')]"
+														tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_dissolve_interaction')]"
+														onclick = "[Character.OpenPlayerInteraction('pantheon_dissolve_interaction')]"
 													}
 												}
 											}

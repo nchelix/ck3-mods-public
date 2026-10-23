@@ -225,7 +225,17 @@ pantheon_devotion_yearly_pass_effect = {
 pantheon_add_prayer_candidate_effect = {
 	if = {
 		limit = { NOT = { is_in_list = pantheon_prayer_candidates } }
+		# 2.4 (R1): while imprisoned, Freedom (need 9) is the ONLY need, checked first. A prisoner who does not
+		# qualify (valuable, a war leader, held by the god, a hostage) gets no need at all.
 		if = {
+			limit = { is_imprisoned = yes }
+			if = {
+				limit = { pantheon_need_freedom_trigger = yes }
+				set_variable = { name = pantheon_prayer_need value = 9 }
+				add_to_temporary_list = pantheon_prayer_candidates
+			}
+		}
+		else_if = {
 			limit = { pantheon_need_host_trigger = yes }
 			set_variable = { name = pantheon_prayer_need value = 1 }
 			add_to_temporary_list = pantheon_prayer_candidates
@@ -292,6 +302,8 @@ pantheon_deliver_prayer_effect = {
 		}
 		pantheon_prayer_create_effect = yes
 		trigger_event = { id = pantheon.0060 days = 1 }
+		# 2.4 (R16): the scheduler's "something was delivered this tick" signal, so a raid Great Prayer (kind 6) goes last
+		set_variable = { name = pantheon_prayer_delivered_now value = yes days = 1 }
 	}
 	pantheon_prayer_clear_delivery_effect = yes
 }
@@ -381,12 +393,15 @@ pantheon_pick_stranger_effect = {
 pantheon_send_prayer_effect = {
 	# 2.3 (R2): drop prayers that stopped being answerable, silently, before anything is counted
 	pantheon_prayer_prune_effect = yes
+	# 2.4: every jailed follower who needs Freedom has an open prayer, whatever the random draw says
+	pantheon_freedom_pass_effect = yes
 	# 2.3 review fix: no new Great Prayer while an oath is outstanding (swearing a second would silently replace the first)
+	# 2.4 (R7): a Great Prayer for a NON-raid grievance first (a raid grievance, kind 6, is the lowest priority: it goes last)
 	if = {
 		limit = {
 			NOT = { has_variable = pantheon_great_prayer_cooldown }
 			NOT = { has_variable = pantheon_great_prayer_active }
-			pantheon_has_a_great_prayer_trigger = yes
+			pantheon_has_a_strong_great_prayer_trigger = yes
 		}
 		pantheon_pick_great_prayer_effect = yes
 	}
@@ -401,6 +416,12 @@ pantheon_send_prayer_effect = {
 	# 2.3 (R6): the cap of six open prayers applies to the ordinary prayer ONLY (the two branches above are
 	# separate systems with their own locks, and stay open even when six prayers wait)
 	else = {
+		# 2.4 (R16): the "something was delivered" signal is set by pantheon_deliver_prayer_effect (1 day). Clear it first, so the
+		# Freedom pass's delivery above (or an earlier tick's) does not count.
+		if = {
+			limit = { has_variable = pantheon_prayer_delivered_now }
+			remove_variable = pantheon_prayer_delivered_now
+		}
 		if = {
 			limit = {
 				OR = {
@@ -417,6 +438,17 @@ pantheon_send_prayer_effect = {
 					pantheon_pick_follower_prayer_effect = yes
 				}
 			}
+		}
+		# 2.4 (R7, R16): the raid grievance (kind 6) Great Prayer only when nothing was delivered -- no candidate, or the cap of six
+		# stopped the ordinary prayer (a Great Prayer is not subject to that cap) -- and the cooldown and lock allow.
+		if = {
+			limit = {
+				NOT = { has_variable = pantheon_prayer_delivered_now }
+				NOT = { has_variable = pantheon_great_prayer_cooldown }
+				NOT = { has_variable = pantheon_great_prayer_active }
+				pantheon_has_a_raid_great_prayer_trigger = yes
+			}
+			pantheon_pick_raid_great_prayer_effect = yes
 		}
 	}
 }
@@ -523,6 +555,11 @@ pantheon_grant_prayer_effect = {
 				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 } }
 				pantheon_grant_spouse_effect = yes
 			}
+			# 2.4: Freedom. It pays its own whole Devotion (R3) and charges nothing (the stored price is charged below).
+			else_if = {
+				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
+				pantheon_grant_freedom_effect = yes
+			}
 			set_variable = {
 				name = pantheon_worship
 				value = {
@@ -544,7 +581,9 @@ pantheon_grant_prayer_effect = {
 				}
 				pantheon_ensure_devotion_effect = { START = 60 }
 			}
-			else = {
+			# 2.4 (R3): Freedom's Devotion (pantheon_freedom_devotion) is the WHOLE reward: no generic +20 on top
+			else_if = {
+				limit = { NOT = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 9 } } }
 				pantheon_change_devotion_effect = { AMOUNT = 20 }
 			}
 			if = {
@@ -556,7 +595,9 @@ pantheon_grant_prayer_effect = {
 				}
 				scope:pantheon_suppliant = { remove_variable = pantheon_was_stranger }
 			}
-			else = {
+			# Freedom has its own toast (pantheon_grant_freedom_effect); the generic one names a flat +20
+			else_if = {
+				limit = { NOT = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 9 } } }
 				send_interface_toast = {
 					type = event_toast_effect_good
 					title = pantheon_prayer_granted_t
@@ -746,6 +787,29 @@ pantheon_forget_the_dead_effect = {
 		if = {
 			limit = { has_variable = pantheon_wed_spouse }
 			remove_variable = pantheon_wed_spouse
+		}
+		# 2.4 (R11): the marriage record goes with the marriage
+		if = {
+			limit = { has_variable = pantheon_wed_spouse_landed }
+			remove_variable = pantheon_wed_spouse_landed
+		}
+		if = {
+			limit = { has_variable = pantheon_wed_host }
+			remove_variable = pantheon_wed_host
+		}
+		# 2.4 repair 1 (R7): a widowed or divorced Wed demigod without lands of her own comes home to the god's court
+		# instead of staying at the late spouse's (only children that had pantheon_wed_to_house get here)
+		if = {
+			limit = {
+				is_alive = yes
+				is_landed = no
+				is_imprisoned = no
+				is_concubine = no
+				NOT = { is_courtier_of = root }
+			}
+			save_temporary_scope_as = pantheon_widow_home
+			root = { add_courtier = scope:pantheon_widow_home }
+			scope:pantheon_widow_home = { hidden_effect = { return_to_court = yes } }
 		}
 	}
 }

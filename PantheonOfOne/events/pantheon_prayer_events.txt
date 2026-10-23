@@ -37,6 +37,8 @@ pantheon.0060 = {
 				exists = scope:pantheon_prayer_delivered
 				pantheon_prayer_is_open_trigger = yes
 				pantheon_prayer_token_ok_trigger = yes
+				# 2.4 repair 1 (R3): a prayer whose need vanished during the delivery delay never opens
+				scope:pantheon_suppliant = { pantheon_prayer_need_valid_trigger = yes }
 			}
 			AND = {
 				NOT = { exists = scope:pantheon_prayer_delivered }
@@ -124,6 +126,11 @@ pantheon.0060 = {
 				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 7 } }
 				desc = pantheon.0060.desc_healing
 			}
+			# 2.4: a jailed follower prays to be freed
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
+				desc = pantheon.0060.desc_freedom
+			}
 			desc = pantheon.0060.desc_gift
 		}
 		triggered_desc = {
@@ -191,6 +198,11 @@ pantheon.0060 = {
 		if = {
 			limit = { scope:pantheon_suppliant = { has_variable = pantheon_prayer_price } }
 			custom_tooltip = pantheon_worship_line_record_prayer
+		}
+		# 2.4 repair 1 (R5): Freedom also names the Devotion the prisoner gains
+		if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 9 } }
+			custom_tooltip = pantheon_worship_line_freedom_devotion
 		}
 	}
 

@@ -79,6 +79,10 @@ pantheon.0065 = {
 				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 5 } }
 				desc = pantheon.0065.desc_torture
 			}
+			triggered_desc = {
+				trigger = { scope:pantheon_great_suppliant = { var:pantheon_grievance_kind = 6 } }
+				desc = pantheon.0065.desc_raid
+			}
 		}
 	}
 	theme = faith

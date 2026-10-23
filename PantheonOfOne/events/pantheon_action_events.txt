@@ -24,7 +24,41 @@ pantheon.0100 = {
 			else_if = { limit = { var:pantheon_ui_choice = flag:fertility } pantheon_grant_fertility_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:lineage } pantheon_grant_lineage_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:host } pantheon_call_host_effect = yes }
-			pantheon_change_devotion_effect = { AMOUNT = 10 }
+			# 2.4: Bless: Freedom. The Great price when the prisoner is a valuable prisoner or an enemy war leader, the ordinary
+			# price otherwise; charged here, BEFORE the grant (which releases them). Skipped if they are already free.
+			else_if = {
+				limit = {
+					var:pantheon_ui_choice = flag:freedom
+					exists = scope:pantheon_target
+					scope:pantheon_target = { is_imprisoned = yes }
+				}
+				if = {
+					limit = {
+						scope:pantheon_target = {
+							OR = {
+								pantheon_valuable_prisoner_trigger = yes
+								pantheon_war_leader_prisoner_trigger = yes
+							}
+						}
+					}
+					change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_freedom }
+				}
+				else = {
+					change_variable = { name = pantheon_worship subtract = pantheon_cost_freedom }
+				}
+				pantheon_grant_freedom_effect = yes
+				# 2.4 repair 1 (R3): a pending Freedom prayer of this prisoner is answered by the release; close it silently
+				if = {
+					limit = { scope:pantheon_target = { has_variable = pantheon_prayer_open } }
+					pantheon_prayer_close_core_effect = { WHO = scope:pantheon_target }
+					pantheon_ui_refresh_if_open_effect = yes
+				}
+			}
+			# 2.4 (R3): the generic +10 for a Bless is skipped for Freedom: its own Devotion is the whole reward
+			if = {
+				limit = { NOT = { var:pantheon_ui_choice = flag:freedom } }
+				pantheon_change_devotion_effect = { AMOUNT = 10 }
+			}
 		}
 		remove_variable = pantheon_ui_choice
 	}
@@ -195,5 +229,84 @@ pantheon.0111 = {
 			save_scope_value_as = { name = pantheon_boon_event_id value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_id }
 			pantheon_grant_great_boon_effect = { UNASKED = yes }
 		}
+	}
+}
+
+# 2.4 Free a demigod (pantheon_free_demigod_interaction and the Children row): var:pantheon_act_target is the demigod.
+# Hidden, on the god. Re-checks that they are still held by someone else (a stale click does nothing), charges the Great
+# price for a valuable prisoner or an enemy war leader and the ordinary price otherwise (only if the god can pay), then
+# the shared core effect. NO Devotion.
+pantheon.0113 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+		var:pantheon_act_target ?= { save_scope_as = pantheon_target }
+		if = {
+			limit = {
+				exists = scope:pantheon_target
+				scope:pantheon_target = {
+					has_trait = pantheon_demigod
+					is_imprisoned = yes
+					NOT = { is_imprisoned_by = root }
+				}
+			}
+			if = {
+				limit = {
+					scope:pantheon_target = {
+						OR = {
+							pantheon_valuable_prisoner_trigger = yes
+							pantheon_war_leader_prisoner_trigger = yes
+						}
+					}
+				}
+				if = {
+					limit = { pantheon_can_afford_trigger = { COST = pantheon_cost_boon_freedom } }
+					change_variable = { name = pantheon_worship subtract = pantheon_cost_boon_freedom }
+					pantheon_free_prisoner_core_effect = yes
+				}
+			}
+			else_if = {
+				limit = { pantheon_can_afford_trigger = { COST = pantheon_cost_freedom } }
+				change_variable = { name = pantheon_worship subtract = pantheon_cost_freedom }
+				pantheon_free_prisoner_core_effect = yes
+			}
+		}
+	}
+}
+
+# 2.4 Dissolve the union (pantheon_dissolve_interaction and the Children row): var:pantheon_act_target is the wed demigod.
+# Hidden, on the god. Re-checks that they are still the god's wed, married child (a stale click does nothing), then the
+# shared effect, which charges the reason's price and ends the marriage.
+pantheon.0114 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		if = { limit = { exists = scope:pantheon_dissolve_demigod } clear_saved_scope = pantheon_dissolve_demigod }
+		var:pantheon_act_target ?= { save_scope_as = pantheon_dissolve_demigod }
+		if = {
+			limit = {
+				exists = scope:pantheon_dissolve_demigod
+				scope:pantheon_dissolve_demigod = {
+					has_trait = pantheon_demigod
+					is_child_of = root
+					has_variable = pantheon_wed_to_house
+					is_married = yes
+				}
+			}
+			pantheon_dissolve_effect = yes
+		}
+	}
+}
+
+# 2.4 Freedom: a follower was just imprisoned (pantheon_on_imprison_freedom). Hidden, on the god, so root is the god as
+# delivery and aspiration creation require. First the prune (R15): a newly jailed follower's older, unrelated prayer is
+# invalid in a cell and must be closed BEFORE the pass, which skips anyone with an open prayer. Then the pass.
+pantheon.0115 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		pantheon_prayer_prune_effect = yes
+		pantheon_freedom_pass_effect = yes
 	}
 }

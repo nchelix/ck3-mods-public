@@ -1,0 +1,56 @@
+﻿# Pantheon of One 2.4: Raiders on holy ground.
+
+# A follower's barony is raided by anyone the god does not protect (a fellow believer too): a LIGHT grievance (kind 6) against the raider. Set ONLY when $WHO$ holds
+# neither a grievance nor an aspiration, so it never replaces anything (R7): a raid grievance is the lowest priority.
+# One wrong per raid per follower falls out of that too: the second barony finds a grievance already held.
+pantheon_give_raid_grievance_effect = {
+	$WHO$ = {
+		if = {
+			limit = {
+				NOT = { has_variable = pantheon_grievance }
+				NOT = { has_variable = pantheon_aspiration }
+			}
+			set_variable = { name = pantheon_grievance value = yes years = 5 }
+			set_variable = { name = pantheon_grievance_target value = $OFFENDER$ years = 5 }
+			set_variable = { name = pantheon_grievance_kind value = 6 years = 5 }
+		}
+	}
+}
+
+# The engine ignores deplete_army_by_percentage = 1 (vanilla never goes above 0.95), so "wipe out" is two 0.95 passes:
+# 99.75% of the army perishes. Army scope.
+pantheon_annihilate_army_effect = {
+	deplete_army_by_percentage = 0.95
+	deplete_army_by_percentage = 0.95
+}
+
+# A strike on the raid (pantheon.0112 options). Root is the god; scope:pantheon_raid_army and scope:pantheon_raider ride in
+# on the event. $FRACTION$ of the army perishes (and, when $FINISH$ = yes, one further 0.95 pass: Annihilate passes 0.95,
+# so two passes in all, never the ignored 1) and $COST$ Worship is paid, ONLY if the army still exists; if it fled (or
+# was destroyed) nothing is charged and the god is told so. Either way the raider is Marked by the god for 10 years.
+pantheon_raid_strike_effect = {
+	if = {
+		limit = { exists = scope:pantheon_raid_army }
+		scope:pantheon_raid_army = { deplete_army_by_percentage = $FRACTION$ }
+		if = {
+			limit = { always = $FINISH$ }
+			scope:pantheon_raid_army ?= { deplete_army_by_percentage = 0.95 }
+		}
+		change_variable = { name = pantheon_worship subtract = $COST$ }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_raid_struck_t
+			left_icon = scope:pantheon_raider
+		}
+	}
+	else = {
+		send_interface_toast = {
+			type = event_toast_effect_neutral
+			title = pantheon_raid_fled_t
+			left_icon = scope:pantheon_raider
+		}
+	}
+	scope:pantheon_raider ?= {
+		set_variable = { name = pantheon_marked_by value = root years = 10 }
+	}
+}

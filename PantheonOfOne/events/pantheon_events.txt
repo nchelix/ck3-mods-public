@@ -137,6 +137,14 @@ pantheon.0010 = {
 				}
 				remove_variable = pantheon_ends_conception
 			}
+			# 2.4 repair 1 (R4)
+			if = {
+				limit = {
+					has_variable = pantheon_ends_freedom
+					NOT = { has_variable = pantheon_boon_freedom }
+				}
+				remove_variable = pantheon_ends_freedom
+			}
 		}
 		# Forget followers who no longer carry a boon, or have died (two passes: never edit a list while walking it)
 		every_in_list = {

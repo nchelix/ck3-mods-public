@@ -115,6 +115,7 @@ pantheon_great_boon_kind = {
 	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 3 } localization_key = pantheon_great_boon_kind_3 }
 	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 4 } localization_key = pantheon_great_boon_kind_4 }
 	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 5 } localization_key = pantheon_great_boon_kind_5 }
+	text = { trigger = { has_variable = pantheon_boon_great var:pantheon_boon_great = 7 } localization_key = pantheon_great_boon_kind_7 }
 	text = { fallback = yes localization_key = pantheon_great_boon_kind_6 }
 }
 
@@ -134,5 +135,15 @@ pantheon_prayer_need_words = {
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 6 has_variable = pantheon_prayer_gift var:pantheon_prayer_gift = 4 } localization_key = pantheon_prayer_need_sage }
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 7 } localization_key = pantheon_prayer_need_healing }
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 8 } localization_key = pantheon_prayer_need_spouse }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 9 } localization_key = pantheon_prayer_need_freedom }
 	text = { fallback = yes localization_key = pantheon_prayer_need_gift }
+}
+
+# 2.4: why the god ends a demigod's marriage, in words, for the Dissolve tooltip and the debug readout
+# ([recipient.Custom('pantheon_dissolve_reason_words')]). Root is the wed demigod; the value is pantheon_dissolve_reason.
+pantheon_dissolve_reason_words = {
+	type = character
+	text = { trigger = { pantheon_dissolve_reason = 3 } localization_key = pantheon_dissolve_reason_left_faith }
+	text = { trigger = { pantheon_dissolve_reason = 2 } localization_key = pantheon_dissolve_reason_sour }
+	text = { fallback = yes localization_key = pantheon_dissolve_reason_choice }
 }

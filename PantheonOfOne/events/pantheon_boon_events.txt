@@ -13,6 +13,7 @@ pantheon.0066 = {
 		var:pantheon_boon_suppliant_var = { pantheon_boon_sendable_trigger = { GOD = root } }
 	}
 	immediate = {
+		if = { limit = { has_variable = pantheon_boon_dispatch_pending } remove_variable = pantheon_boon_dispatch_pending }
 		if = { limit = { exists = scope:pantheon_boon_event_follower } clear_saved_scope = pantheon_boon_event_follower }
 		var:pantheon_boon_suppliant_var = { save_scope_as = pantheon_boon_event_follower }
 		save_scope_value_as = { name = pantheon_boon_event_id value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_id }
@@ -76,6 +77,10 @@ pantheon.0066 = {
 				trigger = { scope:pantheon_boon_event_kind = 6 }
 				desc = pantheon.0066.desc_fortune
 			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 7 }
+				desc = pantheon.0066.desc_freedom
+			}
 		}
 	}
 	theme = faith
@@ -93,6 +98,7 @@ pantheon.0066 = {
 		if = { limit = { scope:pantheon_boon_event_kind = 4 } custom_tooltip = pantheon.0066.grant_heir.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 5 } custom_tooltip = pantheon.0066.grant_conversion.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 6 } custom_tooltip = pantheon.0066.grant_fortune.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 7 } custom_tooltip = pantheon.0066.grant_freedom.tt }
 		custom_tooltip = pantheon.0066.grant.tt
 		hidden_effect = {
 			pantheon_grant_great_boon_effect = { UNASKED = no }
@@ -107,6 +113,7 @@ pantheon.0066 = {
 		if = { limit = { scope:pantheon_boon_event_kind = 4 } custom_tooltip = pantheon.0066.refuse_heir.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 5 } custom_tooltip = pantheon.0066.refuse_conversion.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 6 } custom_tooltip = pantheon.0066.refuse_fortune.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 7 } custom_tooltip = pantheon.0066.refuse_freedom.tt }
 		custom_tooltip = pantheon.0066.refuse.tt
 		hidden_effect = {
 			pantheon_refuse_great_boon_effect = yes

@@ -1,0 +1,135 @@
+﻿# Pantheon of One 2.4: Freedom, the ordinary prayer (need 9). Root is the god throughout.
+
+# For every jailed follower of the god's faith who qualifies (pantheon_need_freedom_trigger), has no open prayer, and
+# while fewer than six prayers are open: set need 9 and open the prayer at once. It ignores pantheon_prayed_recently
+# and the random draw (spec: promptly). Followers are found through their jailers' prisons. Run by pantheon.0115 (a
+# new imprisonment) and by pantheon_send_prayer_effect (each prayer tick), so a prisoner who found the cap full is
+# picked up when a slot frees. Root is the god.
+pantheon_freedom_pass_effect = {
+	pantheon_prayer_clear_delivery_effect = yes
+	every_ruler = {
+		limit = { any_prisoner = { faith = root.faith } }
+		every_prisoner = {
+			limit = { faith = root.faith }
+			pantheon_freedom_one_effect = yes
+		}
+	}
+	# 2.4 repair 1 (R6): a follower who holds a live, unoffered kind 7 (Great Prayer for Freedom) is offered at once, when the
+	# god has no Great Boon event open. It ignores the 182-day tick and the shared Great Prayer cooldown (which a grant or
+	# a refusal still sets). One per pass; same hand-off as pantheon_pick_great_boon_effect.
+	if = {
+		limit = {
+			NOT = { has_variable = pantheon_boon_event_open }
+			NOT = { has_variable = pantheon_boon_dispatch_pending }
+			any_in_list = {
+				variable = pantheon_boon_holders
+				var:pantheon_aspiration_kind ?= 7
+				pantheon_boon_sendable_trigger = { GOD = root }
+			}
+		}
+		ordered_in_list = {
+			variable = pantheon_boon_holders
+			limit = {
+				var:pantheon_aspiration_kind ?= 7
+				pantheon_boon_sendable_trigger = { GOD = root }
+			}
+			order_by = pantheon_boon_pick_score
+			max = 1
+			root = { set_variable = { name = pantheon_boon_suppliant_var value = prev } }
+		}
+		# 2.4 repair 1b (G1): a pending-dispatch marker; pantheon.0066's immediate removes it, days = 1 covers a rejected event
+		set_variable = { name = pantheon_boon_dispatch_pending value = yes days = 1 }
+		trigger_event = pantheon.0066
+	}
+}
+
+# In the prisoner's scope; root is the god. One prisoner of the pass above.
+pantheon_freedom_one_effect = {
+	if = {
+		limit = {
+			NOT = { this = root }
+			NOT = { has_variable = pantheon_prayer_open }
+			# 2.4 repair 1 (R2): a prisoner who was asked within the year (answered by a sign or a refusal) is not asked again
+			NOT = { has_variable = pantheon_freedom_asked }
+			pantheon_need_freedom_trigger = yes
+			root = {
+				OR = {
+					NOT = { has_variable_list = pantheon_open_prayers }
+					AND = { has_variable_list = pantheon_open_prayers NOT = { variable_list_size = { name = pantheon_open_prayers value >= 6 } } }
+				}
+			}
+		}
+		set_variable = { name = pantheon_prayer_need value = 9 }
+		set_variable = { name = pantheon_freedom_asked value = yes years = 1 }
+		save_scope_as = pantheon_suppliant
+		root = { pantheon_deliver_prayer_effect = yes }
+	}
+	# Kind 7 (R5): a valuable prisoner who is not a war leader and may hold a Great Prayer (Devotion 90+, eligible) asks
+	# for the Great Prayer instead. It REPLACES any other held aspiration once (no NOT has_variable guard), is skipped when
+	# they already hold kind 7 (a re-run would reset its ID, clock and offered state), honours the 2-year retry delay an
+	# ending Freedom sets (pantheon_freedom_retry; an unrelated aspiration's retry does not block it), and ignores the six-prayer cap. Not for the god's own prison or a hostage.
+	else_if = {
+		limit = {
+			NOT = { this = root }
+			NOT = { is_imprisoned_by = root }
+			is_hostage = no
+			pantheon_valuable_prisoner_trigger = yes
+			pantheon_war_leader_prisoner_trigger = no
+			pantheon_boon_eligible_trigger = { GOD = root }
+			NOT = { var:pantheon_aspiration_kind ?= 7 }
+			NOT = { has_variable = pantheon_freedom_retry }
+		}
+		pantheon_boon_new_request_effect = { KIND = 7 }
+	}
+}
+
+# The answer to need 9, and the body of Bless: Freedom. Root is the god; scope:pantheon_target is the prisoner. Charges
+# NOTHING (the prayer dispatcher charges the record's stored price; the Bless branch charges explicitly). The
+# Devotion is the WHOLE reward (R3): pantheon_freedom_devotion is read in the prisoner's scope BEFORE release, while the
+# jailer still counts for the ransom. Then release, the jailer's opinion of the god (a believer holds it lightly), the
+# marker for later features, and the toast.
+pantheon_grant_freedom_effect = {
+	if = {
+		limit = { scope:pantheon_target = { is_imprisoned = yes } }
+		pantheon_change_devotion_effect = { AMOUNT = pantheon_freedom_devotion }
+		# 2.4 repair 1 (R4): Freedom counts as a blessing (the forgiven-debts precedent) and earns the blessed opinion
+		pantheon_mark_timed_blessing_effect = { KEY = freedom VALUE = yes }
+		pantheon_bless_opinion_effect = yes
+		pantheon_free_prisoner_core_effect = yes
+	}
+}
+
+# The shared part (2.4 Task 2): release the prisoner, the jailer's opinion of the god (a believer holds it lightly), the
+# marker for later features, and the toast. NO Devotion: the ordinary prayer and Bless add the ransom-scaled Devotion
+# before calling it; the Great Prayer (kind 7) gets the Great Boon's +100 only; freeing a demigod pays none. Root is the
+# god; scope:pantheon_target is the prisoner. Does nothing if they are no longer imprisoned.
+pantheon_free_prisoner_core_effect = {
+	if = {
+		limit = { scope:pantheon_target = { is_imprisoned = yes } }
+		if = {
+			limit = { exists = scope:pantheon_target.imprisoner }
+			scope:pantheon_target.imprisoner = { save_temporary_scope_as = pantheon_freedom_jailer }
+		}
+		scope:pantheon_target = { release_from_prison = yes }
+		if = {
+			limit = { exists = scope:pantheon_freedom_jailer }
+			scope:pantheon_freedom_jailer = {
+				if = {
+					limit = { faith = root.faith }
+					add_opinion = { target = root modifier = pantheon_thwarted_jailer_believer_opinion years = 10 }
+				}
+				else = {
+					add_opinion = { target = root modifier = pantheon_thwarted_jailer_opinion years = 10 }
+				}
+			}
+		}
+		scope:pantheon_target = {
+			set_variable = { name = pantheon_freed_by_god value = current_year }
+		}
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_freedom_granted_t
+			left_icon = scope:pantheon_target
+		}
+	}
+}

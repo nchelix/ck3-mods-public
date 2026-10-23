@@ -2,7 +2,7 @@
 
 # Root = the prisoner. No cell can hold a god (proven in the prototype).
 on_imprison = {
-	on_actions = { pantheon_on_imprison pantheon_on_imprison_grievance }
+	on_actions = { pantheon_on_imprison pantheon_on_imprison_grievance pantheon_on_imprison_freedom }
 }
 
 pantheon_on_imprison = {
@@ -10,6 +10,106 @@ pantheon_on_imprison = {
 	effect = {
 		release_from_prison = yes
 		trigger_event = pantheon.0001
+	}
+}
+
+# 2.4 Freedom. Root = the prisoner; scope:imprisoner = the jailer. A jailed follower prays for their freedom PROMPTLY:
+# each enthroned player god gets the hidden event pantheon.0115, so the pass runs with the GOD as root (delivery and
+# aspiration creation require it). No imprisoner (some imprisonments fire this without one), no event.
+pantheon_on_imprison_freedom = {
+	trigger = {
+		exists = scope:imprisoner
+		is_alive = yes
+	}
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			trigger_event = pantheon.0115
+		}
+	}
+}
+
+# 2.4 Raiders on holy ground. Vanilla's on_raid_action_start: root = the raid army, scope:raider = its owner, scope:barony and
+# scope:county = the place. Engine-provided scopes are read only after `exists`. For each enthroned player god:
+#  - on the god's OWN land (the county's holder is the god):
+#      1. a raider at war with the god is skipped (Divine Retribution covers that);
+#      2. a raider Marked by this god has the army annihilated at no cost, with a toast and no event;
+#      3. otherwise the raider carries pantheon_raid_alerted_by (30 days, refreshed on every barony raid start) -- one
+#         continuous raid alerts once (R17) -- and, if it was ABSENT before, the god is asked (pantheon.0112) and the raider
+#         becomes a Judgement target (pantheon_raided_god, 5 years);
+#  - on a FOLLOWER's barony, raided by anyone the god does not protect (a fellow believer too, 2.4 repair 1): a light grievance (kind 6).
+on_raid_action_start = {
+	on_actions = { pantheon_on_raid_start }
+}
+
+pantheon_on_raid_start = {
+	trigger = {
+		exists = scope:raider
+		exists = scope:barony
+		exists = scope:county
+	}
+	effect = {
+		if = {
+			limit = { exists = scope:pantheon_raid_army }
+			clear_saved_scope = pantheon_raid_army
+		}
+		save_scope_as = pantheon_raid_army
+		if = {
+			limit = { exists = scope:pantheon_raider }
+			clear_saved_scope = pantheon_raider
+		}
+		scope:raider = { save_scope_as = pantheon_raider }
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					scope:county.holder ?= scope:pantheon_god
+					NOT = { scope:raider = scope:pantheon_god }
+					NOT = { scope:raider = { is_at_war_with = scope:pantheon_god } }
+				}
+				if = {
+					limit = { scope:raider = { var:pantheon_marked_by ?= scope:pantheon_god } }
+					scope:pantheon_raid_army ?= { pantheon_annihilate_army_effect = yes }
+					send_interface_toast = {
+						type = event_toast_effect_good
+						title = pantheon_raid_annihilated_t
+						left_icon = scope:raider
+					}
+				}
+				else = {
+					if = {
+						limit = { scope:raider = { NOT = { var:pantheon_raid_alerted_by ?= scope:pantheon_god } } }
+						scope:raider = { set_variable = { name = pantheon_raided_god value = scope:pantheon_god years = 5 } }
+						trigger_event = pantheon.0112
+					}
+					scope:raider = { set_variable = { name = pantheon_raid_alerted_by value = scope:pantheon_god days = 30 } }
+				}
+			}
+			else_if = {
+				limit = {
+					# 2.4 repair 1 (R8): any raider the god does not protect (a fellow believer too), but never the holder's own raid
+					scope:raider = { NOT = { pantheon_wrath_protected_trigger = { GOD = scope:pantheon_god } } }
+					NOT = { scope:barony.holder ?= { this = scope:raider } }
+					scope:barony.holder ?= {
+						faith = scope:pantheon_god.faith
+						NOT = { this = scope:pantheon_god }
+						pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god }
+					}
+				}
+				pantheon_give_raid_grievance_effect = { WHO = scope:barony.holder OFFENDER = scope:raider }
+			}
+		}
 	}
 }
 

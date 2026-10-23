@@ -32,8 +32,21 @@ pantheon_wrath_landed_effect = {
 				NOT = { pantheon_oath_harsh_trigger = yes }
 				scope:pantheon_wrath_kind <= 2
 			}
+			# 2.4 (R8): a light oath (a raid grievance) is fulfilled only by a maim or a curse
+			OR = {
+				NOT = { has_variable = pantheon_great_prayer_light }
+				AND = {
+					scope:pantheon_wrath_kind >= 2
+					scope:pantheon_wrath_kind <= 3
+				}
+			}
 		}
 		pantheon_great_prayer_answered_effect = yes
+	}
+	# 2.4 (R6): a wrath after the fact marks a raider of this god's land (pantheon_raided_god) as Marked by the god
+	if = {
+		limit = { scope:pantheon_victim = { var:pantheon_raided_god ?= root } }
+		scope:pantheon_victim = { set_variable = { name = pantheon_marked_by value = root years = 10 } }
 	}
 	# 2.3 (R10, R19): a Retribution call is answered once a wrath has landed on its aggressor; only the matching call closes
 	if = {

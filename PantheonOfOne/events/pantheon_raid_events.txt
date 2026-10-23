@@ -1,0 +1,51 @@
+﻿namespace = pantheon
+
+# Pantheon of One 2.4: Raiders on holy ground. Root is the god; scope:pantheon_raider and scope:pantheon_raid_army were saved
+# by pantheon_on_raid_start (the army may be gone by the time an option is chosen: the strike effect checks).
+# Three strikes may grey out (the cap is three greyed options per page); Let it pass is always free.
+pantheon.0112 = {
+	type = character_event
+	title = pantheon.0112.t
+	desc = pantheon.0112.desc
+	theme = war
+	left_portrait = {
+		character = scope:pantheon_raider
+		animation = war_attacker
+	}
+	trigger = { exists = scope:pantheon_raider }
+
+	option = {
+		name = pantheon.0112.thin
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_raid_thin_tt var:pantheon_worship >= pantheon_cost_raid_thin }
+		}
+		show_as_unavailable = { always = yes }
+		custom_tooltip = pantheon.0112.thin.tt
+		hidden_effect = { pantheon_raid_strike_effect = { FRACTION = 0.25 COST = pantheon_cost_raid_thin FINISH = no } }
+	}
+
+	option = {
+		name = pantheon.0112.break
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_raid_break_tt var:pantheon_worship >= pantheon_cost_raid_break }
+		}
+		show_as_unavailable = { always = yes }
+		custom_tooltip = pantheon.0112.break.tt
+		hidden_effect = { pantheon_raid_strike_effect = { FRACTION = 0.5 COST = pantheon_cost_raid_break FINISH = no } }
+	}
+
+	option = {
+		name = pantheon.0112.annihilate
+		trigger = {
+			custom_tooltip = { text = pantheon_needs_worship_raid_annihilate_tt var:pantheon_worship >= pantheon_cost_raid_annihilate }
+		}
+		show_as_unavailable = { always = yes }
+		custom_tooltip = pantheon.0112.annihilate.tt
+		hidden_effect = { pantheon_raid_strike_effect = { FRACTION = 0.95 COST = pantheon_cost_raid_annihilate FINISH = yes } }
+	}
+
+	option = {
+		name = pantheon.0112.pass
+		custom_tooltip = pantheon.0112.pass.tt
+	}
+}
