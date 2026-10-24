@@ -441,7 +441,6 @@ pantheon_on_death = {
 				has_trait = pantheon_divine
 				has_variable = pantheon_enthroned
 			}
-			add_to_variable_list = { name = pantheon_recent_dead target = scope:pantheon_dying }
 			trigger_event = { id = pantheon.0090 days = 1 }
 		}
 	}
@@ -591,6 +590,71 @@ pantheon_on_imprison_grievance = {
 					}
 				}
 			}
+		}
+	}
+}
+
+# 2.4.1 (#26): the faith follows its god. Vanilla's on_faith_created: root is documented as the NEW FAITH (not a character),
+# scope:founder is the acting character (may be absent), scope:old_faith the faith they came from. For a reform by a sitting Head
+# of Faith, 1.20 passes the OLD faith as root (see the else branch below). Fires only for an enthroned Pantheon god, so Proclaim
+# Your Divinity before the throne, a faith made by anyone else, and a game without a god are all untouched. Root is not the god
+# here, so the hook only saves the two faiths and hands off to pantheon.0120, a hidden event whose root IS the god.
+on_faith_created = {
+	on_actions = { pantheon_on_faith_created }
+}
+
+pantheon_on_faith_created = {
+	trigger = {
+		exists = scope:old_faith
+		scope:founder ?= {
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+	}
+	effect = {
+		if = {
+			limit = { exists = scope:pantheon_new_faith }
+			clear_saved_scope = pantheon_new_faith
+		}
+		if = {
+			limit = { NOT = { this = scope:old_faith } }
+			save_scope_as = pantheon_new_faith
+		}
+		else = {
+			# CK3 1.20 reports a reform by a sitting Head of Faith with the OLD faith as root (proven in game 2026-10-23):
+			# the engine builds the new faith but cannot move its head into it, and root is the founder's faith. The new
+			# faith is then the one in the same religion that the god founded and that nobody follows yet. CK3 offers no
+			# way to tell which of two such faiths is newer (an earlier one the god founded may have emptied out), so the
+			# hook acts only when exactly one matches; otherwise it does nothing, as vanilla would (Codex review 2026-10-24).
+			scope:old_faith.religion = {
+				if = {
+					limit = {
+						# exactly one: "count = N" means at least N
+						any_faith = {
+							pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder }
+						}
+						NOT = {
+							any_faith = {
+								count = 2
+								pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder }
+							}
+						}
+					}
+					random_faith = {
+						limit = { pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder } }
+						save_scope_as = pantheon_new_faith
+					}
+				}
+			}
+		}
+		if = {
+			limit = { exists = scope:pantheon_new_faith }
+			if = {
+				limit = { exists = scope:pantheon_old_faith }
+				clear_saved_scope = pantheon_old_faith
+			}
+			scope:old_faith = { save_scope_as = pantheon_old_faith }
+			scope:founder = { trigger_event = pantheon.0120 }
 		}
 	}
 }

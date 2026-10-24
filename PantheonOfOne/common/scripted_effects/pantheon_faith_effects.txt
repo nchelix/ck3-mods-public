@@ -1,0 +1,191 @@
+﻿# Pantheon of One 2.4.1 (#26): the faith follows its god. Root is ALWAYS the god, in an event whose root is the god
+# (pantheon.0120, events/pantheon_events.txt): the on_faith_created hook runs with the NEW FAITH as root, so it only
+# saves scopes and hands off. The temple helper this calls reads root.faith and root.var:..., so a god root is required.
+#
+# $OLD$ = the faith the god came from, $NEW$ = the faith just created. Nothing here converts a county or a vassal
+# (set_character_faith, never _with_conversion): followers below Devotion 50 stay on $OLD$ and convert on the base
+# game's schedule. $OLD$ is left without a head; Pantheon never creates one for it.
+
+pantheon_lead_new_faith_effect = {
+	# A call with the same faith on both sides (a repeated debug simulation) does nothing at all: no count, no toast.
+	if = {
+		limit = { NOT = { $OLD$ = $NEW$ } }
+		# 1. Count the movers FIRST, while they are still of $OLD$: the devout (Devotion 50 or more; unset never
+		#    counts) and the god's own living children (demigods), whatever their Devotion.
+		set_variable = { name = pantheon_faith_moved value = 0 }
+		# The movers are COLLECTED first (the list), then converted: converting inside $OLD$'s own iteration would
+		# change the set being iterated.
+		$OLD$ = {
+			every_faith_character = {
+				limit = {
+					is_alive = yes
+					NOT = { this = root }
+					OR = {
+						AND = {
+							has_variable = pantheon_devotion
+							var:pantheon_devotion >= 50
+						}
+						is_child_of = root
+					}
+				}
+				add_to_list = pantheon_faith_movers
+			}
+		}
+		every_in_list = {
+			list = pantheon_faith_movers
+			set_character_faith = $NEW$
+			root = { change_variable = { name = pantheon_faith_moved add = 1 } }
+		}
+		# 2. The title, BEFORE the god: CK3 silently refuses set_character_faith on the holder of a faith's head title
+		#    (proven in game 2026-10-23; the same refusal is why vanilla leaves the god behind on a reform). The god's
+		#    head title is the old faith's when the god holds it, else the new faith's when the god holds it. Saved
+		#    BEFORE anything is removed. It moves only if it is not yet the new faith's.
+		if = { limit = { exists = scope:pantheon_lead_title } clear_saved_scope = pantheon_lead_title }
+		if = {
+			limit = {
+				$OLD$ = { exists = religious_head_title }
+				$OLD$.religious_head_title.holder ?= root
+			}
+			$OLD$.religious_head_title = { save_scope_as = pantheon_lead_title }
+		}
+		else_if = {
+			limit = {
+				$NEW$ = { exists = religious_head_title }
+				$NEW$.religious_head_title.holder ?= root
+			}
+			$NEW$.religious_head_title = { save_scope_as = pantheon_lead_title }
+		}
+		if = {
+			limit = {
+				exists = scope:pantheon_lead_title
+				NOT = { $NEW$.religious_head_title ?= scope:pantheon_lead_title }
+			}
+			$OLD$ = { remove_religious_head_title = yes }
+			$NEW$ = { set_religious_head_title = scope:pantheon_lead_title }
+		}
+		# 3. The god follows, now that the old faith's head title is off them.
+		if = {
+			limit = { NOT = { faith = $NEW$ } }
+			set_character_faith = $NEW$
+		}
+		$NEW$ = { pantheon_spiritual_head_doctrine_effect = yes }
+		# 4. The Great Temple's holy site follows the god's faith (after the god's own conversion: the helper reads root.faith).
+		pantheon_faith_move_temple_effect = { OLD = $OLD$ NEW = $NEW$ }
+		# 5. Tell the god. The count stays on the god (like pantheon_last_worship): the toast text reads it when shown. A
+		#    toast's desc is not displayed (RF8, in game 2026-10-23); its body lines are custom_tooltips, as the worship toast's.
+		if = {
+			limit = { var:pantheon_faith_moved > 0 }
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = pantheon_faith_followed_t
+				custom_tooltip = pantheon_faith_followed_desc
+				left_icon = root
+			}
+		}
+		else = {
+			send_interface_toast = {
+				type = event_toast_effect_good
+				title = pantheon_faith_followed_t
+				custom_tooltip = pantheon_faith_followed_none_desc
+				left_icon = root
+			}
+		}
+	}
+}
+
+# God scope (Task 4). The Great Temple's holy site follows the god's faith. Called by pantheon_lead_new_faith_effect after the
+# god's own conversion, so root.faith is $NEW$ and pantheon_temple_create_holy_site_effect creates for it.
+# Only a temple with a completed tier has a site (it is created when tier 1 completes, pantheon_temple_complete_effect):
+# one still building its first tier does nothing and will create its site for the god's then-current faith.
+# C = pantheon_temple_created_holy_site ("Pantheon created the current faith's site"); "inherited" = $NEW$ already has a
+# holy site in the temple's county after the reform. Rows of the plan's state table:
+#   1 C set, $NEW$ inherited a pantheon_great_temple_site: drop it from $OLD$, adopt the inherited one (barony, faith $NEW$)
+#   2 C set, $NEW$ has no site: drop it from $OLD$, clear the record, create one for $NEW$ (or the refused flag)
+#   3 C set, $NEW$ has another (vanilla) site: drop it from $OLD$, clear the record; $NEW$ keeps its vanilla site
+#   4 C unset (temple on a vanilla site), $NEW$ has a site: nothing
+#   5 C unset, $NEW$ has no site: create one for $NEW$ (the helper may refuse)
+pantheon_faith_move_temple_effect = {
+	if = {
+		limit = {
+			has_variable = pantheon_temple_province
+			has_variable = pantheon_temple_tier
+			var:pantheon_temple_tier >= 1
+		}
+		if = {
+			limit = { has_variable = pantheon_temple_created_holy_site }
+			# Find $OLD$'s copy of the Pantheon site BEFORE touching anything (it is dropped from $OLD$ in every C-set row).
+			# By type AND $OLD$'s faith: after a reform both faiths may each hold a copy, and only $OLD$'s may go.
+			if = { limit = { exists = scope:pantheon_temple_old_site } clear_saved_scope = pantheon_temple_old_site }
+			var:pantheon_temple_province.county = {
+				every_county_holy_site = {
+					limit = {
+						is_holy_site_type = pantheon_great_temple_site
+						any_holy_site_faith = { this = $OLD$ }
+					}
+					save_scope_as = pantheon_temple_old_site
+				}
+			}
+			if = {
+				limit = {
+					var:pantheon_temple_province.county = {
+						any_county_holy_site = {
+							is_holy_site_type = pantheon_great_temple_site
+							any_holy_site_faith = { this = $NEW$ }
+						}
+					}
+				}
+				# Row 1: the new faith inherited a Pantheon site. Adopt it.
+				if = { limit = { exists = scope:pantheon_temple_new_holy_site_barony } clear_saved_scope = pantheon_temple_new_holy_site_barony }
+				var:pantheon_temple_province.county = {
+					every_county_holy_site = {
+						limit = {
+							is_holy_site_type = pantheon_great_temple_site
+							any_holy_site_faith = { this = $NEW$ }
+						}
+						holy_site_barony = { save_scope_as = pantheon_temple_new_holy_site_barony }
+					}
+				}
+				if = {
+					limit = { exists = scope:pantheon_temple_old_site }
+					$OLD$ = { remove_holy_site = scope:pantheon_temple_old_site }
+				}
+				if = {
+					limit = { exists = scope:pantheon_temple_new_holy_site_barony }
+					set_variable = { name = pantheon_temple_holy_site_barony value = scope:pantheon_temple_new_holy_site_barony }
+				}
+				set_variable = { name = pantheon_temple_holy_site_faith value = $NEW$ }
+			}
+			else = {
+				# Rows 2 and 3: drop the Pantheon site from $OLD$ and clear the record.
+				if = {
+					limit = { exists = scope:pantheon_temple_old_site }
+					$OLD$ = { remove_holy_site = scope:pantheon_temple_old_site }
+				}
+				remove_variable = pantheon_temple_created_holy_site
+				if = { limit = { has_variable = pantheon_temple_holy_site_barony } remove_variable = pantheon_temple_holy_site_barony }
+				if = { limit = { has_variable = pantheon_temple_holy_site_faith } remove_variable = pantheon_temple_holy_site_faith }
+				if = {
+					limit = {
+						NOT = {
+							var:pantheon_temple_province = { county = { any_county_province = { barony = { is_holy_site_of = $NEW$ } } } }
+						}
+					}
+					# Row 2: nothing inherited. The helper creates and records one for $NEW$, or sets the refused flag.
+					if = { limit = { has_variable = pantheon_temple_holy_site_refused } remove_variable = pantheon_temple_holy_site_refused }
+					pantheon_temple_create_holy_site_effect = yes
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				NOT = {
+					var:pantheon_temple_province = { county = { any_county_province = { barony = { is_holy_site_of = $NEW$ } } } }
+				}
+			}
+			# Row 5: a temple on a vanilla site whose faith did not inherit it. The helper may create a Pantheon site.
+			if = { limit = { has_variable = pantheon_temple_holy_site_refused } remove_variable = pantheon_temple_holy_site_refused }
+			pantheon_temple_create_holy_site_effect = yes
+		}
+		# Row 4 (C unset, $NEW$ has a site): nothing.
+	}
+}

@@ -429,3 +429,18 @@ pantheon.0011 = {
 			trigger_event = { id = pantheon.0011 days = 30 }
 	}
 }
+
+# 2.4.1 (#26): the god founded a new faith (hook pantheon_on_faith_created, common/on_action/pantheon_on_actions.txt). Root is the god,
+# which pantheon_lead_new_faith_effect requires; the two faiths arrive as saved scopes. Nothing is gated on where the title sits.
+pantheon.0120 = {
+	type = character_event
+	hidden = yes
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:pantheon_new_faith
+		exists = scope:pantheon_old_faith
+	}
+	immediate = {
+		pantheon_lead_new_faith_effect = { OLD = scope:pantheon_old_faith NEW = scope:pantheon_new_faith }
+	}
+}

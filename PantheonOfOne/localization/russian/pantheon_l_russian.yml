@@ -726,3 +726,6 @@
  pantheon_raid_struck_t: "Your wrath falls on [pantheon_raider.GetShortUINameNoTooltip]'s army"
  pantheon_raid_fled_t: "[pantheon_raider.GetShortUINameNoTooltip]'s army has fled, but the raider is marked all the same"
  pantheon_raid_annihilated_t: "A marked raider's army is destroyed on your land: [pantheon_raider.GetShortUINameNoTooltip]"
+ pantheon_faith_followed_t: "Your faithful follow you into [pantheon_new_faith.GetName]"
+ pantheon_faith_followed_desc: "[GetPlayer.MakeScope.Var('pantheon_faith_moved').GetValue|0] of your devout and your children have followed you into the new faith. The rest of the old faith will come in time."
+ pantheon_faith_followed_none_desc: "You lead [pantheon_new_faith.GetName]. None of your devout were left in the old faith to follow you; the rest will come in time."

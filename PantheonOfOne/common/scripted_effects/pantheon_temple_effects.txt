@@ -217,6 +217,37 @@ pantheon_temple_build_done_effect = {
 	}
 }
 
+# God scope (2.4.1, Task 4): find the holy site Pantheon created for the temple and save it as
+# scope:pantheon_temple_holy_site (left unset when nothing matches). Factored out of pantheon_temple_lost_clear_effect
+# so a reform (pantheon_faith_move_temple_effect) finds it the same way. Clears a stale scope first, since
+# every_county_holy_site leaves it untouched, not cleared, when nothing matches.
+pantheon_temple_find_site_effect = {
+	if = { limit = { exists = scope:pantheon_temple_holy_site } clear_saved_scope = pantheon_temple_holy_site }
+	# Batch 1r1 repair (item 5): the exact barony/faith stored at creation time, when present, pin the
+	# removal precisely; a temple completed before this repair stored neither, so falls back to the old
+	# by-type county search.
+	if = {
+		limit = { has_variable = pantheon_temple_holy_site_barony }
+		# every_county_holy_site iterates a COUNTY's holy sites: enter the stored barony's de jure county.
+		var:pantheon_temple_holy_site_barony.county = {
+			every_county_holy_site = {
+				limit = { is_holy_site_type = pantheon_great_temple_site holy_site_barony = root.var:pantheon_temple_holy_site_barony }
+				save_scope_as = pantheon_temple_holy_site
+			}
+		}
+	}
+	else = {
+		var:pantheon_temple_province = {
+			county = {
+				every_county_holy_site = {
+					limit = { is_holy_site_type = pantheon_great_temple_site }
+					save_scope_as = pantheon_temple_holy_site
+				}
+			}
+		}
+	}
+}
+
 # God scope (R7): every temple variable cleared, nothing refunded. Shared by pantheon_temple_lost_effect
 # and pantheon_temple_lost_no_barony_effect below (batch g1 repair) so both toasts clear the exact same
 # state without duplicating it. The founder flag (R4, is_enabled) is stored on the province itself, so it
@@ -253,30 +284,7 @@ pantheon_temple_lost_clear_effect = {
 	# actually found one.
 	if = {
 		limit = { has_variable = pantheon_temple_created_holy_site }
-		if = { limit = { exists = scope:pantheon_temple_holy_site } clear_saved_scope = pantheon_temple_holy_site }
-		# Batch 1r1 repair (item 5): the exact barony/faith stored at creation time, when present, pin the
-		# removal precisely; a temple completed before this repair stored neither, so falls back to the old
-		# by-type county search.
-		if = {
-			limit = { has_variable = pantheon_temple_holy_site_barony }
-			# every_county_holy_site iterates a COUNTY's holy sites: enter the stored barony's de jure county.
-			var:pantheon_temple_holy_site_barony.county = {
-				every_county_holy_site = {
-					limit = { is_holy_site_type = pantheon_great_temple_site holy_site_barony = root.var:pantheon_temple_holy_site_barony }
-					save_scope_as = pantheon_temple_holy_site
-				}
-			}
-		}
-		else = {
-			var:pantheon_temple_province = {
-				county = {
-					every_county_holy_site = {
-						limit = { is_holy_site_type = pantheon_great_temple_site }
-						save_scope_as = pantheon_temple_holy_site
-					}
-				}
-			}
-		}
+		pantheon_temple_find_site_effect = yes
 		if = {
 			limit = { exists = scope:pantheon_temple_holy_site }
 			if = {

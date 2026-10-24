@@ -1,5 +1,17 @@
 # Changelog — Pantheon of One
 
+## [2.4.1] — 2026-10-23
+
+The faith follows its god.
+
+### Fixed
+- When you found or reform a faith as the enthroned god, your faith, your head title, your devout followers (Devotion 50 or more) and your children now follow you into it, and the Great Temple's holy site moves with you (#26). The old faith is left without a head, and followers below Devotion 50 convert on the usual schedule. Put your Great Temple's county in devout hands before reforming: a holder who stays on the old faith leaves the temple dormant.
+- A follower who may not marry (a monk, a priest, a betrothed) no longer prays for a spouse (#30).
+- No more error.log lines when kin are murdered (#29).
+
+### Known issue (base game)
+- When a sitting Head of Faith reforms, CK3 1.20 also drops the Unreformed doctrine from the old faith and names its schism popup after the old faith ("The Old Ásatrú Schism"). Both come from the base game's own reform code, which is handed the old faith in this case; Pantheon does not change them.
+
 ## [2.4] — 2026-10-22
 
 The god intervenes: followers can pray to be freed, raiders on holy ground answer to you, and a demigod's marriage can be ended. Tested on CK3 1.20.1.2.

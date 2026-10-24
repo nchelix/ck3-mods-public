@@ -181,6 +181,7 @@ pantheon_need_spouse_trigger = {
 	NOT = { any_child = { always = yes } }
 	NOT = { has_variable = pantheon_boon_fertility }
 	trigger_if = { limit = { is_female = yes } is_pregnant = no }
+	can_marry_common_trigger = yes # 2.4.1 #30: monks, nuns and anyone who may not marry never pray for a spouse (vanilla 00_marriage_triggers.txt)
 }
 
 # ---- 2.4 Freedom (need 9). Research (T1 step 1), from the 1.20 logs and vanilla:
@@ -1054,4 +1055,13 @@ pantheon_oath_harsh_trigger = {
 			has_variable = pantheon_wrath_harsh
 		}
 	}
+}
+
+# Faith scope. 2.4.1 (#26): a faith that may be the one a reform just created, when on_faith_created hands over the OLD faith
+# as root (pantheon_on_faith_created): same religion (the caller iterates it), not $OLD$, founded by $FOUNDER$, nobody in it yet.
+pantheon_reform_new_faith_candidate_trigger = {
+	NOT = { this = $OLD$ }
+	exists = founder
+	founder = $FOUNDER$
+	NOT = { any_faith_character = { is_alive = yes } }
 }

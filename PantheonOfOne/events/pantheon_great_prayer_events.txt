@@ -7,32 +7,37 @@
 pantheon.0090 = {
 	type = character_event
 	hidden = yes
-	trigger = { has_trait = pantheon_divine }
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:pantheon_dying # 2.4.1 #29: a character deleted during the day is no longer read
+	}
 	immediate = {
-		every_in_list = {
-			variable = pantheon_recent_dead
-			limit = {
-				OR = {
-					death_reason = death_murder
-					death_reason = death_murder_known
-					death_reason = death_murder_feast
-					death_reason = death_execution
-					death_reason = death_execution_blood_eagle
-					death_reason = death_execution_blot
+		# 2.4.1: one event per death, the dead carried as a saved scope (no list to go stale). Older saves
+		# may still hold the old list: drop it.
+		if = { limit = { has_variable_list = pantheon_recent_dead } clear_variable_list = pantheon_recent_dead }
+		scope:pantheon_dying = {
+			if = {
+				limit = {
+					OR = {
+						death_reason = death_murder
+						death_reason = death_murder_known
+						death_reason = death_murder_feast
+						death_reason = death_execution
+						death_reason = death_execution_blood_eagle
+						death_reason = death_execution_blot
+					}
+					exists = killer
 				}
-				exists = killer
-			}
-			save_scope_as = pantheon_dead
-			every_close_family_member = {
-				limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
-				pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_dead.killer KIND = 1 }
-			}
-			every_spouse = {
-				limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
-				pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_dead.killer KIND = 1 }
+				every_close_family_member = {
+					limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+					pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_dying.killer KIND = 1 }
+				}
+				every_spouse = {
+					limit = { pantheon_grievance_eligible_trigger = { GOD = root } }
+					pantheon_give_grievance_effect = { WHO = this OFFENDER = scope:pantheon_dying.killer KIND = 1 }
+				}
 			}
 		}
-		clear_variable_list = pantheon_recent_dead
 	}
 }
 

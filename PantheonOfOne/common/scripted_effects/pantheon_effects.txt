@@ -29,6 +29,23 @@ pantheon_proclaim_effect = {
 	trigger_event = { id = pantheon.0030 days = 1 }
 }
 
+# Faith scope: the faith has a spiritual head (2.4.1: shared by the throne and by a reform, pantheon_lead_new_faith_effect).
+# Moved verbatim out of pantheon_take_throne_effect.
+pantheon_spiritual_head_doctrine_effect = {
+	if = {
+		limit = { has_doctrine = doctrine_no_head }
+		hidden_effect = { remove_doctrine = doctrine_no_head }
+	}
+	if = {
+		limit = { has_doctrine = doctrine_temporal_head }
+		hidden_effect = { remove_doctrine = doctrine_temporal_head }
+	}
+	if = {
+		limit = { NOT = { has_doctrine = doctrine_spiritual_head } }
+		add_doctrine = doctrine_spiritual_head
+	}
+}
+
 # Make the god the landless spiritual Head of their faith, holding the Holy Seat. Proven in the prototype.
 pantheon_take_throne_effect = {
 	# A god is no one's vassal (1.1 in-game test: a liege tried to revoke an enthroned god's county)
@@ -46,18 +63,7 @@ pantheon_take_throne_effect = {
 		save_scope_as = pantheon_faith
 		# Vanilla's REL_HEAD_TITLE_NAME reads scope:my_faith (without it the title was named "The")
 		save_scope_as = my_faith
-		if = {
-			limit = { has_doctrine = doctrine_no_head }
-			hidden_effect = { remove_doctrine = doctrine_no_head }
-		}
-		if = {
-			limit = { has_doctrine = doctrine_temporal_head }
-			hidden_effect = { remove_doctrine = doctrine_temporal_head }
-		}
-		if = {
-			limit = { NOT = { has_doctrine = doctrine_spiritual_head } }
-			add_doctrine = doctrine_spiritual_head
-		}
+		pantheon_spiritual_head_doctrine_effect = yes
 	}
 	# The Holy Seat: a holy site of the faith that the god holds, else the god's capital
 	scope:pantheon_faith = {
