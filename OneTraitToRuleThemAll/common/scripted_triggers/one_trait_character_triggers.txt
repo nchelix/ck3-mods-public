@@ -173,6 +173,31 @@ one_trait_character_family_court_valid_trigger = {
 		NOT = { is_foreign_court_guest_of = root }
 	}
 }
+# 2.10: Marry opens the game's own interaction window (Character.OpenPlayerInteraction) on this character. The
+# interaction's is_shown is now always = no, so its old "not yourself" condition lives here (no click effect:
+# the window does the picking and sends the interaction's own event).
+one_trait_character_family_marry_shown_trigger = {
+	always = yes
+}
+one_trait_character_family_marry_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_panel_needs_other_tt
+		NOT = { this = root }
+	}
+}
+# The unlanded twin of Realm > Titles > Give a title (the Realm category needs a landed character). Shown only
+# when this character is unlanded, so the row never appears twice. Same valid trigger as the Realm row.
+one_trait_character_family_give_title_shown_trigger = {
+	is_landed = no
+	NOT = { this = root }
+}
+one_trait_character_family_give_title_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_panel_needs_other_tt
+		NOT = { this = root }
+	}
+	root = { custom_tooltip = { text = one_trait_not_your_liege_tt NOT = { target_is_liege_or_above = prev } } }
+}
 
 # ---- Legacy ----
 
@@ -268,4 +293,156 @@ one_trait_character_legacy_canonize_dynasty_founder_valid_trigger = {
 		is_alive = no
 		NOT = { has_trait = saint }
 	}
+}
+
+# ---- 2.10 Identity pickers: sexuality and education (spec docs/superpowers/specs/2026-10-24-one-trait-2.10-character-editing-design.md)
+# Trait keys: game/common/traits/00_traits.txt -- education_<intrigue|diplomacy|stewardship|martial|learning>_1..5
+# (lines 11-868) and the add-ons education_martial_prowess_1..4 (15677-15764) / education_republican_knowledge_1..4
+# (16089-16161); all have minimum_age = 16 (00_traits.txt:12 and so on). has_trait / has_sexuality: the 1.20.1.1
+# triggers dump (docs/reference/ck3-1.20.1.1-triggers.log). The trait keys are written out literally below (no
+# education_$X$_ pastes): tools/validate_mod.py reads has_trait / add_trait keys textually and would flag a paste.
+
+# Education traits carry minimum_age = 16 and add_trait silently fails below it, so every picker button is
+# greyed under 16. Character scope (the panel's target).
+one_trait_can_edit_upbringing_trigger = {
+	custom_tooltip = {
+		text = one_trait_upbringing_too_young_tt
+		age >= 16
+	}
+}
+
+# Character scope. Any main education trait of tier n (1-5). The add-ons (prowess, republican) are never main.
+one_trait_has_main_tier_1_trigger = {
+	OR = {
+		has_trait = education_diplomacy_1
+		has_trait = education_martial_1
+		has_trait = education_stewardship_1
+		has_trait = education_intrigue_1
+		has_trait = education_learning_1
+	}
+}
+one_trait_has_main_tier_2_trigger = {
+	OR = {
+		has_trait = education_diplomacy_2
+		has_trait = education_martial_2
+		has_trait = education_stewardship_2
+		has_trait = education_intrigue_2
+		has_trait = education_learning_2
+	}
+}
+one_trait_has_main_tier_3_trigger = {
+	OR = {
+		has_trait = education_diplomacy_3
+		has_trait = education_martial_3
+		has_trait = education_stewardship_3
+		has_trait = education_intrigue_3
+		has_trait = education_learning_3
+	}
+}
+one_trait_has_main_tier_4_trigger = {
+	OR = {
+		has_trait = education_diplomacy_4
+		has_trait = education_martial_4
+		has_trait = education_stewardship_4
+		has_trait = education_intrigue_4
+		has_trait = education_learning_4
+	}
+}
+one_trait_has_main_tier_5_trigger = {
+	OR = {
+		has_trait = education_diplomacy_5
+		has_trait = education_martial_5
+		has_trait = education_stewardship_5
+		has_trait = education_intrigue_5
+		has_trait = education_learning_5
+	}
+}
+
+# Character scope. No main education at all (the add-ons do not count).
+one_trait_has_no_main_education_trigger = {
+	NOR = {
+		one_trait_has_main_tier_1_trigger = yes
+		one_trait_has_main_tier_2_trigger = yes
+		one_trait_has_main_tier_3_trigger = yes
+		one_trait_has_main_tier_4_trigger = yes
+		one_trait_has_main_tier_5_trigger = yes
+	}
+}
+
+# Character scope. The lifestyle holds the character's highest main tier (the value
+# one_trait_main_education_tier_value, common/script_values/one_trait_education_values.txt). A named script value
+# compared to a number in a trigger: game/common/script_values/_script_values.info.
+one_trait_has_top_tier_diplomacy_trigger = {
+	OR = {
+		AND = { one_trait_main_education_tier_value = 1 has_trait = education_diplomacy_1 }
+		AND = { one_trait_main_education_tier_value = 2 has_trait = education_diplomacy_2 }
+		AND = { one_trait_main_education_tier_value = 3 has_trait = education_diplomacy_3 }
+		AND = { one_trait_main_education_tier_value = 4 has_trait = education_diplomacy_4 }
+		AND = { one_trait_main_education_tier_value = 5 has_trait = education_diplomacy_5 }
+	}
+}
+one_trait_has_top_tier_martial_trigger = {
+	OR = {
+		AND = { one_trait_main_education_tier_value = 1 has_trait = education_martial_1 }
+		AND = { one_trait_main_education_tier_value = 2 has_trait = education_martial_2 }
+		AND = { one_trait_main_education_tier_value = 3 has_trait = education_martial_3 }
+		AND = { one_trait_main_education_tier_value = 4 has_trait = education_martial_4 }
+		AND = { one_trait_main_education_tier_value = 5 has_trait = education_martial_5 }
+	}
+}
+one_trait_has_top_tier_stewardship_trigger = {
+	OR = {
+		AND = { one_trait_main_education_tier_value = 1 has_trait = education_stewardship_1 }
+		AND = { one_trait_main_education_tier_value = 2 has_trait = education_stewardship_2 }
+		AND = { one_trait_main_education_tier_value = 3 has_trait = education_stewardship_3 }
+		AND = { one_trait_main_education_tier_value = 4 has_trait = education_stewardship_4 }
+		AND = { one_trait_main_education_tier_value = 5 has_trait = education_stewardship_5 }
+	}
+}
+one_trait_has_top_tier_intrigue_trigger = {
+	OR = {
+		AND = { one_trait_main_education_tier_value = 1 has_trait = education_intrigue_1 }
+		AND = { one_trait_main_education_tier_value = 2 has_trait = education_intrigue_2 }
+		AND = { one_trait_main_education_tier_value = 3 has_trait = education_intrigue_3 }
+		AND = { one_trait_main_education_tier_value = 4 has_trait = education_intrigue_4 }
+		AND = { one_trait_main_education_tier_value = 5 has_trait = education_intrigue_5 }
+	}
+}
+one_trait_has_top_tier_learning_trigger = {
+	OR = {
+		AND = { one_trait_main_education_tier_value = 1 has_trait = education_learning_1 }
+		AND = { one_trait_main_education_tier_value = 2 has_trait = education_learning_2 }
+		AND = { one_trait_main_education_tier_value = 3 has_trait = education_learning_3 }
+		AND = { one_trait_main_education_tier_value = 4 has_trait = education_learning_4 }
+		AND = { one_trait_main_education_tier_value = 5 has_trait = education_learning_5 }
+	}
+}
+
+# Character scope. 2.10 R4: the CURRENT lifestyle. With two main educations (from history or mods) it is the one
+# holding the highest tier, ties broken by this order: diplomacy martial stewardship intrigue learning. At most one
+# of these five is true, and one is true whenever the character has any main education.
+one_trait_has_main_education_diplomacy_trigger = {
+	one_trait_has_top_tier_diplomacy_trigger = yes
+}
+one_trait_has_main_education_martial_trigger = {
+	one_trait_has_top_tier_martial_trigger = yes
+	NOT = { one_trait_has_top_tier_diplomacy_trigger = yes }
+}
+one_trait_has_main_education_stewardship_trigger = {
+	one_trait_has_top_tier_stewardship_trigger = yes
+	NOT = { one_trait_has_top_tier_diplomacy_trigger = yes }
+	NOT = { one_trait_has_top_tier_martial_trigger = yes }
+}
+one_trait_has_main_education_intrigue_trigger = {
+	one_trait_has_top_tier_intrigue_trigger = yes
+	NOT = { one_trait_has_top_tier_diplomacy_trigger = yes }
+	NOT = { one_trait_has_top_tier_martial_trigger = yes }
+	NOT = { one_trait_has_top_tier_stewardship_trigger = yes }
+}
+one_trait_has_main_education_learning_trigger = {
+	one_trait_has_top_tier_learning_trigger = yes
+	NOT = { one_trait_has_top_tier_diplomacy_trigger = yes }
+	NOT = { one_trait_has_top_tier_martial_trigger = yes }
+	NOT = { one_trait_has_top_tier_stewardship_trigger = yes }
+	NOT = { one_trait_has_top_tier_intrigue_trigger = yes }
 }

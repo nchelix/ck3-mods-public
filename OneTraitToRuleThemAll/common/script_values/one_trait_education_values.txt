@@ -1,0 +1,23 @@
+﻿# One Trait 2.10: the character's current main education tier, for the Identity pickers.
+# Character scope. The highest n (1-5) such that the character has any main education trait of tier n, else 1 (the
+# default is for clicks only; the panel's tier highlight also requires an existing main education, R3).
+# Script-value syntax (value / if / limit): game/common/script_values/_script_values.info.
+one_trait_main_education_tier_value = {
+	value = 1
+	if = {
+		limit = { one_trait_has_main_tier_2_trigger = yes }
+		value = 2
+	}
+	if = {
+		limit = { one_trait_has_main_tier_3_trigger = yes }
+		value = 3
+	}
+	if = {
+		limit = { one_trait_has_main_tier_4_trigger = yes }
+		value = 4
+	}
+	if = {
+		limit = { one_trait_has_main_tier_5_trigger = yes }
+		value = 5
+	}
+}

@@ -733,6 +733,372 @@ one_trait_ui_ring_level_regular_on = {
 	is_valid = { var:one_trait_ui_target ?= { one_trait_ring_is_regular_trigger = yes } }
 }
 
+one_trait_ui_sex_heterosexual = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = heterosexual } }
+	}
+}
+
+one_trait_ui_sex_heterosexual_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_sexuality = heterosexual } }
+}
+
+one_trait_ui_sex_homosexual = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = homosexual } }
+	}
+}
+
+one_trait_ui_sex_homosexual_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_sexuality = homosexual } }
+}
+
+one_trait_ui_sex_bisexual = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = bisexual } }
+	}
+}
+
+one_trait_ui_sex_bisexual_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_sexuality = bisexual } }
+}
+
+one_trait_ui_sex_asexual = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = asexual } }
+	}
+}
+
+one_trait_ui_sex_asexual_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_sexuality = asexual } }
+}
+
+one_trait_ui_edu_diplomacy = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = diplomacy } }
+	}
+}
+
+one_trait_ui_edu_diplomacy_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_diplomacy_trigger = yes } }
+}
+
+one_trait_ui_edu_martial = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = martial } }
+	}
+}
+
+one_trait_ui_edu_martial_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_martial_trigger = yes } }
+}
+
+one_trait_ui_edu_stewardship = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = stewardship } }
+	}
+}
+
+one_trait_ui_edu_stewardship_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_stewardship_trigger = yes } }
+}
+
+one_trait_ui_edu_intrigue = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = intrigue } }
+	}
+}
+
+one_trait_ui_edu_intrigue_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_intrigue_trigger = yes } }
+}
+
+one_trait_ui_edu_learning = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = learning } }
+	}
+}
+
+one_trait_ui_edu_learning_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_learning_trigger = yes } }
+}
+
+one_trait_ui_edu_none_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_has_no_main_education_trigger = yes } }
+}
+
+one_trait_ui_edu_tier_1 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 1 } }
+	}
+}
+
+one_trait_ui_edu_tier_1_on = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			one_trait_has_no_main_education_trigger = no
+			one_trait_main_education_tier_value = 1
+		}
+	}
+}
+
+one_trait_ui_edu_tier_2 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 2 } }
+	}
+}
+
+one_trait_ui_edu_tier_2_on = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			one_trait_has_no_main_education_trigger = no
+			one_trait_main_education_tier_value = 2
+		}
+	}
+}
+
+one_trait_ui_edu_tier_3 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 3 } }
+	}
+}
+
+one_trait_ui_edu_tier_3_on = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			one_trait_has_no_main_education_trigger = no
+			one_trait_main_education_tier_value = 3
+		}
+	}
+}
+
+one_trait_ui_edu_tier_4 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 4 } }
+	}
+}
+
+one_trait_ui_edu_tier_4_on = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			one_trait_has_no_main_education_trigger = no
+			one_trait_main_education_tier_value = 4
+		}
+	}
+}
+
+one_trait_ui_edu_tier_5 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 5 } }
+	}
+}
+
+one_trait_ui_edu_tier_5_on = {
+	scope = character
+	is_valid = {
+		var:one_trait_ui_target ?= {
+			one_trait_has_no_main_education_trigger = no
+			one_trait_main_education_tier_value = 5
+		}
+	}
+}
+
+one_trait_ui_edu_prowess_0 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 0 } }
+	}
+}
+
+one_trait_ui_edu_prowess_0_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { NOR = { has_trait = education_martial_prowess_1 has_trait = education_martial_prowess_2 has_trait = education_martial_prowess_3 has_trait = education_martial_prowess_4 } } }
+}
+
+one_trait_ui_edu_prowess_1 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 1 } }
+	}
+}
+
+one_trait_ui_edu_prowess_1_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_1 } }
+}
+
+one_trait_ui_edu_prowess_2 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 2 } }
+	}
+}
+
+one_trait_ui_edu_prowess_2_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_2 } }
+}
+
+one_trait_ui_edu_prowess_3 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 3 } }
+	}
+}
+
+one_trait_ui_edu_prowess_3_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_3 } }
+}
+
+one_trait_ui_edu_prowess_4 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 4 } }
+	}
+}
+
+one_trait_ui_edu_prowess_4_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_4 } }
+}
+
+one_trait_ui_edu_republican_0 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 0 } }
+	}
+}
+
+one_trait_ui_edu_republican_0_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { NOR = { has_trait = education_republican_knowledge_1 has_trait = education_republican_knowledge_2 has_trait = education_republican_knowledge_3 has_trait = education_republican_knowledge_4 } } }
+}
+
+one_trait_ui_edu_republican_1 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 1 } }
+	}
+}
+
+one_trait_ui_edu_republican_1_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_1 } }
+}
+
+one_trait_ui_edu_republican_2 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 2 } }
+	}
+}
+
+one_trait_ui_edu_republican_2_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_2 } }
+}
+
+one_trait_ui_edu_republican_3 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 3 } }
+	}
+}
+
+one_trait_ui_edu_republican_3_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_3 } }
+}
+
+one_trait_ui_edu_republican_4 = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 4 } }
+	}
+}
+
+one_trait_ui_edu_republican_4_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_4 } }
+}
+
 one_trait_ui_ring_count_m1000 = {
 	scope = character
 	effect = {
@@ -1994,6 +2360,18 @@ one_trait_ui_act_titles_claims = {
 	}
 }
 
+one_trait_ui_act_titles_give = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_give_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_titles_give_valid_trigger = yes }
+	}
+}
+
 one_trait_ui_act_culture_innovations_era = {
 	scope = character
 	is_shown = {
@@ -2561,6 +2939,30 @@ one_trait_ui_act_family_court = {
 	}
 	effect = {
 		one_trait_ui_act_family_court_click_effect = yes
+	}
+}
+
+one_trait_ui_act_family_marry = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_marry_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_marry_valid_trigger = yes }
+	}
+}
+
+one_trait_ui_act_family_give_title = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_give_title_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_character_family_give_title_valid_trigger = yes }
 	}
 }
 

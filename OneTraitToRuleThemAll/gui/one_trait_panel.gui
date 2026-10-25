@@ -750,206 +750,1682 @@ window = {
 					vbox = {
 						visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_tab').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_subtab').GetValue, '(CFixedPoint)2' ) )]"
 						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
 						spacing = 8
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/culture.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_give" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_culture.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_take" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_culture.dds" }
-								text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital" }
-								text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital_you" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/go_to_my_capital.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_your_capital" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/faith.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_give" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/personal_faith.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_take" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/known_faiths.dds" }
-								text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital" }
-								text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital_you" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/holy_site.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_your_capital" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/randomize.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_name_reroll" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								}
-							}
-						}
-						widget = {
-							visible = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							size = { 680 44 }
-							background = { using = Background_Area }
-							hbox = {
-								margin_left = 10
-								margin_right = 10
-								spacing = 10
-								icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/edit_text.dds" }
-								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_name_give" }
-								button_standard = {
-									size = { 80 32 }
-									text = "one_trait_panel_act_do"
-									enabled = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_name_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-									onclick = "[GetScriptedGui('one_trait_ui_act_identity_name_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						scrollbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							blockoverride "scrollbox_content" {
+								vbox = {
+									spacing = 4
+									vbox = {
+										spacing = 4
+										text_single = { text = "one_trait_panel_identity_sexuality" }
+										hbox = {
+											spacing = 6
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_sex_heterosexual_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_sex_heterosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_sex_heterosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_sex_heterosexual_tt' ), GetScriptedGui('one_trait_ui_sex_heterosexual').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_sex_heterosexual').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 1
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_heterosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 1
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_heterosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 1
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_heterosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 1
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_heterosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_sex_heterosexual"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_sex_homosexual_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_sex_homosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_sex_homosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_sex_homosexual_tt' ), GetScriptedGui('one_trait_ui_sex_homosexual').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_sex_homosexual').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 2
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_homosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 2
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_homosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 2
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_homosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 2
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_homosexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_sex_homosexual"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_sex_bisexual_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_sex_bisexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_sex_bisexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_sex_bisexual_tt' ), GetScriptedGui('one_trait_ui_sex_bisexual').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_sex_bisexual').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 3
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_bisexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 3
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_bisexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 3
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_bisexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 3
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_bisexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_sex_bisexual"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_sex_asexual_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_sex_asexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_sex_asexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_sex_asexual_tt' ), GetScriptedGui('one_trait_ui_sex_asexual').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_sex_asexual').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 4
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_asexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 4
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_asexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.IsFemale ) )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_male.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 4
+														visible = "[And( GetScriptedGui('one_trait_ui_sex_asexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														framesize = { 40 40 }
+														frame = 4
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_sex_asexual').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.IsFemale )]"
+														texture = "gfx/interface/icons/character_status/sexuality_icons_female.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_sex_asexual"
+												}
+											}
+										}
+									}
+									vbox = {
+										spacing = 4
+										text_single = { text = "one_trait_panel_identity_education" }
+										hbox = {
+											spacing = 6
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_diplomacy_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_diplomacy_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_diplomacy_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_diplomacy_2_tt' ), Localize( 'one_trait_panel_edu_diplomacy_1_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_diplomacy').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_diplomacy').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_diplomacy').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_5.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_life_diplomacy"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_2_tt' ), Localize( 'one_trait_panel_edu_martial_1_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_martial').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_martial').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_martial').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_5.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_life_martial"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_2_tt' ), Localize( 'one_trait_panel_edu_stewardship_1_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_stewardship').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_stewardship').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_stewardship').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_5.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_life_stewardship"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_2_tt' ), Localize( 'one_trait_panel_edu_intrigue_1_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_intrigue').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_intrigue').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_intrigue').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_5.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_life_intrigue"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_2_tt' ), Localize( 'one_trait_panel_edu_learning_1_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_learning').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_learning').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Or( GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_learning').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_5.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_life_learning"
+												}
+											}
+										}
+										text_single = { text = "one_trait_panel_identity_tier_hint" }
+										hbox = {
+											spacing = 6
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_tier_1_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_1_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_1_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_1_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_1_tt' ), Localize( 'one_trait_panel_edu_diplomacy_1_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_tier_1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_tier_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_1.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_1"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_tier_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_2_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_2_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_2_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_2_tt' ), Localize( 'one_trait_panel_edu_diplomacy_2_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_tier_2').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_tier_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_2.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_2"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_tier_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_3_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_3_tt' ), Localize( 'one_trait_panel_edu_diplomacy_3_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_tier_3').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_tier_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_3.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_3"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_tier_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_4_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_4_tt' ), Localize( 'one_trait_panel_edu_diplomacy_4_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_tier_4').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_tier_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_4.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_4"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_tier_5_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_martial_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_stewardship_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_intrigue_5_tt' ), Select_CString( GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_learning_5_tt' ), Localize( 'one_trait_panel_edu_diplomacy_5_tt' ) ) ) ) ), GetScriptedGui('one_trait_ui_edu_tier_5').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_tier_5').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Or( GetScriptedGui('one_trait_ui_edu_diplomacy_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_none_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+														texture = "gfx/interface/icons/traits/education_diplomacy_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_martial_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_stewardship_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_stewardship_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_intrigue_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_intrigue_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[And( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_5.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[And( Not( GetScriptedGui('one_trait_ui_edu_tier_5').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_edu_learning_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_learning_5.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_5"
+												}
+											}
+										}
+									}
+									vbox = {
+										spacing = 4
+										text_single = { text = "one_trait_panel_identity_prowess" }
+										hbox = {
+											spacing = 6
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													text = "one_trait_panel_identity_none_btn"
+													down = "[GetScriptedGui('one_trait_ui_edu_prowess_0_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_prowess_0').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_prowess_0').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_prowess_none_tt' ), GetScriptedGui('one_trait_ui_edu_prowess_0').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_prowess_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_none"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_prowess_1_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_prowess_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_prowess_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_prowess_1_tt' ), GetScriptedGui('one_trait_ui_edu_prowess_1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_prowess_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_prowess_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_prowess_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_1.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_1"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_prowess_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_prowess_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_prowess_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_prowess_2_tt' ), GetScriptedGui('one_trait_ui_edu_prowess_2').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_prowess_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_prowess_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_prowess_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_2.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_2"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_prowess_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_prowess_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_prowess_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_prowess_3_tt' ), GetScriptedGui('one_trait_ui_edu_prowess_3').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_prowess_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_prowess_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_prowess_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_3.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_3"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_prowess_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_prowess_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_prowess_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_prowess_4_tt' ), GetScriptedGui('one_trait_ui_edu_prowess_4').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_prowess_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_prowess_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_prowess_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_martial_prowess_4.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_4"
+												}
+											}
+										}
+									}
+									vbox = {
+										spacing = 4
+										text_single = { text = "one_trait_panel_identity_republican" }
+										hbox = {
+											spacing = 6
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													text = "one_trait_panel_identity_none_btn"
+													down = "[GetScriptedGui('one_trait_ui_edu_republican_0_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_republican_0').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_republican_0').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_republican_none_tt' ), GetScriptedGui('one_trait_ui_edu_republican_0').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_republican_0').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_none"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_republican_1_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_republican_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_republican_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_republican_1_tt' ), GetScriptedGui('one_trait_ui_edu_republican_1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_republican_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_republican_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_1.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_republican_1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_1.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_1"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_republican_2_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_republican_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_republican_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_republican_2_tt' ), GetScriptedGui('one_trait_ui_edu_republican_2').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_republican_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_republican_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_2.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_republican_2').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_2.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_2"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_republican_3_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_republican_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_republican_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_republican_3_tt' ), GetScriptedGui('one_trait_ui_edu_republican_3').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_republican_3').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_republican_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_3.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_republican_3').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_3.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_3"
+												}
+											}
+											vbox = {
+												spacing = 2
+												button_standard = {
+													size = { 46 46 }
+													down = "[GetScriptedGui('one_trait_ui_edu_republican_4_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													enabled = "[GetScriptedGui('one_trait_ui_edu_republican_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_edu_republican_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_edu_republican_4_tt' ), GetScriptedGui('one_trait_ui_edu_republican_4').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+													onclick = "[GetScriptedGui('one_trait_ui_edu_republican_4').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														visible = "[GetScriptedGui('one_trait_ui_edu_republican_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_4.dds"
+													}
+													icon = {
+														parentanchor = center
+														size = { 40 40 }
+														alwaystransparent = yes
+														alpha = 0.3
+														visible = "[Not( GetScriptedGui('one_trait_ui_edu_republican_4').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														texture = "gfx/interface/icons/traits/education_republican_knowledge_4.dds"
+													}
+												}
+												text_single = {
+													size = { 74 16 }
+													autoresize = no
+													align = center
+													using = Font_Size_Small
+													text = "one_trait_panel_identity_tier_4"
+												}
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/culture.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_give" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_culture.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_take" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_culture.dds" }
+											text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital" }
+											text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital_you" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/go_to_my_capital.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_your_capital" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_your_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/faith.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_give" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/personal_faith.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_take" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_take').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_take').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/known_faiths.dds" }
+											text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital" }
+											text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital_you" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/holy_site.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_your_capital" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_your_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/randomize.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_name_reroll" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_name_reroll').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_name_reroll').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
+									widget = {
+										visible = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 680 44 }
+										background = { using = Background_Area }
+										hbox = {
+											margin_left = 10
+											margin_right = 10
+											spacing = 10
+											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/edit_text.dds" }
+											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_name_give" }
+											button_standard = {
+												size = { 80 32 }
+												text = "one_trait_panel_act_do"
+												enabled = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_name_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_name_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												onclick = "[GetScriptedGui('one_trait_ui_act_identity_name_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											}
+										}
+									}
 								}
 							}
 						}
@@ -1213,6 +2689,46 @@ window = {
 									tooltip = "[GetScriptedGui('one_trait_ui_act_family_court').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_court').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_act_family_court').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_family_marry').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_marriage.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_family_marry" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_family_marry').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_family_marry').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_marry').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[Character.OpenPlayerInteraction( 'one_trait_marry_interaction' )]"
+								}
+							}
+						}
+						widget = {
+							visible = "[GetScriptedGui('one_trait_ui_act_family_give_title').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 680 44 }
+							background = { using = Background_Area }
+							hbox = {
+								margin_left = 10
+								margin_right = 10
+								spacing = 10
+								icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/grant_titles_interaction.dds" }
+								text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_family_give_title" }
+								button_standard = {
+									size = { 80 32 }
+									text = "one_trait_panel_act_do"
+									enabled = "[GetScriptedGui('one_trait_ui_act_family_give_title').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip = "[GetScriptedGui('one_trait_ui_act_family_give_title').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_family_give_title').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									onclick = "[Character.OpenPlayerInteraction( 'one_trait_give_title_interaction' )]"
 								}
 							}
 						}
@@ -3510,6 +5026,26 @@ window = {
 										tooltip = "[GetScriptedGui('one_trait_ui_act_titles_claims').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_titles_claims').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 										onclick = "[GetScriptedGui('one_trait_ui_act_titles_claims').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+								}
+							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_titles_give').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/grant_titles_interaction.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_titles_give" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_do"
+										enabled = "[GetScriptedGui('one_trait_ui_act_titles_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_titles_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_titles_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[Character.OpenPlayerInteraction( 'one_trait_give_title_interaction' )]"
 									}
 								}
 							}

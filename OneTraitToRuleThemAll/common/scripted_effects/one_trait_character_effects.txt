@@ -497,3 +497,147 @@ one_trait_character_legacy_canonize_dynasty_founder_effect = {
 		PRESET = no
 	}
 }
+
+# ---- 2.10 Identity pickers (run on the panel's character; they save nothing global).
+# add_trait / remove_trait / has_trait: 1.20.1.1 effects and triggers dumps. set_sexuality: effects dump
+# ("Sets the sexuality of the character"), vanilla use game/common/scripted_character_templates/00_peasants_template.txt:1370
+# (set_sexuality = bisexual); values heterosexual / homosexual / bisexual / asexual (triggers dump, has_sexuality).
+one_trait_set_sexuality_effect = {
+	set_sexuality = $SEX$
+}
+
+# add_trait of $BASE$_$N$ (education_<lifestyle> and a tier). Keeps the pasted name out of the call sites, so the
+# validator's textual trait check sees only whole keys.
+one_trait_add_education_trait_effect = {
+	add_trait = $BASE$_$N$
+}
+
+# The 25 main education traits, education_<lifestyle>_<1-5> (game/common/traits/00_traits.txt:11-868). The
+# prowess and republican add-ons are NOT here, so changing the main education keeps them (a court champion
+# keeps Prowess).
+one_trait_remove_main_education_effect = {
+	one_trait_remove_if_present = { TRAIT = education_diplomacy_1 }
+	one_trait_remove_if_present = { TRAIT = education_diplomacy_2 }
+	one_trait_remove_if_present = { TRAIT = education_diplomacy_3 }
+	one_trait_remove_if_present = { TRAIT = education_diplomacy_4 }
+	one_trait_remove_if_present = { TRAIT = education_diplomacy_5 }
+	one_trait_remove_if_present = { TRAIT = education_martial_1 }
+	one_trait_remove_if_present = { TRAIT = education_martial_2 }
+	one_trait_remove_if_present = { TRAIT = education_martial_3 }
+	one_trait_remove_if_present = { TRAIT = education_martial_4 }
+	one_trait_remove_if_present = { TRAIT = education_martial_5 }
+	one_trait_remove_if_present = { TRAIT = education_stewardship_1 }
+	one_trait_remove_if_present = { TRAIT = education_stewardship_2 }
+	one_trait_remove_if_present = { TRAIT = education_stewardship_3 }
+	one_trait_remove_if_present = { TRAIT = education_stewardship_4 }
+	one_trait_remove_if_present = { TRAIT = education_stewardship_5 }
+	one_trait_remove_if_present = { TRAIT = education_intrigue_1 }
+	one_trait_remove_if_present = { TRAIT = education_intrigue_2 }
+	one_trait_remove_if_present = { TRAIT = education_intrigue_3 }
+	one_trait_remove_if_present = { TRAIT = education_intrigue_4 }
+	one_trait_remove_if_present = { TRAIT = education_intrigue_5 }
+	one_trait_remove_if_present = { TRAIT = education_learning_1 }
+	one_trait_remove_if_present = { TRAIT = education_learning_2 }
+	one_trait_remove_if_present = { TRAIT = education_learning_3 }
+	one_trait_remove_if_present = { TRAIT = education_learning_4 }
+	one_trait_remove_if_present = { TRAIT = education_learning_5 }
+}
+
+# Pick a lifestyle: keeps the current tier (1 when there is no main education), removes all 25 main traits
+# (so two main educations normalise to one) and adds the new one. The tier is read BEFORE the removal.
+one_trait_set_main_education_effect = {
+	if = {
+		limit = { one_trait_main_education_tier_value = 1 }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 1 }
+	}
+	else_if = {
+		limit = { one_trait_main_education_tier_value = 2 }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 2 }
+	}
+	else_if = {
+		limit = { one_trait_main_education_tier_value = 3 }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 3 }
+	}
+	else_if = {
+		limit = { one_trait_main_education_tier_value = 4 }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 4 }
+	}
+	else_if = {
+		limit = { one_trait_main_education_tier_value = 5 }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 5 }
+	}
+}
+
+# Pick a tier: keeps the current lifestyle (R4 precedence; Diplomacy when there is none), removes all 25 main
+# traits and adds the one.
+one_trait_set_main_education_tier_effect = {
+	if = {
+		limit = { one_trait_has_main_education_diplomacy_trigger = yes }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_diplomacy N = $TIER$ }
+	}
+	else_if = {
+		limit = { one_trait_has_main_education_martial_trigger = yes }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_martial N = $TIER$ }
+	}
+	else_if = {
+		limit = { one_trait_has_main_education_stewardship_trigger = yes }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_stewardship N = $TIER$ }
+	}
+	else_if = {
+		limit = { one_trait_has_main_education_intrigue_trigger = yes }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_intrigue N = $TIER$ }
+	}
+	else_if = {
+		limit = { one_trait_has_main_education_learning_trigger = yes }
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_learning N = $TIER$ }
+	}
+	else = {
+		# no main education: Diplomacy at the chosen tier
+		one_trait_remove_main_education_effect = yes
+		one_trait_add_education_trait_effect = { BASE = education_diplomacy N = $TIER$ }
+	}
+}
+
+# An add-on group (education_martial_prowess or education_republican_knowledge, tiers 1-4): removes the group's
+# four traits, then adds $GROUP$_<n> for the branch where TIER = n (TIER 0 = remove only, no branch matches).
+# Never touches a main trait. The branches name each trait literally (never $GROUP$_$TIER$) so TIER = 0 does not
+# expand to a trait key that does not exist. The literal TIER goes through a temporary scope value because a
+# number cannot stand on the left of a comparison; scope:name = n is vanilla's form
+# (game/common/scripted_effects/00_diarchy_scripted_effects.txt:1989, save_temporary_scope_value_as at
+# 00_adultery_effects.txt:171).
+one_trait_set_extra_education_effect = {
+	one_trait_remove_if_present = { TRAIT = $GROUP$_1 }
+	one_trait_remove_if_present = { TRAIT = $GROUP$_2 }
+	one_trait_remove_if_present = { TRAIT = $GROUP$_3 }
+	one_trait_remove_if_present = { TRAIT = $GROUP$_4 }
+	save_temporary_scope_value_as = {
+		name = one_trait_extra_tier
+		value = $TIER$
+	}
+	if = {
+		limit = { scope:one_trait_extra_tier = 1 }
+		add_trait = $GROUP$_1
+	}
+	if = {
+		limit = { scope:one_trait_extra_tier = 2 }
+		add_trait = $GROUP$_2
+	}
+	if = {
+		limit = { scope:one_trait_extra_tier = 3 }
+		add_trait = $GROUP$_3
+	}
+	if = {
+		limit = { scope:one_trait_extra_tier = 4 }
+		add_trait = $GROUP$_4
+	}
+}

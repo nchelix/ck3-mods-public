@@ -31,6 +31,11 @@ one_trait_menu_interaction = {
 }
 
 # 2.5: Give a title -- any title you hold except your primary, picked with the title switcher (Task 0).
+# 2.10: is_shown = only while the One Trait panel is open on this recipient (the game won't open an interaction whose
+# is_shown is false, so the panel row needs it true). Right-clicking that same character while the panel is open
+# also lists it (accepted). The panel row (Realm > Titles > Give a title) opens this window with
+# Character.OpenPlayerInteraction; no other right-click menu lists it. The old conditions (not an AI, not yourself)
+# now grey the panel row (one_trait_realm_titles_give_valid_trigger).
 one_trait_give_title_interaction = {
 	category = interaction_category_friendly
 	common_interaction = yes
@@ -44,8 +49,12 @@ one_trait_give_title_interaction = {
 		scope:target = { NOT = { this = scope:actor.primary_title } }
 	}
 	is_shown = {
-		scope:actor = { is_ai = no }
 		NOT = { scope:recipient = scope:actor }
+		scope:actor = {
+			has_variable = one_trait_ui_open
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = scope:recipient
+		}
 	}
 	is_valid_showing_failures_only = {
 		# target_is_liege_or_above = X: X is the scope's liege or any liege above it (vanilla 00_distance_triggers)
@@ -67,6 +76,11 @@ one_trait_give_title_interaction = {
 
 # 2.5: Marry -- one of your family to one of theirs. The engine shows only pairs who can marry
 # (pair check behind trigger_if, Task 0); a child is betrothed instead.
+# 2.10: is_shown = only while the One Trait panel is open on this recipient (the game won't open an interaction whose
+# is_shown is false, so the panel row needs it true). Right-clicking that same character while the panel is open
+# also lists it (accepted). The panel row (Character > Family > Marry) opens this window with
+# Character.OpenPlayerInteraction; no other right-click menu lists it. The old conditions (not an AI, not yourself)
+# now grey the panel row (one_trait_character_family_marry_valid_trigger).
 one_trait_marry_interaction = {
 	category = interaction_category_friendly
 	common_interaction = yes
@@ -75,8 +89,12 @@ one_trait_marry_interaction = {
 	icon = icon_marriage
 	desc = one_trait_marry_interaction_desc
 	is_shown = {
-		scope:actor = { is_ai = no }
 		NOT = { scope:recipient = scope:actor }
+		scope:actor = {
+			has_variable = one_trait_ui_open
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = scope:recipient
+		}
 	}
 	populate_actor_list = {
 		scope:actor = {

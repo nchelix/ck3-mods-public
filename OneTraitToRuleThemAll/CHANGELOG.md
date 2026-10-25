@@ -1,5 +1,25 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.10] — 2026-10-24
+
+Edit anyone's sexuality and education from the panel, and Marry and Give a title move into it. A player asked for the
+editing.
+
+### Added
+- **Sexuality and education pickers** at the top of Character > Identity, with the game's own icons: four sexualities;
+  the main education's lifestyle (Diplomacy, Martial, Stewardship, Intrigue, Learning) and its tier (1-5); and the two
+  add-ons the game gives on top of a main education, Prowess education and Republican knowledge (None, 1-4). The
+  current choice is highlighted. Picking a lifestyle keeps the tier, picking a tier keeps the lifestyle, and the
+  add-ons are never touched by the main education (a court champion keeps Prowess). Hover an education for the game's
+  trait text. Greyed under 16, the age the game allows an education. The Identity tab now scrolls.
+
+### Changed
+- **Marry and Give a title live in the panel**: Character > Family > "Marry them to one of your family" and Realm >
+  Titles > "Give them one of your titles" open the same windows as before, with everything they could do. They are no
+  longer on the right-click menu (they show there only for the character the panel is open on, while it is open).
+  Give a title is hidden when the panel is on yourself. For an unlanded character (no Realm category), Give a title
+  sits under Character > Family instead, so you can still hand a courtier or child their first title.
+
 ## [2.9.3] — 2026-10-20
 
 A small fix to the Army of the One Trait's card.

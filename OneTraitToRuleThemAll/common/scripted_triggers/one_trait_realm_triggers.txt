@@ -92,6 +92,21 @@ one_trait_realm_titles_destroy_primary_valid_trigger = { is_landed = yes }
 one_trait_realm_titles_claims_shown_trigger = { NOT = { this = root } }
 one_trait_realm_titles_claims_valid_trigger = { is_landed = yes }
 
+# 2.10: Give a title opens the game's own interaction window (Character.OpenPlayerInteraction) on this character. The
+# interaction's is_shown now only checks the panel is open on the recipient, so its not-your-liege rule
+# (is_valid_showing_failures_only: target_is_liege_or_above, vanilla 00_distance_triggers) live here, so the row
+# greys with a reason instead of opening a refusal. No click effect.
+one_trait_realm_titles_give_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_realm_titles_give_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_panel_needs_other_tt
+		NOT = { this = root }
+	}
+	root = { custom_tooltip = { text = one_trait_not_your_liege_tt NOT = { target_is_liege_or_above = prev } } }
+}
+
 # ---- Culture (menu 0430), real this batch ----
 # innovations_era/innovations_all carried no trigger at all in the menu: always shown and valid.
 # acceptance's original trigger (one_trait_menu_events.txt:1902-1905) required
