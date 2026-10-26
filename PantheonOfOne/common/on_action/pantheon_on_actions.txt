@@ -658,3 +658,21 @@ pantheon_on_faith_created = {
 		}
 	}
 }
+
+# 2.6: on a save load, run the Follower trait sweep once for each enthroned player god, so followers get the trait now rather
+# than at their next Devotion change or the monthly sweep. No root; the god is the player.
+on_game_start_after_lobby = {
+	on_actions = { pantheon_on_game_start_glance }
+}
+
+pantheon_on_game_start_glance = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			pantheon_glance_sweep_effect = yes
+		}
+	}
+}

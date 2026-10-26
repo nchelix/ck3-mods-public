@@ -161,3 +161,18 @@ pantheon_grievance_words = {
 	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 6 } localization_key = pantheon_grievance_words_6 }
 	text = { fallback = yes localization_key = pantheon_grievance_words_0 }
 }
+
+# 2.6 (Task 6, #56): what a follower asks of the god, in words and with the price, for the Great Boon interaction's text
+# ([recipient.Custom('pantheon_boon_ask')]) and the Grant button's tooltip ([Character.Custom('pantheon_boon_ask')]).
+# It reads no scope but the price, so it renders the same in both. The kin's freedom (kind 7 with a target) comes first.
+pantheon_boon_ask = {
+	type = character
+	text = { trigger = { var:pantheon_aspiration_kind ?= 1 } localization_key = pantheon_boon_ask_1 }
+	text = { trigger = { var:pantheon_aspiration_kind ?= 2 } localization_key = pantheon_boon_ask_2 }
+	text = { trigger = { var:pantheon_aspiration_kind ?= 3 } localization_key = pantheon_boon_ask_3 }
+	text = { trigger = { var:pantheon_aspiration_kind ?= 4 } localization_key = pantheon_boon_ask_4 }
+	text = { trigger = { var:pantheon_aspiration_kind ?= 5 } localization_key = pantheon_boon_ask_5 }
+	text = { trigger = { var:pantheon_aspiration_kind ?= 6 } localization_key = pantheon_boon_ask_6 }
+	text = { trigger = { var:pantheon_aspiration_kind ?= 7 has_variable = pantheon_aspiration_target } localization_key = pantheon_boon_ask_7_kin }
+	text = { fallback = yes localization_key = pantheon_boon_ask_7 }
+}

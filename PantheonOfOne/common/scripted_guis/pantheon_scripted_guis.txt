@@ -105,6 +105,8 @@ pantheon_ui_ptab_great = {
 	scope = character
 	effect = {
 		set_variable = { name = pantheon_ui_ptab value = 3 }
+		# 2.6 repair 1 (Codex review 2): the Great Boons left waiting are listed here, so the list is rebuilt on opening
+		pantheon_ui_rebuild_effect = yes
 	}
 }
 
@@ -837,5 +839,19 @@ pantheon_ui_oath_judge = {
 	}
 	effect = {
 		pantheon_oath_open_judgement_effect = yes
+	}
+}
+
+# 2.6 (Task 6, R4): does the follower's Great Boon ask still stand? Gates the follower card's Wants lines, so a dead, expired
+# or invalid ask hides at once. Same form as pantheon_ui_row_answer (root = the god, pantheon_row_follower = the card's
+# follower). The validity trigger alone does not check _live, so it is asked here too.
+pantheon_ui_boon_valid = {
+	scope = character
+	saved_scopes = { pantheon_row_follower }
+	is_shown = {
+		scope:pantheon_row_follower = {
+			has_variable = pantheon_aspiration_live
+			pantheon_aspiration_valid_trigger = { GOD = root }
+		}
 	}
 }

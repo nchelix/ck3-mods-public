@@ -1,0 +1,313 @@
+﻿# Pantheon of One 2.6: the Follower trait. Cosmetic: no stats, no category, not inherited. Its name, icon and text read the
+# holder live, so the character window shows Devotion and what the follower waits on (R9, R13). The level track is their Devotion
+# (0-100), synced by pantheon_glance_refresh_effect. Every waiting line requires the holder to be alive (a dead follower keeps the
+# trait as history and shows only Devotion). The god is linked through the follower's variable pantheon_glance_god.
+
+pantheon_follower = {
+	shown_in_ruler_designer = no
+	shown_in_encyclopedia = no
+	# 2.6 (user): a mark at each Devotion that matters: 10 likely to leave, 25 Wavering, 75 Devout, 90 a Great Prayer
+	track = {
+		10 = { }
+		25 = { }
+		75 = { }
+		90 = { }
+	}
+	icon = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { NOT = { exists = this } }
+				desc = pantheon_follower.dds
+			}
+			triggered_desc = {
+				trigger = { pantheon_follower_waiting_trigger = yes }
+				desc = pantheon_follower_waiting.dds
+			}
+			desc = pantheon_follower.dds
+		}
+	}
+	name = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { NOT = { exists = this } }
+				desc = trait_pantheon_follower
+			}
+			# 2.6 repair 1 (UI test FT9): a dead follower keeps the trait as history, under the plain name
+			triggered_desc = {
+				trigger = { is_alive = no }
+				desc = trait_pantheon_follower
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = pantheon_devotion
+					var:pantheon_devotion >= 90
+				}
+				desc = trait_pantheon_follower_zealous
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = pantheon_devotion
+					var:pantheon_devotion >= 75
+				}
+				desc = trait_pantheon_follower_devout
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = pantheon_devotion
+					var:pantheon_devotion < 10
+				}
+				desc = trait_pantheon_follower_lapsing
+			}
+			triggered_desc = {
+				trigger = {
+					has_variable = pantheon_devotion
+					var:pantheon_devotion < 25
+				}
+				desc = trait_pantheon_follower_wavering
+			}
+			desc = trait_pantheon_follower_faithful
+		}
+	}
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { NOT = { exists = this } }
+				desc = trait_pantheon_follower_desc
+			}
+			triggered_desc = {
+				trigger = { is_alive = no }
+				desc = trait_pantheon_follower_dead_desc
+			}
+			triggered_desc = {
+				trigger = { exists = this }
+				desc = {
+					desc = trait_pantheon_follower_character_desc
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 1
+						}
+						desc = pantheon_follower_prayer_1
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 2
+						}
+						desc = pantheon_follower_prayer_2
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 3
+						}
+						desc = pantheon_follower_prayer_3
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 4
+						}
+						desc = pantheon_follower_prayer_4
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 5
+							is_landed = yes
+						}
+						desc = pantheon_follower_prayer_5
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 5
+							is_landed = no
+						}
+						desc = pantheon_follower_prayer_5_debt
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 7
+						}
+						desc = pantheon_follower_prayer_7
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 8
+						}
+						desc = pantheon_follower_prayer_8
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 9
+						}
+						desc = pantheon_follower_prayer_9
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 6
+							var:pantheon_prayer_gift ?= 1
+						}
+						desc = pantheon_follower_prayer_6_1
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 6
+							var:pantheon_prayer_gift ?= 2
+						}
+						desc = pantheon_follower_prayer_6_2
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 6
+							var:pantheon_prayer_gift ?= 3
+						}
+						desc = pantheon_follower_prayer_6_3
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 6
+							var:pantheon_prayer_gift ?= 4
+						}
+						desc = pantheon_follower_prayer_6_4
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 10
+						}
+						desc = pantheon_follower_prayer_10
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 1
+						}
+						desc = pantheon_follower_boon_1
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 2
+						}
+						desc = pantheon_follower_boon_2
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 3
+						}
+						desc = pantheon_follower_boon_3
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 4
+						}
+						desc = pantheon_follower_boon_4
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 5
+						}
+						desc = pantheon_follower_boon_5
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 6
+						}
+						desc = pantheon_follower_boon_6
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 7
+							NOT = { has_variable = pantheon_aspiration_target }
+						}
+						desc = pantheon_follower_boon_7
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_boon_trigger = yes
+							var:pantheon_aspiration_kind ?= 7
+							has_variable = pantheon_aspiration_target
+						}
+						desc = pantheon_follower_boon_7_kin
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_grievance_trigger = yes
+							var:pantheon_grievance_kind ?= 1
+						}
+						desc = pantheon_follower_grievance_1
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_grievance_trigger = yes
+							var:pantheon_grievance_kind ?= 2
+						}
+						desc = pantheon_follower_grievance_2
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_grievance_trigger = yes
+							var:pantheon_grievance_kind ?= 3
+						}
+						desc = pantheon_follower_grievance_3
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_grievance_trigger = yes
+							var:pantheon_grievance_kind ?= 4
+						}
+						desc = pantheon_follower_grievance_4
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_grievance_trigger = yes
+							var:pantheon_grievance_kind ?= 5
+						}
+						desc = pantheon_follower_grievance_5
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_grievance_trigger = yes
+							var:pantheon_grievance_kind ?= 6
+						}
+						desc = pantheon_follower_grievance_6
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_oath_trigger = yes
+						}
+						desc = pantheon_follower_oath
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_retribution_trigger = yes
+							has_variable = pantheon_retri_attacker_shown
+						}
+						desc = pantheon_follower_retribution_named
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_retribution_trigger = yes
+							NOT = { has_variable = pantheon_retri_attacker_shown }
+						}
+						desc = pantheon_follower_retribution
+					}
+				}
+			}
+		}
+	}
+}

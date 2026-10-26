@@ -1,0 +1,84 @@
+﻿# Pantheon of One 2.6: the Follower trait (the "at a glance" row).
+
+# Is this character one of the god's followers, for marker purposes? Alive, not the god, and of the god's faith (which also keeps
+# a bordering stranger's prayer, origin 2, unmarked). The refresh gives the Follower trait only to those who pass it, and takes it off the rest. Holder scope. Use: pantheon_glance_follower_trigger = { GOD = root }
+pantheon_glance_follower_trigger = {
+	is_alive = yes
+	NOT = { this = $GOD$ }
+	faith = $GOD$.faith
+}
+
+# 2.6 R9: the Follower trait's waiting states. Holder scope, read live by the trait's icon and description. The god comes from the
+# follower's link variable pantheon_glance_god. Every state requires an alive holder (a dead follower keeps the trait as history).
+
+# A prayer to you is open (origin 1: a follower's own prayer; a stranger's, origin 2, is not a follower's wait).
+pantheon_follower_prayer_trigger = {
+	is_alive = yes
+	has_variable = pantheon_prayer_open
+	var:pantheon_prayer_origin ?= 1
+}
+
+# A live Great Boon that is still valid (the Great Boon rules: pantheon_aspiration_valid_trigger).
+pantheon_follower_boon_trigger = {
+	is_alive = yes
+	has_variable = pantheon_glance_god
+	has_variable = pantheon_aspiration_live
+	# 2.6 repair 1: the god as a saved scope, not var:pantheon_glance_god. $GOD$ is pasted as text, and the boon checks read
+	# it inside other scopes (a county, a prisoner) that have no such variable (26,400 error.log lines in UI test 1).
+	var:pantheon_glance_god = { save_temporary_scope_as = pantheon_follower_god }
+	pantheon_aspiration_valid_trigger = { GOD = scope:pantheon_follower_god }
+}
+
+# A grievance against someone still alive.
+pantheon_follower_grievance_trigger = {
+	is_alive = yes
+	has_variable = pantheon_grievance
+	var:pantheon_grievance_target ?= { is_alive = yes }
+}
+
+# The god's sworn oath is for this follower, against a living offender.
+pantheon_follower_oath_trigger = {
+	is_alive = yes
+	has_variable = pantheon_glance_god
+	save_temporary_scope_as = pantheon_follower_holder
+	var:pantheon_glance_god ?= {
+		var:pantheon_great_prayer_suppliant ?= scope:pantheon_follower_holder
+		var:pantheon_great_prayer_offender ?= { is_alive = yes }
+	}
+}
+
+# The god has an open Retribution for this follower as the DEFENDER (R5: the holder is saved as a temporary scope and compared;
+# the god's list holds the attackers, each with var:pantheon_retri_defender).
+pantheon_follower_retribution_trigger = {
+	is_alive = yes
+	has_variable = pantheon_glance_god
+	save_temporary_scope_as = pantheon_follower_holder
+	var:pantheon_glance_god ?= {
+		any_in_list = {
+			variable = pantheon_open_retributions
+			var:pantheon_retri_defender ?= scope:pantheon_follower_holder
+		}
+	}
+}
+
+# ONE condition for "this follower is waiting on the god": the trait's icon and every waiting line read it.
+pantheon_follower_waiting_trigger = {
+	is_alive = yes
+	OR = {
+		pantheon_follower_prayer_trigger = yes
+		pantheon_follower_boon_trigger = yes
+		pantheon_follower_grievance_trigger = yes
+		pantheon_follower_oath_trigger = yes
+		pantheon_follower_retribution_trigger = yes
+	}
+}
+
+# 2.6 (R11, R13): an entry of an offender's pantheon_wronged_by_list that no longer holds. Follower scope; the offender is
+# scope:pantheon_wronged_offender (set by pantheon_wronged_prune_effect). Dead, grievance gone, or aimed at someone else.
+pantheon_wronged_stale_trigger = {
+	OR = {
+		is_alive = no
+		NOT = { has_variable = pantheon_grievance }
+		NOT = { var:pantheon_grievance_target ?= scope:pantheon_wronged_offender }
+	}
+}

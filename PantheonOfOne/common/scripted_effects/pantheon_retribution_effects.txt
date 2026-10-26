@@ -67,6 +67,13 @@ pantheon_retri_close_core_effect = {
 		remove_list_variable = { name = pantheon_open_retributions target = $WHO$ }
 	}
 	$WHO$ = {
+		# 2.6: the defender stops naming this attacker, if they still do (a newer call by another attacker keeps its name)
+		var:pantheon_retri_defender ?= {
+			if = {
+				limit = { var:pantheon_retri_attacker_shown ?= prev }
+				remove_variable = pantheon_retri_attacker_shown
+			}
+		}
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_token }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_defender }
 	}
@@ -137,6 +144,10 @@ pantheon_retri_write_effect = {
 	scope:pantheon_retri_attacker = {
 		set_variable = { name = pantheon_retri_defender value = scope:pantheon_retri_defender }
 		set_variable = { name = pantheon_retri_token value = scope:pantheon_retri_token }
+	}
+	# 2.6: the defender's Follower trait names the attacker of the newest call
+	scope:pantheon_retri_defender = {
+		set_variable = { name = pantheon_retri_attacker_shown value = scope:pantheon_retri_attacker }
 	}
 	if = {
 		limit = { NOT = { is_target_in_variable_list = { name = pantheon_open_retributions target = scope:pantheon_retri_attacker } } }

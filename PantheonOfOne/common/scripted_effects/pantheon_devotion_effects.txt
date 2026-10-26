@@ -12,6 +12,8 @@ pantheon_ensure_devotion_effect = {
 				name = pantheon_devotion
 				value = $START$
 			}
+			# 2.6: the Follower trait starts with the variable
+			pantheon_glance_refresh_effect = { GOD = root }
 		}
 		if = {
 			limit = {
@@ -67,6 +69,8 @@ pantheon_change_devotion_effect = {
 				}
 				remove_variable = pantheon_faltering
 			}
+			# 2.6: the Follower trait's track follows the new value
+			pantheon_glance_refresh_effect = { GOD = root }
 		}
 	}
 }
@@ -91,6 +95,8 @@ pantheon_devotion_drift_effect = {
 				set_variable = { name = pantheon_devotion value = 50 }
 			}
 		}
+		# 2.6: the Follower trait's track follows the new value
+		pantheon_glance_refresh_effect = { GOD = root }
 	}
 }
 

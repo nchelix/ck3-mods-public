@@ -865,11 +865,25 @@ pantheon_aspiration_current_trigger = {
 	pantheon_aspiration_valid_trigger = { GOD = $GOD$ }
 }
 
-# A boon the prayer timer may send now: valid, live, and not already offered in an open event
+# A boon the prayer timer may send now: valid, live, not already offered in an open event, and not left waiting (2.6)
 pantheon_boon_sendable_trigger = {
 	is_alive = yes
 	has_variable = pantheon_aspiration_live
 	NOT = { has_variable = pantheon_aspiration_offered }
+	NOT = { has_variable = pantheon_aspiration_waiting }
+	pantheon_aspiration_valid_trigger = { GOD = $GOD$ }
+}
+
+# 2.6 (Task 5, R2/R4): the reminder may be sent: sendable but for the waiting flag, which must belong to the request the
+# reminder carries ($ID$) and to the one held now
+pantheon_boon_remindable_trigger = {
+	is_alive = yes
+	has_variable = pantheon_aspiration_live
+	NOT = { has_variable = pantheon_aspiration_offered }
+	has_variable = pantheon_aspiration_waiting
+	has_variable = pantheon_aspiration_id
+	var:pantheon_aspiration_waiting = var:pantheon_aspiration_id
+	var:pantheon_aspiration_id = $ID$
 	pantheon_aspiration_valid_trigger = { GOD = $GOD$ }
 }
 
@@ -1186,4 +1200,67 @@ pantheon_reform_new_faith_candidate_trigger = {
 	exists = founder
 	founder = $FOUNDER$
 	NOT = { any_faith_character = { is_alive = yes } }
+}
+
+# 2.6 Task 4: Bless suggestions. Recipient scope, one cheap check each; a hint only, never a gate. The god (the only
+# bearer of pantheon_divine) is excluded, so Self-Bless never carries a mark. Lineage affects the NEXT birth, so it has none.
+pantheon_bless_suits_vigor_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	OR = {
+		age >= 50
+		pantheon_seriously_ill_trigger = yes
+	}
+}
+
+pantheon_bless_suits_fertility_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	is_ruler = yes
+	NOT = { any_child = { is_alive = yes } }
+}
+
+# At war and either a defender in some war, or on the losing side of one (war score below 0 for their own side)
+pantheon_bless_suits_walls_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	is_at_war = yes
+	OR = {
+		is_at_war_as_defender = yes
+		any_character_war = {
+			OR = {
+				AND = { is_attacker = prev attacker_war_score < 0 }
+				AND = { is_defender = prev defender_war_score < 0 }
+			}
+		}
+	}
+}
+
+pantheon_bless_suits_host_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	is_at_war = yes
+	OR = {
+		is_at_war_as_defender = yes
+		any_character_war = {
+			OR = {
+				AND = { is_attacker = prev attacker_war_score < 0 }
+				AND = { is_defender = prev defender_war_score < 0 }
+			}
+		}
+	}
+}
+
+pantheon_bless_suits_warlord_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	is_at_war = yes
+	is_commanding_army = yes
+}
+
+pantheon_bless_suits_champion_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	is_at_war = yes
+	is_knight = yes
+}
+
+# any_character_war-style cheap check: epidemics affecting the scoped character (triggers log: any_character_epidemic)
+pantheon_bless_suits_warding_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	any_character_epidemic = { always = yes }
 }

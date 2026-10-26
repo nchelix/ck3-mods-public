@@ -43,6 +43,36 @@ pantheon_judgement_interaction = {
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 	desc = pantheon_judgement_interaction_desc
+	# 2.6 (R11): highlighted when a follower of the god holds a live grievance against the recipient (the offender's list)
+	is_highlighted = {
+		scope:recipient = {
+			any_in_list = {
+				variable = pantheon_wronged_by_list
+				is_alive = yes
+				faith = scope:actor.faith
+				has_variable = pantheon_grievance
+				var:pantheon_grievance_target ?= scope:recipient
+			}
+		}
+	}
+	highlighted_reason = {
+		first_valid = {
+			triggered_desc = {
+				trigger = {
+					scope:recipient = {
+						var:pantheon_wronged_latest ?= {
+							is_alive = yes
+							faith = scope:actor.faith
+							has_variable = pantheon_grievance
+							var:pantheon_grievance_target ?= scope:recipient
+						}
+					}
+				}
+				desc = pantheon_highlight_judgement_named
+			}
+			desc = pantheon_highlight_judgement
+		}
+	}
 	is_shown = {
 		scope:actor = {
 			is_ai = no
@@ -309,10 +339,39 @@ pantheon_bless_interaction = {
 		}
 	}
 
+	# 2.6 (R11): highlighted when any Bless suggestion holds for the recipient (never Self-Bless)
+	is_highlighted = {
+		NOT = { scope:recipient = scope:actor }
+		scope:recipient = {
+			OR = {
+				pantheon_bless_suits_vigor_trigger = yes
+				pantheon_bless_suits_fertility_trigger = yes
+				pantheon_bless_suits_walls_trigger = yes
+				pantheon_bless_suits_host_trigger = yes
+				pantheon_bless_suits_warlord_trigger = yes
+				pantheon_bless_suits_champion_trigger = yes
+				pantheon_bless_suits_warding_trigger = yes
+			}
+		}
+	}
+	highlighted_reason = {
+		first_valid = {
+			desc = pantheon_highlight_bless
+		}
+	}
+
 	send_options_exclusive = yes
 	send_option = {
 		flag = pantheon_bless_champion
 		localization = pantheon_bless_opt_champion
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_champion_trigger = yes } }
+					desc = pantheon_bless_suits_why_champion
+				}
+			}
+		}
 		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
@@ -325,6 +384,14 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_warlord
 		localization = pantheon_bless_opt_warlord
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_warlord_trigger = yes } }
+					desc = pantheon_bless_suits_why_warlord
+				}
+			}
+		}
 		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
@@ -373,6 +440,14 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_walls
 		localization = pantheon_bless_opt_walls
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_walls_trigger = yes } }
+					desc = pantheon_bless_suits_why_walls
+				}
+			}
+		}
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
@@ -385,6 +460,14 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_warding
 		localization = pantheon_bless_opt_warding
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_warding_trigger = yes } }
+					desc = pantheon_bless_suits_why_warding
+				}
+			}
+		}
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
@@ -397,6 +480,18 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_vigor
 		localization = pantheon_bless_opt_vigor
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_seriously_ill_trigger = yes } }
+					desc = pantheon_bless_suits_why_vigor_ill
+				}
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_vigor_trigger = yes } }
+					desc = pantheon_bless_suits_why_vigor_age
+				}
+			}
+		}
 		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
@@ -409,6 +504,14 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_fertility
 		localization = pantheon_bless_opt_fertility
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_fertility_trigger = yes } }
+					desc = pantheon_bless_suits_why_fertility
+				}
+			}
+		}
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 			scope:recipient = {
@@ -431,6 +534,14 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_host
 		localization = pantheon_bless_opt_host
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_host_trigger = yes } }
+					desc = pantheon_bless_suits_why_host
+				}
+			}
+		}
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_host_tt pantheon_can_afford_trigger = { COST = pantheon_cost_host } } }
 			scope:recipient = {
@@ -904,6 +1015,44 @@ pantheon_great_boon_interaction = {
 	ignores_pending_interaction_block = yes
 	icon = pantheon_great_boon_interaction
 	desc = pantheon_great_boon_interaction_desc
+	# 2.6 (R11): highlighted while shown (the engine drops the highlight when the interaction is not valid); the reason names the ask
+	is_highlighted = {
+		scope:recipient = { has_variable = pantheon_aspiration_live }
+	}
+	highlighted_reason = {
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 1 } }
+			desc = pantheon_highlight_boon_1
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 2 } }
+			desc = pantheon_highlight_boon_2
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 3 } }
+			desc = pantheon_highlight_boon_3
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 4 } }
+			desc = pantheon_highlight_boon_4
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 5 } }
+			desc = pantheon_highlight_boon_5
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 6 } }
+			desc = pantheon_highlight_boon_6
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 7 NOT = { has_variable = pantheon_aspiration_target } } }
+			desc = pantheon_highlight_boon_7
+		}
+		triggered_desc = {
+			trigger = { scope:recipient = { var:pantheon_aspiration_kind ?= 7 has_variable = pantheon_aspiration_target } }
+			desc = pantheon_highlight_boon_7_kin
+		}
+	}
 	is_shown = {
 		scope:actor = { is_ai = no has_trait = pantheon_divine has_variable = pantheon_enthroned }
 		scope:recipient = {

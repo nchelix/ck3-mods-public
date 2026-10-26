@@ -21,6 +21,9 @@ pantheon_boon_new_request_effect = {
 	set_variable = { name = pantheon_aspiration_id value = root.var:pantheon_boon_request_seq }
 	if = { limit = { has_variable = pantheon_aspiration_target } remove_variable = pantheon_aspiration_target }
 	if = { limit = { has_variable = pantheon_aspiration_offered } remove_variable = pantheon_aspiration_offered }
+	# 2.6 (R2): waiting belongs to one request; a replacement starts fresh
+	if = { limit = { has_variable = pantheon_aspiration_waiting } remove_variable = pantheon_aspiration_waiting }
+	if = { limit = { has_variable = pantheon_aspiration_reminded } remove_variable = pantheon_aspiration_reminded }
 	if = {
 		limit = { NOT = { root = { is_target_in_variable_list = { name = pantheon_boon_holders target = scope:pantheon_boon_req } } } }
 		root = { add_to_variable_list = { name = pantheon_boon_holders target = scope:pantheon_boon_req } }
@@ -42,6 +45,9 @@ pantheon_clear_aspiration_effect = {
 	if = { limit = { has_variable = pantheon_aspiration_target } remove_variable = pantheon_aspiration_target }
 	if = { limit = { has_variable = pantheon_aspiration_id } remove_variable = pantheon_aspiration_id }
 	if = { limit = { has_variable = pantheon_aspiration_offered } remove_variable = pantheon_aspiration_offered }
+	# 2.6 (Task 5): a waiting Great Boon and its one reminder end with the request
+	if = { limit = { has_variable = pantheon_aspiration_waiting } remove_variable = pantheon_aspiration_waiting }
+	if = { limit = { has_variable = pantheon_aspiration_reminded } remove_variable = pantheon_aspiration_reminded }
 }
 
 # In the follower's scope: an aspiration ends (granted, refused, expired or invalid) and the retry delay starts
@@ -445,6 +451,33 @@ pantheon_boon_close_event_effect = {
 	if = {
 		limit = { has_variable = pantheon_boon_event_open var:pantheon_boon_event_open = scope:pantheon_boon_event_id }
 		remove_variable = pantheon_boon_event_open
+	}
+}
+
+# 2.6 (Task 5, R2): "Let it wait". Root is the god; scope:pantheon_boon_event_follower and scope:pantheon_boon_event_id are the
+# event's own capture. Acts only if the follower is alive and STILL holds this very live request; otherwise the option only
+# closes the event. The flag keeps the prayer timer off it (pantheon_boon_sendable_trigger); the Grant interaction stays open.
+# One reminder per request: pantheon.0067 in about a year, carrying the same two scopes. No cost, cooldown or Devotion change.
+pantheon_boon_wait_effect = {
+	if = {
+		limit = {
+			exists = scope:pantheon_boon_event_follower
+			scope:pantheon_boon_event_follower = {
+				is_alive = yes
+				has_variable = pantheon_aspiration_live
+				has_variable = pantheon_aspiration_id
+				var:pantheon_aspiration_id = scope:pantheon_boon_event_id
+			}
+		}
+		scope:pantheon_boon_event_follower = {
+			set_variable = { name = pantheon_aspiration_waiting value = scope:pantheon_boon_event_id }
+			if = {
+				limit = { NOT = { has_variable = pantheon_aspiration_reminded } }
+				root = { trigger_event = { id = pantheon.0067 days = 365 } }
+			}
+		}
+		# 2.6 repair 1 (Codex review 2): it joins the Great Prayers list at once if the window is open
+		pantheon_ui_refresh_if_open_effect = yes
 	}
 }
 

@@ -13,6 +13,7 @@ pantheon_give_raid_grievance_effect = {
 			set_variable = { name = pantheon_grievance value = yes years = 5 }
 			set_variable = { name = pantheon_grievance_target value = $OFFENDER$ years = 5 }
 			set_variable = { name = pantheon_grievance_kind value = 6 years = 5 }
+			pantheon_wronged_register_effect = yes
 		}
 	}
 }

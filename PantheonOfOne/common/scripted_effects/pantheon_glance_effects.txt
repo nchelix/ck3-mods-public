@@ -1,0 +1,139 @@
+﻿# Pantheon of One 2.6: the Follower trait (the "at a glance" row). The trait is cosmetic and its name, icon and text read the holder
+# live (common/traits/pantheon_follower_trait.txt), so nothing here tracks a waiting state. All that is synced is membership
+# (the trait), the god link (pantheon_glance_god, which the text reads for prices) and the level track, which shows Devotion.
+#
+# One refresh per character syncs it; it is called where Devotion starts and changes, and by the monthly sweep, which also catches
+# the leavers and the old-save followers.
+
+# Sync the Follower trait on this character (holder scope). $GOD$ is the god's scope (root, or a saved scope).
+# A follower (pantheon_glance_follower_trigger) with Devotion gets the trait and the god link; anyone else (left the faith, the god,
+# no Devotion) has the trait taken off. A dead character is never touched: a dead follower keeps the trait as history (every
+# waiting line in its text requires is_alive). Then the god's list pantheon_glance_marked is kept true: in it iff they have the
+# trait. This edits that list, so a caller must never be walking it (the sweep walks a copy).
+pantheon_glance_refresh_effect = {
+	if = {
+		# exists = this first: a debug option's tooltip preview reaches here with a character not yet created
+		limit = { exists = this is_alive = yes }
+		if = {
+			limit = {
+				pantheon_glance_follower_trigger = { GOD = $GOD$ }
+				has_variable = pantheon_devotion
+			}
+			set_variable = { name = pantheon_glance_god value = $GOD$ }
+			pantheon_glance_sync_trait_effect = yes
+		}
+		else = { pantheon_glance_clear_follower_effect = yes }
+		save_temporary_scope_as = pantheon_glance_holder
+		if = {
+			limit = { has_trait = pantheon_follower }
+			$GOD$ = {
+				if = {
+					limit = {
+						NOT = {
+							is_target_in_variable_list = {
+								name = pantheon_glance_marked
+								target = scope:pantheon_glance_holder
+							}
+						}
+					}
+					add_to_variable_list = { name = pantheon_glance_marked target = scope:pantheon_glance_holder }
+				}
+			}
+		}
+		else = {
+			$GOD$ = {
+				if = {
+					limit = {
+						is_target_in_variable_list = {
+							name = pantheon_glance_marked
+							target = scope:pantheon_glance_holder
+						}
+					}
+					remove_list_variable = { name = pantheon_glance_marked target = scope:pantheon_glance_holder }
+				}
+			}
+		}
+	}
+}
+
+# Give the trait if absent and bring its track XP to their Devotion (holder scope; only called with Devotion). The trait is added
+# only when absent and an ordinary refresh never removes it. pantheon_glance_xp holds the XP last synced, so only the difference is
+# added; it is cleared with the trait. If the trait is present but the bookkeeping is missing (an old save, or the variable lost),
+# the XP is unknown: the trait is removed and added once, which starts it at 0, and the sync continues from there.
+# The target is Devotion clamped to 0-100, and that same target is stored.
+pantheon_glance_sync_trait_effect = {
+	if = {
+		limit = { NOT = { has_trait = pantheon_follower } }
+		add_trait = pantheon_follower
+		set_variable = { name = pantheon_glance_xp value = 0 }
+	}
+	else_if = {
+		limit = { NOT = { has_variable = pantheon_glance_xp } }
+		remove_trait = pantheon_follower
+		add_trait = pantheon_follower
+		set_variable = { name = pantheon_glance_xp value = 0 }
+	}
+	if = {
+		limit = { has_variable = pantheon_devotion }
+		# 2.6 (R14): no temporary variable read back here. CK3 previews effects for tooltips without running set_variable, so
+		# reading a just-set variable floods error.log (UI test 1). The target is Devotion clamped to 0-100, computed inline.
+		add_trait_xp = {
+			trait = pantheon_follower
+			value = {
+				value = var:pantheon_devotion
+				min = 0
+				max = 100
+				if = {
+					limit = { has_variable = pantheon_glance_xp }
+					subtract = var:pantheon_glance_xp
+				}
+			}
+		}
+		set_variable = {
+			name = pantheon_glance_xp
+			value = {
+				value = var:pantheon_devotion
+				min = 0
+				max = 100
+			}
+		}
+	}
+}
+
+# Take the Follower trait off, and with it the bookkeeping (holder scope). Safe when they never had it.
+pantheon_glance_clear_follower_effect = {
+	if = {
+		limit = { has_trait = pantheon_follower }
+		remove_trait = pantheon_follower
+	}
+	if = {
+		limit = { has_variable = pantheon_glance_xp }
+		remove_variable = pantheon_glance_xp
+	}
+	if = {
+		limit = { has_variable = pantheon_glance_god }
+		remove_variable = pantheon_glance_god
+	}
+}
+
+# The monthly sweep (pantheon.0011). God scope. Refreshes everyone who has the trait, then every known follower: leavers lose it,
+# old-save followers with Devotion and no trait get one. The marked list is first copied to a temporary list (only the living: a
+# purged character left in a list errors on every read) and emptied, then the refreshes put back whoever still has the trait; a
+# list is never edited while it is walked. The known list is only read. (A dead follower keeps the trait but drops off the list.)
+pantheon_glance_sweep_effect = {
+	every_in_list = {
+		variable = pantheon_glance_marked
+		limit = { is_alive = yes }
+		add_to_temporary_list = pantheon_glance_walk
+	}
+	clear_variable_list = pantheon_glance_marked
+	every_in_list = {
+		list = pantheon_glance_walk
+		pantheon_glance_refresh_effect = { GOD = root }
+	}
+	every_in_list = {
+		variable = pantheon_known
+		limit = { is_alive = yes }
+		pantheon_glance_refresh_effect = { GOD = root }
+	}
+}

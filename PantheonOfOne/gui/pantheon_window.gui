@@ -173,37 +173,45 @@ window = {
 						text = "pantheon_ui_grievance_line"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
+						visible = "[And3( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' ) )]"
 						text = "pantheon_ui_wants_1"
+						tooltip = "pantheon.0066.grant_crown.tt"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
+						visible = "[And3( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' ) )]"
 						text = "pantheon_ui_wants_2"
+						tooltip = "pantheon.0066.grant_kin.tt"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
+						visible = "[And3( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' ) )]"
 						text = "pantheon_ui_wants_3"
+						tooltip = "pantheon.0066.grant_war.tt"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
+						visible = "[And3( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' ) )]"
 						text = "pantheon_ui_wants_4"
+						tooltip = "pantheon.0066.grant_heir.tt"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
+						visible = "[And3( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' ) )]"
 						text = "pantheon_ui_wants_5"
+						tooltip = "pantheon.0066.grant_conversion.tt"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
+						visible = "[And3( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' ) )]"
 						text = "pantheon_ui_wants_6"
+						tooltip = "pantheon.0066.grant_fortune.tt"
 					}
 					text_single = {
-						visible = "[And3( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Not( Character.MakeScope.Var('pantheon_aspiration_target').IsSet ) )]"
+						visible = "[And4( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Not( Character.MakeScope.Var('pantheon_aspiration_target').IsSet ) )]"
 						text = "pantheon_ui_wants_7"
+						tooltip = "pantheon.0066.grant_freedom.tt"
 					}
 					# 2.5: a kind 7 raised by kin names the prisoner
 					text_single = {
-						visible = "[And3( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Character.MakeScope.Var('pantheon_aspiration_target').IsSet )]"
+						visible = "[And4( GetScriptedGui('pantheon_ui_boon_valid').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Character.MakeScope.Var('pantheon_aspiration_target').IsSet )]"
 						text = "pantheon_ui_wants_7_kin"
+						tooltip = "pantheon.0066.grant_kin_freedom.tt"
 					}
 				}
 			}
@@ -275,7 +283,7 @@ window = {
 					text = "pantheon_ui_btn_boon"
 					visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
 					enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
-					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
+					tooltip = "[Select_CString( Character.IsPlayerInteractionValid('pantheon_great_boon_interaction'), Localize( 'pantheon_ui_boon_btn_tt' ), Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction') )]"
 					onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
 				}
 				# 2.5 repair 1: answer the selected follower's grievance unasked, the Followers row button's scripted GUI
@@ -848,6 +856,114 @@ window = {
 							layoutpolicy_horizontal = expanding
 							autoresize = no
 							text = "pantheon_ui_greatp_empty"
+						}
+						# 2.6 repair 1 (UI test LW2): Great Boons left waiting count on this tab, so they are listed on it, with Grant
+						text_single = {
+							visible = "[Not( IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_waiting_boons') ) )]"
+							text = "pantheon_ui_waiting_boons_header"
+							using = Font_Size_Medium
+						}
+						# 2.6 (UI retest): scrolls when the waiting boons outgrow the panel, and takes the spare height so the lines above stay together
+						scrollbox = {
+							visible = "[Not( IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_waiting_boons') ) )]"
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							blockoverride "scrollbox_empty" {
+								visible = no
+							}
+							blockoverride "scrollbox_content" {
+								vbox = {
+									fixedgridbox = {
+										datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_waiting_boons')]"
+										addcolumn = 680
+										addrow = 84
+										setitemsizefromcell = yes
+										item = {
+											widget = {
+												size = { 676 80 }
+												visible = "[And( Scope.GetCharacter.MakeScope.Var('pantheon_aspiration_live').IsSet, Scope.GetCharacter.MakeScope.Var('pantheon_aspiration_waiting').IsSet )]"
+												datacontext = "[Scope.GetCharacter]"
+												background = { using = Background_Area }
+												hbox = {
+													margin_left = 6
+													margin_right = 10
+													margin_top = 4
+													spacing = 8
+													portrait_head_small = {}
+													vbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 2
+														text_single = {
+															layoutpolicy_horizontal = expanding
+															autoresize = no
+															text = "[Character.GetUINameNoTooltip]"
+														}
+															text_single = {
+																visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)1' )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_1"
+															}
+															text_single = {
+																visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)2' )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_2"
+															}
+															text_single = {
+																visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)3' )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_3"
+															}
+															text_single = {
+																visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)4' )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_4"
+															}
+															text_single = {
+																visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)5' )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_5"
+															}
+															text_single = {
+																visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)6' )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_6"
+															}
+															text_single = {
+																visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Not( Character.MakeScope.Var('pantheon_aspiration_target').IsSet ) )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_7"
+															}
+															text_single = {
+																visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Character.MakeScope.Var('pantheon_aspiration_target').IsSet )]"
+																layoutpolicy_horizontal = expanding
+																autoresize = no
+																text = "pantheon_ui_wants_7_kin"
+															}
+													}
+													button_standard = {
+														size = { 180 30 }
+														text = "pantheon_ui_btn_boon"
+														enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
+														tooltip = "[Select_CString( Character.IsPlayerInteractionValid('pantheon_great_boon_interaction'), Localize( 'pantheon_ui_boon_btn_tt' ), Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction') )]"
+														onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+						# nothing waiting: the spare height goes below the lines, not between them
+						expand = {
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_waiting_boons') )]"
 						}
 					}
 				}

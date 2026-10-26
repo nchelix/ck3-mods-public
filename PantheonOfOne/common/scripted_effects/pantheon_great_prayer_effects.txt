@@ -10,6 +10,7 @@ pantheon_give_grievance_effect = {
 			set_variable = { name = pantheon_grievance value = yes years = 5 }
 			set_variable = { name = pantheon_grievance_target value = $OFFENDER$ years = 5 }
 			set_variable = { name = pantheon_grievance_kind value = $KIND$ years = 5 }
+			pantheon_wronged_register_effect = yes
 		}
 	}
 }
@@ -20,6 +21,48 @@ pantheon_give_torture_grievance_effect = {
 		set_variable = { name = pantheon_grievance value = yes years = 5 }
 		set_variable = { name = pantheon_grievance_target value = $OFFENDER$ years = 5 }
 		set_variable = { name = pantheon_grievance_kind value = 5 years = 5 }
+		pantheon_wronged_register_effect = yes
+	}
+}
+
+# 2.6 (R11, R13): the offender keeps a LIST of the followers they wronged (pantheon_wronged_by_list), so the Pass Judgement menu
+# item can be highlighted without a world scan. Called in follower scope, ONLY in the branches that actually write a grievance
+# (the ordinary one, the torture one, the raid one) and by the monthly upkeep's backfill of old saves. pantheon_wronged_latest
+# names the newest, for the highlight's reason (the reason checks it is still valid).
+pantheon_wronged_register_effect = {
+	save_temporary_scope_as = pantheon_wronged_one
+	var:pantheon_grievance_target ?= {
+		if = {
+			limit = { is_alive = yes }
+			if = {
+				limit = { NOT = { is_target_in_variable_list = { name = pantheon_wronged_by_list target = scope:pantheon_wronged_one } } }
+				add_to_variable_list = { name = pantheon_wronged_by_list target = scope:pantheon_wronged_one }
+			}
+			set_variable = { name = pantheon_wronged_latest value = scope:pantheon_wronged_one }
+		}
+	}
+}
+
+# Offender scope: drop the entries that are no longer a live grievance against them (dead, grievance gone, or aimed at someone
+# else). The stale ones are gathered first and removed afterwards: a list is never edited while it is walked. Every removal
+# re-checks staleness, so a temporary list that outlives one call can never remove a valid entry.
+pantheon_wronged_prune_effect = {
+	save_temporary_scope_as = pantheon_wronged_offender
+	every_in_list = {
+		variable = pantheon_wronged_by_list
+		limit = { pantheon_wronged_stale_trigger = yes }
+		add_to_temporary_list = pantheon_wronged_stale
+	}
+	every_in_list = {
+		list = pantheon_wronged_stale
+		limit = { pantheon_wronged_stale_trigger = yes }
+		save_temporary_scope_as = pantheon_wronged_stale_one
+		scope:pantheon_wronged_offender = {
+			if = {
+				limit = { is_target_in_variable_list = { name = pantheon_wronged_by_list target = scope:pantheon_wronged_stale_one } }
+				remove_list_variable = { name = pantheon_wronged_by_list target = scope:pantheon_wronged_stale_one }
+			}
+		}
 	}
 }
 
@@ -477,20 +520,64 @@ pantheon_great_prayer_answered_effect = {
 # which runs first. Root is the god. Run by the monthly upkeep (pantheon.0011).
 pantheon_grievance_dead_upkeep_effect = {
 	every_ruler = {
+		limit = { faith = root.faith }
+		pantheon_grievance_upkeep_one_effect = yes
+	}
+	every_courtier = {
+		pantheon_grievance_upkeep_one_effect = yes
+	}
+}
+
+# One character of that walk (root is the god). 2.6 (R13): the same visit also backfills an old save's offender list from the
+# follower's own grievance, and prunes the list a character keeps as an offender. No second world walk.
+pantheon_grievance_upkeep_one_effect = {
+	# 2.6 (R14, user 2026-10-26): a follower whose Devotion was never measured starts at 50 (the normal start), joins the god's
+	# known list and gets the Follower trait. Same visit, no second world walk. Not the god, not a demigod (their own trait).
+	if = {
 		limit = {
+			is_alive = yes
 			faith = root.faith
+			NOT = { this = root }
+			NOT = { has_variable = pantheon_devotion }
+			NOT = { has_trait = pantheon_demigod }
+		}
+		set_variable = { name = pantheon_devotion value = 50 }
+		save_temporary_scope_as = pantheon_glance_new
+		root = {
+			if = {
+				limit = { NOT = { is_target_in_variable_list = { name = pantheon_known target = scope:pantheon_glance_new } } }
+				add_to_variable_list = { name = pantheon_known target = scope:pantheon_glance_new }
+			}
+		}
+		pantheon_glance_refresh_effect = { GOD = root }
+	}
+	# 2.6 repair 1 (UI test FT7): a follower with Devotion but no trait (left the faith and came back, and in neither the
+	# marked nor the known list) gets it back here, the only walk that reaches them.
+	else_if = {
+		limit = {
+			is_alive = yes
+			faith = root.faith
+			NOT = { this = root }
+			has_variable = pantheon_devotion
+			NOT = { has_trait = pantheon_follower }
+			NOT = { has_trait = pantheon_demigod }
+		}
+		pantheon_glance_refresh_effect = { GOD = root }
+	}
+	if = {
+		limit = {
 			has_variable = pantheon_grievance
 			NOT = { var:pantheon_grievance_target ?= { is_alive = yes } }
 			NOT = { root = { var:pantheon_great_prayer_suppliant ?= prev } }
 		}
 		pantheon_clear_grievance_effect = yes
 	}
-	every_courtier = {
-		limit = {
-			has_variable = pantheon_grievance
-			NOT = { var:pantheon_grievance_target ?= { is_alive = yes } }
-			NOT = { root = { var:pantheon_great_prayer_suppliant ?= prev } }
-		}
-		pantheon_clear_grievance_effect = yes
+	if = {
+		limit = { has_variable = pantheon_grievance }
+		pantheon_wronged_register_effect = yes
+	}
+	if = {
+		limit = { has_variable_list = pantheon_wronged_by_list }
+		pantheon_wronged_prune_effect = yes
 	}
 }

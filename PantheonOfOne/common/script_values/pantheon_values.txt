@@ -821,11 +821,32 @@ pantheon_ui_count_great = {
 	}
 }
 
+# 2.6 (Task 5, R4): a Great Boon left waiting is one more thing waiting on the god, counted only while it is still the
+# live, valid request the flag was set for (an expired or replaced one drops at once). The list may not exist yet.
+pantheon_ui_count_waiting_boons = {
+	value = 0
+	if = {
+		limit = { has_variable_list = pantheon_boon_holders }
+		every_in_list = {
+			variable = pantheon_boon_holders
+			limit = {
+				has_variable = pantheon_aspiration_live
+				has_variable = pantheon_aspiration_waiting
+				has_variable = pantheon_aspiration_id
+				var:pantheon_aspiration_waiting = var:pantheon_aspiration_id
+				pantheon_aspiration_valid_trigger = { GOD = root }
+			}
+			add = 1
+		}
+	}
+}
+
 pantheon_ui_open_prayer_count = {
 	value = 0
 	add = pantheon_ui_count_prayers
 	add = pantheon_ui_count_retris
 	add = pantheon_ui_count_great
+	add = pantheon_ui_count_waiting_boons
 }
 
 # 2.5 (Task 2): refusals and broken oaths scale with the wrong, as the boon refusals do. Kinds: 1 murdered kin, 2 lost a
@@ -861,4 +882,13 @@ pantheon_oath_broken_loss_preview = {
 	else_if = { limit = { var:pantheon_grievance_kind ?= 4 } value = -60 }
 	else_if = { limit = { var:pantheon_grievance_kind ?= 2 } value = -50 }
 	else_if = { limit = { var:pantheon_grievance_kind ?= 6 } value = -30 }
+}
+
+# 2.6 (#54): a god with no other ruler of their faith starts with at least this much Worship.
+pantheon_new_god_worship_floor = {
+	value = 600
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
 }

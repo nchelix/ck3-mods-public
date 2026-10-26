@@ -46,6 +46,22 @@ pantheon_spiritual_head_doctrine_effect = {
 	}
 }
 
+# 2.6 (#54): God scope. A god with no other ruler of their faith starts with at least the floor in Worship (top up, never add).
+pantheon_new_god_worship_floor_effect = {
+	if = {
+		limit = {
+			NOT = { any_ruler = { faith = root.faith NOT = { this = root } } }
+			var:pantheon_worship < pantheon_new_god_worship_floor
+		}
+		set_variable = { name = pantheon_worship value = pantheon_new_god_worship_floor }
+		send_interface_toast = {
+			type = event_toast_effect_good
+			title = pantheon_new_god_worship_t
+			left_icon = root
+		}
+	}
+}
+
 # Make the god the landless spiritual Head of their faith, holding the Holy Seat. Proven in the prototype.
 pantheon_take_throne_effect = {
 	# A god is no one's vassal (1.1 in-game test: a liege tried to revoke an enthroned god's county)
@@ -176,10 +192,11 @@ pantheon_take_throne_effect = {
 		pantheon_ensure_devotion_effect = { START = 50 }
 	}
 	trigger_event = { id = pantheon.0010 days = 91 }
-	set_variable = pantheon_monthly_timer
+	set_variable = { name = pantheon_monthly_alive value = yes days = 45 }
 	trigger_event = { id = pantheon.0011 days = 1 }
 	set_variable = pantheon_prayer_timer
 	trigger_event = { id = pantheon.0050 days = pantheon_prayer_interval_days }
+	pantheon_new_god_worship_floor_effect = yes
 }
 
 # ---- Boons. Root is the god; scope:pantheon_target is the follower. Each pays, grants, and schedules its end.

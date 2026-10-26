@@ -12,6 +12,24 @@ pantheon_ui_rebuild_effect = {
 	# 2.3 B4: a pending send whose source is gone (prayer closed, recipient dead) goes with it
 	pantheon_send_validate_effect = yes
 	save_scope_as = pantheon_ui_god
+	# 2.6 repair 1 (UI test LW2): the Great Boons left waiting, for the Great Prayers sub-tab. The same rule as their count
+	# (pantheon_ui_count_waiting_boons): still the live, valid request the wait was set for.
+	clear_variable_list = pantheon_ui_waiting_boons
+	if = {
+		limit = { has_variable_list = pantheon_boon_holders }
+		every_in_list = {
+			variable = pantheon_boon_holders
+			limit = {
+				is_alive = yes
+				has_variable = pantheon_aspiration_live
+				has_variable = pantheon_aspiration_waiting
+				has_variable = pantheon_aspiration_id
+				var:pantheon_aspiration_waiting = var:pantheon_aspiration_id
+				pantheon_aspiration_valid_trigger = { GOD = scope:pantheon_ui_god }
+			}
+			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_waiting_boons target = prev } }
+		}
+	}
 	# Followers: every living ruler of the god's faith, plus anyone already counted (pantheon_known holds those who
 	# prayed or were blessed, landless or not). In-game round 1: pantheon_known alone left the tab empty until a blessing.
 	every_ruler = {

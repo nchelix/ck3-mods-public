@@ -19,9 +19,12 @@ pantheon.0010 = {
 		pantheon_divine_health_effect = yes
 		# 2.2.2 (#12, R5): idempotent upkeep for demigods
 		pantheon_demigod_upkeep_effect = yes
+		# 2.6 (UI test FT7): the monthly chain (pantheon.0011) renews pantheon_monthly_alive (45 days) every run. If the chain
+		# has died (the god briefly without the Divine trait fails its trigger, and nothing restarted it: the old flag
+		# pantheon_monthly_timer never expired), the flag lapses and this quarterly tick starts it again.
 		if = {
-			limit = { NOT = { has_variable = pantheon_monthly_timer } }
-			set_variable = pantheon_monthly_timer
+			limit = { NOT = { has_variable = pantheon_monthly_alive } }
+			set_variable = { name = pantheon_monthly_alive value = yes days = 45 }
 			trigger_event = { id = pantheon.0011 days = 1 }
 		}
 		pantheon_forget_the_dead_effect = yes
@@ -292,8 +295,15 @@ pantheon.0041 = {
 pantheon.0011 = {
 	type = character_event
 	hidden = yes
-	trigger = { has_trait = pantheon_divine }
+	# 2.6 (UI test FT7): pantheon_monthly_ran (29 days) lets only one chain live: a duplicate started by the quarterly
+	# restart while the chain was in fact alive fires within 29 days of it, fails here and is not rescheduled.
+	trigger = {
+		has_trait = pantheon_divine
+		NOT = { has_variable = pantheon_monthly_ran }
+	}
 	immediate = {
+		set_variable = { name = pantheon_monthly_ran value = yes days = 29 }
+		set_variable = { name = pantheon_monthly_alive value = yes days = 45 }
 		pantheon_divine_health_effect = yes
 		# 2.2.2 (R5): once per god, the first monthly tick on a 2.2.1 save repairs what 2.2.1 did; then the
 		# demigod upkeep (the blocked_from_leaving flag and the bastard safety net) runs every month
@@ -304,6 +314,8 @@ pantheon.0011 = {
 		pantheon_retri_upkeep_effect = yes
 		pantheon_oath_upkeep_effect = yes
 		pantheon_grievance_dead_upkeep_effect = yes
+		# 2.6: the Follower trait: leavers lose it, old-save followers get it
+		pantheon_glance_sweep_effect = yes
 		# 2.2 R6: the Great Temple's build timer is a months-left counter counted down here, not a delayed
 		# event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215) nor a date (no vanilla
 		# precedent for adding days to current_date); completion when it reaches 0.
@@ -443,5 +455,6 @@ pantheon.0120 = {
 	}
 	immediate = {
 		pantheon_lead_new_faith_effect = { OLD = scope:pantheon_old_faith NEW = scope:pantheon_new_faith }
+		pantheon_new_god_worship_floor_effect = yes
 	}
 }

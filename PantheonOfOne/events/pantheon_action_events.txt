@@ -229,6 +229,10 @@ pantheon.0111 = {
 			save_scope_value_as = { name = pantheon_boon_event_id value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_id }
 			pantheon_grant_great_boon_effect = { UNASKED = yes }
 		}
+		# 2.6 (Task 6): the hand-off is used up; nothing reads it later
+		if = { limit = { has_variable = pantheon_act_target } remove_variable = pantheon_act_target }
+		# 2.6 repair 1 (Codex review 2): a granted boon leaves the Great Prayers list at once
+		pantheon_ui_refresh_if_open_effect = yes
 	}
 }
 

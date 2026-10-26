@@ -33,6 +33,59 @@ pantheon_divine = {
 	religious_vassal_opinion = 100
 	same_faith_opinion = 50
 	shown_in_ruler_designer = no
+	# 2.6 (R10): the enthroned god's own text reads their state live (Worship, the Great Prayer, the Great Temple). Any other
+	# bearer, and the plain trait list (no character), keep the plain text.
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { NOT = { exists = this } }
+				desc = trait_pantheon_divine_desc
+			}
+			triggered_desc = {
+				trigger = {
+					exists = this
+					has_variable = pantheon_enthroned
+				}
+				desc = {
+					desc = trait_pantheon_divine_character_desc
+					triggered_desc = {
+						trigger = { NOT = { has_variable = pantheon_great_prayer_cooldown } }
+						desc = pantheon_divine_prayer_ready
+					}
+					triggered_desc = {
+						trigger = { has_variable = pantheon_great_prayer_cooldown }
+						desc = pantheon_divine_prayer_resting
+					}
+					triggered_desc = {
+						trigger = {
+							NOT = { has_variable = pantheon_temple_tier }
+							NOT = { has_variable = pantheon_temple_building }
+						}
+						desc = pantheon_divine_temple_none
+					}
+					triggered_desc = {
+						trigger = {
+							has_variable = pantheon_temple_building
+							NOT = { pantheon_temple_build_paused_trigger = yes }
+						}
+						desc = pantheon_divine_temple_building
+					}
+					triggered_desc = {
+						trigger = { pantheon_temple_build_paused_trigger = yes }
+						desc = pantheon_divine_temple_paused
+					}
+					triggered_desc = {
+						trigger = {
+							has_variable = pantheon_temple_tier
+							NOT = { has_variable = pantheon_temple_building }
+						}
+						desc = pantheon_divine_temple_tier
+					}
+				}
+			}
+			desc = trait_pantheon_divine_desc
+		}
+	}
 }
 
 pantheon_champion = {
@@ -74,6 +127,28 @@ pantheon_demigod = {
 	prowess = 20
 	health = 2
 	shown_in_ruler_designer = no
+	# 2.6 (R10): while lent, the text names the host and the year the term ends
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { NOT = { exists = this } }
+				desc = trait_pantheon_demigod_desc
+			}
+			triggered_desc = {
+				trigger = { exists = this }
+				desc = {
+					desc = trait_pantheon_demigod_character_desc
+					triggered_desc = {
+						trigger = {
+							has_variable = pantheon_lent_to
+							has_variable = pantheon_lent_until
+						}
+						desc = pantheon_demigod_lent_line
+					}
+				}
+			}
+		}
+	}
 }
 
 # 1.6: a demigod's child, once their house's divine blood is revealed.

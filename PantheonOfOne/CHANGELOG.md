@@ -1,5 +1,28 @@
 # Changelog — Pantheon of One
 
+## [2.6] — 2026-10-26
+
+At a glance: a follower's Devotion, what they wait on, and what suits them, where you already look.
+
+### Added
+- A Follower trait on every ruler of your faith, your courtiers of your faith, and anyone already counted as a follower (#42, #55). Open a follower's full character view: they are a Zealous (90+), Devout (75+), Faithful, Wavering (under 25) or Lapsing (under 10) Follower, with a Devotion bar from 0 to 100 marked at 10, 25, 75 and 90. The icon turns to a gold diamond while they wait on you, and the trait's text lists what they wait on, by name: a prayer, a Great Boon and its price, a grievance, your sworn oath, a call for Retribution. It never goes stale, it is read when you hover. Traits show only in the full character view, not in the small portrait card.
+- Your own Divine trait shows your Worship, whether a Great Prayer is ready or resting, and the state of your Great Temple. A Demigod's trait says whom they are lent to and when they return.
+- Menu highlights. Grant their Great Boon is highlighted and names the ask and its price; Pass Judgement is highlighted when a follower holds a grievance against that person; Bless is highlighted when a gift suits them.
+- Bless suggestions. Hover an option to see why it suits the follower: vigor, fertility, walls, the Host, a warlord, a champion, warding. Bless is highlighted in the menu when one does.
+- Let it wait (#57). A Great Boon request can be left open: it stays on the follower's card and is listed under Great Prayers in the Prayers tab, with a Grant button. You get one reminder about a year later, and it counts in the alert and the badge.
+
+### Changed
+- Say what is asked (#56, #46). The Grant interaction and the card button name the kind of request and its price; the menu highlight names the crown, the war or the kin. The Wants lines name the crown or the war, show the price on hover, and hide when the ask is no longer valid.
+- A new god starts with some Worship (#54). A god with no other ruler of their faith starts with at least 600 Worship (50 on the Sandbox rule), topped up, never added.
+- Every ruler of your faith (and your courtiers of your faith) whose Devotion was never measured starts at 50 at the next monthly check. A follower who leaves the faith loses the trait at the monthly check, and gets it back the same way on returning.
+- A dead follower keeps the trait under the plain name Follower.
+
+### Fixed
+- The god's monthly upkeep (the Follower trait sweep, the temple's build countdown, miracle cooldowns) restarts at the next season if it ever stopped, and never runs twice.
+
+### Known limit
+- An existing save's followers get the trait at the first monthly check after loading (CK3 has no on-load hook). A new game has it from the start.
+
 ## [2.5] — 2026-10-25
 
 Prayers and consequences: kin pray for the jailed, you can answer a grievance before it is asked, a refusal costs as much as the wrong, and your judgement is remembered.

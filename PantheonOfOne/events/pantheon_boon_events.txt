@@ -16,6 +16,8 @@ pantheon.0066 = {
 		if = { limit = { has_variable = pantheon_boon_dispatch_pending } remove_variable = pantheon_boon_dispatch_pending }
 		if = { limit = { exists = scope:pantheon_boon_event_follower } clear_saved_scope = pantheon_boon_event_follower }
 		var:pantheon_boon_suppliant_var = { save_scope_as = pantheon_boon_event_follower }
+		# 2.6 (Task 6): the hand-off is captured; nothing reads the variable later, so it goes
+		if = { limit = { has_variable = pantheon_boon_suppliant_var } remove_variable = pantheon_boon_suppliant_var }
 		save_scope_value_as = { name = pantheon_boon_event_id value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_id }
 		save_scope_value_as = { name = pantheon_boon_event_kind value = scope:pantheon_boon_event_follower.var:pantheon_aspiration_kind }
 		set_variable = { name = pantheon_boon_event_open value = scope:pantheon_boon_event_id }
@@ -130,6 +132,51 @@ pantheon.0066 = {
 		hidden_effect = {
 			pantheon_refuse_great_boon_effect = yes
 			pantheon_boon_close_event_effect = yes
+		}
+	}
+	# 2.6 (Task 5, #57): the request stays on their card and the god is reminded once, in about a year. No cost, no
+	# cooldown, no Devotion change (pantheon_boon_wait_effect). Acts only on the request this event carries (R2).
+	option = {
+		name = pantheon.0066.wait
+		custom_tooltip = pantheon.0066.wait.tt
+		hidden_effect = {
+			pantheon_boon_wait_effect = yes
+			pantheon_boon_close_event_effect = yes
+		}
+	}
+}
+
+# 2.6 (Task 5, R3): the reminder for a Great Boon left waiting. Hidden, on the god; the follower and the request ID are the
+# scopes pantheon_boon_wait_effect carried. It is never lost: while another boon event is open or a dispatch is pending it
+# changes NOTHING and tries again in 7 days. Only when it actually dispatches does it end the waiting, mark the one reminder
+# used, hand the follower to pantheon.0066 and mark the dispatch pending (as the other dispatchers do). A request that was
+# granted, replaced, refused or has expired since (the carried ID no longer matches) is dropped silently.
+pantheon.0067 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					has_variable = pantheon_boon_event_open
+					has_variable = pantheon_boon_dispatch_pending
+				}
+			}
+			trigger_event = { id = pantheon.0067 days = 7 }
+		}
+		else_if = {
+			limit = {
+				exists = scope:pantheon_boon_event_follower
+				exists = scope:pantheon_boon_event_id
+				scope:pantheon_boon_event_follower = { pantheon_boon_remindable_trigger = { GOD = root ID = scope:pantheon_boon_event_id } }
+			}
+			scope:pantheon_boon_event_follower = {
+				remove_variable = pantheon_aspiration_waiting
+				set_variable = pantheon_aspiration_reminded
+			}
+			set_variable = { name = pantheon_boon_suppliant_var value = scope:pantheon_boon_event_follower }
+			set_variable = { name = pantheon_boon_dispatch_pending value = yes days = 1 }
+			trigger_event = pantheon.0066
 		}
 	}
 }
