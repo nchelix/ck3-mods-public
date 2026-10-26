@@ -116,11 +116,22 @@ pantheon_prayer_close_core_effect = {
 		limit = { is_target_in_variable_list = { name = pantheon_open_prayers target = $WHO$ } }
 		remove_list_variable = { name = pantheon_open_prayers target = $WHO$ }
 	}
+	# 2.5 (R3): a kin prayer (need 10) ends here on every path (grant, sign, refusal, deadline, prune, gone): release the
+	# prisoner's reservation, with the ownership check, BEFORE the record's variables go. `?=` keeps an unset
+	# pantheon_prayer_kin from erroring.
+	if = {
+		limit = { $WHO$ = { var:pantheon_prayer_need ?= 10 } }
+		$WHO$ = {
+			save_temporary_scope_as = pantheon_kin_closing
+			var:pantheon_prayer_kin ?= { pantheon_kin_release_reservation_effect = { HOLDER = scope:pantheon_kin_closing } }
+		}
+	}
 	$WHO$ = {
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_open }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_token }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_origin }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_need }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_kin }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_gift }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_price }
 		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_sign_price }

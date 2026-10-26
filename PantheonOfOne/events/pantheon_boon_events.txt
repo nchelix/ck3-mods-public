@@ -23,6 +23,7 @@ pantheon.0066 = {
 		if = { limit = { exists = scope:pantheon_boon_event_title } clear_saved_scope = pantheon_boon_event_title }
 		if = { limit = { exists = scope:pantheon_boon_event_kin } clear_saved_scope = pantheon_boon_event_kin }
 		if = { limit = { exists = scope:pantheon_boon_event_enemy } clear_saved_scope = pantheon_boon_event_enemy }
+		if = { limit = { exists = scope:pantheon_boon_event_prisoner } clear_saved_scope = pantheon_boon_event_prisoner }
 		scope:pantheon_boon_event_follower = {
 			if = {
 				limit = { var:pantheon_aspiration_kind = 1 }
@@ -43,6 +44,11 @@ pantheon.0066 = {
 						primary_attacker = { save_scope_as = pantheon_boon_event_enemy }
 					}
 				}
+			}
+			# 2.5: raised by kin, kind 7 names the prisoner (the holder is their relative, not the one in a cell)
+			else_if = {
+				limit = { var:pantheon_aspiration_kind = 7 }
+				var:pantheon_aspiration_target ?= { save_scope_as = pantheon_boon_event_prisoner }
 			}
 		}
 	}
@@ -77,6 +83,11 @@ pantheon.0066 = {
 				trigger = { scope:pantheon_boon_event_kind = 6 }
 				desc = pantheon.0066.desc_fortune
 			}
+			# 2.5: raised by kin, it pleads for the prisoner by name
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 7 exists = scope:pantheon_boon_event_prisoner }
+				desc = pantheon.0066.desc_kin_freedom
+			}
 			triggered_desc = {
 				trigger = { scope:pantheon_boon_event_kind = 7 }
 				desc = pantheon.0066.desc_freedom
@@ -90,7 +101,7 @@ pantheon.0066 = {
 	}
 	option = {
 		name = pantheon.0066.grant
-		trigger = { pantheon_boon_affordable_kind_trigger = { KIND = scope:pantheon_boon_event_kind } }
+		trigger = { custom_tooltip = { text = pantheon_needs_worship_boon_tt pantheon_boon_affordable_kind_trigger = { KIND = scope:pantheon_boon_event_kind } } }
 		show_as_unavailable = { NOT = { pantheon_boon_affordable_kind_trigger = { KIND = scope:pantheon_boon_event_kind } } }
 		if = { limit = { scope:pantheon_boon_event_kind = 1 } custom_tooltip = pantheon.0066.grant_crown.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 2 } custom_tooltip = pantheon.0066.grant_kin.tt }
@@ -99,6 +110,7 @@ pantheon.0066 = {
 		if = { limit = { scope:pantheon_boon_event_kind = 5 } custom_tooltip = pantheon.0066.grant_conversion.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 6 } custom_tooltip = pantheon.0066.grant_fortune.tt }
 		if = { limit = { scope:pantheon_boon_event_kind = 7 } custom_tooltip = pantheon.0066.grant_freedom.tt }
+		if = { limit = { scope:pantheon_boon_event_kind = 7 exists = scope:pantheon_boon_event_prisoner } custom_tooltip = pantheon.0066.grant_kin_freedom.tt }
 		custom_tooltip = pantheon.0066.grant.tt
 		hidden_effect = {
 			pantheon_grant_great_boon_effect = { UNASKED = no }

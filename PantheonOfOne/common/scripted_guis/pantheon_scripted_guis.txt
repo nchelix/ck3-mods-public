@@ -576,6 +576,30 @@ pantheon_ui_send_demigod = {
 	}
 }
 
+# 2.5 (Task 5): a Followers row's Answer button swears vengeance for a follower who holds a valid grievance, unasked. Row scope
+# form as pantheon_ui_row_lend (pantheon_row_follower = the row's follower). Never for the sworn suppliant (no button), and
+# greyed while any oath is outstanding. Worship is spent only when the wrath lands.
+pantheon_ui_row_answer = {
+	scope = character
+	saved_scopes = { pantheon_row_follower }
+	is_shown = {
+		scope:pantheon_row_follower = {
+			pantheon_grievance_valid_trigger = { GOD = root }
+		}
+		NOT = { var:pantheon_great_prayer_suppliant ?= scope:pantheon_row_follower }
+	}
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_ui_answer_oath_busy_tt
+			NOT = { has_variable = pantheon_great_prayer_active }
+		}
+	}
+	effect = {
+		pantheon_answer_unasked_effect = { WHO = scope:pantheon_row_follower }
+		pantheon_ui_refresh_if_open_effect = yes
+	}
+}
+
 # Outside sending mode (R9): a demigod row's Lend / Wed open the vanilla interaction window with this demigod as the
 # secondary actor and the follower selected in the Followers tab (pantheon_ui_target) as the recipient. They mirror the
 # interactions' is_shown (a landed follower of the faith to lend to; a ruler with a house to wed into).

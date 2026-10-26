@@ -127,7 +127,11 @@ pantheon_retri_write_effect = {
 	save_scope_value_as = {
 		name = pantheon_retri_token
 		value = {
-			value = var:pantheon_retri_seq
+			value = 0
+			if = {
+				limit = { has_variable = pantheon_retri_seq }
+				add = var:pantheon_retri_seq
+			}
 		}
 	}
 	scope:pantheon_retri_attacker = {

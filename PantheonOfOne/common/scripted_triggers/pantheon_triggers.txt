@@ -250,6 +250,106 @@ pantheon_need_freedom_trigger = {
 	pantheon_war_leader_prisoner_trigger = no
 }
 
+# ---- 2.5 Kin pray for a jailed loved one (need 10; kin kind 7). Engine names: is_sibling_of, is_parent_of, is_child_of,
+# is_spouse_of, has_relation_rival, opinion (triggers.log 5907, 5747, 5206, 5913, 4294, 7066); vanilla uses them at
+# 00_court_position_effects.txt:454, 00_ai_conqueror_effects.txt:830, 00_accolades_scripted_effects.txt:3809,
+# 00_adultery_effects.txt:381 and 00_holy_order_effects.txt:1031.
+
+# In the candidate's scope; $GOD$ is the god (pass root or a saved scope, never `this`). A character who prays in the ordinary
+# way: the three pools of pantheon_pick_follower_prayer_effect (rulers, the god's courtiers, Devotion 75+).
+pantheon_ordinary_suppliant_trigger = {
+	OR = {
+		is_ruler = yes
+		is_courtier_of = $GOD$
+		pantheon_devout_trigger = yes
+	}
+}
+
+# In the prisoner's scope; the god is ROOT (no parameter, called `= yes`). The ordinary kin route (need 10): someone else's
+# prisoner who cannot pray for themselves (R1: never a valuable prisoner, never a war leader; a prisoner who can pray for
+# themselves has the need-9 prayer). Any faith: the relative's faith is what counts.
+pantheon_kin_jailed_trigger = {
+	is_imprisoned = yes
+	exists = imprisoner
+	NOT = { is_imprisoned_by = root }
+	is_hostage = no
+	NOT = { this = root }
+	NOT = { has_trait = pantheon_demigod }
+	pantheon_war_leader_prisoner_trigger = no
+	pantheon_valuable_prisoner_trigger = no
+	pantheon_need_freedom_trigger = no
+}
+
+# In the prisoner's scope; root is the god. The valuable route (kin kind 7, R1): a valuable prisoner, not a war leader, who
+# cannot hold their own Great Prayer (not of the faith, or below Devotion 90).
+pantheon_kin_valuable_trigger = {
+	is_imprisoned = yes
+	exists = imprisoner
+	NOT = { is_imprisoned_by = root }
+	is_hostage = no
+	NOT = { this = root }
+	NOT = { has_trait = pantheon_demigod }
+	pantheon_valuable_prisoner_trigger = yes
+	pantheon_war_leader_prisoner_trigger = no
+	NOT = { pantheon_boon_eligible_trigger = { GOD = root } }
+}
+
+# In the relative's scope. $PRISONER$ is the prisoner and $GOD$ the god (scope references, never `this`). The relative is a
+# ADULT follower (repair 1: a child does not pray for a jailed relative) one link from the prisoner (parent, sibling, child
+# or spouse: R2, no grandparents), is free, likes the prisoner
+# (positive opinion, not a rival) and prays in the ordinary way. GOD is a parameter because the Great Prayer's validity is
+# asked with GOD = scope:actor from an interaction, where root is not the god.
+pantheon_kin_intercessor_trigger = {
+	is_alive = yes
+	is_adult = yes
+	faith = $GOD$.faith
+	NOT = { this = $GOD$ }
+	NOT = { has_trait = pantheon_demigod }
+	is_imprisoned = no
+	OR = {
+		is_sibling_of = $PRISONER$
+		is_parent_of = $PRISONER$
+		is_child_of = $PRISONER$
+		is_spouse_of = $PRISONER$
+	}
+	opinion = { target = $PRISONER$ value > 0 }
+	NOT = { has_relation_rival = $PRISONER$ }
+	pantheon_ordinary_suppliant_trigger = { GOD = $GOD$ }
+}
+
+# In the relative's scope; the god is ROOT. Does the kin prayer (need 10) the relative opened still stand? The prisoner is
+# still a kin-prayer case and the relative still passes the intercessor trigger for them. `?=` throughout: an unset
+# variable fails the trigger instead of erroring.
+pantheon_kin_need_valid_trigger = {
+	save_temporary_scope_as = pantheon_kin_valid_relative
+	var:pantheon_prayer_kin ?= {
+		save_temporary_scope_as = pantheon_kin_valid_prisoner
+		pantheon_kin_jailed_trigger = yes
+		scope:pantheon_kin_valid_relative = { pantheon_kin_intercessor_trigger = { PRISONER = scope:pantheon_kin_valid_prisoner GOD = root } }
+	}
+}
+
+# In the prisoner's scope. Is the reservation on them (pantheon_kin_prayer_for = a relative) still alive? It holds while that
+# relative either has an open need-10 prayer for THIS prisoner or holds a kind 7 whose target is THIS prisoner. A stale
+# marker is not live, so the pass skips live ones and overwrites dead ones (R3).
+pantheon_kin_reservation_live_trigger = {
+	save_temporary_scope_as = pantheon_kin_live_prisoner
+	var:pantheon_kin_prayer_for ?= {
+		is_alive = yes
+		OR = {
+			AND = {
+				has_variable = pantheon_prayer_open
+				var:pantheon_prayer_need ?= 10
+				var:pantheon_prayer_kin ?= { this = scope:pantheon_kin_live_prisoner }
+			}
+			AND = {
+				var:pantheon_aspiration_kind ?= 7
+				var:pantheon_aspiration_target ?= { this = scope:pantheon_kin_live_prisoner }
+			}
+		}
+	}
+}
+
 # ---- 1.4 Wrath. In each trigger below, this is the candidate and $GOD$ the god. Pass GOD as a saved scope
 # or root, never `this`: inside a nested block `this` changes, and $GOD$.faith would read the wrong faith.
 
@@ -694,11 +794,31 @@ pantheon_boon_fortune_trigger = {
 
 # 2.4 Kind 7: Freedom. In the follower's scope: still in a cell, not the god's own, still a valuable prisoner (so the
 # war that makes them one still runs). Ends the aspiration when they are freed, the war ends or they die (upkeep).
+#
+# 2.5: a kind 7 raised by kin carries pantheon_aspiration_target = the prisoner. Then the TARGET must be the valuable
+# prisoner in a cell (not the holder), and the holder must still be a relative who cares (R3 revalidation: a rival, a
+# lost opinion or a lost link ends it). Without a target it is today's self-prayer.
 pantheon_boon_freedom_trigger = {
-	is_alive = yes
-	is_imprisoned = yes
-	NOT = { is_imprisoned_by = $GOD$ }
-	pantheon_valuable_prisoner_trigger = yes
+	trigger_if = {
+		limit = { exists = var:pantheon_aspiration_target }
+		var:pantheon_aspiration_target ?= {
+			is_alive = yes
+			is_imprisoned = yes
+			NOT = { is_imprisoned_by = $GOD$ }
+			pantheon_valuable_prisoner_trigger = yes
+			# review fix: kin hold it only while the prisoner cannot (same as pantheon_kin_valuable_trigger, with GOD)
+			pantheon_war_leader_prisoner_trigger = no
+			NOT = { has_trait = pantheon_demigod }
+			NOT = { pantheon_boon_eligible_trigger = { GOD = $GOD$ } }
+		}
+		pantheon_kin_intercessor_trigger = { PRISONER = var:pantheon_aspiration_target GOD = $GOD$ }
+	}
+	trigger_else = {
+		is_alive = yes
+		is_imprisoned = yes
+		NOT = { is_imprisoned_by = $GOD$ }
+		pantheon_valuable_prisoner_trigger = yes
+	}
 }
 
 # The aspiration they hold is still valid (spec, Validity table), and they're still eligible to hold one
@@ -835,6 +955,8 @@ pantheon_prayer_need_valid_trigger = {
 		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 7 pantheon_need_healing_trigger = yes }
 		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 8 pantheon_need_spouse_trigger = yes }
 		AND = { var:pantheon_prayer_need ?= 9 pantheon_need_freedom_trigger = yes }
+		# 2.5: a relative's prayer for a jailed loved one (need 10); the relative is free, so no is_imprisoned guard
+		AND = { var:pantheon_prayer_need ?= 10 pantheon_kin_need_valid_trigger = yes }
 	}
 }
 

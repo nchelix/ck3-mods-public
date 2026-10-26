@@ -304,6 +304,7 @@ pantheon_bless_interaction = {
 				scope:pantheon_bless_lineage = yes
 				scope:pantheon_bless_host = yes
 				scope:pantheon_bless_freedom = yes
+				scope:pantheon_bless_conception = yes
 			}
 		}
 	}
@@ -312,6 +313,7 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_champion
 		localization = pantheon_bless_opt_champion
+		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
@@ -323,6 +325,7 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_warlord
 		localization = pantheon_bless_opt_warlord
+		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
@@ -334,6 +337,7 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_sovereign
 		localization = pantheon_bless_opt_sovereign
+		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
@@ -345,6 +349,7 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_sage
 		localization = pantheon_bless_opt_sage
+		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_trait_tt pantheon_can_afford_trigger = { COST = pantheon_cost_trait } } }
 			scope:recipient = {
@@ -392,6 +397,7 @@ pantheon_bless_interaction = {
 	send_option = {
 		flag = pantheon_bless_vigor
 		localization = pantheon_bless_opt_vigor
+		is_shown = { NOT = { scope:recipient = scope:actor } }
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
 			scope:recipient = {
@@ -468,9 +474,29 @@ pantheon_bless_interaction = {
 			}
 		}
 	}
+	# 2.5: Divine Conception, formerly its own interaction. Eligibility beyond these is checked on accept by pantheon.0101,
+	# which says why when it refuses (1.2: greying it with reasons made the old page option vanish).
+	send_option = {
+		flag = pantheon_bless_conception
+		localization = pantheon_bless_opt_conception
+		is_shown = {
+			scope:recipient = {
+				NOT = { this = scope:actor }
+				faith = scope:actor.faith
+				NOT = { has_trait = pantheon_demigod }
+				NOT = { has_variable = pantheon_enthroned }
+				sex_opposite_of = scope:actor
+				is_adult = yes
+			}
+		}
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
+		}
+	}
 
 	on_accept = {
 		# The preview follows the selected option (the page tooltips of 1.0-1.6)
+		if = { limit = { scope:pantheon_bless_conception = yes } custom_tooltip = pantheon_tip.0300.conception.tt }
 		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_tip.0100.champion.tt }
 		if = { limit = { scope:pantheon_bless_champion = yes } custom_tooltip = pantheon_worship_line_trait }
 		if = { limit = { scope:pantheon_bless_warlord = yes } custom_tooltip = pantheon_tip.0100.warlord.tt }
@@ -514,48 +540,9 @@ pantheon_bless_interaction = {
 				else_if = { limit = { scope:pantheon_bless_lineage = yes } set_variable = { name = pantheon_ui_choice value = flag:lineage } }
 				else_if = { limit = { scope:pantheon_bless_host = yes } set_variable = { name = pantheon_ui_choice value = flag:host } }
 				else_if = { limit = { scope:pantheon_bless_freedom = yes } set_variable = { name = pantheon_ui_choice value = flag:freedom } }
-				trigger_event = pantheon.0100
-			}
-		}
-	}
-	auto_accept = yes
-	ai_will_do = { base = 0 }
-}
-
-# 2.0: Divine Conception. Eligibility beyond sex and age is checked on accept by the effect, which costs nothing
-# and says why when it refuses (1.2: greying it with reasons made the old page option vanish).
-pantheon_conception_interaction = {
-	category = interaction_category_religion
-	common_interaction = yes
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-	icon = pantheon_conception_interaction
-	desc = pantheon_conception_interaction_desc
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-			has_trait = pantheon_divine
-			has_variable = pantheon_enthroned
-		}
-		scope:recipient = {
-			NOT = { this = scope:actor }
-			faith = scope:actor.faith
-			NOT = { has_trait = pantheon_demigod }
-			NOT = { has_variable = pantheon_enthroned }
-			sex_opposite_of = scope:actor
-			is_adult = yes
-		}
-	}
-	is_valid_showing_failures_only = {
-		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
-	}
-	on_accept = {
-		custom_tooltip = pantheon_tip.0300.conception.tt
-		hidden_effect = {
-			scope:actor = {
-				set_variable = { name = pantheon_act_target value = scope:recipient }
-				set_variable = { name = pantheon_ui_target value = scope:recipient }
-				trigger_event = pantheon.0101
+				# Divine Conception (moved here in 2.5) runs in pantheon.0101, with no blessing choice
+				if = { limit = { scope:pantheon_bless_conception = yes } trigger_event = pantheon.0101 }
+				else = { trigger_event = pantheon.0100 }
 			}
 		}
 	}
@@ -933,13 +920,15 @@ pantheon_great_boon_interaction = {
 		custom_tooltip = pantheon_great_boon_interaction.tt
 		# 2.2.1 (#3): the price of THIS follower's boon and the Worship before and after (the unasked grant
 		# charges the same pantheon_cost_boon_* the affordability check reads)
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 1 } } custom_tooltip = pantheon.0066.grant_crown.tt }
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 2 } } custom_tooltip = pantheon.0066.grant_kin.tt }
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 3 } } custom_tooltip = pantheon.0066.grant_war.tt }
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 4 } } custom_tooltip = pantheon.0066.grant_heir.tt }
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 5 } } custom_tooltip = pantheon.0066.grant_conversion.tt }
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 6 } } custom_tooltip = pantheon.0066.grant_fortune.tt }
-		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind = 7 } } custom_tooltip = pantheon.0066.grant_freedom.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 1 } } custom_tooltip = pantheon.0066.grant_crown.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 2 } } custom_tooltip = pantheon.0066.grant_kin.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 3 } } custom_tooltip = pantheon.0066.grant_war.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 4 } } custom_tooltip = pantheon.0066.grant_heir.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 5 } } custom_tooltip = pantheon.0066.grant_conversion.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 6 } } custom_tooltip = pantheon.0066.grant_fortune.tt }
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 7 } } custom_tooltip = pantheon.0066.grant_freedom.tt }
+		# 2.5: raised by kin, the prisoner is freed and both gain opinion (the same line as the prayer event)
+		if = { limit = { scope:recipient = { var:pantheon_aspiration_kind ?= 7 exists = var:pantheon_aspiration_target } } custom_tooltip = pantheon.0066.grant_kin_freedom.tt }
 		hidden_effect = {
 			scope:actor = { set_variable = { name = pantheon_act_target value = scope:recipient } trigger_event = pantheon.0111 }
 		}

@@ -169,7 +169,7 @@ window = {
 						text = "pantheon_ui_boon_freedom"
 					}
 					text_single = {
-						visible = "[Character.MakeScope.Var('pantheon_grievance').IsSet]"
+						visible = "[And( Character.MakeScope.Var('pantheon_grievance').IsSet, Character.MakeScope.Var('pantheon_grievance_target').GetCharacter.IsAlive )]"
 						text = "pantheon_ui_grievance_line"
 					}
 					text_single = {
@@ -197,8 +197,13 @@ window = {
 						text = "pantheon_ui_wants_6"
 					}
 					text_single = {
-						visible = "[And( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ) )]"
+						visible = "[And3( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Not( Character.MakeScope.Var('pantheon_aspiration_target').IsSet ) )]"
 						text = "pantheon_ui_wants_7"
+					}
+					# 2.5: a kind 7 raised by kin names the prisoner
+					text_single = {
+						visible = "[And3( Character.MakeScope.Var('pantheon_aspiration').IsSet, EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_aspiration_kind').GetValue, '(CFixedPoint)7' ), Character.MakeScope.Var('pantheon_aspiration_target').IsSet )]"
+						text = "pantheon_ui_wants_7_kin"
 					}
 				}
 			}
@@ -247,14 +252,6 @@ window = {
 					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_lands_interaction')]"
 					onclick = "[Character.OpenPlayerInteraction('pantheon_lands_interaction')]"
 				}
-				button_standard = {
-					size = { 110 30 }
-					text = "pantheon_ui_btn_conception"
-					visible = "[Character.IsPlayerInteractionShown('pantheon_conception_interaction')]"
-					enabled = "[Character.IsPlayerInteractionValid('pantheon_conception_interaction')]"
-					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_conception_interaction')]"
-					onclick = "[Character.OpenPlayerInteraction('pantheon_conception_interaction')]"
-				}
 				expand = {}
 				button_standard = {
 					size = { 80 30 }
@@ -270,7 +267,7 @@ window = {
 				}
 			}
 			hbox = {
-				visible = "[Character.IsPlayerInteractionShown('pantheon_great_boon_interaction')]"
+				visible = "[Or( Character.IsPlayerInteractionShown('pantheon_great_boon_interaction'), GetScriptedGui('pantheon_ui_row_answer').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ) )]"
 				layoutpolicy_horizontal = expanding
 				spacing = 6
 				button_standard = {
@@ -280,6 +277,15 @@ window = {
 					enabled = "[Character.IsPlayerInteractionValid('pantheon_great_boon_interaction')]"
 					tooltip = "[Character.GetPlayerInteractionTooltip('pantheon_great_boon_interaction')]"
 					onclick = "[Character.OpenPlayerInteraction('pantheon_great_boon_interaction')]"
+				}
+				# 2.5 repair 1: answer the selected follower's grievance unasked, the Followers row button's scripted GUI
+				button_standard = {
+					size = { 110 30 }
+					text = "pantheon_ui_btn_answer"
+					visible = "[GetScriptedGui('pantheon_ui_row_answer').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+					enabled = "[GetScriptedGui('pantheon_ui_row_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+					tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_row_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Localize( 'pantheon_ui_answer_tt' ), GetScriptedGui('pantheon_ui_row_answer').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ) )]"
+					onclick = "[GetScriptedGui('pantheon_ui_row_answer').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
 				}
 				expand = {}
 			}
@@ -525,12 +531,20 @@ window = {
 														}
 													}
 													text_single = {
+														visible = "[Not( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)10' ) )]"
 														layoutpolicy_horizontal = expanding
 														autoresize = no
 														text = "pantheon_ui_prayer_need_line"
 													}
+													# 2.5 (R6): a relative's prayer names the prisoner (a character variable, as pantheon_ui_grievance_line reads one)
 													text_single = {
-														visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' ), Not( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ) ) )]"
+														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)10' )]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_prayer_need_line_kin"
+													}
+													text_single = {
+														visible = "[And3( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' ), Not( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ) ), Not( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)10' ) ) )]"
 														layoutpolicy_horizontal = expanding
 														autoresize = no
 														text = "pantheon_ui_prayer_price_follower"
@@ -540,6 +554,13 @@ window = {
 														layoutpolicy_horizontal = expanding
 														autoresize = no
 														text = "pantheon_ui_prayer_price_freedom"
+													}
+													# 2.5 (R6): need 10 reads the PRISONER's Devotion value, not the row character's
+													text_single = {
+														visible = "[And( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)1' ), EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)10' ) )]"
+														layoutpolicy_horizontal = expanding
+														autoresize = no
+														text = "pantheon_ui_prayer_price_kin_freedom"
 													}
 													text_single = {
 														visible = "[EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_origin').GetValue, '(CFixedPoint)2' )]"
@@ -554,7 +575,7 @@ window = {
 														size = { 110 30 }
 														text = "pantheon_ui_btn_prayer_grant"
 														enabled = "[GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
-														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Select_CString( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ), Localize( 'pantheon_ui_prayer_grant_after_freedom_tt' ), Localize( 'pantheon_ui_prayer_grant_after_tt' ) ), GetScriptedGui('pantheon_ui_prayer_grant').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_prayer_grant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Select_CString( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)10' ), Localize( 'pantheon_ui_prayer_grant_after_kin_freedom_tt' ), Select_CString( EqualTo_CFixedPoint( Character.MakeScope.Var('pantheon_prayer_need').GetValue, '(CFixedPoint)9' ), Localize( 'pantheon_ui_prayer_grant_after_freedom_tt' ), Localize( 'pantheon_ui_prayer_grant_after_tt' ) ) ), GetScriptedGui('pantheon_ui_prayer_grant').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
 														onclick = "[GetScriptedGui('pantheon_ui_prayer_grant').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
 													}
 													button_standard = {
@@ -741,7 +762,7 @@ window = {
 									size = { 230 30 }
 									text = "pantheon_ui_btn_oath_judge"
 									enabled = "[GetScriptedGui('pantheon_ui_oath_judge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_oath_judge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_ui_oath_judge_after_tt' ), GetScriptedGui('pantheon_ui_oath_judge').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_oath_judge').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetPlayer.MakeScope.Var('pantheon_great_prayer_unasked').IsSet, Localize( 'pantheon_ui_oath_judge_unasked_tt' ), Localize( 'pantheon_ui_oath_judge_after_tt' ) ), GetScriptedGui('pantheon_ui_oath_judge').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('pantheon_ui_oath_judge').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 							}
@@ -978,6 +999,21 @@ window = {
 																texture = "gfx/interface/icons/pantheon/pantheon_praying.dds"
 															}
 														}
+														# 2.5 (Task 5): answer this follower's grievance unasked. Row scope form as the demigod row's Lend
+														# button (AddScope) and IsShown as the Retribution send button; the icon is vanilla's
+														# gfx/interface/icons/flat_icons/declare_war.dds (gui/shared/buttons_icons.gui:584).
+														button_standard = {
+															size = { 30 26 }
+															visible = "[GetScriptedGui('pantheon_ui_row_answer').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+															enabled = "[GetScriptedGui('pantheon_ui_row_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_row_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Localize( 'pantheon_ui_answer_tt' ), GetScriptedGui('pantheon_ui_row_answer').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_row_answer').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+															icon = {
+																parentanchor = center
+																size = { 24 24 }
+																texture = "gfx/interface/icons/flat_icons/declare_war.dds"
+															}
+														}
 														expand = {}
 													}
 												}
@@ -1036,6 +1072,21 @@ window = {
 																parentanchor = center
 																size = { 24 24 }
 																texture = "gfx/interface/icons/pantheon/pantheon_praying.dds"
+															}
+														}
+														# 2.5 (Task 5): answer this follower's grievance unasked. Row scope form as the demigod row's Lend
+														# button (AddScope) and IsShown as the Retribution send button; the icon is vanilla's
+														# gfx/interface/icons/flat_icons/declare_war.dds (gui/shared/buttons_icons.gui:584).
+														button_standard = {
+															size = { 30 26 }
+															visible = "[GetScriptedGui('pantheon_ui_row_answer').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+															enabled = "[GetScriptedGui('pantheon_ui_row_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_row_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ), Localize( 'pantheon_ui_answer_tt' ), GetScriptedGui('pantheon_ui_row_answer').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_row_answer').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_row_follower', Character.MakeScope ).End )]"
+															icon = {
+																parentanchor = center
+																size = { 24 24 }
+																texture = "gfx/interface/icons/flat_icons/declare_war.dds"
 															}
 														}
 														expand = {}

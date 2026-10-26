@@ -193,6 +193,42 @@ pantheon_swear_vengeance_effect = {
 	}
 }
 
+# 2.5 (Task 5): answer a grievance UNASKED -- the god swears vengeance for a follower who has not prayed for it (the Followers
+# row button, pantheon_ui_row_answer). Root is the god, $WHO$ the follower. R8: a stale click does nothing: the grievance must
+# still be valid with its offender alive, and no oath may be outstanding; checked BEFORE any scope is saved or the oath is sworn.
+# The oath is flagged unasked only when it is this follower's (swear itself refuses a live oath); no timer, no cooldown.
+pantheon_answer_unasked_effect = {
+	if = {
+		limit = {
+			NOT = { has_variable = pantheon_great_prayer_active }
+			$WHO$ = {
+				pantheon_grievance_valid_trigger = { GOD = root }
+				var:pantheon_grievance_target ?= { is_alive = yes }
+			}
+		}
+		if = { limit = { exists = scope:pantheon_great_suppliant } clear_saved_scope = pantheon_great_suppliant }
+		if = { limit = { exists = scope:pantheon_great_offender } clear_saved_scope = pantheon_great_offender }
+		$WHO$ = { save_scope_as = pantheon_great_suppliant }
+		$WHO$.var:pantheon_grievance_target ?= { save_scope_as = pantheon_great_offender }
+		pantheon_swear_vengeance_effect = yes
+		if = {
+			limit = {
+				has_variable = pantheon_great_prayer_active
+				var:pantheon_great_prayer_suppliant ?= $WHO$
+			}
+			set_variable = { name = pantheon_great_prayer_unasked value = yes }
+		}
+		clear_saved_scope = pantheon_great_suppliant
+		clear_saved_scope = pantheon_great_offender
+	}
+}
+
+# 2.5 (Task 5, R7): backing out of an UNASKED oath (0070's Leave it for now / Stay your hand on its own page) costs nothing:
+# no Devotion, no opinion, no cooldown, and the grievance stays. Root is the god.
+pantheon_unasked_withdraw_effect = {
+	pantheon_end_oath_effect = yes
+}
+
 # 2.3: the Prayers tab's "Open the Judgement" on the sworn oath: re-open the sworn page (pantheon.0070) on the offender in
 # context 1. The page's option triggers derive the restrictions from its context and the oath, so another route cannot block it.
 # Does nothing if the oath is gone or its offender is dead. Root is the god.
@@ -216,14 +252,24 @@ pantheon_oath_open_judgement_effect = {
 	}
 }
 
-# Refuse a Great Prayer: -30 and the refused-prayer opinion.
+# Refuse a Great Prayer: the Devotion loss scaled by the wrong (2.5: pantheon_great_prayer_refusal, -15 to -50, -30 when the
+# kind is unknown) and the refused-prayer opinion. The value is read in the SUPPLIANT's scope (pantheon_change_devotion_effect
+# evaluates $AMOUNT$ inside scope:pantheon_target) and BEFORE the grievance that names the kind is cleared. The applied
+# amount is kept on the god for the toast (R5).
 pantheon_refuse_great_prayer_effect = {
 	if = {
 		limit = { exists = scope:pantheon_target }
 		clear_saved_scope = pantheon_target
 	}
 	scope:pantheon_great_suppliant = { save_scope_as = pantheon_target }
-	pantheon_change_devotion_effect = { AMOUNT = -30 }
+	pantheon_change_devotion_effect = { AMOUNT = pantheon_great_prayer_refusal }
+	scope:pantheon_target = {
+		set_variable = { name = pantheon_refusal_loss value = pantheon_great_prayer_refusal days = 1 }
+	}
+	if = {
+		limit = { scope:pantheon_target = { has_variable = pantheon_refusal_loss } }
+		set_variable = { name = pantheon_last_devotion_loss value = scope:pantheon_target.var:pantheon_refusal_loss days = 1 }
+	}
 	scope:pantheon_target = {
 		add_opinion = {
 			target = root
@@ -240,7 +286,10 @@ pantheon_refuse_great_prayer_effect = {
 	}
 }
 
-# Swore vengeance, then stayed the hand: a broken oath is worse than a refusal (user, 2026-10-05): -60.
+# Swore vengeance, then stayed the hand: a broken oath is worse than a refusal (user, 2026-10-05). 2.5: scaled by the wrong
+# snapshotted at swearing (pantheon_oath_broken_loss, -30 to -90, -60 for an unknown kind or an oath sworn before 2.5).
+# R4: the value is GOD-scoped, so it is captured here (before the oath ends) and handed on as a scope value, because
+# pantheon_change_devotion_effect evaluates $AMOUNT$ inside the follower.
 pantheon_broken_oath_effect = {
 	if = {
 		limit = { exists = scope:pantheon_target }
@@ -249,7 +298,9 @@ pantheon_broken_oath_effect = {
 	var:pantheon_great_prayer_suppliant ?= { if = { limit = { is_alive = yes } save_scope_as = pantheon_target } }
 	if = {
 		limit = { var:pantheon_great_prayer_suppliant ?= { is_alive = yes } }
-		pantheon_change_devotion_effect = { AMOUNT = -60 }
+		save_temporary_scope_value_as = { name = pantheon_oath_loss value = pantheon_oath_broken_loss }
+		set_variable = { name = pantheon_last_devotion_loss value = scope:pantheon_oath_loss days = 1 }
+		pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_oath_loss }
 		scope:pantheon_target = {
 			add_opinion = {
 				target = root
@@ -278,6 +329,7 @@ pantheon_end_oath_effect = {
 	if = { limit = { has_variable = pantheon_great_prayer_kind } remove_variable = pantheon_great_prayer_kind }
 	if = { limit = { has_variable = pantheon_great_prayer_harsh } remove_variable = pantheon_great_prayer_harsh }
 	if = { limit = { has_variable = pantheon_great_prayer_light } remove_variable = pantheon_great_prayer_light }
+	if = { limit = { has_variable = pantheon_great_prayer_unasked } remove_variable = pantheon_great_prayer_unasked }
 	if = { limit = { has_variable = pantheon_wrath_harsh } remove_variable = pantheon_wrath_harsh }
 }
 
@@ -363,15 +415,38 @@ pantheon_great_prayer_answered_effect = {
 	if = {
 		limit = { var:pantheon_great_prayer_suppliant ?= { is_alive = yes } }
 		pantheon_change_devotion_effect = { AMOUNT = 100 }
-		scope:pantheon_target = {
-			add_character_modifier = { modifier = pantheon_avenged years = 10 }
-			add_opinion = { target = root modifier = pantheon_avenged_opinion years = 10 }
-			pantheon_clear_grievance_effect = yes
+		# 2.5 (Task 5): an UNASKED oath is Foreseen, not Avenged (1.5x the values, 20 years), the thank-offering is the
+		# wrath's full cost, the awe sweeps the faith as for an unasked Great Boon (10), and there is no cooldown.
+		if = {
+			limit = { has_variable = pantheon_great_prayer_unasked }
+			scope:pantheon_target = {
+				add_character_modifier = { modifier = pantheon_foreseen years = 20 }
+				add_opinion = { target = root modifier = pantheon_foreseen_opinion years = 20 }
+				pantheon_clear_grievance_effect = yes
+			}
+			# the awe effect reads scope:pantheon_boon_event_follower (the one it spares): saved for the call, cleared after
+			if = { limit = { exists = scope:pantheon_boon_event_follower } clear_saved_scope = pantheon_boon_event_follower }
+			scope:pantheon_target = { save_scope_as = pantheon_boon_event_follower }
+			pantheon_miracle_awe_effect = { AMOUNT = 10 }
+			clear_saved_scope = pantheon_boon_event_follower
+		}
+		else = {
+			scope:pantheon_target = {
+				add_character_modifier = { modifier = pantheon_avenged years = 10 }
+				add_opinion = { target = root modifier = pantheon_avenged_opinion years = 10 }
+				pantheon_clear_grievance_effect = yes
+			}
 		}
 		# 2.2.1 (#4): the avenged suppliant shows as Blessed for the usual blessing period
 		pantheon_mark_timed_blessing_effect = { KEY = prayer VALUE = yes }
 		set_variable = { name = pantheon_offering value = var:pantheon_last_wrath_cost }
-		change_variable = { name = pantheon_offering multiply = 0.5 }
+		if = {
+			limit = { has_variable = pantheon_great_prayer_unasked }
+			change_variable = { name = pantheon_offering multiply = 1 }
+		}
+		else = {
+			change_variable = { name = pantheon_offering multiply = 0.5 }
+		}
 		change_variable = { name = pantheon_worship add = var:pantheon_offering }
 		send_interface_toast = {
 			type = event_toast_effect_good
@@ -388,7 +463,34 @@ pantheon_great_prayer_answered_effect = {
 		}
 		pantheon_wrath_awe_sweep_effect = yes
 	}
-	set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
+	# the 2-year cooldown follows an ASKED prayer only (2.5: an unasked answer starts none)
+	if = {
+		limit = { NOT = { has_variable = pantheon_great_prayer_unasked } }
+		set_variable = { name = pantheon_great_prayer_cooldown value = yes years = 2 }
+	}
 	pantheon_end_oath_effect = yes
 	pantheon_ui_refresh_if_open_effect = yes
+}
+
+# 2.5 repair 1: an unsworn grievance whose offender has died is forgotten (the window named the dead for years). The same
+# pool as the prayer pick (the god's faith's rulers and the god's courtiers); a sworn suppliant is left to the oath upkeep,
+# which runs first. Root is the god. Run by the monthly upkeep (pantheon.0011).
+pantheon_grievance_dead_upkeep_effect = {
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			has_variable = pantheon_grievance
+			NOT = { var:pantheon_grievance_target ?= { is_alive = yes } }
+			NOT = { root = { var:pantheon_great_prayer_suppliant ?= prev } }
+		}
+		pantheon_clear_grievance_effect = yes
+	}
+	every_courtier = {
+		limit = {
+			has_variable = pantheon_grievance
+			NOT = { var:pantheon_grievance_target ?= { is_alive = yes } }
+			NOT = { root = { var:pantheon_great_prayer_suppliant ?= prev } }
+		}
+		pantheon_clear_grievance_effect = yes
+	}
 }

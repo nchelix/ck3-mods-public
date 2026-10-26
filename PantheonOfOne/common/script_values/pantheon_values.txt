@@ -169,6 +169,11 @@ pantheon_prayer_cost = {
 		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
 		value = pantheon_cost_freedom
 	}
+	# 2.5: a relative's prayer for a jailed loved one (need 10) costs the same as Freedom
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 10 } }
+		value = pantheon_cost_freedom
+	}
 }
 
 # 2.4 Freedom: the ordinary prayer's price (and Bless: Freedom's, and freeing a demigod), house pattern.
@@ -249,6 +254,21 @@ pantheon_freedom_devotion = {
 	add = 20
 	min = 20
 	max = 80
+}
+
+# 2.5: the freed prisoner's Devotion when a relative's prayer or kind 7 freed them, only if they share the god's faith.
+pantheon_kin_freed_devotion = {
+	value = 20
+}
+
+# 2.5: which relative prays. In the relative's scope: their Devotion, 0 when unset (pantheon_ui_devotion defaults to 50,
+# which would rank an unknown relative above a devout one).
+pantheon_kin_devotion_score = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_devotion }
+		value = var:pantheon_devotion
+	}
 }
 
 pantheon_worship_after_cost_freedom = {
@@ -806,4 +826,39 @@ pantheon_ui_open_prayer_count = {
 	add = pantheon_ui_count_prayers
 	add = pantheon_ui_count_retris
 	add = pantheon_ui_count_great
+}
+
+# 2.5 (Task 2): refusals and broken oaths scale with the wrong, as the boon refusals do. Kinds: 1 murdered kin, 2 lost a
+# war, 3 holy site seized, 4 imprisoned, 5 tortured, 6 raided. Unknown (0 or none, e.g. an oath sworn before 2.5) costs the old flat numbers.
+# SUPPLIANT scope: the Devotion a refused Great Prayer costs, by their grievance kind.
+pantheon_great_prayer_refusal = {
+	value = -30
+	if = { limit = { var:pantheon_grievance_kind ?= 1 } value = -50 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 5 } value = -45 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 3 } value = -40 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 4 } value = -30 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 2 } value = -25 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 6 } value = -15 }
+}
+
+# GOD scope: the Devotion a broken oath costs, by the kind snapshotted when it was sworn.
+pantheon_oath_broken_loss = {
+	value = -60
+	if = { limit = { var:pantheon_great_prayer_kind ?= 1 } value = -90 }
+	else_if = { limit = { var:pantheon_great_prayer_kind ?= 5 } value = -80 }
+	else_if = { limit = { var:pantheon_great_prayer_kind ?= 3 } value = -70 }
+	else_if = { limit = { var:pantheon_great_prayer_kind ?= 4 } value = -60 }
+	else_if = { limit = { var:pantheon_great_prayer_kind ?= 2 } value = -50 }
+	else_if = { limit = { var:pantheon_great_prayer_kind ?= 6 } value = -30 }
+}
+
+# SUPPLIANT scope: the same table read before an oath exists (the swear tooltip, the answer tooltip), by their grievance kind.
+pantheon_oath_broken_loss_preview = {
+	value = -60
+	if = { limit = { var:pantheon_grievance_kind ?= 1 } value = -90 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 5 } value = -80 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 3 } value = -70 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 4 } value = -60 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 2 } value = -50 }
+	else_if = { limit = { var:pantheon_grievance_kind ?= 6 } value = -30 }
 }

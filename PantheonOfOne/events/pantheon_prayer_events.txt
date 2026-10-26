@@ -131,6 +131,11 @@ pantheon.0060 = {
 				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
 				desc = pantheon.0060.desc_freedom
 			}
+			# 2.5: a relative prays for a jailed loved one (names the prisoner, not the suppliant, as the one in a cell)
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 10 } }
+				desc = pantheon.0060.desc_kin_freedom
+			}
 			desc = pantheon.0060.desc_gift
 		}
 		triggered_desc = {
@@ -203,6 +208,11 @@ pantheon.0060 = {
 		if = {
 			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 9 } }
 			custom_tooltip = pantheon_worship_line_freedom_devotion
+		}
+		# 2.5 (R6): the kin prayer names what the RELATIVE and the PRISONER gain (read on the prisoner), not need 9's line
+		if = {
+			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 10 } }
+			custom_tooltip = pantheon_worship_line_kin_freedom
 		}
 	}
 

@@ -42,15 +42,39 @@ pantheon.0070 = {
 	# stays sworn and the Prayers tab's "Open the Judgement" answers it later). Never greyed, so 0070 has at most 4 options.
 	option = {
 		name = pantheon.0070.later
-		trigger = { pantheon_wrath_oath_page_trigger = yes }
+		trigger = {
+			pantheon_wrath_oath_page_trigger = yes
+			NOT = { has_variable = pantheon_great_prayer_unasked }
+		}
 		custom_tooltip = pantheon.0070.later.tt
+	}
+
+	# 2.5 (R7): the same page for an oath sworn UNASKED (the Followers row's answer). Leaving it withdraws the oath, which
+	# costs nothing; only on the unasked oath's own page (both conditions), so 0071-0073's Back stays plain navigation.
+	option = {
+		name = pantheon.0070.later_unasked
+		trigger = {
+			pantheon_wrath_oath_page_trigger = yes
+			has_variable = pantheon_great_prayer_unasked
+		}
+		custom_tooltip = pantheon.0070.later_unasked.tt
+		hidden_effect = { pantheon_unasked_withdraw_effect = yes }
 	}
 
 	# Stay: a broken oath (-60) only on the SWORN OATH's own page, about the sworn offender (context 1); on any other route
 	# (a Retribution call's Back -> 0070, ...) Stay just closes the page and the oath stays open.
 	option = {
 		name = pantheon.0070.stay
+		# 2.5 (R7): an UNASKED oath, on its own page, is withdrawn for free (no broken-oath cost)
 		if = {
+			limit = {
+				pantheon_wrath_oath_page_trigger = yes
+				has_variable = pantheon_great_prayer_unasked
+			}
+			custom_tooltip = pantheon.0070.stay_unasked.tt
+			hidden_effect = { pantheon_unasked_withdraw_effect = yes }
+		}
+		else_if = {
 			limit = { pantheon_wrath_oath_page_trigger = yes }
 			custom_tooltip = pantheon.0070.stay_oath.tt
 			hidden_effect = { pantheon_broken_oath_effect = yes }

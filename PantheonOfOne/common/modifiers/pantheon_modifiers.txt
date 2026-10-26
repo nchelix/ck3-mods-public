@@ -90,6 +90,13 @@ pantheon_avenged = {
 	monthly_prestige_gain_mult = 0.25
 }
 
+# 2.5: the god answered their grievance before they asked (1.5x pantheon_avenged, given with years = 20).
+pantheon_foreseen = {
+	icon = piety_positive
+	monthly_piety_gain_mult = 0.375
+	monthly_prestige_gain_mult = 0.375
+}
+
 # 1.6: a demigod serving a follower's court for the god; the tooltip shows the end date.
 pantheon_lent = {
 	icon = prestige_positive

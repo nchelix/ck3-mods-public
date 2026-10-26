@@ -1,5 +1,22 @@
 # Changelog — Pantheon of One
 
+## [2.5] — 2026-10-25
+
+Prayers and consequences: kin pray for the jailed, you can answer a grievance before it is asked, a refusal costs as much as the wrong, and your judgement is remembered.
+
+### Added
+- Kin pray for a jailed loved one (#27). When a follower's child, parent, sibling or spouse sits in someone else's prison and cannot pray for themselves (a child, a baby, a landless relative, someone of another faith), the most devout adult among those relatives who cares about them prays for their release. Grant it and the prisoner walks free; both of them think better of you, and the prisoner gains Devotion if they share your faith. A prisoner in line to an enemy war leader is freed through a devout relative's Great Prayer instead.
+- Answer a grievance unasked (#33). A follower who holds a grievance shows an Answer button on the Followers tab. It opens the same Judgement their Great Prayer would, any time and whatever the Great Prayer cooldown. Answer it and they are Foreseen by the god (stronger than Avenged, for 20 years), the whole Worship price comes back, and the faith is in awe. Backing out costs nothing. Unavailable while another oath is sworn.
+- Judgement leaves a grudge (#35). Whoever you maim, blind, wound or curse holds it against you, and so do the kin of anyone you strike down (devout kin less so). Striking someone's lands upsets them only if they follow you: to anyone else it is an act of God.
+
+### Changed
+- Refusals cost as much as the wrong (#34). Refusing a Great Prayer, or swearing vengeance and staying your hand, now costs Devotion by the grievance: a murdered relative -50 / -90, torture -45 / -80, a holy site lost -40 / -70, a cell -30 / -60, a lost war -25 / -50, a raid -15 / -30. Every tooltip and notice shows the real amount.
+- Blessing yourself offers only what a god can use (#22): the realm blessings, the Host, Freedom, Fertility and Blessed lineage. The four gifts and Vigor are gone from your own list.
+- Divine Conception is now a Bless option (#28), with the same rules and price; its separate right-click entry and window button are gone.
+
+### Fixed
+- The validator no longer reports the Struck down death icon as missing (#31; it was always there).
+
 ## [2.4.1] — 2026-10-23
 
 The faith follows its god.

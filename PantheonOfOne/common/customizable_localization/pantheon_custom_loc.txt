@@ -136,6 +136,7 @@ pantheon_prayer_need_words = {
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 7 } localization_key = pantheon_prayer_need_healing }
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 8 } localization_key = pantheon_prayer_need_spouse }
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 9 } localization_key = pantheon_prayer_need_freedom }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 10 } localization_key = pantheon_prayer_need_kin_freedom }
 	text = { fallback = yes localization_key = pantheon_prayer_need_gift }
 }
 
@@ -146,4 +147,17 @@ pantheon_dissolve_reason_words = {
 	text = { trigger = { pantheon_dissolve_reason = 3 } localization_key = pantheon_dissolve_reason_left_faith }
 	text = { trigger = { pantheon_dissolve_reason = 2 } localization_key = pantheon_dissolve_reason_sour }
 	text = { fallback = yes localization_key = pantheon_dissolve_reason_choice }
+}
+
+# 2.5 (Task 5): the wrong a follower's grievance names, in words, for the Answer button's tooltip
+# ([Character.Custom('pantheon_grievance_words')]). Reads pantheon_grievance_kind on the character (0 / unset = unknown).
+pantheon_grievance_words = {
+	type = character
+	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 1 } localization_key = pantheon_grievance_words_1 }
+	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 2 } localization_key = pantheon_grievance_words_2 }
+	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 3 } localization_key = pantheon_grievance_words_3 }
+	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 4 } localization_key = pantheon_grievance_words_4 }
+	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 5 } localization_key = pantheon_grievance_words_5 }
+	text = { trigger = { has_variable = pantheon_grievance_kind var:pantheon_grievance_kind = 6 } localization_key = pantheon_grievance_words_6 }
+	text = { fallback = yes localization_key = pantheon_grievance_words_0 }
 }

@@ -27,6 +27,11 @@ pantheon_avenged_opinion = {
 	opinion = 30
 }
 
+# 2.5: the god answered their grievance before they asked (1.5x pantheon_avenged_opinion; 20 years, given with years = 20).
+pantheon_foreseen_opinion = {
+	opinion = 45
+}
+
 # 2.4: the god freed a prisoner of theirs (10 years, given with years = 10). A jailer of the god's faith holds it lightly.
 pantheon_thwarted_jailer_opinion = {
 	opinion = -40
@@ -34,6 +39,17 @@ pantheon_thwarted_jailer_opinion = {
 
 pantheon_thwarted_jailer_believer_opinion = {
 	opinion = -15
+}
+
+# 2.5: a relative's prayer or Great Prayer freed a prisoner. The RELATIVE who prayed gets this one ("freed my kin")
+# (+20 for 10 years, given with years = 10).
+pantheon_miracle_release_opinion = {
+	opinion = 20
+}
+
+# 2.5 repair 1: the freed PRISONER's own opinion of the god ("set me free"), so the tooltip reads from their side.
+pantheon_miracle_freed_me_opinion = {
+	opinion = 20
 }
 
 # 2.4: the god dissolved a union with their child (10 years, given with years = 10). The sour or landless match, and a
@@ -44,4 +60,51 @@ pantheon_dissolved_opinion = {
 
 pantheon_dissolved_choice_opinion = {
 	opinion = -40
+}
+
+# 2.5 (Task 4): the grudges Judgement leaves, opinion only. Pantheon-own because vanilla's maimed_me and blinded_me carry
+# imprisonment_reason = yes (00_crime_and_prison_opinions.txt:443-465), which would make the grudge a ground for
+# imprisoning the god: a crime, and the spec says opinion only. Same numbers and form as vanilla (decaying = yes with the
+# duration in years, as maimed_me); none sets imprisonment_reason or revoke_title_reason.
+pantheon_judged_maimed_opinion = {
+	opinion = -50
+	decaying = yes
+	years = 50
+}
+
+pantheon_judged_blinded_opinion = {
+	opinion = -50
+	decaying = yes
+	years = 50
+}
+
+pantheon_judged_wounded_opinion = {
+	opinion = -30
+	decaying = yes
+	years = 20
+}
+
+# A curse is not decaying: given with years = 10
+pantheon_judged_cursed_opinion = {
+	opinion = -30
+}
+
+# Kin of one the god struck down; the devout among them mourn but accept the judgement
+pantheon_judged_kin_slain_opinion = {
+	opinion = -30
+	decaying = yes
+	years = 25
+}
+
+pantheon_judged_kin_slain_devout_opinion = {
+	opinion = -10
+	decaying = yes
+	years = 10
+}
+
+# A follower whose lands the god struck (a non-follower does not acknowledge the god, so gets none)
+pantheon_judged_lands_opinion = {
+	opinion = -15
+	decaying = yes
+	years = 10
 }

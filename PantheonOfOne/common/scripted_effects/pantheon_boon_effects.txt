@@ -5,6 +5,12 @@
 # A replacement passes through here too: its old target and _offered are cleared, and no retry delay starts.
 pantheon_boon_new_request_effect = {
 	save_temporary_scope_as = pantheon_boon_req
+	# 2.5 (R10): a held kind 7 raised by kin names a prisoner whose reservation this replacement would orphan: release it
+	# (ownership-checked, shared with the clear and the record close) BEFORE the kind and the target are overwritten.
+	if = {
+		limit = { var:pantheon_aspiration_kind ?= 7 has_variable = pantheon_aspiration_target }
+		var:pantheon_aspiration_target ?= { pantheon_kin_release_reservation_effect = { HOLDER = scope:pantheon_boon_req } }
+	}
 	root = {
 		if = { limit = { NOT = { has_variable = pantheon_boon_request_seq } } set_variable = { name = pantheon_boon_request_seq value = 0 } }
 		change_variable = { name = pantheon_boon_request_seq add = 1 }
@@ -23,6 +29,13 @@ pantheon_boon_new_request_effect = {
 
 # In the follower's scope: every variable of the aspiration goes
 pantheon_clear_aspiration_effect = {
+	# 2.5 (R3): a kind 7 raised by kin ends (grant, refusal, expiry, invalidation): release the prisoner's reservation, with
+	# the ownership check, BEFORE the target goes
+	if = {
+		limit = { var:pantheon_aspiration_kind ?= 7 has_variable = pantheon_aspiration_target }
+		save_temporary_scope_as = pantheon_kin_holder
+		var:pantheon_aspiration_target ?= { pantheon_kin_release_reservation_effect = { HOLDER = scope:pantheon_kin_holder } }
+	}
 	if = { limit = { has_variable = pantheon_aspiration } remove_variable = pantheon_aspiration }
 	if = { limit = { has_variable = pantheon_aspiration_live } remove_variable = pantheon_aspiration_live }
 	if = { limit = { has_variable = pantheon_aspiration_kind } remove_variable = pantheon_aspiration_kind }
@@ -244,10 +257,21 @@ pantheon_boon_act_effect = {
 
 # 2.4 Kind 7, Freedom: the prisoner is released. The Devotion is the existing Great Boon +100 only (R3: one Devotion
 # total; the ransom-scaled Devotion belongs to the ordinary prayer and Bless). Root is the god.
+#
+# 2.5: raised by kin, the aspiration names the prisoner (pantheon_aspiration_target): the TARGET is freed, and the extras
+# (both gain opinion, the prisoner gains Devotion if of the faith) follow. Held by the prisoner themselves, no target: today.
 pantheon_boon_freedom_act_effect = {
 	if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
-	scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
-	pantheon_free_prisoner_core_effect = yes
+	if = {
+		limit = { scope:pantheon_boon_event_follower = { exists = var:pantheon_aspiration_target } }
+		scope:pantheon_boon_event_follower = { var:pantheon_aspiration_target ?= { save_scope_as = pantheon_target } }
+		pantheon_free_prisoner_core_effect = yes
+		pantheon_kin_freedom_extras_effect = { RELATIVE = scope:pantheon_boon_event_follower PRISONER = scope:pantheon_target }
+	}
+	else = {
+		scope:pantheon_boon_event_follower = { save_scope_as = pantheon_target }
+		pantheon_free_prisoner_core_effect = yes
+	}
 }
 
 # Raise my house: vanilla title creation (as `created`, proven in Task 0); vassals and counties are unchanged

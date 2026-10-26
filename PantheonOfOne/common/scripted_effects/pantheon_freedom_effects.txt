@@ -14,6 +14,16 @@ pantheon_freedom_pass_effect = {
 			pantheon_freedom_one_effect = yes
 		}
 	}
+	# 2.5 (Task 3): a relative prays for a jailed loved one who cannot pray for themselves (need 10), or, for a valuable
+	# prisoner who cannot hold their own Great Prayer, holds the Great Prayer for them (kind 7). Before kind 7 is offered
+	# below, so one made this tick is offered this tick.
+	every_ruler = {
+		limit = { any_prisoner = { OR = { pantheon_kin_jailed_trigger = yes pantheon_kin_valuable_trigger = yes } } }
+		every_prisoner = {
+			limit = { OR = { pantheon_kin_jailed_trigger = yes pantheon_kin_valuable_trigger = yes } }
+			pantheon_kin_one_effect = yes
+		}
+	}
 	# 2.4 repair 1 (R6): a follower who holds a live, unoffered kind 7 (Great Prayer for Freedom) is offered at once, when the
 	# god has no Great Boon event open. It ignores the 182-day tick and the shared Great Prayer cooldown (which a grant or
 	# a refusal still sets). One per pass; same hand-off as pantheon_pick_great_boon_effect.
@@ -80,6 +90,148 @@ pantheon_freedom_one_effect = {
 			NOT = { has_variable = pantheon_freedom_retry }
 		}
 		pantheon_boon_new_request_effect = { KIND = 7 }
+	}
+}
+
+# 2.5 Task 3, in the PRISONER's scope; root is the god. One prisoner of the pass above. Asks who prays:
+# - the ordinary route (pantheon_kin_jailed_trigger): the most devout qualifying relative opens need 10, the ordinary
+#   prayer, and gets the six-prayer cap and an open-prayer guard like the need-9 pass;
+# - the valuable route (pantheon_kin_valuable_trigger): the most devout qualifying relative who may hold a Great Prayer
+#   (Devotion 90+) holds kind 7 with the prisoner as its target, the kind-2 pattern. It replaces any aspiration (no guard
+#   on one held), is skipped when they already hold kind 7, honours the 2-year pantheon_freedom_retry an ending Freedom
+#   sets, and ignores the cap, as the self route does.
+# One reservation per prisoner (R3): pantheon_kin_prayer_for on the prisoner = the relative, set by both routes. A live
+# reservation (pantheon_kin_reservation_live_trigger) skips the prisoner; a dead one is overwritten by the next pick.
+# pantheon_kin_asked (1 year, set when a reservation ends) stops an immediate re-petition.
+# The four relations (R2) are gathered from the prisoner's scope by four iterators: every_parent, every_sibling,
+# every_child, every_spouse (effects.log 4896, 5137, 4398, 5151; vanilla 00_bastard_effects.txt:551, 591, 570 and
+# 00_adultery_effects.txt:57), each into a temporary list guarded by is_in_list (00_bastard_effects.txt:619), which also
+# keeps a relative who is two relations at once once. The list is walked with ordered_in_list (effects.log 1707; vanilla
+# 00_diarchy_scripted_effects.txt:1251). A list name outlives one prisoner inside the pass, so every candidate is re-checked
+# against THIS prisoner by the intercessor trigger.
+pantheon_kin_one_effect = {
+	if = {
+		limit = {
+			NOT = { has_variable = pantheon_kin_asked }
+			NOT = { pantheon_kin_reservation_live_trigger = yes }
+		}
+		save_temporary_scope_as = pantheon_kin_cand_prisoner
+		if = {
+			limit = {
+				pantheon_kin_jailed_trigger = yes
+				root = {
+					OR = {
+						NOT = { has_variable_list = pantheon_open_prayers }
+						AND = { has_variable_list = pantheon_open_prayers NOT = { variable_list_size = { name = pantheon_open_prayers value >= 6 } } }
+					}
+				}
+			}
+			every_parent = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			every_sibling = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			every_child = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			every_spouse = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			ordered_in_list = {
+				list = pantheon_kin_candidates
+				limit = {
+					pantheon_kin_intercessor_trigger = { PRISONER = scope:pantheon_kin_cand_prisoner GOD = root }
+					NOT = { has_variable = pantheon_prayer_open }
+				}
+				order_by = pantheon_kin_devotion_score
+				max = 1
+				set_variable = { name = pantheon_prayer_need value = 10 }
+				set_variable = { name = pantheon_prayer_kin value = scope:pantheon_kin_cand_prisoner }
+				scope:pantheon_kin_cand_prisoner = { set_variable = { name = pantheon_kin_prayer_for value = prev } }
+				save_scope_as = pantheon_suppliant
+				root = { pantheon_deliver_prayer_effect = yes }
+			}
+		}
+		else_if = {
+			limit = { pantheon_kin_valuable_trigger = yes }
+			every_parent = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			every_sibling = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			every_child = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			every_spouse = { limit = { NOT = { is_in_list = pantheon_kin_candidates } } add_to_temporary_list = pantheon_kin_candidates }
+			ordered_in_list = {
+				list = pantheon_kin_candidates
+				limit = {
+					pantheon_kin_intercessor_trigger = { PRISONER = scope:pantheon_kin_cand_prisoner GOD = root }
+					pantheon_boon_eligible_trigger = { GOD = root }
+					NOT = { var:pantheon_aspiration_kind ?= 7 }
+					NOT = { has_variable = pantheon_freedom_retry }
+				}
+				order_by = pantheon_kin_devotion_score
+				max = 1
+				pantheon_boon_new_request_effect = { KIND = 7 }
+				set_variable = { name = pantheon_aspiration_target value = scope:pantheon_kin_cand_prisoner }
+				scope:pantheon_kin_cand_prisoner = { set_variable = { name = pantheon_kin_prayer_for value = prev } }
+			}
+		}
+	}
+}
+
+# 2.5 R3/R10, in the PRISONER's scope; root is the god. $HOLDER$ is the relative whose prayer or kind 7 is ending (a scope
+# reference). If the prisoner's reservation points back at that relative, it is released and the prisoner is not asked
+# again for a year; a reservation that already belongs to another relative is left alone (the ownership check). Run by
+# the record close (need 10), pantheon_clear_aspiration_effect (kind 7: grant, refusal, expiry, invalidation) and
+# pantheon_boon_new_request_effect (a replacement).
+pantheon_kin_release_reservation_effect = {
+	if = {
+		limit = { var:pantheon_kin_prayer_for ?= { this = $HOLDER$ } }
+		remove_variable = pantheon_kin_prayer_for
+		set_variable = { name = pantheon_kin_asked value = yes years = 1 }
+	}
+}
+
+# 2.5: what both a relative's answered prayer (need 10) and a relative's answered kind 7 add: the relative and the freed
+# prisoner both gain opinion of the god (the relative "freed my kin", the prisoner "set me free"), and a prisoner of the god's faith gains Devotion. Root is
+# the god; $RELATIVE$ and $PRISONER$ are scope references. Leaves scope:pantheon_target = the prisoner.
+pantheon_kin_freedom_extras_effect = {
+	$RELATIVE$ = { save_temporary_scope_as = pantheon_kin_extra_relative }
+	$PRISONER$ = { save_temporary_scope_as = pantheon_kin_extra_prisoner }
+	scope:pantheon_kin_extra_relative = { add_opinion = { target = root modifier = pantheon_miracle_release_opinion years = 10 } }
+	scope:pantheon_kin_extra_prisoner = { add_opinion = { target = root modifier = pantheon_miracle_freed_me_opinion years = 10 } }
+	if = {
+		limit = { scope:pantheon_kin_extra_prisoner = { faith = root.faith } }
+		if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+		scope:pantheon_kin_extra_prisoner = { save_scope_as = pantheon_target }
+		pantheon_change_devotion_effect = { AMOUNT = pantheon_kin_freed_devotion }
+	}
+}
+
+# 2.5: the answer to need 10. Root is the god; scope:pantheon_suppliant is the relative who prayed and var:pantheon_prayer_kin
+# on them the prisoner. Charges NOTHING (the dispatcher charges the record's stored price). The relative's Devotion is the
+# ransom-scaled pantheon_freedom_devotion READ IN THE PRISONER'S SCOPE BEFORE RELEASE (the jailer still counts for the
+# ransom) and applied to the relative (pantheon_change_devotion_effect reads $AMOUNT$ in scope:pantheon_target, so the value
+# is saved first). Then release, the extras, and the Freedom blessing mark for a prisoner of the faith. scope:pantheon_target
+# is the relative again at the end, as the dispatcher left it. Does nothing if the prisoner is no longer in a cell.
+pantheon_grant_kin_freedom_effect = {
+	scope:pantheon_suppliant = {
+		save_temporary_scope_as = pantheon_kin_grant_relative
+		var:pantheon_prayer_kin ?= { save_temporary_scope_as = pantheon_kin_grant_prisoner }
+	}
+	if = {
+		limit = {
+			exists = scope:pantheon_kin_grant_prisoner
+			scope:pantheon_kin_grant_prisoner = { is_imprisoned = yes }
+		}
+		scope:pantheon_kin_grant_prisoner = {
+			save_temporary_scope_value_as = { name = pantheon_kin_grant_devotion value = pantheon_freedom_devotion }
+		}
+		if = { limit = { exists = scope:pantheon_target } clear_saved_scope = pantheon_target }
+		scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+		pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_kin_grant_devotion }
+		clear_saved_scope = pantheon_target
+		scope:pantheon_kin_grant_prisoner = { save_scope_as = pantheon_target }
+		pantheon_free_prisoner_core_effect = yes
+		pantheon_kin_freedom_extras_effect = { RELATIVE = scope:pantheon_kin_grant_relative PRISONER = scope:pantheon_kin_grant_prisoner }
+		if = {
+			limit = { scope:pantheon_kin_grant_prisoner = { faith = root.faith } }
+			clear_saved_scope = pantheon_target
+			scope:pantheon_kin_grant_prisoner = { save_scope_as = pantheon_target }
+			pantheon_mark_timed_blessing_effect = { KEY = freedom VALUE = yes }
+		}
+		clear_saved_scope = pantheon_target
+		scope:pantheon_kin_grant_relative = { save_scope_as = pantheon_target }
 	}
 }
 

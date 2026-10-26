@@ -560,6 +560,12 @@ pantheon_grant_prayer_effect = {
 				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
 				pantheon_grant_freedom_effect = yes
 			}
+			# 2.5: a relative's prayer for a jailed loved one. It pays its own Devotion (the relative's, read on the prisoner)
+			# and the extras, and charges nothing (the stored price is charged below).
+			else_if = {
+				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 10 } }
+				pantheon_grant_kin_freedom_effect = yes
+			}
 			set_variable = {
 				name = pantheon_worship
 				value = {
@@ -581,9 +587,10 @@ pantheon_grant_prayer_effect = {
 				}
 				pantheon_ensure_devotion_effect = { START = 60 }
 			}
-			# 2.4 (R3): Freedom's Devotion (pantheon_freedom_devotion) is the WHOLE reward: no generic +20 on top
+			# 2.4 (R3): Freedom's Devotion (pantheon_freedom_devotion) is the WHOLE reward: no generic +20 on top. 2.5: nor for
+			# the kin prayer (need 10), whose Devotion is the same value, read on the prisoner.
 			else_if = {
-				limit = { NOT = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 9 } } }
+				limit = { NOT = { scope:pantheon_suppliant = { OR = { var:pantheon_prayer_need ?= 9 var:pantheon_prayer_need ?= 10 } } } }
 				pantheon_change_devotion_effect = { AMOUNT = 20 }
 			}
 			if = {
@@ -595,9 +602,9 @@ pantheon_grant_prayer_effect = {
 				}
 				scope:pantheon_suppliant = { remove_variable = pantheon_was_stranger }
 			}
-			# Freedom has its own toast (pantheon_grant_freedom_effect); the generic one names a flat +20
+			# Freedom has its own toast (pantheon_grant_freedom_effect, and the core the kin prayer calls); the generic one names a flat +20
 			else_if = {
-				limit = { NOT = { scope:pantheon_suppliant = { var:pantheon_prayer_need ?= 9 } } }
+				limit = { NOT = { scope:pantheon_suppliant = { OR = { var:pantheon_prayer_need ?= 9 var:pantheon_prayer_need ?= 10 } } } }
 				send_interface_toast = {
 					type = event_toast_effect_good
 					title = pantheon_prayer_granted_t
