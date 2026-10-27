@@ -1,0 +1,20 @@
+﻿# 2.7 repair round 3: the follower alert messages. The vanilla event_generic_bad_text type files its messages under the
+# event_outcome filter, which is shown as a toast; these two sit under pantheon_followers instead, which is a feed filter
+# (common/message_filter_types/pantheon_message_filter_types.txt). No icon field: the feed uses its default icon (the validator
+# reads any icon = here as a character_interactions icon and cannot find message_feed/generic_bad_effect).
+# pantheon_follower_message: title and description only.
+pantheon_follower_message = {
+	title = event_message_title
+	desc = event_message_text
+	style = bad
+	message_filter_type = pantheon_followers
+}
+
+# pantheon_follower_message_list: the description, then the effect lines (the grouped message lists its followers by
+# custom_tooltip, like vanilla event_generic_bad_with_text).
+pantheon_follower_message_list = {
+	title = event_message_title
+	desc = event_message_text_and_effect
+	style = bad
+	message_filter_type = pantheon_followers
+}

@@ -20,3 +20,155 @@ action_pantheon_prayers_waiting = {
 
 	effect = {}
 }
+
+# 2.7 (#58): the top alerts for followers slipping away (Lapsing) and gone (left). They only read: the god's own lists, no
+# writes. The god is saved first because the mode values read scope:pantheon_alert_god (a leaver has no pantheon_glance_god).
+# A reform straggler never shows here (it has pantheon_alert_reform and no recent_left marker). Clicking opens the follower.
+# No icon field: type = action shows in the situation list, and the validator reads any icon = as a character_interactions icon.
+action_pantheon_followers_lapsing = {
+	type = action
+	combine_into_one = yes
+
+	check_create_action = {
+		if = {
+			limit = { has_trait = pantheon_divine }
+			save_temporary_scope_as = pantheon_alert_god
+			every_in_list = {
+				variable = pantheon_glance_marked
+				limit = {
+					is_alive = yes
+					faith = root.faith
+					pantheon_alert_lapsing_trigger = yes
+					pantheon_alert_mode_lapse = 2
+				}
+				try_create_important_action = {
+					important_action_type = action_pantheon_followers_lapsing
+					actor = root
+					recipient = this
+				}
+			}
+		}
+	}
+
+	effect = {
+		scope:recipient = { open_view_data = { view = character } }
+	}
+}
+
+action_pantheon_followers_left = {
+	type = action
+	combine_into_one = yes
+
+	check_create_action = {
+		if = {
+			limit = { has_trait = pantheon_divine }
+			save_temporary_scope_as = pantheon_alert_god
+			every_in_list = {
+				variable = pantheon_lost
+				limit = {
+					is_alive = yes
+					NOT = { faith = root.faith }
+					has_variable = pantheon_alert_recent_left
+					NOT = { has_variable = pantheon_alert_reform }
+					pantheon_alert_mode_left = 2
+				}
+				try_create_important_action = {
+					important_action_type = action_pantheon_followers_left
+					actor = root
+					recipient = this
+				}
+			}
+		}
+	}
+
+	effect = {
+		scope:recipient = { open_view_data = { view = character } }
+	}
+}
+
+# 2.7 repair round 3: the top-bar diamonds. type = action only fills the Current Situation list and an alert makes one
+# diamond per important action with no grouping, so each kind gets ONE alert type, created once when anyone qualifies (the
+# same conditions as the list types above). The recipient is picked stably (lowest Devotion / latest departure first), the
+# click opens that follower, and the label shows the count (pantheon_alert_count_*).
+action_pantheon_followers_lapsing_alert = {
+	type = alert
+
+	check_create_action = {
+		if = {
+			limit = {
+				has_trait = pantheon_divine
+				pantheon_alert_count_lapsing > 0
+			}
+			save_temporary_scope_as = pantheon_alert_god
+			ordered_in_list = {
+				variable = pantheon_glance_marked
+				limit = {
+					is_alive = yes
+					faith = root.faith
+					pantheon_alert_lapsing_trigger = yes
+					pantheon_alert_mode_lapse = 2
+				}
+				order_by = {
+					value = 1000
+					if = {
+						limit = { has_variable = pantheon_devotion }
+						subtract = var:pantheon_devotion
+					}
+				}
+				max = 1
+				check_range_bounds = no
+				try_create_important_action = {
+					important_action_type = action_pantheon_followers_lapsing_alert
+					actor = root
+					recipient = this
+				}
+			}
+		}
+	}
+
+	effect = {
+		scope:recipient = { open_view_data = { view = character } }
+	}
+}
+
+action_pantheon_followers_left_alert = {
+	type = alert
+
+	check_create_action = {
+		if = {
+			limit = {
+				has_trait = pantheon_divine
+				pantheon_alert_count_left > 0
+			}
+			save_temporary_scope_as = pantheon_alert_god
+			ordered_in_list = {
+				variable = pantheon_lost
+				limit = {
+					is_alive = yes
+					NOT = { faith = root.faith }
+					has_variable = pantheon_alert_recent_left
+					NOT = { has_variable = pantheon_alert_reform }
+					pantheon_alert_mode_left = 2
+				}
+				order_by = {
+					value = 0
+					if = {
+						limit = { has_variable = pantheon_alert_left_order }
+						add = var:pantheon_alert_left_order
+					}
+				}
+				max = 1
+				check_range_bounds = no
+				try_create_important_action = {
+					important_action_type = action_pantheon_followers_left_alert
+					actor = root
+					recipient = this
+				}
+			}
+		}
+	}
+
+	effect = {
+		scope:recipient = { open_view_data = { view = character } }
+	}
+}

@@ -36,6 +36,16 @@ pantheon_lead_new_faith_effect = {
 			set_character_faith = $NEW$
 			root = { change_variable = { name = pantheon_faith_moved add = 1 } }
 		}
+		# 2.7 (#58): followers who stay behind at a reform are marked for 60 days, so their departure is reported as one
+		# summary and never as top alerts (the monthly sweep finds them when the trait comes off).
+		every_in_list = {
+			variable = pantheon_glance_marked
+			limit = {
+				is_alive = yes
+				faith = $OLD$
+			}
+			set_variable = { name = pantheon_alert_reform days = 120 }
+		}
 		# 2. The title, BEFORE the god: CK3 silently refuses set_character_faith on the holder of a faith's head title
 		#    (proven in game 2026-10-23; the same refusal is why vanilla leaves the god behind on a reform). The god's
 		#    head title is the old faith's when the god holds it, else the new faith's when the god holds it. Saved

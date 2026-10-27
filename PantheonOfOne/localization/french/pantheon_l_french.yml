@@ -117,8 +117,6 @@
  setting_pantheon_prayers_off_desc: "No one prays to you."
  pantheon_needs_worship_prayer_tt: "Requires Worship equal to the price named in the prayer (you have [GetPlayer.MakeScope.Var('pantheon_worship').GetValue|0])."
  pantheon_needs_worship_sign_tt: "Requires Worship equal to the sign's price named in the prayer (you have [GetPlayer.MakeScope.Var('pantheon_worship').GetValue|0])."
- pantheon_falters_t: "[pantheon_target.GetShortUINameNoTooltip]'s faith in you falters"
- pantheon_turned_away_t: "[pantheon_target.GetShortUINameNoTooltip] has turned from you"
  pantheon_refused_prayer_opinion: "Refused their prayer"
  pantheon.0060.t: "A Prayer"
  pantheon.0060.desc_stranger: "[pantheon_suppliant.GetShortUINameNoTooltip], who does not follow you, kneels at the border of your faith's lands. \"Help me,\" they say, \"and I will follow you.\"\n\n"

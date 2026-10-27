@@ -21,8 +21,33 @@ pantheon_glance_refresh_effect = {
 			}
 			set_variable = { name = pantheon_glance_god value = $GOD$ }
 			pantheon_glance_sync_trait_effect = yes
+			# 2.7 (#58): the Lapsing warning (Devotion under 10), and a follower back from the Lost list
+			pantheon_alert_lapse_check_effect = { GOD = $GOD$ }
+			save_temporary_scope_as = pantheon_alert_self
+			if = {
+				limit = {
+					$GOD$ = {
+						is_target_in_variable_list = {
+							name = pantheon_lost
+							target = scope:pantheon_alert_self
+						}
+					}
+				}
+				pantheon_alert_returned_effect = { GOD = $GOD$ }
+			}
 		}
-		else = { pantheon_glance_clear_follower_effect = yes }
+		else = {
+			# 2.7 (#58): a follower whose faith is no longer the god is recorded as lost before the trait comes off
+			if = {
+				limit = {
+					has_trait = pantheon_follower
+					is_alive = yes
+					NOT = { faith = $GOD$.faith }
+				}
+				pantheon_alert_mark_left_effect = { GOD = $GOD$ }
+			}
+			pantheon_glance_clear_follower_effect = yes
+		}
 		save_temporary_scope_as = pantheon_glance_holder
 		if = {
 			limit = { has_trait = pantheon_follower }
@@ -121,6 +146,9 @@ pantheon_glance_clear_follower_effect = {
 # purged character left in a list errors on every read) and emptied, then the refreshes put back whoever still has the trait; a
 # list is never edited while it is walked. The known list is only read. (A dead follower keeps the trait but drops off the list.)
 pantheon_glance_sweep_effect = {
+	# 2.7: the god, saved for the alert code (the loops below change scope). The dead leave the Lost and pending lists first.
+	save_temporary_scope_as = pantheon_alert_sweep_god
+	pantheon_alert_prune_effect = yes
 	every_in_list = {
 		variable = pantheon_glance_marked
 		limit = { is_alive = yes }
@@ -136,4 +164,27 @@ pantheon_glance_sweep_effect = {
 		limit = { is_alive = yes }
 		pantheon_glance_refresh_effect = { GOD = root }
 	}
+	# 2.7: anyone on the Lost list who is back in the god faith is taken off it (a walked copy; a backfilled returner sits in
+	# neither list above, so the refreshes cannot reach them).
+	every_in_list = {
+		variable = pantheon_lost
+		limit = {
+			is_alive = yes
+			faith = scope:pantheon_alert_sweep_god.faith
+		}
+		add_to_temporary_list = pantheon_alert_back
+	}
+	every_in_list = {
+		list = pantheon_alert_back
+		pantheon_alert_returned_effect = { GOD = scope:pantheon_alert_sweep_god }
+	}
+	# 2.7: once per god, the followers already gone on an old save join the Lost list (nothing is announced)
+	if = {
+		limit = { NOT = { has_variable = pantheon_alert_backfilled } }
+		pantheon_alert_backfill_effect = yes
+	}
+	# 2.7: the pending lists become feed messages, batched (always last, after every refresh)
+	pantheon_alert_send_effect = yes
+	# 2.7 repair round 3: an open window rebuilds its lists (the Lost followers tab was only built when clicked)
+	pantheon_ui_refresh_if_open_effect = yes
 }

@@ -676,3 +676,20 @@ pantheon_on_game_start_glance = {
 		}
 	}
 }
+
+# 2.7 (#60): once a year, restart either tick chain that has stopped. No root; the god is the player.
+yearly_global_pulse = {
+	on_actions = { pantheon_yearly_tick_safety }
+}
+
+pantheon_yearly_tick_safety = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			pantheon_tick_safety_effect = yes
+		}
+	}
+}

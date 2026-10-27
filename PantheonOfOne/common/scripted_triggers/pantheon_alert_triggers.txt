@@ -1,0 +1,9 @@
+﻿# Pantheon of One 2.7: follower alerts.
+
+# A follower who is about to leave the faith: alive, carries the Follower trait, Devotion below 10. Holder scope.
+pantheon_alert_lapsing_trigger = {
+	is_alive = yes
+	has_trait = pantheon_follower
+	has_variable = pantheon_devotion
+	var:pantheon_devotion < 10
+}

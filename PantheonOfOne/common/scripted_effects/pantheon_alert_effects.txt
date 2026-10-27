@@ -1,0 +1,343 @@
+﻿# Pantheon of One 2.7: follower alerts. Detection writes state (markers and pending lists on the god); the monthly sweep
+# (pantheon_glance_sweep_effect) will turn the pending lists into messages. Nothing here sends a message.
+# Lists: never edit a list while walking it; the dead are pruned by copying the living (pantheon_alert_prune_effect).
+
+# Lapsing: Devotion under 10 warns once (follower scope). Called from pantheon_glance_refresh_effect's follower branch, which
+# every Devotion write reaches (change, yearly drift, monthly sweep), so there is one home for this. $GOD$ is the god.
+# Devotion 25 or more re-arms the warning.
+pantheon_alert_lapse_check_effect = {
+	if = {
+		limit = { has_variable = pantheon_devotion }
+		if = {
+			limit = {
+				pantheon_alert_lapsing_trigger = yes
+				NOT = { has_variable = pantheon_alert_lapse_warned }
+			}
+			set_variable = pantheon_alert_lapse_warned
+			save_temporary_scope_as = pantheon_alert_f_lapse
+			$GOD$ = {
+				if = {
+					limit = {
+						NOT = {
+							is_target_in_variable_list = {
+								name = pantheon_alert_pending_lapse
+								target = scope:pantheon_alert_f_lapse
+							}
+						}
+					}
+					add_to_variable_list = { name = pantheon_alert_pending_lapse target = scope:pantheon_alert_f_lapse }
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				var:pantheon_devotion >= 25
+				has_variable = pantheon_alert_lapse_warned
+			}
+			remove_variable = pantheon_alert_lapse_warned
+		}
+	}
+}
+
+# A follower has left the faith (follower scope; called while they still hold the trait, once, just before it is taken off).
+# Records the year, adds them to the Lost list once, then routes them: a straggler of a reform (pantheon_alert_reform) is
+# reported in a summary and never reaches the top alert; anyone else gets the 91-day top-alert marker and the leaver list.
+pantheon_alert_mark_left_effect = {
+	set_variable = { name = pantheon_alert_left_year value = current_year }
+	save_temporary_scope_as = pantheon_alert_f_left
+	# the god, kept on the leaver: a leaver loses pantheon_glance_god, and the mode values (read without a saved scope by the
+	# top-alert count) fall back to this one
+	$GOD$ = { save_temporary_scope_as = pantheon_alert_left_g }
+	set_variable = { name = pantheon_alert_left_god value = scope:pantheon_alert_left_g }
+	# a strictly increasing departure counter on the god, copied to the leaver: the top alert picks the latest leaver by it
+	# (the year ties within a year)
+	# (guarded reads: a tooltip preview skips set_variable, so nothing reads the counter before it exists)
+	scope:pantheon_alert_left_g = {
+		if = {
+			limit = { NOT = { has_variable = pantheon_alert_left_seq } }
+			set_variable = { name = pantheon_alert_left_seq value = 0 }
+		}
+		if = {
+			limit = { has_variable = pantheon_alert_left_seq }
+			change_variable = { name = pantheon_alert_left_seq add = 1 }
+		}
+	}
+	if = {
+		limit = { scope:pantheon_alert_left_g = { has_variable = pantheon_alert_left_seq } }
+		set_variable = { name = pantheon_alert_left_order value = scope:pantheon_alert_left_g.var:pantheon_alert_left_seq }
+	}
+	$GOD$ = {
+		if = {
+			limit = {
+				NOT = {
+					is_target_in_variable_list = {
+						name = pantheon_lost
+						target = scope:pantheon_alert_f_left
+					}
+				}
+			}
+			add_to_variable_list = { name = pantheon_lost target = scope:pantheon_alert_f_left }
+		}
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_reform }
+		$GOD$ = {
+			if = {
+				limit = {
+					NOT = {
+						is_target_in_variable_list = {
+							name = pantheon_alert_pending_reform
+							target = scope:pantheon_alert_f_left
+						}
+					}
+				}
+				add_to_variable_list = { name = pantheon_alert_pending_reform target = scope:pantheon_alert_f_left }
+			}
+		}
+	}
+	else = {
+		set_variable = { name = pantheon_alert_recent_left value = yes days = 91 }
+		$GOD$ = {
+			if = {
+				limit = {
+					NOT = {
+						is_target_in_variable_list = {
+							name = pantheon_alert_pending_left
+							target = scope:pantheon_alert_f_left
+						}
+					}
+				}
+				add_to_variable_list = { name = pantheon_alert_pending_left target = scope:pantheon_alert_f_left }
+			}
+		}
+	}
+}
+
+# A follower is back in the faith (follower scope): off the Lost list and every pending list, markers gone. The trait comes
+# back through the ordinary refresh. This edits the god lists, so a caller must never be walking one of them.
+pantheon_alert_returned_effect = {
+	save_temporary_scope_as = pantheon_alert_f_back
+	$GOD$ = {
+		if = {
+			limit = { is_target_in_variable_list = { name = pantheon_lost target = scope:pantheon_alert_f_back } }
+			remove_list_variable = { name = pantheon_lost target = scope:pantheon_alert_f_back }
+		}
+		if = {
+			limit = { is_target_in_variable_list = { name = pantheon_alert_pending_lapse target = scope:pantheon_alert_f_back } }
+			remove_list_variable = { name = pantheon_alert_pending_lapse target = scope:pantheon_alert_f_back }
+		}
+		if = {
+			limit = { is_target_in_variable_list = { name = pantheon_alert_pending_left target = scope:pantheon_alert_f_back } }
+			remove_list_variable = { name = pantheon_alert_pending_left target = scope:pantheon_alert_f_back }
+		}
+		if = {
+			limit = { is_target_in_variable_list = { name = pantheon_alert_pending_reform target = scope:pantheon_alert_f_back } }
+			remove_list_variable = { name = pantheon_alert_pending_reform target = scope:pantheon_alert_f_back }
+		}
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_recent_left }
+		remove_variable = pantheon_alert_recent_left
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_left_year }
+		remove_variable = pantheon_alert_left_year
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_left_order }
+		remove_variable = pantheon_alert_left_order
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_left_god }
+		remove_variable = pantheon_alert_left_god
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_reform }
+		remove_variable = pantheon_alert_reform
+	}
+}
+
+# Keep only the living of one of the god lists (god scope; the saved scope pantheon_alert_prune_god is the god). The living
+# are copied to a temporary list, the list is cleared and they are put back, so no list is edited while it is walked. A
+# purged character left in a list errors on every read.
+pantheon_alert_prune_list_effect = {
+	every_in_list = {
+		variable = $LIST$
+		limit = { is_alive = yes }
+		add_to_temporary_list = pantheon_alert_keep_$LIST$
+	}
+	clear_variable_list = $LIST$
+	every_in_list = {
+		list = pantheon_alert_keep_$LIST$
+		save_temporary_scope_as = pantheon_alert_keep_one
+		scope:pantheon_alert_prune_god = {
+			add_to_variable_list = { name = $LIST$ target = scope:pantheon_alert_keep_one }
+		}
+	}
+}
+
+# The dead drop off the Lost list and the three pending lists (god scope).
+pantheon_alert_prune_effect = {
+	save_temporary_scope_as = pantheon_alert_prune_god
+	pantheon_alert_prune_list_effect = { LIST = pantheon_lost }
+	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_lapse }
+	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_left }
+	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_reform }
+}
+
+# Once per god, on the first sweep of a 2.6 save (god scope): the followers already gone (the living in pantheon_known who are
+# not of the god faith, apostates among them) join the Lost list with year 0 ("before 2.7"). They go in no pending list, so
+# nothing is announced. Reads only the god own list, never the whole world.
+pantheon_alert_backfill_effect = {
+	save_temporary_scope_as = pantheon_alert_bf_god
+	every_in_list = {
+		variable = pantheon_known
+		limit = {
+			is_alive = yes
+			NOT = { faith = scope:pantheon_alert_bf_god.faith }
+			NOT = { has_variable = pantheon_alert_left_year }
+		}
+		save_temporary_scope_as = pantheon_alert_bf_one
+		set_variable = { name = pantheon_alert_left_year value = 0 }
+		scope:pantheon_alert_bf_god = {
+			if = {
+				limit = {
+					NOT = {
+						is_target_in_variable_list = {
+							name = pantheon_lost
+							target = scope:pantheon_alert_bf_one
+						}
+					}
+				}
+				add_to_variable_list = { name = pantheon_lost target = scope:pantheon_alert_bf_one }
+			}
+		}
+	}
+	set_variable = pantheon_alert_backfilled
+}
+
+# The monthly sender (god scope; called last by pantheon_glance_sweep_effect). Turns the pending lists into feed messages and
+# always empties all three. The god is saved first: a leaver has lost pantheon_glance_god, and the mode values read
+# scope:pantheon_alert_god. Per kind, only followers whose mode is 1 (Feed) are sent, and only if still true at send time (a
+# Lapsing follower who died, left or recovered is skipped). Up to 3 get a message each; more than 3 get one grouped message
+# whose names are listed by custom_tooltip (the list message type shows description, then effect lines). The count is kept in the god variable
+# pantheon_alert_n (removed after each kind; every read is guarded by has_variable, since CK3 previews option effects
+# without running set_variable) and shown from the saved scope value pantheon_alert_count. A reform summary
+# (pantheon_alert_pending_reform) is one message whatever the settings; the stragglers then lose pantheon_alert_reform.
+pantheon_alert_send_effect = {
+	save_temporary_scope_as = pantheon_alert_god
+
+	# lapse
+	set_variable = { name = pantheon_alert_n value = 0 }
+	every_in_list = {
+		variable = pantheon_alert_pending_lapse
+		limit = {
+			is_alive = yes
+			pantheon_alert_lapsing_trigger = yes
+			faith = scope:pantheon_alert_god.faith
+			pantheon_alert_mode_lapse = 1
+		}
+		add_to_temporary_list = pantheon_alert_batch_lapse
+		scope:pantheon_alert_god = { change_variable = { name = pantheon_alert_n add = 1 } }
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 3 }
+		save_scope_value_as = { name = pantheon_alert_count value = var:pantheon_alert_n }
+		send_interface_message = {
+			type = pantheon_follower_message_list
+			title = pantheon_alert_lapse_group_t
+			desc = pantheon_alert_lapse_group_d
+			every_in_list = {
+				list = pantheon_alert_batch_lapse
+				save_temporary_scope_as = pantheon_alert_target
+				custom_tooltip = { text = pantheon_alert_name_tt }
+			}
+		}
+	}
+	else_if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 0 }
+		every_in_list = {
+			list = pantheon_alert_batch_lapse
+			save_temporary_scope_as = pantheon_alert_target
+			scope:pantheon_alert_god = {
+				send_interface_message = {
+					type = pantheon_follower_message
+					title = pantheon_alert_lapse_t
+					desc = pantheon_alert_lapse_d
+					left_icon = scope:pantheon_alert_target
+				}
+			}
+		}
+	}
+	remove_variable = pantheon_alert_n
+
+	# left
+	set_variable = { name = pantheon_alert_n value = 0 }
+	every_in_list = {
+		variable = pantheon_alert_pending_left
+		limit = {
+			is_alive = yes
+			pantheon_alert_mode_left = 1
+		}
+		add_to_temporary_list = pantheon_alert_batch_left
+		scope:pantheon_alert_god = { change_variable = { name = pantheon_alert_n add = 1 } }
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 3 }
+		save_scope_value_as = { name = pantheon_alert_count value = var:pantheon_alert_n }
+		send_interface_message = {
+			type = pantheon_follower_message_list
+			title = pantheon_alert_left_group_t
+			desc = pantheon_alert_left_group_d
+			every_in_list = {
+				list = pantheon_alert_batch_left
+				save_temporary_scope_as = pantheon_alert_target
+				custom_tooltip = { text = pantheon_alert_name_tt }
+			}
+		}
+	}
+	else_if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 0 }
+		every_in_list = {
+			list = pantheon_alert_batch_left
+			save_temporary_scope_as = pantheon_alert_target
+			scope:pantheon_alert_god = {
+				send_interface_message = {
+					type = pantheon_follower_message
+					title = pantheon_alert_left_t
+					desc = pantheon_alert_left_d
+					left_icon = scope:pantheon_alert_target
+				}
+			}
+		}
+	}
+	remove_variable = pantheon_alert_n
+
+	# reform: one summary whatever the settings, then the stragglers lose the reform marker
+	set_variable = { name = pantheon_alert_n value = 0 }
+	every_in_list = {
+		variable = pantheon_alert_pending_reform
+		limit = { is_alive = yes }
+		add_to_temporary_list = pantheon_alert_batch_reform
+		scope:pantheon_alert_god = { change_variable = { name = pantheon_alert_n add = 1 } }
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 0 }
+		save_scope_value_as = { name = pantheon_alert_count value = var:pantheon_alert_n }
+		send_interface_message = {
+			type = pantheon_follower_message
+			title = pantheon_alert_reform_t
+			desc = pantheon_alert_reform_d
+		}
+		every_in_list = {
+			list = pantheon_alert_batch_reform
+			limit = { has_variable = pantheon_alert_reform }
+			remove_variable = pantheon_alert_reform
+		}
+	}
+	remove_variable = pantheon_alert_n
+
+	clear_variable_list = pantheon_alert_pending_lapse
+	clear_variable_list = pantheon_alert_pending_left
+	clear_variable_list = pantheon_alert_pending_reform
+}

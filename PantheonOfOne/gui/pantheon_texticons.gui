@@ -1,0 +1,22 @@
+﻿# 2.7 repair round 3: the small inline icon in front of the follower alert labels (@pantheon_follower_icon!).
+# Same sizing as vanilla gui/texticons.gui (tributary_icon). Art: AutoSprite (art/pantheon/), built by tools/build_pantheon_icons.py.
+# pantheon_follower_icon: Lapsing (a guttering candle); pantheon_follower_lost_icon: left (a snuffed candle).
+texticon = {
+	icon = pantheon_follower_icon
+	iconsize = {
+		texture = "gfx/interface/icons/pantheon_follower_alert.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}
+
+texticon = {
+	icon = pantheon_follower_lost_icon
+	iconsize = {
+		texture = "gfx/interface/icons/pantheon_follower_lost.dds"
+		size = { 25 25 }
+		offset = { 0 6 }
+		fontsize = 16
+	}
+}

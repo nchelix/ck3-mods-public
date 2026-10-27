@@ -14,8 +14,15 @@ pantheon.0001 = {
 pantheon.0010 = {
 	type = character_event
 	hidden = yes
-	trigger = { has_trait = pantheon_divine }
+	# 2.7 (#60): pantheon_quarterly_ran (85 days) lets only one chain live: a duplicate started by the yearly safety check
+	# while the chain was in fact alive fires within 85 days of it, fails here and is not rescheduled.
+	trigger = {
+		has_trait = pantheon_divine
+		NOT = { has_variable = pantheon_quarterly_ran }
+	}
 	immediate = {
+		set_variable = { name = pantheon_quarterly_ran value = yes days = 85 }
+		set_variable = { name = pantheon_quarterly_alive value = yes days = 100 }
 		pantheon_divine_health_effect = yes
 		# 2.2.2 (#12, R5): idempotent upkeep for demigods
 		pantheon_demigod_upkeep_effect = yes
@@ -289,6 +296,15 @@ pantheon.0041 = {
 			remove_trait = sickly
 		}
 	}
+}
+
+# 2.7 (#60): the grace recheck. The first yearly safety pulse on an old save arms the god and schedules this 100 days out;
+# by then a live legacy quarterly chain has set pantheon_quarterly_alive, a dead one is restarted by the safety effect.
+pantheon.0012 = {
+	type = character_event
+	hidden = yes
+	trigger = { has_trait = pantheon_divine }
+	immediate = { pantheon_tick_safety_effect = yes }
 }
 
 # 1.6: a god carries no ailment for long (a vanilla health event put Aching Bones on a god). Monthly.

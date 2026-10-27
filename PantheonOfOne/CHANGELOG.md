@@ -1,5 +1,23 @@
 # Changelog — Pantheon of One
 
+## [2.7] — 2026-10-27
+
+Follower alerts: you are told when a follower is about to leave and when one has left, sized to how much they matter.
+
+### Added
+- Follower alerts (#58). A follower who becomes Lapsing (Devotion under 10) is warned about once, and one who is no longer of your faith, however they left, is reported within a month. Each warning goes where you choose, by the follower's rank (Unlanded, Baron, Count, Duke, King, Emperor): nowhere, the message feed at the bottom right, or the top-bar alerts. Clicking a message or an alert line opens the follower's character.
+- Alerts settings. The Followers tab has an Alerts sub-tab with a row per rank and two choices on each, "About to leave" and "Has left", each Off, Feed or Top alert. Defaults: Unlanded and Baron are told in the feed; Counts are warned in the feed and reported lost in the top bar; Dukes, Kings and Emperors get both in the top bar. A change applies from the next warning. Messages already sent are not sent again.
+- Lost followers. A new Lost followers sub-tab on the Followers tab lists everyone who has left: portrait, rank, their new faith and the date. It is kept whatever your alert settings, until they die or come back. In an old save, the followers who left before 2.7 are added at the first monthly check, dated "before 2.7", without alerts.
+- Never a flood. More than three followers warned in the same month become one message, with the names on hover. A top alert follows the Devotion of a Lapsing follower, and keeps a lost follower for one season (3 months), less if they return or die.
+- The top bar holds at most two alerts, "Followers slipping away" and "Followers lost", each with a count; clicking one opens a follower, and every follower is also listed under Current Situation, with its own small candle icon. The messages have their own filter, Follower Alerts (under Religion), in the message settings.
+- When you found a new faith, the followers who stay behind are not announced one by one: you get a single message ("N followers stayed with the old faith"), no top alerts, and they go on the Lost list, dated the reform.
+
+### Changed
+- The old "falters" and "turned from you" popups are gone, replaced by the warnings above, so turning a warning Off really silences it.
+
+### Fixed
+- The god's monthly and seasonal checks now restart themselves, within a year, if they ever stop (for example if the god lost the Divine trait while both were due) (#60). They never run twice.
+
 ## [2.6] — 2026-10-26
 
 At a glance: a follower's Devotion, what they wait on, and what suits them, where you already look.

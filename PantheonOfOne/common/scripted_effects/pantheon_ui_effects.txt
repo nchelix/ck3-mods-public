@@ -30,6 +30,32 @@ pantheon_ui_rebuild_effect = {
 			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_waiting_boons target = prev } }
 		}
 	}
+	# 2.7: the Followers tab's Lost followers sub-tab -- the living members of pantheon_lost, the latest departure first
+	# (year 0 = "before 2.7" last). Copied through a temporary pool; the list is never ordered in place. The monthly sweep
+	# prunes the dead; is_alive here covers the days between.
+	clear_variable_list = pantheon_ui_lost
+	if = {
+		limit = { has_variable_list = pantheon_lost }
+		every_in_list = {
+			variable = pantheon_lost
+			limit = { is_alive = yes }
+			add_to_list = pantheon_ui_lost_pool
+		}
+		ordered_in_list = {
+			list = pantheon_ui_lost_pool
+			order_by = {
+				value = 0
+				if = {
+					limit = { has_variable = pantheon_alert_left_year }
+					add = var:pantheon_alert_left_year
+				}
+			}
+			max = 100000
+			check_range_bounds = no
+			save_scope_as = pantheon_ui_row
+			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_lost target = scope:pantheon_ui_row } }
+		}
+	}
 	# Followers: every living ruler of the god's faith, plus anyone already counted (pantheon_known holds those who
 	# prayed or were blessed, landless or not). In-game round 1: pantheon_known alone left the tab empty until a blessing.
 	every_ruler = {

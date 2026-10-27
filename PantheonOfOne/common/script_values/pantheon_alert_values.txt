@@ -1,0 +1,298 @@
+﻿# Pantheon of One 2.7: follower alerts. Rank 0..5 = Unlanded, Baron, Count, Duke, King, Emperor (anything above empire counts as 5).
+# Follower scope.
+pantheon_alert_rank = {
+	value = 0
+	if = {
+		limit = { is_landed = no }
+		add = 0
+	}
+	else_if = {
+		limit = { highest_held_title_tier >= tier_empire }
+		add = 5
+	}
+	else_if = {
+		limit = { highest_held_title_tier >= tier_kingdom }
+		add = 4
+	}
+	else_if = {
+		limit = { highest_held_title_tier >= tier_duchy }
+		add = 3
+	}
+	else_if = {
+		limit = { highest_held_title_tier >= tier_county }
+		add = 2
+	}
+	else = { add = 1 }
+}
+
+# The god setting (0 Off, 1 Feed, 2 Top alert) for this follower rank, or the default. Follower scope. The god is
+# scope:pantheon_alert_god when set, else the follower link variable pantheon_glance_god. An absent variable means the default.
+pantheon_alert_mode_lapse = {
+	value = 0
+	if = {
+		limit = { pantheon_alert_rank = 0 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_lapse_0 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_lapse_0
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_lapse_0 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_lapse_0
+		}
+		else = { add = 1 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 1 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_lapse_1 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_lapse_1
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_lapse_1 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_lapse_1
+		}
+		else = { add = 1 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 2 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_lapse_2 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_lapse_2
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_lapse_2 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_lapse_2
+		}
+		else = { add = 1 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 3 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_lapse_3 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_lapse_3
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_lapse_3 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_lapse_3
+		}
+		else = { add = 2 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 4 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_lapse_4 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_lapse_4
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_lapse_4 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_lapse_4
+		}
+		else = { add = 2 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 5 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_lapse_5 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_lapse_5
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_lapse_5 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_lapse_5
+		}
+		else = { add = 2 }
+	}
+}
+
+# The god setting (0 Off, 1 Feed, 2 Top alert) for this follower rank, or the default. Follower scope. The god is
+# scope:pantheon_alert_god when set, else the follower link variable pantheon_glance_god, else (a leaver, who has lost it)
+# the variable pantheon_alert_left_god set when they left. An absent variable means the default.
+pantheon_alert_mode_left = {
+	value = 0
+	if = {
+		limit = { pantheon_alert_rank = 0 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_left_0 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_left_0
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_left_0 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_left_0
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_alert_left_god ?= { has_variable = pantheon_alert_left_0 }
+			}
+			add = var:pantheon_alert_left_god.var:pantheon_alert_left_0
+		}
+		else = { add = 1 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 1 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_left_1 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_left_1
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_left_1 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_left_1
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_alert_left_god ?= { has_variable = pantheon_alert_left_1 }
+			}
+			add = var:pantheon_alert_left_god.var:pantheon_alert_left_1
+		}
+		else = { add = 1 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 2 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_left_2 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_left_2
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_left_2 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_left_2
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_alert_left_god ?= { has_variable = pantheon_alert_left_2 }
+			}
+			add = var:pantheon_alert_left_god.var:pantheon_alert_left_2
+		}
+		else = { add = 2 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 3 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_left_3 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_left_3
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_left_3 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_left_3
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_alert_left_god ?= { has_variable = pantheon_alert_left_3 }
+			}
+			add = var:pantheon_alert_left_god.var:pantheon_alert_left_3
+		}
+		else = { add = 2 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 4 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_left_4 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_left_4
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_left_4 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_left_4
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_alert_left_god ?= { has_variable = pantheon_alert_left_4 }
+			}
+			add = var:pantheon_alert_left_god.var:pantheon_alert_left_4
+		}
+		else = { add = 2 }
+	}
+	if = {
+		limit = { pantheon_alert_rank = 5 }
+		if = {
+			limit = { scope:pantheon_alert_god ?= { has_variable = pantheon_alert_left_5 } }
+			add = scope:pantheon_alert_god.var:pantheon_alert_left_5
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_glance_god ?= { has_variable = pantheon_alert_left_5 }
+			}
+			add = var:pantheon_glance_god.var:pantheon_alert_left_5
+		}
+		else_if = {
+			limit = {
+				NOT = { exists = scope:pantheon_alert_god }
+				var:pantheon_alert_left_god ?= { has_variable = pantheon_alert_left_5 }
+			}
+			add = var:pantheon_alert_left_god.var:pantheon_alert_left_5
+		}
+		else = { add = 2 }
+	}
+}
+
+# 2.7 repair round 3: how many followers qualify for the top-alert diamond, the same conditions as the matching list type in
+# common/important_actions. Player scope (root = the god); counted by walking the god's own lists.
+pantheon_alert_count_lapsing = {
+	value = 0
+	if = {
+		limit = { has_variable_list = pantheon_glance_marked }
+		every_in_list = {
+			variable = pantheon_glance_marked
+			limit = {
+				is_alive = yes
+				faith = root.faith
+				pantheon_alert_lapsing_trigger = yes
+				pantheon_alert_mode_lapse = 2
+			}
+			add = 1
+		}
+	}
+}
+
+pantheon_alert_count_left = {
+	value = 0
+	if = {
+		limit = { has_variable_list = pantheon_lost }
+		every_in_list = {
+			variable = pantheon_lost
+			limit = {
+				is_alive = yes
+				NOT = { faith = root.faith }
+				has_variable = pantheon_alert_recent_left
+				NOT = { has_variable = pantheon_alert_reform }
+				pantheon_alert_mode_left = 2
+			}
+			add = 1
+		}
+	}
+}

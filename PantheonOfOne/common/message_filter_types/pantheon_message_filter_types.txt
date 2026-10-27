@@ -1,0 +1,6 @@
+﻿# 2.7 repair round 3: the filter of the follower alert messages (Lapsing, left, reform summary). A feed message, never a
+# toast; the player can still hide it in the message settings. Name: loc key message_filter_pantheon_followers.
+pantheon_followers = {
+	display = feed
+	group = religion
+}

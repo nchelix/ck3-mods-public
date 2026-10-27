@@ -110,6 +110,30 @@ pantheon_ui_ptab_great = {
 	}
 }
 
+# 2.7: the Followers tab's sub-tabs (pantheon_ui_ftab: 1 Followers, also when absent; 2 Lost followers; 3 Alerts)
+pantheon_ui_ftab_1 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ftab value = 1 }
+	}
+}
+
+pantheon_ui_ftab_2 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ftab value = 2 }
+		# the Lost list is rebuilt on opening, as the Great Prayers sub-tab does
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+pantheon_ui_ftab_3 = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ftab value = 3 }
+	}
+}
+
 pantheon_ui_tab_god = {
 	scope = character
 	effect = {
