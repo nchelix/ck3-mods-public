@@ -1,5 +1,31 @@
 # Changelog — Unlimited Wars and Claims
 
+## [1.1] — 2026-10-26
+
+### Added
+- **Unlimited invasions.** A game rule, "UWC: Unlimited invasions" (Off / Players /
+  Everyone, default Players): a qualifying attacker may declare invasions as often as they
+  like, skipping vanilla's once-per-lifetime limit. A clan ruler also skips the clan
+  invasion's house-unity cooldown, lifetime and pending checks, so a house-unity reward
+  never leaves a player worse off than the rule alone.
+  The invasion victory screen no longer warns that they cannot invade again.
+- **Unlimited kingdom holy wars.** A game rule, "UWC: Unlimited kingdom holy wars" (Off /
+  Players / Everyone, default Players): a qualifying attacker may declare kingdom-level
+  holy wars as often as they like, and the victory screen no longer warns that they cannot
+  declare another. Ordinary holy wars and great holy wars are untouched.
+- **Unlimited subjugation.** A game rule, "UWC: Unlimited subjugation" (Off / Players /
+  Everyone, default Players): a qualifying attacker may declare tribal subjugation as
+  often as they like, and the victory screen no longer warns that they cannot do it again.
+
+### Changed
+- All seven game rule names now start with a red "UWC:" (was "Unlimited Wars and Claims:"
+  in purple), so they are easy to spot in the long list of game rules.
+- 17 generated casus belli files instead of 16: `00_subjugation.txt` is now shipped
+  (plus `00_war_and_peace_triggers.txt`, as before). The once-per-lifetime flags are still
+  set on declaration; they are harmless once the rules skip them.
+- Three more hand-written scripted triggers (`uwc_unlimited_invasions_trigger`,
+  `uwc_unlimited_holy_wars_trigger`, `uwc_unlimited_subjugation_trigger`).
+
 ## [1.0] — 2026-10-14
 
 First release, for CK3 1.20 "Crozier".

@@ -23,7 +23,10 @@
 			}
 		}
 		trigger_if = {
-			limit = { ai_should_get_extreme_conqueror_bonuses = no }
+			limit = {
+				ai_should_get_extreme_conqueror_bonuses = no
+				uwc_unlimited_invasions_trigger = no
+			}
 			NOT = { has_character_flag = used_lifetime_invasion }
 		}
 		NOT = { government_has_flag = government_is_landless_adventurer }
@@ -227,7 +230,12 @@
 			desc = invasion_war_victory_desc
 		}
 		triggered_desc = {
-			trigger = { scope:attacker = { is_local_player = yes } }
+			trigger = {
+				scope:attacker = {
+					is_local_player = yes
+					uwc_unlimited_invasions_trigger = no
+				}
+			}
 			desc = invasion_war_warning_desc
 		}
 	}
@@ -468,6 +476,10 @@ clan_invasion_war = {
 			}
 		}
 		trigger_if = {
+			limit = { uwc_unlimited_invasions_trigger = yes }
+			always = yes
+		}
+		trigger_else_if = {
 			limit = {
 				house ?= {
 					has_house_unity_parameter = unity_multiple_invasions
@@ -660,6 +672,7 @@ clan_invasion_war = {
 					NOT = {
 						house ?= { has_house_unity_parameter = unity_unlimited_invasions }
 					}
+					uwc_unlimited_invasions_trigger = no
 				}
 			}
 			desc = invasion_war_warning_desc

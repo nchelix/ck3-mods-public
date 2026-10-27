@@ -1,4 +1,4 @@
-﻿# Unlimited Wars and Claims 1.0: all the rule logic. Character scope = the attacker.
+﻿# Unlimited Wars and Claims 1.1: all the rule logic. Character scope = the attacker.
 uwc_shared_titles_trigger = {
 	OR = {
 		has_game_rule = uwc_shared_titles_everyone
@@ -36,6 +36,39 @@ uwc_raised_armies_trigger = {
 		has_game_rule = uwc_raised_armies_everyone
 		AND = {
 			has_game_rule = uwc_raised_armies_players
+			is_ai = no
+		}
+	}
+}
+
+# Rule 5: invasions without the once-per-lifetime limit (00_invasion_war.txt: invasion_war and clan_invasion_war).
+uwc_unlimited_invasions_trigger = {
+	OR = {
+		has_game_rule = uwc_unlimited_invasions_everyone
+		AND = {
+			has_game_rule = uwc_unlimited_invasions_players
+			is_ai = no
+		}
+	}
+}
+
+# Rule 6: kingdom-level holy wars without the once-per-lifetime limit (00_religious_war.txt: major_religious_war).
+uwc_unlimited_holy_wars_trigger = {
+	OR = {
+		has_game_rule = uwc_unlimited_holy_wars_everyone
+		AND = {
+			has_game_rule = uwc_unlimited_holy_wars_players
+			is_ai = no
+		}
+	}
+}
+
+# Rule 7: tribal subjugation without the once-per-lifetime limit (00_subjugation.txt: tribal_subjugation_cb).
+uwc_unlimited_subjugation_trigger = {
+	OR = {
+		has_game_rule = uwc_unlimited_subjugation_everyone
+		AND = {
+			has_game_rule = uwc_unlimited_subjugation_players
 			is_ai = no
 		}
 	}

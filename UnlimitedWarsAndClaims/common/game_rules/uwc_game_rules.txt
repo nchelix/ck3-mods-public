@@ -1,4 +1,4 @@
-﻿# Unlimited Wars and Claims 1.0: the four game rules. Settings, loc and format follow the
+﻿# Unlimited Wars and Claims 1.1: the seven game rules. Settings, loc and format follow the
 # game's own (game/common/game_rules/00_game_rules.txt; names in colour per
 # game/localization/english/game_rules_l_english.yml -- see uwc_l_english.yml).
 uwc_shared_titles = {
@@ -58,5 +58,50 @@ uwc_raised_armies = {
 	uwc_raised_armies_players = {
 	}
 	uwc_raised_armies_everyone = {
+	}
+}
+
+uwc_unlimited_invasions = {
+	default = uwc_unlimited_invasions_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_unlimited_invasions_off = {
+	}
+	uwc_unlimited_invasions_players = {
+	}
+	uwc_unlimited_invasions_everyone = {
+	}
+}
+
+uwc_unlimited_holy_wars = {
+	default = uwc_unlimited_holy_wars_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_unlimited_holy_wars_off = {
+	}
+	uwc_unlimited_holy_wars_players = {
+	}
+	uwc_unlimited_holy_wars_everyone = {
+	}
+}
+
+uwc_unlimited_subjugation = {
+	default = uwc_unlimited_subjugation_players
+
+	categories = {
+		game_modes
+	}
+
+	uwc_unlimited_subjugation_off = {
+	}
+	uwc_unlimited_subjugation_players = {
+	}
+	uwc_unlimited_subjugation_everyone = {
 	}
 }

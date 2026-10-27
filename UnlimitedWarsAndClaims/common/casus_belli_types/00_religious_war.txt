@@ -1312,6 +1312,7 @@ major_religious_war = {
 		}
 		trigger_if = {
 			limit = {
+				uwc_unlimited_holy_wars_trigger = no
 				culture = {
 					NOT = {
 						has_cultural_parameter = no_limit_to_kingdom_level_holy_wars
@@ -1536,6 +1537,7 @@ major_religious_war = {
 			trigger = {
 				scope:attacker = {
 					is_local_player = yes
+					uwc_unlimited_holy_wars_trigger = no
 					OR = {
 						AND = {
 							NOT = { has_character_flag = bonus_major_holy_war }
