@@ -108,3 +108,10 @@ pantheon_judged_lands_opinion = {
 	decaying = yes
 	years = 10
 }
+
+# 2.8 (#59): a lord whose work the god failed or was caught at (fades over 5 years)
+pantheon_work_exposed_opinion = {
+	opinion = -40
+	decaying = yes
+	years = 5
+}

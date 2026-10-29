@@ -1,4 +1,23 @@
-# Changelog — Pantheon of One
+﻿# Changelog — Pantheon of One
+
+## [2.8] — 2026-10-29
+
+Winning the faithful: belief is harder to keep, and a god can win unbelievers without spending Worship.
+
+### Added
+- Godhood tour (#59). Start it from the Pantheon window's God tab: a journey to a county of another faith, planned in the activity planner. Your choices on arrival add up to a tour score and a lean, fear or kindness. At the end the county holds a seed of belief; a good score may seed the whole duchy, and a better one the kingdom. Seeds fade after 20 years and are refreshed by touring again.
+- Works (#59). Right-click a landed lord of another faith whose capital county is seeded and choose Begin a work, by fear or by kindness. A work runs as a scheme, with events every few months whose choices push it on, set it back or change its course; it stalls if you ignore it. Bigger lords are harder, up to three works run at once, and a failed or exposed work makes the lord hostile and shortens the seed. A won work converts the lord and their family and court, pays Worship by rank (600 for a baron up to 6,000 for an emperor), starts kindness converts at Devotion 80 and fear converts at 40, gives their capital a big push toward conversion and seeds every county they hold. Works cost no Worship.
+- County conversion (#59). Every seeded county of another faith has a hidden conversion meter that grows a little each month, faster under a ruler of your faith and slower under a zealot, and jumps with tour and work choices. At 100 the county takes your faith. The Pantheon window lists the seeded lands.
+- Misfortune blame (#61). A follower blames you for a death in the family (-25 Devotion), a lost war (-20), a cell (-15), a lost capital or holy site (-15) and a serious illness or wound (-10). Followers at 90 or more take half; a fear convert takes one and a half times. The cut lands at once and goes through the "About to leave" alert setting of the follower's rank.
+- Debug tools (local mod only): blame, seeds, meter, tour score, finish or fail a work, Rome.
+
+### Changed
+- Devotion no longer drifts toward 50 from either side. It only falls, by 2 a quarter below 90, and never at 90 or more (#61). The Devout (75+) still never leave.
+- An ignored prayer costs 15 Devotion, as a refusal does (#61).
+
+### Fixed
+- A god who is the Pope (or holds the Orthodox church title) can follow their own reform (#62). The church title goes to the head of a rite, the holder of Rome or Constantinople, a vassal of the old faith, or a new priest, and becomes the old faith's head title again; the god becomes head of the new faith under a title of their own.
+- The god's monthly check also drives every running work, in case a scheme that is frozen never gets its own monthly call.
 
 ## [2.7] — 2026-10-27
 

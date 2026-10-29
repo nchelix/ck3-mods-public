@@ -1,0 +1,31 @@
+﻿# Pantheon of One 2.8 (#59): seeds. A seed is a county variable the god plants (Godhood tour, a convert's lands).
+
+# County title scope. The county holds a live seed planted by $GOD$. pantheon_seed is a days-limited flag, so an expired seed reads
+# as absent. Use it only on a title scope.
+pantheon_county_seeded_trigger = {
+	has_variable = pantheon_seed
+	exists = var:pantheon_seed_god
+	var:pantheon_seed_god = $GOD$
+}
+
+# 2.8 (#59): a work's target. A landed character other than $GOD$, not of the god's faith, whose capital county the god has seeded.
+# Character scope. Used to SHOW and START a work only: a running work's valid block has no seed check (RF5).
+pantheon_work_target_trigger = {
+	is_alive = yes
+	is_landed = yes
+	NOT = { this = $GOD$ }
+	NOT = { faith = $GOD$.faith }
+	# vanilla can_change_faith blocks these two holders, so a work could never convert them
+	NOT = { has_title = title:k_papal_state }
+	NOT = { has_title = title:k_orthodox }
+	capital_county ?= { pantheon_county_seeded_trigger = { GOD = $GOD$ } }
+}
+
+# 2.8 (#59): scheme scope. Event number $ID$ (1-6) of a work's path is not one of the last three this work showed.
+pantheon_work_unseen_trigger = {
+	NOR = {
+		var:pantheon_work_seen_1 ?= $ID$
+		var:pantheon_work_seen_2 ?= $ID$
+		var:pantheon_work_seen_3 ?= $ID$
+	}
+}

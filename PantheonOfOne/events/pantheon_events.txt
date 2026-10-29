@@ -177,7 +177,9 @@ pantheon.0010 = {
 				}
 			}
 		}
-		# 1.3: the yearly Devotion pass (drift, faltering, conversion) is a branch of this tick, once every
+		# 2.8 (#61): Devotion drifts down every quarter (below 90 only)
+		pantheon_devotion_quarterly_drift_effect = yes
+		# 1.3: the yearly Devotion pass (leave check) is a branch of this tick, once every
 		# fourth quarter (spec, Build section).
 		change_variable = { name = pantheon_quarter_count add = 1 }
 		if = {
@@ -472,5 +474,77 @@ pantheon.0120 = {
 	immediate = {
 		pantheon_lead_new_faith_effect = { OLD = scope:pantheon_old_faith NEW = scope:pantheon_new_faith }
 		pantheon_new_god_worship_floor_effect = yes
+	}
+}
+
+# 2.8 (#61): a follower's misfortune, handed over by a blame hook (common/on_action/pantheon_on_actions.txt via
+# pantheon_blame_dispatch_effect). Hidden, rooted at the god, because pantheon_change_devotion_effect reads root as the god. The
+# follower arrives as scope:pantheon_target carrying the raw cut (pantheon_blame_in) and the kind; no option, no intervention.
+pantheon.0230 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		if = {
+			limit = {
+				exists = scope:pantheon_target
+				scope:pantheon_target = {
+					has_variable = pantheon_blame_in
+					has_variable = pantheon_blame_kind
+				}
+			}
+			pantheon_blame_effect = {
+				AMOUNT = scope:pantheon_target.var:pantheon_blame_in
+				KIND = scope:pantheon_target.var:pantheon_blame_kind
+			}
+			scope:pantheon_target = { remove_variable = pantheon_blame_in }
+		}
+	}
+}
+
+# 2.8 (#61): a death in the family, a day after the death. The on_action (pantheon_on_death_blame) saved the dying character as
+# scope:pantheon_blame_dying; the character is dead now, so death_reason can be read. Hidden, rooted at the god, so it calls
+# pantheon_blame_effect directly. Skipped when the dead was 60 or older and died of a natural cause (the old-age reasons in
+# game/common/deathreasons/00_natural_deaths.txt). Otherwise the dead one's children, spouses and parents who follow the god lose KIND 1.
+pantheon.0231 = {
+	type = character_event
+	hidden = yes
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:pantheon_blame_dying
+	}
+	immediate = {
+		scope:pantheon_blame_dying = {
+			if = {
+				limit = {
+					NOT = {
+						AND = {
+							age >= 60
+							OR = {
+								death_reason = death_natural_causes
+								death_reason = death_old_age
+								death_reason = death_heart_attack
+								death_reason = death_apoplexy
+								death_reason = death_cancer
+								death_reason = death_ill
+								death_reason = death_weak
+								death_reason = death_sickly
+							}
+						}
+					}
+				}
+				every_child = {
+					limit = { pantheon_blame_eligible_trigger = { GOD = root } }
+					pantheon_blame_death_one_effect = yes
+				}
+				every_spouse = {
+					limit = { pantheon_blame_eligible_trigger = { GOD = root } }
+					pantheon_blame_death_one_effect = yes
+				}
+				every_parent = {
+					limit = { pantheon_blame_eligible_trigger = { GOD = root } }
+					pantheon_blame_death_one_effect = yes
+				}
+			}
+		}
 	}
 }

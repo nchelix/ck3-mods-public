@@ -1066,6 +1066,7 @@ pantheon_great_boon_interaction = {
 		scope:actor = { custom_tooltip = { text = pantheon_needs_worship_boon_tt pantheon_boon_affordable_trigger = { WHO = scope:recipient } } }
 	}
 	on_accept = {
+		custom_tooltip = pantheon_great_boon_interaction.ask
 		custom_tooltip = pantheon_great_boon_interaction.tt
 		# 2.2.1 (#3): the price of THIS follower's boon and the Worship before and after (the unasked grant
 		# charges the same pantheon_cost_boon_* the affordability check reads)

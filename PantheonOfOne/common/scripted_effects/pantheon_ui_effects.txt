@@ -20,7 +20,7 @@ pantheon_ui_rebuild_effect = {
 		every_in_list = {
 			variable = pantheon_boon_holders
 			limit = {
-				is_alive = yes
+				pantheon_live_character_trigger = yes
 				has_variable = pantheon_aspiration_live
 				has_variable = pantheon_aspiration_waiting
 				has_variable = pantheon_aspiration_id
@@ -38,7 +38,7 @@ pantheon_ui_rebuild_effect = {
 		limit = { has_variable_list = pantheon_lost }
 		every_in_list = {
 			variable = pantheon_lost
-			limit = { is_alive = yes }
+			limit = { pantheon_live_character_trigger = yes }
 			add_to_list = pantheon_ui_lost_pool
 		}
 		ordered_in_list = {
@@ -59,17 +59,17 @@ pantheon_ui_rebuild_effect = {
 	# Followers: every living ruler of the god's faith, plus anyone already counted (pantheon_known holds those who
 	# prayed or were blessed, landless or not). In-game round 1: pantheon_known alone left the tab empty until a blessing.
 	every_ruler = {
-		limit = { is_alive = yes faith = scope:pantheon_ui_god.faith NOT = { this = scope:pantheon_ui_god } }
+		limit = { pantheon_live_character_trigger = yes faith = scope:pantheon_ui_god.faith NOT = { this = scope:pantheon_ui_god } }
 		add_to_list = pantheon_ui_follower_pool
 	}
 	every_in_list = {
 		variable = pantheon_known
-		limit = { is_alive = yes NOT = { this = scope:pantheon_ui_god } }
+		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } }
 		add_to_list = pantheon_ui_follower_pool
 	}
 	every_in_list = {
 		variable = pantheon_blessed
-		limit = { is_alive = yes NOT = { this = scope:pantheon_ui_god } }
+		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } }
 		add_to_list = pantheon_ui_blessed_pool
 	}
 	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_follower_pool TARGET = pantheon_ui_followers DEFAULT = pantheon_ui_devotion }
@@ -87,12 +87,12 @@ pantheon_ui_rebuild_effect = {
 	clear_variable_list = pantheon_ui_prayers
 	every_in_list = {
 		variable = pantheon_open_prayers
-		limit = { is_alive = yes has_variable = pantheon_prayer_token }
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_prayer_token }
 		add_to_list = pantheon_ui_prayer_pool
 	}
 	ordered_in_list = {
 		list = pantheon_ui_prayer_pool
-		limit = { is_alive = yes has_variable = pantheon_prayer_token }
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_prayer_token }
 		order_by = {
 			value = var:pantheon_prayer_token
 			multiply = -1
@@ -107,12 +107,12 @@ pantheon_ui_rebuild_effect = {
 	clear_variable_list = pantheon_ui_retris
 	every_in_list = {
 		variable = pantheon_open_retributions
-		limit = { is_alive = yes has_variable = pantheon_retri_token }
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_retri_token }
 		add_to_list = pantheon_ui_retri_pool
 	}
 	ordered_in_list = {
 		list = pantheon_ui_retri_pool
-		limit = { is_alive = yes has_variable = pantheon_retri_token }
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_retri_token }
 		order_by = {
 			value = var:pantheon_retri_token
 			multiply = -1
@@ -139,6 +139,18 @@ pantheon_ui_rebuild_effect = {
 					}
 				}
 			}
+		}
+	}
+	# 2.8 (#59): the God tab's Seeded lands, copied from the god's own list. Only live seeds of this god are shown (an expired one
+	# is pruned by the monthly pass; this keeps the window right in between). Counties never leave the world, so no dead entries.
+	clear_variable_list = pantheon_ui_seeds
+	if = {
+		limit = { has_variable_list = pantheon_seeded_counties }
+		every_in_list = {
+			variable = pantheon_seeded_counties
+			limit = { pantheon_county_seeded_trigger = { GOD = scope:pantheon_ui_god } }
+			save_scope_as = pantheon_ui_row
+			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_seeds target = scope:pantheon_ui_row } }
 		}
 	}
 	# 2.2 Task 4: the Temple tab's pre-founding list -- every holy site of the god's own faith (the form

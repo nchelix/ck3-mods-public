@@ -54,28 +54,47 @@ pantheon_change_devotion_effect = {
 	}
 }
 
-# Yearly: drifts 5 toward 50 (spec, Devotion table). Root is the god; scope:pantheon_target is the follower.
+# 2.8 (#61): quarterly, downward only. Below 90 a follower loses pantheon_drift_quarterly (about 8 a year); 90 and
+# above do not drift at all, and nobody drifts up toward 50 any more. Clamped at 0. Root is the god;
+# scope:pantheon_target is the follower.
 pantheon_devotion_drift_effect = {
 	pantheon_ensure_devotion_effect = { START = 50 }
 	scope:pantheon_target = {
 		if = {
-			limit = { var:pantheon_devotion > 50 }
-			change_variable = { name = pantheon_devotion subtract = 5 }
+			limit = { var:pantheon_devotion < 90 }
+			change_variable = { name = pantheon_devotion subtract = pantheon_drift_quarterly }
 			if = {
-				limit = { var:pantheon_devotion < 50 }
-				set_variable = { name = pantheon_devotion value = 50 }
+				limit = { var:pantheon_devotion < 0 }
+				set_variable = { name = pantheon_devotion value = 0 }
 			}
+			# 2.6: the Follower trait's track follows the new value
+			pantheon_glance_refresh_effect = { GOD = root }
 		}
-		else_if = {
-			limit = { var:pantheon_devotion < 50 }
-			change_variable = { name = pantheon_devotion add = 5 }
-			if = {
-				limit = { var:pantheon_devotion > 50 }
-				set_variable = { name = pantheon_devotion value = 50 }
-			}
+	}
+}
+
+# 2.8 (#61): the quarterly drift, called from pantheon.0010 every quarter. Rulers and the god's courtiers of the
+# faith only (RF1: never every_living_character). The god is not a follower. Root is the god.
+pantheon_devotion_quarterly_drift_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
 		}
-		# 2.6: the Follower trait's track follows the new value
-		pantheon_glance_refresh_effect = { GOD = root }
+		save_scope_as = pantheon_target
+		pantheon_devotion_drift_effect = yes
+	}
+	every_courtier = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
+		}
+		save_scope_as = pantheon_target
+		pantheon_devotion_drift_effect = yes
 	}
 }
 
@@ -155,7 +174,8 @@ pantheon_convert_away_effect = {
 	# 2.7 (#58): no toast here; the follower loses the Follower trait, which the monthly sweep reports (Lost list)
 }
 
-# The yearly Devotion pass: a branch of the quarterly Worship tick, once every fourth quarter (events/
+# The yearly Devotion pass (the leave check only; 2.8 moved the drift to the quarterly tick): a branch of the
+# quarterly Worship tick, once every fourth quarter (events/
 # pantheon_events.txt's pantheon.0010). Scope: the god's faith's rulers and courtiers only (spec, Build
 # section) -- neither scans the whole world. Root is the god.
 pantheon_devotion_yearly_pass_effect = {
@@ -183,16 +203,6 @@ pantheon_devotion_yearly_pass_effect = {
 		}
 		save_scope_as = pantheon_target
 		pantheon_leave_faith_check_effect = yes
-	}
-	every_ruler = {
-		limit = { faith = root.faith }
-		save_scope_as = pantheon_target
-		pantheon_devotion_drift_effect = yes
-	}
-	every_courtier = {
-		limit = { faith = root.faith }
-		save_scope_as = pantheon_target
-		pantheon_devotion_drift_effect = yes
 	}
 }
 
@@ -328,7 +338,7 @@ pantheon_pick_follower_prayer_effect = {
 		variable = pantheon_known
 		limit = {
 			NOT = { this = root }
-			is_alive = yes
+			pantheon_live_character_trigger = yes
 			has_variable = pantheon_devotion
 			var:pantheon_devotion >= 75
 			NOT = { has_variable = pantheon_prayed_recently }
@@ -735,7 +745,7 @@ pantheon_dismiss_prayer_effect = {
 pantheon_forget_the_dead_effect = {
 	every_in_list = {
 		variable = pantheon_blessed
-		limit = { is_alive = yes }
+		limit = { pantheon_live_character_trigger = yes }
 		root = { add_to_variable_list = { name = pantheon_blessed_alive target = prev } }
 	}
 	clear_variable_list = pantheon_blessed
@@ -746,7 +756,7 @@ pantheon_forget_the_dead_effect = {
 	clear_variable_list = pantheon_blessed_alive
 	every_in_list = {
 		variable = pantheon_known
-		limit = { is_alive = yes }
+		limit = { pantheon_live_character_trigger = yes }
 		root = { add_to_variable_list = { name = pantheon_known_alive target = prev } }
 	}
 	clear_variable_list = pantheon_known
@@ -755,6 +765,18 @@ pantheon_forget_the_dead_effect = {
 		root = { add_to_variable_list = { name = pantheon_known target = prev } }
 	}
 	clear_variable_list = pantheon_known_alive
+	# 2.8 repair 4: the Lost list is pruned the same way (the window and the monthly sweep read it)
+	every_in_list = {
+		variable = pantheon_lost
+		limit = { pantheon_live_character_trigger = yes }
+		root = { add_to_variable_list = { name = pantheon_lost_alive target = prev } }
+	}
+	clear_variable_list = pantheon_lost
+	every_in_list = {
+		variable = pantheon_lost_alive
+		root = { add_to_variable_list = { name = pantheon_lost target = prev } }
+	}
+	clear_variable_list = pantheon_lost_alive
 	# 2.0: the window's pinned selection outlives nothing else about the follower (I3)
 	if = {
 		limit = { var:pantheon_ui_target ?= { is_alive = no } }

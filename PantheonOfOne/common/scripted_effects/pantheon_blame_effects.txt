@@ -1,0 +1,187 @@
+﻿# Pantheon of One 2.8 (#61): misfortune blame. A follower holds the god to account for what they never prayed about: a death
+# in the family, a lost war, a cell, a lost holy site or capital, a serious illness. The cut lands at once; there is no event
+# that offers to stop it. Root is the god unless noted. Nothing here walks every_living_character (RF1).
+
+# The follower is the scope; scope:pantheon_god is the god. The on_actions that detect misfortune are not rooted at the god
+# (death roots at the dying character, imprisonment at the prisoner), and pantheon_change_devotion_effect reads root as the
+# god, so a hook never calls pantheon_blame_effect itself: it writes the raw amount and the kind on the follower, saves the
+# follower as pantheon_target, and hands off to pantheon.0230, a hidden event rooted at the god (the pattern
+# pantheon_on_imprison_freedom uses). $KIND$ is 1 death, 2 war, 3 prison, 4 land, 5 health; $AMOUNT$ a pantheon_blame_* value.
+pantheon_blame_dispatch_effect = {
+	set_variable = { name = pantheon_blame_in value = $AMOUNT$ }
+	set_variable = { name = pantheon_blame_kind value = $KIND$ }
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	save_scope_as = pantheon_target
+	scope:pantheon_god = { trigger_event = pantheon.0230 }
+}
+
+# The cut itself (pantheon.0230's immediate; the monthly health check calls it directly). Root is the god;
+# scope:pantheon_target is the follower; $AMOUNT$ the raw cut (positive), $KIND$ 1..5. Only a living follower of the god's
+# faith who has Devotion is blamed, never the god. The cut is halved at Devotion 90 or more (the zealous are hard to break)
+# and multiplied by 1.5 for a fear convert (pantheon_fear_convert); both can apply. It goes through
+# pantheon_change_devotion_effect. The follower keeps pantheon_blame_pending and pantheon_blame_kind for the feed message
+# (the monthly sender clears them), and joins pantheon_alert_pending_blame when their rank's "About to leave" setting is
+# Feed or Top alert (pantheon_alert_mode_lapse >= 1).
+pantheon_blame_effect = {
+	if = {
+		limit = {
+			exists = scope:pantheon_target
+			scope:pantheon_target = {
+				is_alive = yes
+				faith = root.faith
+				has_variable = pantheon_devotion
+				NOT = { this = root }
+			}
+		}
+		scope:pantheon_target = {
+			set_variable = { name = pantheon_blame_pending value = $AMOUNT$ }
+			set_variable = { name = pantheon_blame_kind value = $KIND$ }
+			if = {
+				limit = { var:pantheon_devotion >= 90 }
+				change_variable = { name = pantheon_blame_pending multiply = 0.5 }
+			}
+			if = {
+				limit = { has_variable = pantheon_fear_convert }
+				change_variable = { name = pantheon_blame_pending multiply = 1.5 }
+			}
+			round_variable = { name = pantheon_blame_pending nearest = 1 }
+		}
+		# Scripted-effect arguments are plain tokens, never blocks: the negative cut goes into a variable first. The
+		# follower's Devotion before the change is remembered so the feed reports what was really lost (clamped at 0).
+		scope:pantheon_target = {
+			set_variable = { name = pantheon_blame_before value = var:pantheon_devotion }
+			set_variable = { name = pantheon_blame_neg value = var:pantheon_blame_pending }
+			change_variable = { name = pantheon_blame_neg multiply = -1 }
+		}
+		pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_target.var:pantheon_blame_neg }
+		scope:pantheon_target = {
+			set_variable = { name = pantheon_blame_pending value = var:pantheon_blame_before }
+			change_variable = { name = pantheon_blame_pending subtract = var:pantheon_devotion }
+			if = {
+				limit = { var:pantheon_blame_pending < 0 }
+				set_variable = { name = pantheon_blame_pending value = 0 }
+			}
+			remove_variable = pantheon_blame_before
+			remove_variable = pantheon_blame_neg
+			# 2.8 repair: a prison cut is remembered for two years so a freeing god can refund it (once).
+			if = {
+				limit = { var:pantheon_blame_kind = 3 }
+				set_variable = { name = pantheon_blame_prison_loss value = var:pantheon_blame_pending years = 2 }
+			}
+		}
+		if = {
+			limit = {
+				scope:pantheon_target = {
+					pantheon_alert_mode_lapse >= 1
+					var:pantheon_blame_pending > 0
+				}
+				NOT = {
+					is_target_in_variable_list = {
+						name = pantheon_alert_pending_blame
+						target = scope:pantheon_target
+					}
+				}
+			}
+			add_to_variable_list = { name = pantheon_alert_pending_blame target = scope:pantheon_target }
+		}
+	}
+}
+
+# Health: one follower (scope), root is the god. A newly gained illness or wound blames the god once (KIND 5); the marker
+# pantheon_health_seen stops a second blame for the same illness and is cleared when no health trait remains. One marker
+# read per ruler, never a walk over every trait (RF1).
+pantheon_blame_health_check_effect = {
+	if = {
+		limit = {
+			pantheon_blame_health_trigger = yes
+			NOT = { has_variable = pantheon_health_seen }
+		}
+		set_variable = pantheon_health_seen
+		if = {
+			limit = { exists = scope:pantheon_target }
+			clear_saved_scope = pantheon_target
+		}
+		save_scope_as = pantheon_target
+		root = { pantheon_blame_effect = { AMOUNT = pantheon_blame_health KIND = 5 } }
+	}
+	else_if = {
+		limit = {
+			pantheon_blame_health_trigger = no
+			has_variable = pantheon_health_seen
+		}
+		remove_variable = pantheon_health_seen
+	}
+}
+
+# The monthly health pass (pantheon_glance_sweep_effect calls it just before the blame messages go out). Root is the god.
+# Rulers of the faith and the god's own courtiers, as the quarterly drift does; barons and the unlanded outside the court are
+# reached by the event hooks only (accepted, plan 2.8).
+pantheon_blame_health_sweep_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	# Old saves: the first sweep only marks the followers who are already ill or wounded (no blame), then flags the god.
+	if = {
+		limit = { NOT = { has_variable = pantheon_28_health_seeded } }
+		every_ruler = {
+			limit = {
+				faith = root.faith
+				NOT = { this = root }
+				has_variable = pantheon_devotion
+			}
+			pantheon_blame_health_seed_effect = yes
+		}
+		every_courtier = {
+			limit = {
+				faith = root.faith
+				NOT = { this = root }
+				has_variable = pantheon_devotion
+			}
+			pantheon_blame_health_seed_effect = yes
+		}
+		set_variable = pantheon_28_health_seeded
+	}
+	else = {
+		every_ruler = {
+			limit = {
+				faith = root.faith
+				NOT = { this = root }
+				has_variable = pantheon_devotion
+			}
+			pantheon_blame_health_check_effect = yes
+		}
+		every_courtier = {
+			limit = {
+				faith = root.faith
+				NOT = { this = root }
+				has_variable = pantheon_devotion
+			}
+			pantheon_blame_health_check_effect = yes
+		}
+	}
+}
+
+# One-time seeding for a save made before 2.8: mark the already ill or wounded as seen, without blaming them. One follower (scope).
+pantheon_blame_health_seed_effect = {
+	if = {
+		limit = {
+			pantheon_blame_health_trigger = yes
+			NOT = { has_variable = pantheon_health_seen }
+		}
+		set_variable = pantheon_health_seen
+	}
+}
+
+# A death in the family (pantheon.0231): one follower (scope), root is the god. Saves the follower as pantheon_target, then the cut.
+pantheon_blame_death_one_effect = {
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	save_scope_as = pantheon_target
+	root = { pantheon_blame_effect = { AMOUNT = pantheon_blame_death KIND = 1 } }
+}

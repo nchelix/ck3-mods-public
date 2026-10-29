@@ -1,0 +1,33 @@
+﻿# Pantheon of One 2.8 (#59) repair 3: starting a work in the first free slot of a path (see pantheon_work_triggers.txt for why there are
+# slots). God scope. $TARGET$ is the lord (a scope). The new scheme is saved as scope:pantheon_new_work. If no slot is free nothing
+# starts; callers check pantheon_work_<path>_free_trigger first.
+
+pantheon_work_start_fear_effect = {
+	if = {
+		limit = { pantheon_work_slot_free_trigger = { TYPE = pantheon_work_fear TARGET = $TARGET$ } }
+		start_scheme = { type = pantheon_work_fear target_character = $TARGET$ save_scope_as = pantheon_new_work }
+	}
+	else_if = {
+		limit = { pantheon_work_slot_free_trigger = { TYPE = pantheon_work_fear_2 TARGET = $TARGET$ } }
+		start_scheme = { type = pantheon_work_fear_2 target_character = $TARGET$ save_scope_as = pantheon_new_work }
+	}
+	else_if = {
+		limit = { pantheon_work_slot_free_trigger = { TYPE = pantheon_work_fear_3 TARGET = $TARGET$ } }
+		start_scheme = { type = pantheon_work_fear_3 target_character = $TARGET$ save_scope_as = pantheon_new_work }
+	}
+}
+
+pantheon_work_start_kindness_effect = {
+	if = {
+		limit = { pantheon_work_slot_free_trigger = { TYPE = pantheon_work_kindness TARGET = $TARGET$ } }
+		start_scheme = { type = pantheon_work_kindness target_character = $TARGET$ save_scope_as = pantheon_new_work }
+	}
+	else_if = {
+		limit = { pantheon_work_slot_free_trigger = { TYPE = pantheon_work_kindness_2 TARGET = $TARGET$ } }
+		start_scheme = { type = pantheon_work_kindness_2 target_character = $TARGET$ save_scope_as = pantheon_new_work }
+	}
+	else_if = {
+		limit = { pantheon_work_slot_free_trigger = { TYPE = pantheon_work_kindness_3 TARGET = $TARGET$ } }
+		start_scheme = { type = pantheon_work_kindness_3 target_character = $TARGET$ save_scope_as = pantheon_new_work }
+	}
+}

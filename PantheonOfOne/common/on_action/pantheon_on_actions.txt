@@ -2,7 +2,7 @@
 
 # Root = the prisoner. No cell can hold a god (proven in the prototype).
 on_imprison = {
-	on_actions = { pantheon_on_imprison pantheon_on_imprison_grievance pantheon_on_imprison_freedom }
+	on_actions = { pantheon_on_imprison pantheon_on_imprison_grievance pantheon_on_imprison_freedom pantheon_on_imprison_blame }
 }
 
 pantheon_on_imprison = {
@@ -410,7 +410,7 @@ pantheon_on_war_started = {
 # Murdered kin. death_reason cannot be read while the character still lives, so remember the dying and
 # read it a day later (pantheon.0090). Root = the dying character.
 on_death = {
-	on_actions = { pantheon_on_death pantheon_on_death_oath }
+	on_actions = { pantheon_on_death pantheon_on_death_oath pantheon_on_death_blame }
 }
 
 # 2.3 (R17): a sworn oath whose offender dies by ANY means is released (toast once, no penalty). Deliberately NOT gated on
@@ -448,11 +448,11 @@ pantheon_on_death = {
 
 # Lost a war to an infidel: the losing war leader, if a devout follower, against the winning one.
 on_war_won_attacker = {
-	on_actions = { pantheon_on_war_won_attacker }
+	on_actions = { pantheon_on_war_won_attacker pantheon_on_war_won_attacker_blame }
 }
 
 on_war_won_defender = {
-	on_actions = { pantheon_on_war_won_defender }
+	on_actions = { pantheon_on_war_won_defender pantheon_on_war_won_defender_blame }
 }
 
 pantheon_on_war_won_attacker = {
@@ -508,7 +508,7 @@ pantheon_on_war_won_defender = {
 # Holy site seized: a county holding one of the god's holy sites passes to someone of another faith.
 # Every devout ruler of the faith takes it to heart. Root = the new holder.
 on_title_gain = {
-	on_actions = { pantheon_on_title_gain }
+	on_actions = { pantheon_on_title_gain pantheon_on_title_gain_blame }
 }
 
 pantheon_on_title_gain = {
@@ -690,6 +690,149 @@ pantheon_yearly_tick_safety = {
 				has_variable = pantheon_enthroned
 			}
 			pantheon_tick_safety_effect = yes
+		}
+	}
+}
+
+# ---- 2.8 (#61): misfortune blame. Each hook finds the god(s), then hands the follower to pantheon_blame_dispatch_effect
+# (common/scripted_effects/pantheon_blame_effects.txt), which triggers the god-rooted pantheon.0230. A hook never calls
+# pantheon_blame_effect itself: none of these on_actions is rooted at the god.
+
+# A child, spouse or parent dies. Root = the dying character. The death reason cannot be read while they still live (the 1.5
+# lesson above), so the hook only saves the dying one and triggers the hidden, god-rooted pantheon.0231 a day later, which reads
+# the reason and applies the blame. Same pattern as pantheon.0090.
+pantheon_on_death_blame = {
+	effect = {
+		save_scope_as = pantheon_blame_dying
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			trigger_event = { id = pantheon.0231 days = 1 }
+		}
+	}
+}
+
+# A war is lost: the losing war leader (KIND 2). The defender when the attacker wins, the attacker when the defender wins.
+pantheon_on_war_won_attacker_blame = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					exists = scope:defender
+					scope:defender = { pantheon_blame_eligible_trigger = { GOD = scope:pantheon_god } }
+				}
+				scope:defender = { pantheon_blame_dispatch_effect = { KIND = 2 AMOUNT = pantheon_blame_war } }
+			}
+		}
+	}
+}
+
+pantheon_on_war_won_defender_blame = {
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					exists = scope:attacker
+					scope:attacker = { pantheon_blame_eligible_trigger = { GOD = scope:pantheon_god } }
+				}
+				scope:attacker = { pantheon_blame_dispatch_effect = { KIND = 2 AMOUNT = pantheon_blame_war } }
+			}
+		}
+	}
+}
+
+# Imprisoned (KIND 3). Root = the prisoner; the same no-imprisoner guard as pantheon_on_imprison_grievance (2.2.2 #5).
+pantheon_on_imprison_blame = {
+	trigger = {
+		exists = scope:imprisoner
+		is_alive = yes
+		scope:imprisoner = { is_alive = yes }
+	}
+	effect = {
+		# 2.8 retest B (debug.log scope dump, 2026-10-29): CK3 1.20.1 also runs this hook's EFFECT, without its trigger, when a
+		# rite's doctrines change (root = the rite, saved scopes = vanilla on_rite_updated's changed_tenets_or_doctrines /
+		# added_doctrines / removed_doctrines, NO imprisoner). The reform's spiritual-head doctrine change did it twice, which
+		# was the "is_alive: Wrong scope: rite" pair in every test log. No other mod hooks on_rite_updated. The body is gated on
+		# scope:imprisoner again here (exists is type-safe; there is no is_character): it keeps every imprisonment the trigger
+		# already allows (an imprisonment without an imprisoner, 2.2.2 #5, gets no blame either way) and stops the rite call.
+		if = {
+			limit = { exists = scope:imprisoner }
+			save_scope_as = pantheon_prisoner
+			every_player = {
+				limit = {
+					has_trait = pantheon_divine
+					has_variable = pantheon_enthroned
+				}
+				if = {
+					limit = { exists = scope:pantheon_god }
+					clear_saved_scope = pantheon_god
+				}
+				save_scope_as = pantheon_god
+				if = {
+					limit = { scope:pantheon_prisoner = { pantheon_blame_eligible_trigger = { GOD = scope:pantheon_god } } }
+					scope:pantheon_prisoner = { pantheon_blame_dispatch_effect = { KIND = 3 AMOUNT = pantheon_blame_prison } }
+				}
+			}
+		}
+	}
+}
+
+# A county passes to someone of another faith (KIND 4). Root = the new holder; scope:previous_holder may be dead, so the follower
+# check reads is_alive. A holy site of the god's faith always counts. "Was their capital" cannot be read after the change, and
+# vanilla's on_title_lost fires on the transfer too (title_on_actions.txt:3483), not before it, so this is the decided fallback
+# (plan 2.8): any county lost to a holder of another faith while the previous holder is at war with them.
+pantheon_on_title_gain_blame = {
+	trigger = {
+		exists = scope:title
+		exists = scope:previous_holder
+		scope:title = { tier = tier_county }
+	}
+	effect = {
+		every_player = {
+			limit = {
+				has_trait = pantheon_divine
+				has_variable = pantheon_enthroned
+			}
+			if = {
+				limit = { exists = scope:pantheon_god }
+				clear_saved_scope = pantheon_god
+			}
+			save_scope_as = pantheon_god
+			if = {
+				limit = {
+					NOT = { root = { faith = scope:pantheon_god.faith } }
+					scope:previous_holder = { pantheon_blame_eligible_trigger = { GOD = scope:pantheon_god } }
+					OR = {
+						scope:title = {
+							any_county_province = {
+								barony = { is_holy_site_of = scope:pantheon_god.faith }
+							}
+						}
+						scope:previous_holder = { is_at_war_with = root }
+					}
+				}
+				scope:previous_holder = { pantheon_blame_dispatch_effect = { KIND = 4 AMOUNT = pantheon_blame_land } }
+			}
 		}
 	}
 }

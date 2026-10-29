@@ -1,0 +1,457 @@
+﻿# Pantheon of One 2.8 (#59): works (fear and kindness schemes against a lord of another faith). The scheme lifecycle lives here, and
+# what a won work brings (pantheon_work_success_effect, further down). No Worship is spent anywhere in a work.
+#
+# Scope notes: the scheme-scope effects take the scheme as root (a scheme's own hooks, or inside scope:scheme = { }); the god-scope
+# effects take the god as root and read scope:scheme and scope:target, which the work events inherit from the scheme's on_monthly.
+
+# Scheme scope. The same three scopes, always replaced from THIS scheme. The god's monthly sweep walks several schemes in one
+# scope chain, so a name saved for the first work would otherwise be reused by the second.
+pantheon_work_scopes_force_effect = {
+	if = {
+		limit = { exists = scope:scheme }
+		clear_saved_scope = scheme
+	}
+	if = {
+		limit = { exists = scope:owner }
+		clear_saved_scope = owner
+	}
+	if = {
+		limit = { exists = scope:target }
+		clear_saved_scope = target
+	}
+	save_scope_as = scheme
+	scheme_owner = { save_scope_as = owner }
+	scheme_target_character = { save_scope_as = target }
+}
+
+# Scheme scope. Make sure scope:scheme, scope:owner and scope:target exist (a hook of the scheme starts with none; a choosing event
+# inherits all three, and saving a name that exists is never attempted).
+pantheon_work_scopes_effect = {
+	if = {
+		limit = { NOT = { exists = scope:scheme } }
+		save_scope_as = scheme
+	}
+	if = {
+		limit = { NOT = { exists = scope:owner } }
+		scheme_owner = { save_scope_as = owner }
+	}
+	if = {
+		limit = { NOT = { exists = scope:target } }
+		scheme_target_character = { save_scope_as = target }
+	}
+}
+
+# Scheme scope. The on_start of all six work types: freeze for good and zero the counters.
+pantheon_work_start_hook_effect = {
+	scheme_freeze = { reason = pantheon_work_frozen_reason days = 0 }
+	set_variable = { name = pantheon_work_months value = 0 }
+	set_variable = { name = pantheon_work_seen_1 value = 0 }
+	set_variable = { name = pantheon_work_seen_2 value = 0 }
+	set_variable = { name = pantheon_work_seen_3 value = 0 }
+}
+
+# Scheme scope, called by every work type's on_monthly. The month counter ticks; every 3rd month a work event is fired (a frozen scheme
+# keeps its on_monthly: unproven, a checklist row).
+pantheon_work_monthly_effect = {
+	# Two drivers call this (the scheme's own on_monthly, and the god's monthly sweep, in case a permanently frozen scheme never
+	# gets its on_monthly): whichever runs first in a month counts, the other finds the marker and does nothing.
+	if = {
+		limit = { NOT = { has_variable = pantheon_work_ticked } }
+		set_variable = { name = pantheon_work_ticked value = yes days = 25 }
+		if = {
+			limit = { NOT = { has_variable = pantheon_work_months } }
+			set_variable = { name = pantheon_work_months value = 0 }
+		}
+		change_variable = { name = pantheon_work_months add = 1 }
+		if = {
+			limit = { var:pantheon_work_months >= 3 }
+			set_variable = { name = pantheon_work_months value = 0 }
+			pantheon_work_pulse_effect = yes
+		}
+	}
+}
+
+# Scheme scope. One work event goes to the god: one of the six of the work's path that this work has not shown in its last three
+# (pantheon_work_seen_1..3 hold their numbers). A resolved work, a dead god or a dead target fires nothing (RF2).
+pantheon_work_pulse_effect = {
+	pantheon_work_scopes_effect = yes
+	if = {
+		limit = { NOT = { has_variable = pantheon_work_seen_1 } }
+		set_variable = { name = pantheon_work_seen_1 value = 0 }
+	}
+	if = {
+		limit = { NOT = { has_variable = pantheon_work_seen_2 } }
+		set_variable = { name = pantheon_work_seen_2 value = 0 }
+	}
+	if = {
+		limit = { NOT = { has_variable = pantheon_work_seen_3 } }
+		set_variable = { name = pantheon_work_seen_3 value = 0 }
+	}
+	if = {
+		limit = {
+			NOT = { has_variable = pantheon_work_resolved }
+			scope:owner = { is_alive = yes }
+			scope:target = { is_alive = yes }
+		}
+		if = {
+			limit = { pantheon_is_fear_work_trigger = yes }
+			random_list = {
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 1 } }
+					pantheon_work_fire_effect = { ID = 1 EVENT = pantheon_work.0100 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 2 } }
+					pantheon_work_fire_effect = { ID = 2 EVENT = pantheon_work.0110 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 3 } }
+					pantheon_work_fire_effect = { ID = 3 EVENT = pantheon_work.0120 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 4 } }
+					pantheon_work_fire_effect = { ID = 4 EVENT = pantheon_work.0130 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 5 } }
+					pantheon_work_fire_effect = { ID = 5 EVENT = pantheon_work.0140 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 6 } }
+					pantheon_work_fire_effect = { ID = 6 EVENT = pantheon_work.0150 }
+				}
+			}
+		}
+		else = {
+			random_list = {
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 1 } }
+					pantheon_work_fire_effect = { ID = 1 EVENT = pantheon_work.0200 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 2 } }
+					pantheon_work_fire_effect = { ID = 2 EVENT = pantheon_work.0210 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 3 } }
+					pantheon_work_fire_effect = { ID = 3 EVENT = pantheon_work.0220 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 4 } }
+					pantheon_work_fire_effect = { ID = 4 EVENT = pantheon_work.0230 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 5 } }
+					pantheon_work_fire_effect = { ID = 5 EVENT = pantheon_work.0240 }
+				}
+				10 = {
+					trigger = { pantheon_work_unseen_trigger = { ID = 6 } }
+					pantheon_work_fire_effect = { ID = 6 EVENT = pantheon_work.0250 }
+				}
+			}
+		}
+	}
+}
+
+# Scheme scope. Remember event $ID$ as the newest of the last three, then send $EVENT$ to the god (scope:scheme, scope:owner and
+# scope:target travel with it).
+pantheon_work_fire_effect = {
+	set_variable = { name = pantheon_work_seen_3 value = var:pantheon_work_seen_2 }
+	set_variable = { name = pantheon_work_seen_2 value = var:pantheon_work_seen_1 }
+	set_variable = { name = pantheon_work_seen_1 value = $ID$ }
+	scope:owner = { trigger_event = $EVENT$ }
+}
+
+# God scope (root); scope:scheme is the work. A choice's progress: $FRACTION$ of the phase, divided by the target's rank factor. If it
+# fills the phase the work is resolved right here (a frozen scheme may never fire on_phase_completed). The scheme is not read
+# again afterwards: a resolved work has ended.
+pantheon_work_progress_effect = {
+	if = {
+		limit = { exists = scope:scheme }
+		scope:scheme = {
+			add_scheme_progress = {
+				value = scheme_phase_duration
+				multiply = $FRACTION$
+				divide = pantheon_work_tier_factor
+			}
+			if = {
+				limit = { scheme_progress >= pantheon_work_phase_full }
+				pantheon_work_resolve_effect = yes
+			}
+		}
+	}
+}
+
+# God scope. A choice's jump on the target's capital-county meter, if that county still holds this god's seed (a faded seed means
+# nothing to push). pantheon_meter_add_effect wants scope:pantheon_god.
+pantheon_work_meter_push_effect = {
+	save_temporary_scope_as = pantheon_god
+	if = {
+		limit = { exists = scope:target }
+		scope:target = {
+			if = {
+				limit = {
+					capital_county ?= { pantheon_county_seeded_trigger = { GOD = scope:pantheon_god } }
+				}
+				capital_county = { pantheon_meter_add_effect = { AMOUNT = $AMOUNT$ } }
+			}
+		}
+	}
+}
+
+# Scheme scope. The work's outcome, once (pantheon_work_resolved is set before either branch). Success runs the god's hidden event
+# (pantheon_work.0001 -> pantheon_work_success_effect); failure is pantheon_work_fail_effect. Either way the work ends here.
+pantheon_work_resolve_effect = {
+	if = {
+		limit = { NOT = { has_variable = pantheon_work_resolved } }
+		set_variable = { name = pantheon_work_resolved value = yes }
+		pantheon_work_scopes_effect = yes
+		if = {
+			limit = { pantheon_is_fear_work_trigger = yes }
+			save_scope_value_as = { name = pantheon_work_lean value = 1 }
+		}
+		else = {
+			save_scope_value_as = { name = pantheon_work_lean value = 2 }
+		}
+		scheme_owner = {
+			random = {
+				chance = scope:scheme.scheme_success_chance
+				save_scope_value_as = { name = pantheon_work_won value = yes }
+			}
+		}
+		if = {
+			limit = { exists = scope:pantheon_work_won }
+			scope:owner = { trigger_event = pantheon_work.0001 }
+		}
+		else = {
+			pantheon_work_fail_effect = yes
+		}
+		end_scheme = yes
+	}
+}
+
+# Scheme scope. Exposure, rolled by a risky choice (fear choices at 1.5x the odds): the work fails and ends, once. A work already
+# resolved ignores it.
+pantheon_work_expose_effect = {
+	if = {
+		limit = { NOT = { has_variable = pantheon_work_resolved } }
+		set_variable = { name = pantheon_work_resolved value = yes }
+		pantheon_work_scopes_effect = yes
+		pantheon_work_fail_effect = yes
+		end_scheme = yes
+	}
+}
+
+# Scheme scope. A failed or exposed work: the target turns hostile (pantheon_work_exposed_opinion, -40, fading over 5 years), the
+# seed on their capital county loses 5 years, and an event tells the god. The caller ends the scheme.
+pantheon_work_fail_effect = {
+	scope:target = {
+		add_opinion = { target = scope:owner modifier = pantheon_work_exposed_opinion years = 5 }
+		capital_county ?= { pantheon_seed_shorten_effect = { GOD = scope:owner YEARS = 5 } }
+	}
+	scope:owner = { trigger_event = pantheon_work.0003 }
+}
+
+# County title scope. Take $YEARS$ off a seed $GOD$ planted, by the year it fades (pantheon_seed_end): a seed with nothing left is
+# removed, otherwise its days-limited flag is set again to the shorter time. A county whose seed is gone or another god's is left alone.
+pantheon_seed_shorten_effect = {
+	if = {
+		limit = {
+			pantheon_county_seeded_trigger = { GOD = $GOD$ }
+			has_variable = pantheon_seed_end
+		}
+		change_variable = { name = pantheon_seed_end subtract = $YEARS$ }
+		if = {
+			limit = { var:pantheon_seed_end <= current_year }
+			remove_variable = pantheon_seed
+		}
+		else = {
+			set_variable = {
+				name = pantheon_seed
+				value = yes
+				days = pantheon_seed_remaining_days
+			}
+		}
+	}
+}
+
+# God scope (root); scope:scheme is the work. Switch path: this work ends and the other type starts against the same target, with the
+# same share of its phase done. The share is kept on the god while the old work ends; the new one is given that share of ITS phase.
+# Progress units and the timing of the reset are unproven in game (checklist). $FEAR$ is yes when the new work is of the fear path,
+# no for kindness. The new work takes the FIRST FREE SLOT of that path (the other path's slots are untouched by the old work ending,
+# so the slot is the one free before the call; the event option is only offered when one is free, pantheon_work_<path>_free_trigger).
+pantheon_work_switch_effect = {
+	save_temporary_scope_as = pantheon_work_god
+	set_variable = {
+		name = pantheon_work_carry
+		value = {
+			value = scope:scheme.scheme_progress
+			divide = scope:scheme.scheme_phase_duration
+		}
+	}
+	# the work's history carries over: its months and the last three events it showed (repair review 4)
+	set_variable = { name = pantheon_work_carry_months value = scope:scheme.var:pantheon_work_months }
+	set_variable = { name = pantheon_work_carry_seen_1 value = scope:scheme.var:pantheon_work_seen_1 }
+	set_variable = { name = pantheon_work_carry_seen_2 value = scope:scheme.var:pantheon_work_seen_2 }
+	set_variable = { name = pantheon_work_carry_seen_3 value = scope:scheme.var:pantheon_work_seen_3 }
+	scope:scheme = {
+		set_variable = { name = pantheon_work_resolved value = yes }
+		end_scheme = yes
+	}
+	if = {
+		limit = { always = $FEAR$ }
+		pantheon_work_start_fear_effect = { TARGET = scope:target }
+	}
+	else = {
+		pantheon_work_start_kindness_effect = { TARGET = scope:target }
+	}
+	if = {
+		limit = { exists = scope:pantheon_new_work }
+		scope:pantheon_new_work = {
+			add_scheme_progress = {
+				value = scheme_phase_duration
+				multiply = scope:pantheon_work_god.var:pantheon_work_carry
+			}
+			set_variable = { name = pantheon_work_months value = scope:pantheon_work_god.var:pantheon_work_carry_months }
+			set_variable = { name = pantheon_work_seen_1 value = scope:pantheon_work_god.var:pantheon_work_carry_seen_1 }
+			set_variable = { name = pantheon_work_seen_2 value = scope:pantheon_work_god.var:pantheon_work_carry_seen_2 }
+			set_variable = { name = pantheon_work_seen_3 value = scope:pantheon_work_god.var:pantheon_work_carry_seen_3 }
+		}
+	}
+	remove_variable = pantheon_work_carry
+	remove_variable = pantheon_work_carry_months
+	remove_variable = pantheon_work_carry_seen_1
+	remove_variable = pantheon_work_carry_seen_2
+	remove_variable = pantheon_work_carry_seen_3
+}
+
+# God scope (root); scope:scheme is the work. A risky choice: $CHANCE$ percent the work is exposed (pantheon_work_expose_effect). Called
+# AFTER the choice's progress, so a choice that finishes the work is never undone, and a work that has ended is skipped. The roll is
+# hidden; the option only says there is a risk.
+pantheon_work_risk_effect = {
+	custom_tooltip = pantheon_work_risk_tt
+	hidden_effect = {
+		if = {
+			limit = { exists = scope:scheme }
+			random = {
+				chance = $CHANCE$
+				scope:scheme = { pantheon_work_expose_effect = yes }
+			}
+		}
+	}
+}
+
+# ---- When a work succeeds (Task 8) ----
+
+# Convert ONE character. The current scope is the character; root is the god. Never the conversion variant of set_character_faith
+# (counties do not flip, the spec's call). Clears the apostate mark, gives Devotion $DEVOTION$ (80 for kindness, 40 for fear, 60 for
+# the target's family and court) and, when $FEAR$ is yes, the fear marker (misfortune hits count 1.5x). scope:pantheon_target is saved
+# here because the Devotion effects read it and have to run in the god's scope.
+pantheon_work_convert_one_effect = {
+	set_character_faith = root.faith
+	if = {
+		limit = { has_variable = pantheon_apostate }
+		remove_variable = pantheon_apostate
+	}
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	save_scope_as = pantheon_target
+	root = {
+		pantheon_ensure_devotion_effect = { START = $DEVOTION$ }
+		scope:pantheon_target = {
+			set_variable = { name = pantheon_devotion value = $DEVOTION$ }
+			if = {
+				limit = { always = $FEAR$ }
+				set_variable = pantheon_fear_convert
+			}
+			else = {
+				remove_variable = pantheon_fear_convert
+			}
+			pantheon_glance_refresh_effect = { GOD = root }
+		}
+	}
+}
+
+# A won work. Root is the god; scope:target is the lord. $LEAN$ is 1 for fear, 2 for kindness (a number or a scope value).
+# In order:
+#  1. the guard (RF4): a target already of the god's faith (turned by the county meter, a prayer or vanilla) ends this quietly, with no
+#     Worship and no Devotion set;
+#  2. everything that reads the target's old state is read now: the reward (by rank, before conversion) and who shares their old faith;
+#  3. the target converts, then their close family and courtiers of that old faith, with Devotion 80 (kindness) or 40 and the fear marker;
+#     family and court start at 60, flagged the same way for fear;
+#  4. the Worship lump; 5. the capital push; 6. the target's counties are seeded with the work's lean; 7. the god is told.
+pantheon_work_success_effect = {
+	if = {
+		limit = {
+			exists = scope:target
+			scope:target = {
+				is_alive = yes
+				NOT = { faith = root.faith }
+			}
+		}
+		save_temporary_scope_as = pantheon_god
+		save_temporary_scope_value_as = { name = pantheon_work_lean_now value = $LEAN$ }
+		save_temporary_scope_value_as = { name = pantheon_work_reward value = pantheon_work_worship_reward }
+		scope:target = {
+			every_close_family_member = {
+				limit = {
+					is_alive = yes
+					faith = prev.faith
+				}
+				add_to_temporary_list = pantheon_work_kin
+			}
+			every_courtier = {
+				limit = { faith = prev.faith }
+				add_to_temporary_list = pantheon_work_kin
+			}
+		}
+		# the faith is set first: a lord who cannot change (vanilla blocks some holders) pays nothing
+		scope:target = { set_character_faith = root.faith }
+		if = {
+			limit = { scope:target = { faith = root.faith } }
+			# the target
+			if = {
+				limit = { scope:pantheon_work_lean_now = 1 }
+				scope:target = { pantheon_work_convert_one_effect = { DEVOTION = 40 FEAR = yes } }
+			}
+			else = {
+				scope:target = { pantheon_work_convert_one_effect = { DEVOTION = 80 FEAR = no } }
+			}
+			# their close family and courtiers
+			every_in_list = {
+				list = pantheon_work_kin
+				if = {
+					limit = { scope:pantheon_work_lean_now = 1 }
+					pantheon_work_convert_one_effect = { DEVOTION = 60 FEAR = yes }
+				}
+				else = {
+					pantheon_work_convert_one_effect = { DEVOTION = 60 FEAR = no }
+				}
+			}
+			# the Worship lump, read before conversion
+			if = {
+				limit = { NOT = { has_variable = pantheon_worship } }
+				set_variable = { name = pantheon_worship value = 0 }
+			}
+			change_variable = { name = pantheon_worship add = scope:pantheon_work_reward }
+			set_variable = { name = pantheon_work_reward_shown value = scope:pantheon_work_reward }
+			# the capital push (it may turn the county at once: the monthly pass sees the full meter)
+			scope:target = {
+				capital_county ?= { pantheon_meter_add_effect = { AMOUNT = pantheon_meter_capital_push } }
+			}
+			# the convert spreads the word: every county they hold is seeded with the work's lean
+			scope:target = {
+				every_held_county = {
+					pantheon_plant_seed_effect = { LEAN = scope:pantheon_work_lean_now }
+				}
+			}
+			pantheon_ui_refresh_if_open_effect = yes
+			trigger_event = pantheon_work.0002
+		}
+		else = {
+			trigger_event = pantheon_work.0004
+		}
+	}
+}

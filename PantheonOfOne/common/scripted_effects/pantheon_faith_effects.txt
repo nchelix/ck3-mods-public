@@ -4,7 +4,9 @@
 #
 # $OLD$ = the faith the god came from, $NEW$ = the faith just created. Nothing here converts a county or a vassal
 # (set_character_faith, never _with_conversion): followers below Devotion 50 stay on $OLD$ and convert on the base
-# game's schedule. $OLD$ is left without a head; Pantheon never creates one for it.
+# game's schedule. 2.8 (#62): a god who holds a church seat (k_papal_state or k_orthodox) cedes it to a living member of $OLD$,
+# which gets it back as its head title (pantheon_cede_church_seat_effect), and sits as head of $NEW$ under a title of its own;
+# any other head title of $OLD$ moves with the god to $NEW$, as before.
 
 pantheon_lead_new_faith_effect = {
 	# A call with the same faith on both sides (a repeated debug simulation) does nothing at all: no count, no toast.
@@ -20,6 +22,11 @@ pantheon_lead_new_faith_effect = {
 				limit = {
 					is_alive = yes
 					NOT = { this = root }
+					# 2.8 test 1: the engine refuses set_character_faith on holy-order leaders and the church-seat holders
+					# (can_change_faith); they stay on $OLD$ instead of logging an error each
+					NOT = { any_held_title = { is_holy_order = yes } }
+					NOT = { has_title = title:k_papal_state }
+					NOT = { has_title = title:k_orthodox }
 					OR = {
 						AND = {
 							has_variable = pantheon_devotion
@@ -34,7 +41,10 @@ pantheon_lead_new_faith_effect = {
 		every_in_list = {
 			list = pantheon_faith_movers
 			set_character_faith = $NEW$
-			root = { change_variable = { name = pantheon_faith_moved add = 1 } }
+			if = {
+				limit = { faith = $NEW$ }
+				root = { change_variable = { name = pantheon_faith_moved add = 1 } }
+			}
 		}
 		# 2.7 (#58): followers who stay behind at a reform are marked for 60 days, so their departure is reported as one
 		# summary and never as top alerts (the monthly sweep finds them when the trait comes off).
@@ -51,6 +61,9 @@ pantheon_lead_new_faith_effect = {
 		#    head title is the old faith's when the god holds it, else the new faith's when the god holds it. Saved
 		#    BEFORE anything is removed. It moves only if it is not yet the new faith's.
 		if = { limit = { exists = scope:pantheon_lead_title } clear_saved_scope = pantheon_lead_title }
+		# 2.8 test 1: $NEW$ gets a spiritual head BEFORE any head title is set on it; a faith with doctrine_no_head refuses
+		# the title ("has 'no_head_of_faith' doctrine parameter").
+		$NEW$ = { pantheon_spiritual_head_doctrine_effect = yes }
 		if = {
 			limit = {
 				$OLD$ = { exists = religious_head_title }
@@ -69,16 +82,31 @@ pantheon_lead_new_faith_effect = {
 			limit = {
 				exists = scope:pantheon_lead_title
 				NOT = { $NEW$.religious_head_title ?= scope:pantheon_lead_title }
+				# 2.8 (#62): the church seats are ceded to $OLD$ below, not carried along
+				NOT = { scope:pantheon_lead_title = title:k_papal_state }
+				NOT = { scope:pantheon_lead_title = title:k_orthodox }
 			}
 			$OLD$ = { remove_religious_head_title = yes }
 			$NEW$ = { set_religious_head_title = scope:pantheon_lead_title }
 		}
+		# 2b. 2.8 (#62): the church seat (k_papal_state, k_orthodox), if the god holds one, goes to $OLD$ and the god gets a head
+		#     title of $NEW$. Vanilla's can_change_faith blocks the holder of either, so this must come before step 3.
+		pantheon_cede_church_seat_effect = { OLD = $OLD$ NEW = $NEW$ }
 		# 3. The god follows, now that the old faith's head title is off them.
 		if = {
 			limit = { NOT = { faith = $NEW$ } }
 			set_character_faith = $NEW$
 		}
-		$NEW$ = { pantheon_spiritual_head_doctrine_effect = yes }
+		# 2.8: if something still blocks the god (a future vanilla rule), say so rather than fail silently
+		if = {
+			limit = { NOT = { faith = $NEW$ } }
+			send_interface_toast = {
+				type = event_toast_effect_bad
+				title = pantheon_reform_blocked_t
+				left_icon = root
+			}
+			debug_log = "Pantheon 2.8: the god could not follow the reform (a can_change_faith block still applies)"
+		}
 		# 4. The Great Temple's holy site follows the god's faith (after the god's own conversion: the helper reads root.faith).
 		pantheon_faith_move_temple_effect = { OLD = $OLD$ NEW = $NEW$ }
 		# 5. Tell the god. The count stays on the god (like pantheon_last_worship): the toast text reads it when shown. A
@@ -198,4 +226,130 @@ pantheon_faith_move_temple_effect = {
 		}
 		# Row 4 (C unset, $NEW$ has a site): nothing.
 	}
+}
+
+# 2.8 (#62): a god who holds a church seat gives it up before following a reform. Vanilla's can_change_faith (game/common/
+# scripted_rules/00_rules.txt:137) blocks only the holders of k_papal_state and k_orthodox. Both are landless titles in 1.20, so
+# no county moves: the god keeps every county they own, Rome included (RF3), and only the title leaves. For each of the two the god
+# holds, pantheon_cede_one_title_effect picks a recipient and hands the title over; then, if $NEW$ has no head title held by the
+# god, the god gets a fresh landless one for it (the same effect the throne uses). Root is the god. Called by
+# pantheon_lead_new_faith_effect after the movers and the step 2 title move, and before the god's own conversion.
+pantheon_cede_church_seat_effect = {
+	if = {
+		limit = {
+			OR = {
+				has_title = title:k_papal_state
+				has_title = title:k_orthodox
+			}
+		}
+		if = {
+			limit = { has_title = title:k_papal_state }
+			pantheon_cede_one_title_effect = { OLD = $OLD$ TITLE = title:k_papal_state SEAT = title:c_roma }
+		}
+		if = {
+			limit = { has_title = title:k_orthodox }
+			pantheon_cede_one_title_effect = { OLD = $OLD$ TITLE = title:k_orthodox SEAT = title:c_byzantion }
+		}
+		# the god's new head title: landless, of the new faith (a god who already holds one for it keeps it)
+		if = {
+			limit = {
+				NOT = {
+					$NEW$ = {
+						exists = religious_head_title
+						religious_head_title.holder ?= root
+					}
+				}
+			}
+			pantheon_create_hof_title_effect = { FAITH = $NEW$ }
+		}
+	}
+}
+
+# One church title (root is the god; $TITLE$ is title:k_papal_state or title:k_orthodox, $SEAT$ its historic seat county, named
+# explicitly: the throne effect moves the title's capital to the god's holy seat, so the current capital is never used). The
+# recipient, first match wins, always alive, not the god and still of $OLD$ (the movers have already left it):
+#   1. a head of rite of $OLD$ (highest title tier, then the oldest);
+#   2. the holder of the historic seat county (Rome for the Papacy, Constantinople for k_orthodox);
+#   3. the god's highest-tier vassal of $OLD$ (then the oldest);
+#   4. a new priest of $OLD$ in the god's culture, so the old faith always keeps a living head.
+# Only the title moves (type appointment: no allegiance change, and no government_base needed for an unlanded holder), then it is
+# $OLD$'s head title again.
+pantheon_cede_one_title_effect = {
+	if = {
+		limit = { exists = scope:pantheon_cede_recipient }
+		clear_saved_scope = pantheon_cede_recipient
+	}
+	if = {
+		limit = { exists = scope:pantheon_cede_change }
+		clear_saved_scope = pantheon_cede_change
+	}
+	$OLD$ = {
+		ordered_faith_rite = {
+			limit = {
+				exists = head_of_rite
+				head_of_rite = {
+					is_alive = yes
+					NOT = { this = root }
+					faith = $OLD$
+				}
+			}
+			position = 0
+			order_by = {
+				value = head_of_rite.highest_held_title_tier
+				multiply = 1000
+				add = head_of_rite.age
+			}
+			head_of_rite = { save_scope_as = pantheon_cede_recipient }
+		}
+	}
+	if = {
+		limit = {
+			NOT = { exists = scope:pantheon_cede_recipient }
+			$SEAT$.holder ?= {
+				is_alive = yes
+				NOT = { this = root }
+				faith = $OLD$
+			}
+		}
+		$SEAT$.holder = { save_scope_as = pantheon_cede_recipient }
+	}
+	if = {
+		limit = { NOT = { exists = scope:pantheon_cede_recipient } }
+		ordered_vassal = {
+			limit = {
+				is_alive = yes
+				faith = $OLD$
+			}
+			position = 0
+			order_by = {
+				value = highest_held_title_tier
+				multiply = 1000
+				add = age
+			}
+			save_scope_as = pantheon_cede_recipient
+		}
+	}
+	if = {
+		limit = { NOT = { exists = scope:pantheon_cede_recipient } }
+		create_character = {
+			template = priest_character_template
+			location = root.capital_province
+			faith = $OLD$
+			culture = root.culture
+			save_scope_as = pantheon_cede_recipient
+		}
+	}
+	create_title_and_vassal_change = {
+		type = appointment
+		save_scope_as = pantheon_cede_change
+		add_claim_on_loss = no
+	}
+	$TITLE$ = {
+		change_title_holder = {
+			holder = scope:pantheon_cede_recipient
+			change = scope:pantheon_cede_change
+		}
+	}
+	resolve_title_and_vassal_change = scope:pantheon_cede_change
+	$OLD$ = { set_religious_head_title = $TITLE$ }
 }

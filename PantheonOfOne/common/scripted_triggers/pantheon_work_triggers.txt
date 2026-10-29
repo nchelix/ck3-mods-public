@@ -1,0 +1,58 @@
+﻿# Pantheon of One 2.8 (#59) repair 3: the work scheme types. CK3 lets a character own only ONE scheme per scheme TYPE (starting another
+# of the same type replaces it), so each path has pantheon_works_max slots, each its own type: pantheon_work_fear, _fear_2, _fear_3 and
+# pantheon_work_kindness, _kindness_2, _kindness_3. The first of each is the old key (old saves keep working).
+# These triggers (and the schemes, and the slot-start effects in pantheon_work_slot_effects.txt) are the ONLY place the six keys are
+# listed. Everything else asks the triggers, so a seventh slot is one edit here.
+
+# Scheme scope. The scheme is a work of the fear path.
+pantheon_is_fear_work_trigger = {
+	OR = {
+		scheme_type = pantheon_work_fear
+		scheme_type = pantheon_work_fear_2
+		scheme_type = pantheon_work_fear_3
+	}
+}
+
+# Scheme scope. The scheme is a work of the kindness path.
+pantheon_is_kindness_work_trigger = {
+	OR = {
+		scheme_type = pantheon_work_kindness
+		scheme_type = pantheon_work_kindness_2
+		scheme_type = pantheon_work_kindness_3
+	}
+}
+
+# Scheme scope. The scheme is a work of either path.
+pantheon_is_work_scheme_trigger = {
+	OR = {
+		pantheon_is_fear_work_trigger = yes
+		pantheon_is_kindness_work_trigger = yes
+	}
+}
+
+# Character scope (the god). The god owns no scheme of type $TYPE$. $TARGET$ is kept for the callers' shape; the target's own
+# eligibility is checked by the interaction (pantheon_work_target_trigger, the same rules as the schemes' allow). No can_start_scheme
+# here: during a switch the old work against the same lord still exists when the option is evaluated, and whether the engine refuses
+# a second scheme against one target is unproven (Codex repair review 4).
+pantheon_work_slot_free_trigger = {
+	NOT = { any_scheme = { scheme_type = $TYPE$ } }
+	$TARGET$ = { is_alive = yes }
+}
+
+# Character scope (the god). Some fear slot is free for a work against $TARGET$.
+pantheon_work_fear_free_trigger = {
+	OR = {
+		pantheon_work_slot_free_trigger = { TYPE = pantheon_work_fear TARGET = $TARGET$ }
+		pantheon_work_slot_free_trigger = { TYPE = pantheon_work_fear_2 TARGET = $TARGET$ }
+		pantheon_work_slot_free_trigger = { TYPE = pantheon_work_fear_3 TARGET = $TARGET$ }
+	}
+}
+
+# Character scope (the god). Some kindness slot is free for a work against $TARGET$.
+pantheon_work_kindness_free_trigger = {
+	OR = {
+		pantheon_work_slot_free_trigger = { TYPE = pantheon_work_kindness TARGET = $TARGET$ }
+		pantheon_work_slot_free_trigger = { TYPE = pantheon_work_kindness_2 TARGET = $TARGET$ }
+		pantheon_work_slot_free_trigger = { TYPE = pantheon_work_kindness_3 TARGET = $TARGET$ }
+	}
+}

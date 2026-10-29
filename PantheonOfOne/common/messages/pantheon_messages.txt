@@ -18,3 +18,11 @@ pantheon_follower_message_list = {
 	style = bad
 	message_filter_type = pantheon_followers
 }
+
+# 2.8 (#59): a seeded county has turned to the god's faith (good news, so style = good).
+pantheon_seed_message = {
+	title = event_message_title
+	desc = event_message_text
+	style = good
+	message_filter_type = pantheon_followers
+}

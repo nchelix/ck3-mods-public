@@ -62,6 +62,66 @@ pantheon_new_god_worship_floor_effect = {
 	}
 }
 
+# 2.8 (#62): a fresh landless head-of-faith title for $FAITH$ (a faith scope or saved scope), held by the god (root). The throne
+# uses it when the faith has no landless head title to take over, and a reform uses it so a god who ceded a church seat (or never
+# had a title for the new faith) still sits as head of it. Its seat is a holy site county of the faith the god holds, else the
+# god's capital county. Moved verbatim out of pantheon_take_throne_effect's else branch (one implementation, 2.8).
+pantheon_create_hof_title_effect = {
+	if = {
+		limit = { exists = scope:pantheon_hof_faith }
+		clear_saved_scope = pantheon_hof_faith
+	}
+	if = {
+		limit = { exists = scope:pantheon_hof_seat }
+		clear_saved_scope = pantheon_hof_seat
+	}
+	if = {
+		limit = { exists = scope:new_title }
+		clear_saved_scope = new_title
+	}
+	$FAITH$ = { save_scope_as = pantheon_hof_faith }
+	# Vanilla's REL_HEAD_TITLE_NAME reads scope:my_faith (without it the title was named "The")
+	if = {
+		limit = { exists = scope:my_faith }
+		clear_saved_scope = my_faith
+	}
+	scope:pantheon_hof_faith = { save_scope_as = my_faith }
+	scope:pantheon_hof_faith = {
+		random_holy_site_barony = {
+			limit = { county.holder = root }
+			county = { save_scope_as = pantheon_hof_seat }
+		}
+	}
+	if = {
+		limit = { NOT = { exists = scope:pantheon_hof_seat } }
+		capital_county = { save_scope_as = pantheon_hof_seat }
+	}
+	create_dynamic_title = {
+		tier = duchy
+		name = REL_HEAD_TITLE_NAME
+		adj = REL_HEAD_TITLE_ADJ
+	}
+	create_title_and_vassal_change = {
+		type = created
+		save_scope_as = change
+		add_claim_on_loss = no
+	}
+	scope:new_title = {
+		set_capital_county = scope:pantheon_hof_seat
+		set_landless_title = yes
+		set_no_automatic_claims = yes
+		set_definitive_form = yes
+		set_always_follows_primary_heir = yes
+		change_title_holder = {
+			holder = root
+			change = scope:change
+		}
+	}
+	resolve_title_and_vassal_change = scope:change
+	scope:pantheon_hof_faith = { set_religious_head_title = scope:new_title }
+	scope:new_title = { generate_coa = religious_title }
+}
+
 # Make the god the landless spiritual Head of their faith, holding the Holy Seat. Proven in the prototype.
 pantheon_take_throne_effect = {
 	# A god is no one's vassal (1.1 in-game test: a liege tried to revoke an enthroned god's county)
@@ -125,30 +185,8 @@ pantheon_take_throne_effect = {
 		scope:pantheon_faith = { set_religious_head_title = scope:new_title }
 	}
 	else = {
-		create_dynamic_title = {
-			tier = duchy
-			name = REL_HEAD_TITLE_NAME
-			adj = REL_HEAD_TITLE_ADJ
-		}
-		create_title_and_vassal_change = {
-			type = created
-			save_scope_as = change
-			add_claim_on_loss = no
-		}
-		scope:new_title = {
-			set_capital_county = scope:pantheon_seat
-			set_landless_title = yes
-			set_no_automatic_claims = yes
-			set_definitive_form = yes
-			set_always_follows_primary_heir = yes
-			change_title_holder = {
-				holder = root
-				change = scope:change
-			}
-		}
-		resolve_title_and_vassal_change = scope:change
-		scope:pantheon_faith = { set_religious_head_title = scope:new_title }
-		scope:new_title = { generate_coa = religious_title }
+		# 2.8: shared with the reform (pantheon_create_hof_title_effect, above)
+		pantheon_create_hof_title_effect = { FAITH = scope:pantheon_faith }
 	}
 	scope:pantheon_seat = {
 		add_county_modifier = { modifier = pantheon_holy_seat }

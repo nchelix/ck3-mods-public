@@ -1,0 +1,83 @@
+﻿# Pantheon of One 2.8 (#59): "Begin a work". The enthroned god works on a landed lord of another faith whose capital county the god
+# has seeded, by fear or by kindness. One interaction, two radio options; starting the scheme is all it does (the events drive it). It starts the first free slot of the
+# chosen path (each slot is its own scheme type, see pantheon_work_triggers.txt).
+pantheon_begin_work_interaction = {
+	category = interaction_category_religion
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	icon = pantheon_begin_work_interaction
+	desc = pantheon_begin_work_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+		}
+		scope:recipient = { pantheon_work_target_trigger = { GOD = scope:actor } }
+	}
+	is_valid_showing_failures_only = {
+		scope:actor = {
+			custom_tooltip = {
+				text = pantheon_work_cap_tt
+				NOT = {
+					any_scheme = {
+						count >= pantheon_works_max
+						pantheon_is_work_scheme_trigger = yes
+					}
+				}
+			}
+			custom_tooltip = {
+				text = pantheon_work_dup_tt
+				NOT = {
+					any_scheme = {
+						pantheon_is_work_scheme_trigger = yes
+						scheme_target_character = scope:recipient
+					}
+				}
+			}
+		}
+	}
+	can_send = {
+		custom_tooltip = {
+			text = pantheon_pick_option_tt
+			OR = {
+				scope:pantheon_work_fear = yes
+				scope:pantheon_work_kindness = yes
+			}
+		}
+	}
+
+	send_options_exclusive = yes
+	send_option = {
+		flag = pantheon_work_fear
+		localization = pantheon_work_opt_fear
+		is_valid = {
+			scope:actor = { pantheon_work_fear_free_trigger = { TARGET = scope:recipient } }
+		}
+	}
+	send_option = {
+		flag = pantheon_work_kindness
+		localization = pantheon_work_opt_kindness
+		is_valid = {
+			scope:actor = { pantheon_work_kindness_free_trigger = { TARGET = scope:recipient } }
+		}
+	}
+
+	on_accept = {
+		if = { limit = { scope:pantheon_work_fear = yes } custom_tooltip = pantheon_work_begin_fear.tt }
+		if = { limit = { scope:pantheon_work_kindness = yes } custom_tooltip = pantheon_work_begin_kindness.tt }
+		scope:actor = {
+			if = {
+				limit = { scope:pantheon_work_fear = yes }
+				pantheon_work_start_fear_effect = { TARGET = scope:recipient }
+			}
+			else_if = {
+				limit = { scope:pantheon_work_kindness = yes }
+				pantheon_work_start_kindness_effect = { TARGET = scope:recipient }
+			}
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}

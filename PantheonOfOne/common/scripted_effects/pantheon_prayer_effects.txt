@@ -179,7 +179,7 @@ pantheon_prayer_gone_effect = {
 
 # pantheon.0061, six months after a prayer opened: if the SAME prayer (same token) is still on the books, settle it
 # exactly once. Invalidation first (a prayer that stopped being eligible is closed silently and never lapses), then
-# the lapse: a follower loses 5 Devotion and the god is told; a stranger's plea only costs a toast. Anything already
+# the lapse: a follower loses 15 Devotion (2.8, #61: the same as Refuse) and the god is told; a stranger's plea only costs a toast. Anything already
 # answered, closed or replaced (token differs or gone) does nothing. Root/this is the god.
 pantheon_prayer_deadline_effect = {
 	if = {
@@ -199,7 +199,7 @@ pantheon_prayer_deadline_effect = {
 		else_if = {
 			limit = { scope:pantheon_suppliant = { var:pantheon_prayer_origin = 1 } }
 			scope:pantheon_suppliant = { save_scope_as = pantheon_target }
-			pantheon_change_devotion_effect = { AMOUNT = -5 }
+			pantheon_change_devotion_effect = { AMOUNT = pantheon_ignored_prayer_devotion }
 			send_interface_toast = {
 				type = event_toast_effect_bad
 				title = pantheon_prayer_lapsed_t

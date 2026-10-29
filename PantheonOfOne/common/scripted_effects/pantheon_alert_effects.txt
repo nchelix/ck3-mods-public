@@ -176,13 +176,14 @@ pantheon_alert_prune_list_effect = {
 	}
 }
 
-# The dead drop off the Lost list and the three pending lists (god scope).
+# The dead drop off the Lost list and the pending lists (god scope).
 pantheon_alert_prune_effect = {
 	save_temporary_scope_as = pantheon_alert_prune_god
 	pantheon_alert_prune_list_effect = { LIST = pantheon_lost }
 	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_lapse }
 	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_left }
 	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_reform }
+	pantheon_alert_prune_list_effect = { LIST = pantheon_alert_pending_blame }
 }
 
 # Once per god, on the first sweep of a 2.6 save (god scope): the followers already gone (the living in pantheon_known who are
@@ -337,7 +338,134 @@ pantheon_alert_send_effect = {
 	}
 	remove_variable = pantheon_alert_n
 
+	# 2.8 (#61): blame. One message per follower (by kind); more than 3 become one grouped message listing them. Dead entries and
+	# anyone who left the faith are skipped (RF2); the per-follower variables are then cleared and the list emptied.
+	set_variable = { name = pantheon_alert_n value = 0 }
+	every_in_list = {
+		variable = pantheon_alert_pending_blame
+		limit = {
+			is_alive = yes
+			faith = scope:pantheon_alert_god.faith
+			has_variable = pantheon_blame_pending
+			has_variable = pantheon_blame_kind
+		}
+		add_to_temporary_list = pantheon_alert_batch_blame
+		scope:pantheon_alert_god = { change_variable = { name = pantheon_alert_n add = 1 } }
+	}
+	if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 3 }
+		save_scope_value_as = { name = pantheon_alert_count value = var:pantheon_alert_n }
+		send_interface_message = {
+			type = pantheon_follower_message_list
+			title = pantheon_alert_blame_group_t
+			desc = pantheon_alert_blame_group_d
+			every_in_list = {
+				list = pantheon_alert_batch_blame
+				save_temporary_scope_as = pantheon_alert_target
+				pantheon_alert_blame_tip_effect = yes
+			}
+		}
+	}
+	else_if = {
+		limit = { has_variable = pantheon_alert_n var:pantheon_alert_n > 0 }
+		every_in_list = {
+			list = pantheon_alert_batch_blame
+			save_temporary_scope_as = pantheon_alert_target
+			pantheon_alert_blame_message_effect = yes
+		}
+	}
+	remove_variable = pantheon_alert_n
+	every_in_list = {
+		variable = pantheon_alert_pending_blame
+		limit = { is_alive = yes }
+		if = {
+			limit = { has_variable = pantheon_blame_pending }
+			remove_variable = pantheon_blame_pending
+		}
+		if = {
+			limit = { has_variable = pantheon_blame_kind }
+			remove_variable = pantheon_blame_kind
+		}
+	}
+
 	clear_variable_list = pantheon_alert_pending_lapse
 	clear_variable_list = pantheon_alert_pending_left
 	clear_variable_list = pantheon_alert_pending_reform
+	clear_variable_list = pantheon_alert_pending_blame
+}
+
+# 2.8 (#61): one blame feed message (god scope; scope:pantheon_alert_target is the follower, scope:pantheon_alert_god the god).
+# The title names the kind; the description reads the cut from the follower's pantheon_blame_pending.
+pantheon_alert_blame_message_effect = {
+	scope:pantheon_alert_god = {
+		if = {
+			limit = { scope:pantheon_alert_target = { var:pantheon_blame_kind = 1 } }
+			send_interface_message = {
+				type = pantheon_follower_message
+				title = pantheon_alert_blame_t_1
+				desc = pantheon_alert_blame_d
+				left_icon = scope:pantheon_alert_target
+			}
+		}
+		else_if = {
+			limit = { scope:pantheon_alert_target = { var:pantheon_blame_kind = 2 } }
+			send_interface_message = {
+				type = pantheon_follower_message
+				title = pantheon_alert_blame_t_2
+				desc = pantheon_alert_blame_d
+				left_icon = scope:pantheon_alert_target
+			}
+		}
+		else_if = {
+			limit = { scope:pantheon_alert_target = { var:pantheon_blame_kind = 3 } }
+			send_interface_message = {
+				type = pantheon_follower_message
+				title = pantheon_alert_blame_t_3
+				desc = pantheon_alert_blame_d
+				left_icon = scope:pantheon_alert_target
+			}
+		}
+		else_if = {
+			limit = { scope:pantheon_alert_target = { var:pantheon_blame_kind = 4 } }
+			send_interface_message = {
+				type = pantheon_follower_message
+				title = pantheon_alert_blame_t_4
+				desc = pantheon_alert_blame_d
+				left_icon = scope:pantheon_alert_target
+			}
+		}
+		else_if = {
+			limit = { scope:pantheon_alert_target = { var:pantheon_blame_kind = 5 } }
+			send_interface_message = {
+				type = pantheon_follower_message
+				title = pantheon_alert_blame_t_5
+				desc = pantheon_alert_blame_d
+				left_icon = scope:pantheon_alert_target
+			}
+		}
+	}
+}
+
+# 2.8 (#61): one line of the grouped blame message (the follower is the scope).
+pantheon_alert_blame_tip_effect = {
+	if = {
+		limit = { var:pantheon_blame_kind = 1 }
+		custom_tooltip = { text = pantheon_alert_blame_tt_1 }
+	}
+	else_if = {
+		limit = { var:pantheon_blame_kind = 2 }
+		custom_tooltip = { text = pantheon_alert_blame_tt_2 }
+	}
+	else_if = {
+		limit = { var:pantheon_blame_kind = 3 }
+		custom_tooltip = { text = pantheon_alert_blame_tt_3 }
+	}
+	else_if = {
+		limit = { var:pantheon_blame_kind = 4 }
+		custom_tooltip = { text = pantheon_alert_blame_tt_4 }
+	}
+	else_if = {
+		limit = { var:pantheon_blame_kind = 5 }
+		custom_tooltip = { text = pantheon_alert_blame_tt_5 }
+	}
 }

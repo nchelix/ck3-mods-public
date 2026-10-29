@@ -151,7 +151,7 @@ pantheon_glance_sweep_effect = {
 	pantheon_alert_prune_effect = yes
 	every_in_list = {
 		variable = pantheon_glance_marked
-		limit = { is_alive = yes }
+		limit = { pantheon_live_character_trigger = yes }
 		add_to_temporary_list = pantheon_glance_walk
 	}
 	clear_variable_list = pantheon_glance_marked
@@ -161,7 +161,7 @@ pantheon_glance_sweep_effect = {
 	}
 	every_in_list = {
 		variable = pantheon_known
-		limit = { is_alive = yes }
+		limit = { pantheon_live_character_trigger = yes }
 		pantheon_glance_refresh_effect = { GOD = root }
 	}
 	# 2.7: anyone on the Lost list who is back in the god faith is taken off it (a walked copy; a backfilled returner sits in
@@ -183,6 +183,17 @@ pantheon_glance_sweep_effect = {
 		limit = { NOT = { has_variable = pantheon_alert_backfilled } }
 		pantheon_alert_backfill_effect = yes
 	}
+	# 2.8 (#59): the seeded counties take their month (walks only pantheon_seeded_counties)
+	pantheon_meter_monthly_effect = yes
+	# 2.8 (#59): works are driven from here too (a permanently frozen scheme may never get its own on_monthly); the work's own
+	# month marker makes whichever driver comes first in a month the only one that counts. Walks only the god's own schemes.
+	every_scheme = {
+		limit = { pantheon_is_work_scheme_trigger = yes }
+		pantheon_work_scopes_force_effect = yes
+		pantheon_work_monthly_effect = yes
+	}
+	# 2.8 (#61): the monthly health check may add blames to the pending list, so it runs before the messages go out
+	pantheon_blame_health_sweep_effect = yes
 	# 2.7: the pending lists become feed messages, batched (always last, after every refresh)
 	pantheon_alert_send_effect = yes
 	# 2.7 repair round 3: an open window rebuilds its lists (the Lost followers tab was only built when clicked)

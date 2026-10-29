@@ -1672,6 +1672,19 @@ window = {
 							onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 					}
+					# 2.8 (#59): the Godhood tour. A second row: the first is full at 160 wide. The click opens vanilla's planner for
+					# the tour (the same call the activity list's hostable entries make).
+					hbox = {
+						spacing = 6
+						button_standard = {
+							size = { 160 32 }
+							text = "pantheon_ui_btn_tour"
+							tooltip = "pantheon_tip.0001.tour.tt"
+							visible = "[GetScriptedGui('pantheon_ui_tour').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[IsGameViewDataShown( 'activity_list_detail_host_window', GetActivityType('activity_pantheon_tour').Self )]"
+							onclick = "[ToggleGameViewData( 'activity_list_detail_host_window', GetActivityType('activity_pantheon_tour').Self )]"
+						}
+					}
 					text_single = {
 						visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet]"
 						text = "pantheon_ui_oath_line"
@@ -1694,6 +1707,92 @@ window = {
 							text = "pantheon_ui_temple_line"
 						}
 					}
+						# 2.8 (#59): Seeded lands. The god's own list of seeded counties (pantheon_seeded_counties), read straight
+						# from the variable list (the Temple tab's list form). Every column has a fixed width, so a long county
+						# or holder name is cut at its cell instead of pushing the row wider.
+						text_single = { text = "pantheon_ui_seeds_header" using = Font_Size_Medium }
+						text_single = {
+							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_seeds') )]"
+							text = "pantheon_ui_seeds_empty"
+						}
+						scrollbox = {
+							# 2.8 repair 4: 7 rows (7 x 36 + 6 x 4 = 276) with margin. 9 rows (370) could overflow the 900 window when the
+							# selected-follower strip above every tab is tall and every God-tab status line shows (Codex repair review 5).
+							size = { 680 290 }
+							blockoverride "scrollbox_content" {
+								vbox = {
+									layoutpolicy_horizontal = expanding
+									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_seeds')]"
+									spacing = 4
+									item = {
+										widget = {
+											size = { 660 36 }
+											datacontext = "[Scope.GetLandedTitle]"
+											background = { using = Background_Area }
+											hbox = {
+												margin_left = 10
+												margin_right = 10
+												spacing = 8
+												text_single = {
+													size = { 150 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "[Title.GetName]"
+												}
+												text_single = {
+													size = { 170 32 }
+													autoresize = no
+													align = left|vcenter
+													datacontext = "[Title.GetHolder]"
+													text = "[Character.GetShortUINameNoTooltip]"
+												}
+												text_single = {
+													visible = "[EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)1' )]"
+													size = { 90 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_seed_lean_1"
+												}
+												text_single = {
+													visible = "[EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)2' )]"
+													size = { 90 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_seed_lean_2"
+												}
+												text_single = {
+													visible = "[EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)0' )]"
+													size = { 90 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_seed_lean_0"
+												}
+												text_single = {
+													visible = "[Title.MakeScope.Var('pantheon_meter').IsSet]"
+													size = { 90 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_seed_meter"
+												}
+												text_single = {
+													visible = "[Not( Title.MakeScope.Var('pantheon_meter').IsSet )]"
+													size = { 90 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_seed_own"
+												}
+												text_single = {
+													size = { 80 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_seed_until"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
 					expand = {}
 				}
 

@@ -1,0 +1,414 @@
+﻿# Pantheon of One 2.8 (#59): works. Six scheme types: three fear slots and three kindness slots (CK3 lets a character own only one
+# scheme per scheme TYPE, so a path needs one type per simultaneous work; see common/scripted_triggers/pantheon_work_triggers.txt).
+# Started by pantheon_begin_work_interaction (first free slot of the chosen path) against a landed character of another faith whose
+# capital county the god has seeded. Modelled on vanilla befriend (a basic scheme, no agents).
+# Slots _2 and _3 are identical copies of the first: same parameters, hooks and description keys. Keep the three of a path in step.
+#
+# Lifecycle (Codex plan reviews 1 and 2):
+# - on_start freezes the scheme for good (scheme_freeze, indefinite) and nothing ever unfreezes it. So there is no automatic progress: a
+#   work the god ignores stalls by construction.
+# - progress comes only from the choices in events/pantheon_work_events.txt (scheme progress added by the event options), fired every 3 months by on_monthly.
+# - the choosing event resolves the work itself when progress reaches the phase maximum; on_phase_completed is a second way in. Both call
+#   pantheon_work_resolve_effect, guarded so it runs once.
+# - valid has NO seed check (RF5): a seed that fades mid-work does not end the work. Seeding only gates STARTING one.
+# - no Worship is spent anywhere in a work (spec anti-goal).
+
+pantheon_work_fear = {
+	skill = intrigue
+	desc = pantheon_work_fear_desc
+	success_desc = pantheon_work_fear_success_desc
+	discovery_desc = pantheon_work_fear_discovery_desc
+	icon = icon_scheme_damage_legitimacy
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = personal
+	target_type = character
+	is_secret = no
+	is_basic = yes
+	uses_resistance = no
+
+	# Parameters (the phase length is only the unit the events measure progress in; the scheme never advances by itself)
+	speed_per_skill_point = -2.5
+	spymaster_speed_per_skill_point = 0
+	base_progress_goal = 365
+	base_maximum_success = 95
+	minimum_success = 5
+
+	allow = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		scope:target = { pantheon_work_target_trigger = { GOD = scope:owner } }
+	}
+
+	# No seed check here (RF5). A target who turned to the god's faith, or died, ends the work with no payout.
+	valid = {
+		is_alive = yes
+		scope:target = {
+			is_alive = yes
+			NOT = { faith = scope:owner.faith }
+		}
+	}
+
+	base_success_chance = {
+		base = 40
+		scheme_type_skill_success_chance_modifier = { SKILL = INTRIGUE }
+		modifier = {
+			scope:target.capital_county ?= { var:pantheon_seed_lean ?= 1 }
+			desc = pantheon_work_odds_lean
+			add = 10
+		}
+		modifier = {
+			scope:target = { has_trait = zealous }
+			desc = pantheon_work_odds_zealous
+			add = -15
+		}
+		modifier = {
+			scope:target = { has_trait = cynical }
+			desc = pantheon_work_odds_cynical
+			add = 10
+		}
+	}
+
+	on_start = {
+		pantheon_work_start_hook_effect = yes
+	}
+
+	# The scheme is frozen, so a completed phase is not expected to fire this (unproven); the choosing event resolves the work first.
+	on_phase_completed = {
+		pantheon_work_resolve_effect = yes
+	}
+
+	# Every 3 months a work event goes to the god (pulse_actions run only after a phase completes, so on_monthly drives them)
+	on_monthly = {
+		pantheon_work_monthly_effect = yes
+	}
+}
+
+pantheon_work_fear_2 = {
+	skill = intrigue
+	desc = pantheon_work_fear_desc
+	success_desc = pantheon_work_fear_success_desc
+	discovery_desc = pantheon_work_fear_discovery_desc
+	icon = icon_scheme_damage_legitimacy
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = personal
+	target_type = character
+	is_secret = no
+	is_basic = yes
+	uses_resistance = no
+
+	speed_per_skill_point = -2.5
+	spymaster_speed_per_skill_point = 0
+	base_progress_goal = 365
+	base_maximum_success = 95
+	minimum_success = 5
+
+	allow = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		scope:target = { pantheon_work_target_trigger = { GOD = scope:owner } }
+	}
+
+	valid = {
+		is_alive = yes
+		scope:target = {
+			is_alive = yes
+			NOT = { faith = scope:owner.faith }
+		}
+	}
+
+	base_success_chance = {
+		base = 40
+		scheme_type_skill_success_chance_modifier = { SKILL = INTRIGUE }
+		modifier = {
+			scope:target.capital_county ?= { var:pantheon_seed_lean ?= 1 }
+			desc = pantheon_work_odds_lean
+			add = 10
+		}
+		modifier = {
+			scope:target = { has_trait = zealous }
+			desc = pantheon_work_odds_zealous
+			add = -15
+		}
+		modifier = {
+			scope:target = { has_trait = cynical }
+			desc = pantheon_work_odds_cynical
+			add = 10
+		}
+	}
+
+	on_start = {
+		pantheon_work_start_hook_effect = yes
+	}
+
+	on_phase_completed = {
+		pantheon_work_resolve_effect = yes
+	}
+
+	on_monthly = {
+		pantheon_work_monthly_effect = yes
+	}
+}
+
+pantheon_work_fear_3 = {
+	skill = intrigue
+	desc = pantheon_work_fear_desc
+	success_desc = pantheon_work_fear_success_desc
+	discovery_desc = pantheon_work_fear_discovery_desc
+	icon = icon_scheme_damage_legitimacy
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = personal
+	target_type = character
+	is_secret = no
+	is_basic = yes
+	uses_resistance = no
+
+	speed_per_skill_point = -2.5
+	spymaster_speed_per_skill_point = 0
+	base_progress_goal = 365
+	base_maximum_success = 95
+	minimum_success = 5
+
+	allow = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		scope:target = { pantheon_work_target_trigger = { GOD = scope:owner } }
+	}
+
+	valid = {
+		is_alive = yes
+		scope:target = {
+			is_alive = yes
+			NOT = { faith = scope:owner.faith }
+		}
+	}
+
+	base_success_chance = {
+		base = 40
+		scheme_type_skill_success_chance_modifier = { SKILL = INTRIGUE }
+		modifier = {
+			scope:target.capital_county ?= { var:pantheon_seed_lean ?= 1 }
+			desc = pantheon_work_odds_lean
+			add = 10
+		}
+		modifier = {
+			scope:target = { has_trait = zealous }
+			desc = pantheon_work_odds_zealous
+			add = -15
+		}
+		modifier = {
+			scope:target = { has_trait = cynical }
+			desc = pantheon_work_odds_cynical
+			add = 10
+		}
+	}
+
+	on_start = {
+		pantheon_work_start_hook_effect = yes
+	}
+
+	on_phase_completed = {
+		pantheon_work_resolve_effect = yes
+	}
+
+	on_monthly = {
+		pantheon_work_monthly_effect = yes
+	}
+}
+
+pantheon_work_kindness = {
+	skill = learning
+	desc = pantheon_work_kindness_desc
+	success_desc = pantheon_work_kindness_success_desc
+	discovery_desc = pantheon_work_kindness_discovery_desc
+	icon = icon_scheme_befriend
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = personal
+	target_type = character
+	is_secret = no
+	is_basic = yes
+	uses_resistance = no
+
+	speed_per_skill_point = -2.5
+	spymaster_speed_per_skill_point = 0
+	base_progress_goal = 365
+	base_maximum_success = 95
+	minimum_success = 5
+
+	allow = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		scope:target = { pantheon_work_target_trigger = { GOD = scope:owner } }
+	}
+
+	valid = {
+		is_alive = yes
+		scope:target = {
+			is_alive = yes
+			NOT = { faith = scope:owner.faith }
+		}
+	}
+
+	base_success_chance = {
+		base = 40
+		scheme_type_skill_success_chance_modifier = { SKILL = LEARNING }
+		modifier = {
+			scope:target.capital_county ?= { var:pantheon_seed_lean ?= 2 }
+			desc = pantheon_work_odds_lean
+			add = 10
+		}
+		modifier = {
+			scope:target = { has_trait = zealous }
+			desc = pantheon_work_odds_zealous
+			add = -15
+		}
+		modifier = {
+			scope:target = { has_trait = cynical }
+			desc = pantheon_work_odds_cynical
+			add = 10
+		}
+	}
+
+	on_start = {
+		pantheon_work_start_hook_effect = yes
+	}
+
+	on_phase_completed = {
+		pantheon_work_resolve_effect = yes
+	}
+
+	on_monthly = {
+		pantheon_work_monthly_effect = yes
+	}
+}
+
+pantheon_work_kindness_2 = {
+	skill = learning
+	desc = pantheon_work_kindness_desc
+	success_desc = pantheon_work_kindness_success_desc
+	discovery_desc = pantheon_work_kindness_discovery_desc
+	icon = icon_scheme_befriend
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = personal
+	target_type = character
+	is_secret = no
+	is_basic = yes
+	uses_resistance = no
+
+	speed_per_skill_point = -2.5
+	spymaster_speed_per_skill_point = 0
+	base_progress_goal = 365
+	base_maximum_success = 95
+	minimum_success = 5
+
+	allow = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		scope:target = { pantheon_work_target_trigger = { GOD = scope:owner } }
+	}
+
+	valid = {
+		is_alive = yes
+		scope:target = {
+			is_alive = yes
+			NOT = { faith = scope:owner.faith }
+		}
+	}
+
+	base_success_chance = {
+		base = 40
+		scheme_type_skill_success_chance_modifier = { SKILL = LEARNING }
+		modifier = {
+			scope:target.capital_county ?= { var:pantheon_seed_lean ?= 2 }
+			desc = pantheon_work_odds_lean
+			add = 10
+		}
+		modifier = {
+			scope:target = { has_trait = zealous }
+			desc = pantheon_work_odds_zealous
+			add = -15
+		}
+		modifier = {
+			scope:target = { has_trait = cynical }
+			desc = pantheon_work_odds_cynical
+			add = 10
+		}
+	}
+
+	on_start = {
+		pantheon_work_start_hook_effect = yes
+	}
+
+	on_phase_completed = {
+		pantheon_work_resolve_effect = yes
+	}
+
+	on_monthly = {
+		pantheon_work_monthly_effect = yes
+	}
+}
+
+pantheon_work_kindness_3 = {
+	skill = learning
+	desc = pantheon_work_kindness_desc
+	success_desc = pantheon_work_kindness_success_desc
+	discovery_desc = pantheon_work_kindness_discovery_desc
+	icon = icon_scheme_befriend
+	illustration = "gfx/interface/illustrations/event_scenes/corridor.dds"
+	category = personal
+	target_type = character
+	is_secret = no
+	is_basic = yes
+	uses_resistance = no
+
+	speed_per_skill_point = -2.5
+	spymaster_speed_per_skill_point = 0
+	base_progress_goal = 365
+	base_maximum_success = 95
+	minimum_success = 5
+
+	allow = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		scope:target = { pantheon_work_target_trigger = { GOD = scope:owner } }
+	}
+
+	valid = {
+		is_alive = yes
+		scope:target = {
+			is_alive = yes
+			NOT = { faith = scope:owner.faith }
+		}
+	}
+
+	base_success_chance = {
+		base = 40
+		scheme_type_skill_success_chance_modifier = { SKILL = LEARNING }
+		modifier = {
+			scope:target.capital_county ?= { var:pantheon_seed_lean ?= 2 }
+			desc = pantheon_work_odds_lean
+			add = 10
+		}
+		modifier = {
+			scope:target = { has_trait = zealous }
+			desc = pantheon_work_odds_zealous
+			add = -15
+		}
+		modifier = {
+			scope:target = { has_trait = cynical }
+			desc = pantheon_work_odds_cynical
+			add = 10
+		}
+	}
+
+	on_start = {
+		pantheon_work_start_hook_effect = yes
+	}
+
+	on_phase_completed = {
+		pantheon_work_resolve_effect = yes
+	}
+
+	on_monthly = {
+		pantheon_work_monthly_effect = yes
+	}
+}

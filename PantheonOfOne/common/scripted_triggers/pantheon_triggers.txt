@@ -950,7 +950,7 @@ pantheon_boon_affordable_kind_trigger = {
 # In the SUPPLIANT's scope; $GOD$ is the god (pass root or a saved scope, never `this`): the suppliant is alive,
 # carries an open record, and is on the god's list pantheon_open_prayers.
 pantheon_prayer_open_here_trigger = {
-	is_alive = yes
+	pantheon_live_character_trigger = yes
 	has_variable = pantheon_prayer_open
 	$GOD$ = { is_target_in_variable_list = { name = pantheon_open_prayers target = prev } }
 }
@@ -1064,7 +1064,7 @@ pantheon_send_source_ok_trigger = {
 
 # In the ATTACKER's scope; $GOD$ is the god (pass root or a saved scope, never `this`): an open call, on the god's list.
 pantheon_retri_open_here_trigger = {
-	is_alive = yes
+	pantheon_live_character_trigger = yes
 	has_variable = pantheon_retri_token
 	has_variable = pantheon_retri_defender
 	$GOD$ = { is_target_in_variable_list = { name = pantheon_open_retributions target = prev } }
@@ -1263,4 +1263,39 @@ pantheon_bless_suits_champion_trigger = {
 pantheon_bless_suits_warding_trigger = {
 	NOT = { has_trait = pantheon_divine }
 	any_character_epidemic = { always = yes }
+}
+
+# 2.8 repair 4 (item 2): a character that is safe to READ (variables, traits) in a list walk. A purged character stays in a
+# variable list as a "weak" scope that still resolves a name and passes `is_alive = yes` (the 8 has_variable errors on
+# Ketill Flatnefr, id 12001, in test 3), but `has_variable` on it errors ("This scope doesn't support variables"). `exists` is
+# safe on any scope (triggers log: "Supported Scopes: none"); a live character always has a faith, a purged shell has none.
+# The checks run in this order so the first that fails stops the rest.
+pantheon_live_character_trigger = {
+	exists = this
+	exists = faith
+	is_alive = yes
+}
+
+# 2.8 (#61): a follower the god can be blamed by (follower scope; $GOD$ is the god): alive, of the god's faith, with Devotion,
+# and not the god.
+pantheon_blame_eligible_trigger = {
+	is_alive = yes
+	faith = $GOD$.faith
+	has_variable = pantheon_devotion
+	NOT = { this = $GOD$ }
+}
+
+# 2.8 (#61): a serious illness or a wound (character scope). Vanilla's `ill`, `pneumonic` and the wound traits, the maimed and
+# the one-eyed or one-legged, and anything flagged as a deadly contagious disease (the plagues).
+pantheon_blame_health_trigger = {
+	OR = {
+		has_trait = ill
+		has_trait = pneumonic
+		has_trait = wounded_2
+		has_trait = wounded_3
+		has_trait = maimed
+		has_trait = one_eyed
+		has_trait = one_legged
+		has_contagious_deadly_disease_trigger = yes
+	}
 }

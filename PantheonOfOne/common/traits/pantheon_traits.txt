@@ -27,6 +27,9 @@ pantheon_divine = {
 	character_spiritual_fulfillment_gain_mult = 5
 	character_spiritual_fulfillment_loss_mult = -1
 	personal_tenet_slot_add = 3
+	# 2.8 (#59) retest E: works are PERSONAL schemes and CK3 caps how many personal schemes a character runs at once (a new one
+	# pushed the oldest out, even in another slot type). Room for pantheon_works_max (3) works plus one ordinary personal scheme.
+	max_personal_schemes_add = 3
 	# The faithful adore their god
 	clergy_opinion = 100
 	zealot_opinion = 100

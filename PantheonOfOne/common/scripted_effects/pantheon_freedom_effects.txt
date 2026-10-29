@@ -251,6 +251,36 @@ pantheon_grant_freedom_effect = {
 	}
 }
 
+# 2.8 repair (R4): freed by the god, a follower forgives the cell. Root is the god; scope:pantheon_target is the freed follower.
+# The Devotion the prison blame cut (kept two years) comes back once (the marker goes at once, so a second freeing refunds nothing);
+# a feed notice for that cut that has not gone out yet is withdrawn.
+pantheon_forgive_prison_effect = {
+	if = {
+		limit = {
+			scope:pantheon_target = {
+				has_variable = pantheon_blame_prison_loss
+				has_variable = pantheon_devotion
+			}
+		}
+		pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_target.var:pantheon_blame_prison_loss }
+		scope:pantheon_target = { remove_variable = pantheon_blame_prison_loss }
+		if = {
+			limit = {
+				scope:pantheon_target = { var:pantheon_blame_kind ?= 3 }
+				is_target_in_variable_list = {
+					name = pantheon_alert_pending_blame
+					target = scope:pantheon_target
+				}
+			}
+			remove_list_variable = { name = pantheon_alert_pending_blame target = scope:pantheon_target }
+			scope:pantheon_target = {
+				remove_variable = pantheon_blame_pending
+				remove_variable = pantheon_blame_kind
+			}
+		}
+	}
+}
+
 # The shared part (2.4 Task 2): release the prisoner, the jailer's opinion of the god (a believer holds it lightly), the
 # marker for later features, and the toast. NO Devotion: the ordinary prayer and Bless add the ransom-scaled Devotion
 # before calling it; the Great Prayer (kind 7) gets the Great Boon's +100 only; freeing a demigod pays none. Root is the
@@ -278,6 +308,7 @@ pantheon_free_prisoner_core_effect = {
 		scope:pantheon_target = {
 			set_variable = { name = pantheon_freed_by_god value = current_year }
 		}
+		pantheon_forgive_prison_effect = yes
 		send_interface_toast = {
 			type = event_toast_effect_good
 			title = pantheon_freedom_granted_t

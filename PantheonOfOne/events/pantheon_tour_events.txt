@@ -1,0 +1,289 @@
+﻿namespace = pantheon_tour
+
+# Pantheon of One 2.8 (#59): the Godhood tour. Root is the god. 0010-0040 are the arrival chain (one after another, three visible
+# options each: a fear choice, a kindness choice and a cheap one); 0090 ends the tour. Each event skips if the tour was interrupted
+# (the tour variables are gone).
+
+pantheon_tour.0010 = {
+	type = activity_event
+	title = pantheon_tour.0010.t
+	desc = pantheon_tour.0010.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_tour_county
+	}
+
+	# fear: a lean toward fear, a good score, and a cost
+	option = {
+		name = pantheon_tour.0010.fear
+		pantheon_tour_choice_effect = { SCORE = 25 FEAR = 1 KIND = 0 }
+		add_prestige = minor_prestige_loss
+		trigger_event = { id = pantheon_tour.0020 days = 5 }
+	}
+
+	# kindness: a lean toward kindness, a good score, and a cost
+	option = {
+		name = pantheon_tour.0010.kind
+		pantheon_tour_choice_effect = { SCORE = 25 FEAR = 0 KIND = 1 }
+		remove_short_term_gold = minor_gold_value
+		trigger_event = { id = pantheon_tour.0020 days = 5 }
+	}
+
+	# the cheap choice: a little score, no lean, no cost
+	option = {
+		name = pantheon_tour.0010.cheap
+		pantheon_tour_choice_effect = { SCORE = 5 FEAR = 0 KIND = 0 }
+		trigger_event = { id = pantheon_tour.0020 days = 5 }
+	}
+}
+
+pantheon_tour.0020 = {
+	type = activity_event
+	title = pantheon_tour.0020.t
+	desc = pantheon_tour.0020.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_tour_county
+	}
+
+	# fear: a lean toward fear, a good score, and a cost
+	option = {
+		name = pantheon_tour.0020.fear
+		pantheon_tour_choice_effect = { SCORE = 30 FEAR = 1 KIND = 0 }
+		add_stress = minor_stress_gain
+		trigger_event = { id = pantheon_tour.0030 days = 5 }
+	}
+
+	# kindness: a lean toward kindness, a good score, and a cost
+	option = {
+		name = pantheon_tour.0020.kind
+		pantheon_tour_choice_effect = { SCORE = 20 FEAR = 0 KIND = 1 }
+		add_piety = minor_piety_loss
+		trigger_event = { id = pantheon_tour.0030 days = 5 }
+	}
+
+	# the cheap choice: a little score, no lean, no cost
+	option = {
+		name = pantheon_tour.0020.cheap
+		pantheon_tour_choice_effect = { SCORE = 5 FEAR = 0 KIND = 0 }
+		trigger_event = { id = pantheon_tour.0030 days = 5 }
+	}
+}
+
+pantheon_tour.0030 = {
+	type = activity_event
+	title = pantheon_tour.0030.t
+	desc = pantheon_tour.0030.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_tour_county
+	}
+
+	# fear: a lean toward fear, a good score, and a cost
+	option = {
+		name = pantheon_tour.0030.fear
+		pantheon_tour_choice_effect = { SCORE = 20 FEAR = 1 KIND = 0 }
+		add_prestige = minor_prestige_loss
+		trigger_event = { id = pantheon_tour.0040 days = 5 }
+	}
+
+	# kindness: a lean toward kindness, a good score, and a cost
+	option = {
+		name = pantheon_tour.0030.kind
+		pantheon_tour_choice_effect = { SCORE = 30 FEAR = 0 KIND = 1 }
+		remove_short_term_gold = minor_gold_value
+		trigger_event = { id = pantheon_tour.0040 days = 5 }
+	}
+
+	# the cheap choice: a little score, no lean, no cost
+	option = {
+		name = pantheon_tour.0030.cheap
+		pantheon_tour_choice_effect = { SCORE = 5 FEAR = 0 KIND = 0 }
+		trigger_event = { id = pantheon_tour.0040 days = 5 }
+	}
+}
+
+pantheon_tour.0040 = {
+	type = activity_event
+	title = pantheon_tour.0040.t
+	desc = pantheon_tour.0040.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_tour_county
+	}
+
+	# fear: a lean toward fear, a good score, and a cost
+	option = {
+		name = pantheon_tour.0040.fear
+		pantheon_tour_choice_effect = { SCORE = 25 FEAR = 1 KIND = 0 }
+		add_stress = minor_stress_gain
+	}
+
+	# kindness: a lean toward kindness, a good score, and a cost
+	option = {
+		name = pantheon_tour.0040.kind
+		pantheon_tour_choice_effect = { SCORE = 25 FEAR = 0 KIND = 1 }
+		add_piety = minor_piety_loss
+	}
+
+	# the cheap choice: a little score, no lean, no cost
+	option = {
+		name = pantheon_tour.0040.cheap
+		pantheon_tour_choice_effect = { SCORE = 5 FEAR = 0 KIND = 0 }
+	}
+}
+
+# The end of the tour. Plant a seed in the toured county with the winning lean (a tie gives none) and push its meter by a quarter of
+# the score. Then the de jure duchy: a pantheon_tour_score x 0.4 percent chance (40 at 100) to seed every county of it, and, if that
+# worked, the de jure kingdom at pantheon_tour_score x 0.15 percent (15 at 100). The window reports what spread, and the tour
+# variables are cleared when the god reads it.
+pantheon_tour.0090 = {
+	type = activity_event
+	title = pantheon_tour.0090.t
+	desc = {
+		desc = pantheon_tour.0090.desc_county
+		first_valid = {
+			triggered_desc = {
+				# the seed's own lean after planting (a tied tour keeps a replanted seed's old lean)
+				trigger = { scope:pantheon_tour_county.var:pantheon_seed_lean ?= 1 }
+				desc = pantheon_tour.0090.lean_fear
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_tour_county.var:pantheon_seed_lean ?= 2 }
+				desc = pantheon_tour.0090.lean_kind
+			}
+			desc = pantheon_tour.0090.lean_none
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:pantheon_tour_county = { has_variable = pantheon_meter } }
+				desc = pantheon_tour.0090.desc_meter
+			}
+			# a county that turned to the god's faith during the tour has no meter
+			desc = pantheon_tour.0090.desc_turned
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { exists = scope:pantheon_tour_kingdom }
+				desc = pantheon_tour.0090.desc_kingdom
+			}
+			triggered_desc = {
+				trigger = { exists = scope:pantheon_tour_duchy }
+				desc = pantheon_tour.0090.desc_duchy
+			}
+			desc = pantheon_tour.0090.desc_nospread
+		}
+	}
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_tour_county
+		has_variable = pantheon_tour_score
+	}
+
+	immediate = {
+		if = {
+			limit = { exists = scope:pantheon_god }
+			clear_saved_scope = pantheon_god
+		}
+		save_scope_as = pantheon_god
+		var:pantheon_tour_county = { save_scope_as = pantheon_tour_county }
+		if = {
+			limit = { var:pantheon_tour_lean_fear > var:pantheon_tour_lean_kind }
+			save_scope_value_as = { name = pantheon_tour_lean value = 1 }
+		}
+		else_if = {
+			limit = { var:pantheon_tour_lean_kind > var:pantheon_tour_lean_fear }
+			save_scope_value_as = { name = pantheon_tour_lean value = 2 }
+		}
+		else = {
+			save_scope_value_as = { name = pantheon_tour_lean value = 0 }
+		}
+		save_scope_value_as = {
+			name = pantheon_tour_gain
+			value = {
+				value = var:pantheon_tour_score
+				divide = 4
+			}
+		}
+		scope:pantheon_tour_county = {
+			pantheon_plant_seed_effect = { LEAN = scope:pantheon_tour_lean }
+			pantheon_meter_add_effect = { AMOUNT = scope:pantheon_tour_gain }
+		}
+		# the de jure duchy, then (only if the duchy took) the de jure kingdom. Counties of the god's own faith are skipped, and
+		# the counties that took the seed are counted on the god for the report.
+		set_variable = { name = pantheon_tour_spread_duchy value = 0 }
+		set_variable = { name = pantheon_tour_spread_kingdom value = 0 }
+		random = {
+			chance = {
+				value = var:pantheon_tour_score
+				multiply = 0.4
+			}
+			scope:pantheon_tour_county.de_jure_liege ?= {
+				save_scope_as = pantheon_tour_duchy
+				every_de_jure_county = {
+					limit = { NOT = { faith = scope:pantheon_god.faith } }
+					pantheon_plant_seed_effect = { LEAN = scope:pantheon_tour_lean }
+					scope:pantheon_god = { change_variable = { name = pantheon_tour_spread_duchy add = 1 } }
+				}
+				if = {
+					limit = {
+						exists = de_jure_liege
+						de_jure_liege = { tier = tier_kingdom }
+					}
+					root = {
+						random = {
+							chance = {
+								value = var:pantheon_tour_score
+								multiply = 0.15
+							}
+							scope:pantheon_tour_duchy.de_jure_liege = {
+								save_scope_as = pantheon_tour_kingdom
+								every_de_jure_county = {
+									limit = { NOT = { faith = scope:pantheon_god.faith } }
+									pantheon_plant_seed_effect = { LEAN = scope:pantheon_tour_lean }
+									scope:pantheon_god = { change_variable = { name = pantheon_tour_spread_kingdom add = 1 } }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		pantheon_ui_refresh_if_open_effect = yes
+	}
+
+	option = {
+		name = pantheon_tour.0090.ok
+		pantheon_tour_clear_effect = yes
+	}
+}

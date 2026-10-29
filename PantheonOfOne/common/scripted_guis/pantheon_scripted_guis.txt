@@ -206,6 +206,17 @@ pantheon_ui_embrace = {
 	effect = { trigger_event = pantheon.0110 }
 }
 
+# 2.8 (#59): the God tab's "Godhood tour" button shows for the enthroned god. It only gates visibility: the button's own onclick opens
+# vanilla's planner for activity_pantheon_tour with ToggleGameViewData('activity_list_detail_host_window', ...), as the activity list does.
+pantheon_ui_tour = {
+	scope = character
+	is_valid = {
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+		is_ai = no
+	}
+}
+
 # In-game round 1: a pinned follower could not be un-pinned
 pantheon_ui_clear = {
 	scope = character

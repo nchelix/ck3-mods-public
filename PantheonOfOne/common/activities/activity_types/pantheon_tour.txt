@@ -1,0 +1,163 @@
+﻿# Pantheon of One 2.8 (#59): the Godhood tour. The god walks among mortals in a county that does not share their faith, an arrival
+# chain of events (pantheon_tour.0010-0040, events/pantheon_tour_events.txt) adds up a tour score and a fear or kindness lean, and at
+# the end (pantheon_tour.0090) a seed is planted. Modelled on vanilla activity_types/playdate.txt (a single predefined phase, no
+# options) and pilgrimage.txt (a faraway destination, no guests). Costs gold and prestige and takes time; never Worship.
+# Started from the Pantheon window's God tab, which opens vanilla's planner for this type (gui/pantheon_window.gui).
+activity_pantheon_tour = {
+	# only the enthroned god, and never offered to the AI
+	is_shown = {
+		is_ai = no
+		has_trait = pantheon_divine
+		has_variable = pantheon_enthroned
+	}
+
+	can_start_showing_failures_only = {
+		is_available = yes
+		is_physically_able = yes
+		is_imprisoned = no
+	}
+
+	is_valid = {
+		scope:host = {
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+			is_physically_able = yes
+			is_imprisoned = no
+		}
+	}
+
+	# an interrupted tour plants nothing; the tour variables go with it
+	on_invalidated = {
+		scope:host = { pantheon_tour_clear_effect = yes }
+		invalidation_imprisoned_effect = yes
+		invalidation_incapable_effect = yes
+		invalidation_host_isolated_effect = yes
+	}
+
+	# the player picks the capital of any county whose faith is not the god's (province root, scope:host the god). Only county
+	# capitals are valid, so the map marks one province per county, not every barony of the world (the tour seeds a county anyway).
+	is_location_valid = {
+		is_sea_province = no
+		is_county_capital = yes
+		exists = province_owner
+		NOT = { faith = scope:host.faith }
+	}
+
+	province_filter = all
+	ai_province_filter = capital
+	max_route_deviation_mult = 2.0
+	is_single_location = yes
+
+	# gold and prestige, like a pilgrimage's base cost; no Worship
+	cost = {
+		gold = {
+			value = medium_gold_value
+		}
+		prestige = {
+			value = minor_prestige_value
+		}
+	}
+
+	ui_predicted_cost = {
+		gold = {
+			value = medium_gold_value
+		}
+		prestige = {
+			value = minor_prestige_value
+		}
+	}
+
+	# no cooldown beyond vanilla's one-hosted-activity rule
+
+	phases = {
+		pantheon_tour_phase = {
+			is_predefined = yes
+
+			# arrival: record the county, start the chain, and let the phase run its course
+			on_phase_active = {
+				if = {
+					limit = { this = scope:host }
+					set_variable = { name = pantheon_tour_county value = scope:activity.activity_location.county }
+					scope:activity = { progress_activity_phase_after = { months = 2 } }
+					trigger_event = { id = pantheon_tour.0010 days = 1 }
+				}
+			}
+
+			# the tour ends: plant the seed and report what spread
+			on_end = {
+				if = {
+					limit = { this = scope:host }
+					trigger_event = { id = pantheon_tour.0090 }
+				}
+			}
+		}
+	}
+
+	# a fresh tour starts with a clean score
+	on_start = {
+		scope:host = {
+			pantheon_tour_clear_effect = yes
+			set_variable = { name = pantheon_tour_score value = 0 }
+			set_variable = { name = pantheon_tour_lean_fear value = 0 }
+			set_variable = { name = pantheon_tour_lean_kind value = 0 }
+		}
+	}
+
+	wait_time_before_start = { days = 1 }
+
+	ai_will_do = {
+		value = 0
+	}
+
+	ai_check_interval_by_tier = {
+		barony = 0
+		county = 0
+		duchy = 0
+		kingdom = 0
+		empire = 0
+		hegemony = 0
+	}
+
+	# the god walks alone
+	allow_zero_guest_invites = yes
+	max_guests = 1
+
+	can_be_activity_guest = {
+		always = no
+	}
+
+	host_intents = {
+		intents = { reflection_intent }
+		default = reflection_intent
+	}
+
+	guest_intents = {
+		intents = { reflection_intent }
+		default = reflection_intent
+	}
+
+	# no travel_entourage_selection: the tour takes no guests (vanilla playdate and festival omit it too)
+
+	header_background = "gfx/interface/illustrations/activity_header_backgrounds/activity_pantheon_tour.dds"
+
+	background = {
+		texture = "gfx/interface/illustrations/event_scenes/pantheon_tour.dds"
+		environment = "environment_event_temple"
+		ambience = "event:/SFX/Events/Backgrounds/temple_generic"
+	}
+
+	window_characters = {
+		god = {
+			camera = camera_body
+			effect = {
+				scope:host = { add_to_list = characters }
+			}
+			scripted_animation = {
+				triggered_animation = {
+					trigger = { always = yes }
+					animation = { personality_zealous survey prostration }
+				}
+			}
+		}
+	}
+}

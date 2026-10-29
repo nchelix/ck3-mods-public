@@ -1,0 +1,603 @@
+﻿namespace = pantheon_work
+
+# Pantheon of One 2.8 (#59): works. Root is the god in every event; scope:scheme (the work), scope:owner (the god) and scope:target (the
+# lord) travel in from the scheme's on_monthly. 0001-0003 are the outcome (hidden runner, the success window, the failure window);
+# 0100-0150 are the six fear events and 0200-0250 the six kindness events (2-3 options each, none greyed).
+
+# A won work, run as the god. The success effect (pantheon_work_effects.txt) converts the lord and pays out.
+pantheon_work.0001 = {
+	type = character_event
+	hidden = yes
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:target
+		exists = scope:pantheon_work_lean
+	}
+	immediate = {
+		pantheon_work_success_effect = { LEAN = scope:pantheon_work_lean }
+	}
+}
+
+# A failed or exposed work: the lord turns hostile and the seed on their capital loses time.
+pantheon_work.0003 = {
+	type = character_event
+	title = pantheon_work.0003.t
+	desc = pantheon_work.0003.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = anger
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:target
+	}
+
+	option = {
+		name = pantheon_work.0003.ok
+	}
+}
+
+# A won work whose lord could not change faith (nothing was paid, nothing converted).
+pantheon_work.0004 = {
+	type = character_event
+	title = pantheon_work.0004.t
+	desc = pantheon_work.0004.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = anger
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:target
+	}
+
+	option = {
+		name = pantheon_work.0004.ok
+	}
+}
+
+# ---- Fear: disasters, plague, nightmares and burnt holdings (0100-0150) ----
+# Every option but "Let it be" adds progress through pantheon_work_progress_effect (a share of the phase, divided by the target's rank). "Let it be" adds none, so a work left alone
+# stalls. Choices cost gold, prestige, piety or stress, never Worship; some carry exposure risk (fear's is the higher). A few push the target's
+# capital-county meter. 0150 and 0250 offer the switch to the other path.
+
+pantheon_work.0100 = {
+	type = character_event
+	title = pantheon_work.0100.t
+	desc = pantheon_work.0100.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = worry
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0100.bold
+		pantheon_work_progress_effect = { FRACTION = 0.3 }
+		add_stress = minor_stress_gain
+		pantheon_work_meter_push_effect = { AMOUNT = 8 }
+		pantheon_work_risk_effect = { CHANCE = 15 }
+	}
+
+	option = {
+		name = pantheon_work.0100.soft
+		pantheon_work_progress_effect = { FRACTION = 0.15 }
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0100.let
+	}
+}
+
+pantheon_work.0110 = {
+	type = character_event
+	title = pantheon_work.0110.t
+	desc = pantheon_work.0110.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = worry
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0110.bold
+		pantheon_work_progress_effect = { FRACTION = 0.35 }
+		add_stress = medium_stress_gain
+		pantheon_work_meter_push_effect = { AMOUNT = 10 }
+		pantheon_work_risk_effect = { CHANCE = 25 }
+	}
+
+	option = {
+		name = pantheon_work.0110.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		remove_short_term_gold = minor_gold_value
+		pantheon_work_risk_effect = { CHANCE = 10 }
+	}
+
+	option = {
+		name = pantheon_work.0110.let
+	}
+}
+
+pantheon_work.0120 = {
+	type = character_event
+	title = pantheon_work.0120.t
+	desc = pantheon_work.0120.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = worry
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0120.bold
+		pantheon_work_progress_effect = { FRACTION = 0.3 }
+		add_prestige = minor_prestige_loss
+		pantheon_work_meter_push_effect = { AMOUNT = 8 }
+		pantheon_work_risk_effect = { CHANCE = 20 }
+	}
+
+	option = {
+		name = pantheon_work.0120.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		add_stress = minor_stress_gain
+		pantheon_work_risk_effect = { CHANCE = 10 }
+	}
+
+	option = {
+		name = pantheon_work.0120.let
+	}
+}
+
+pantheon_work.0130 = {
+	type = character_event
+	title = pantheon_work.0130.t
+	desc = pantheon_work.0130.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = worry
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0130.bold
+		pantheon_work_progress_effect = { FRACTION = 0.3 }
+		add_piety = minor_piety_loss
+		pantheon_work_risk_effect = { CHANCE = 15 }
+	}
+
+	option = {
+		name = pantheon_work.0130.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0130.let
+	}
+}
+
+pantheon_work.0140 = {
+	type = character_event
+	title = pantheon_work.0140.t
+	desc = pantheon_work.0140.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = worry
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0140.bold
+		pantheon_work_progress_effect = { FRACTION = 0.35 }
+		add_prestige = medium_prestige_loss
+		pantheon_work_meter_push_effect = { AMOUNT = 10 }
+		pantheon_work_risk_effect = { CHANCE = 25 }
+	}
+
+	option = {
+		name = pantheon_work.0140.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		remove_short_term_gold = minor_gold_value
+		pantheon_work_risk_effect = { CHANCE = 10 }
+	}
+
+	option = {
+		name = pantheon_work.0140.let
+	}
+}
+
+pantheon_work.0150 = {
+	type = character_event
+	title = pantheon_work.0150.t
+	desc = pantheon_work.0150.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = worry
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0150.bold
+		pantheon_work_progress_effect = { FRACTION = 0.25 }
+		add_stress = minor_stress_gain
+		pantheon_work_risk_effect = { CHANCE = 15 }
+	}
+
+	option = {
+		name = pantheon_work.0150.switch
+		trigger = {
+			custom_tooltip = {
+				text = pantheon_work_switch_kindness_full_tt
+				pantheon_work_kindness_free_trigger = { TARGET = scope:target }
+			}
+		}
+		show_as_unavailable = { NOT = { pantheon_work_kindness_free_trigger = { TARGET = scope:target } } }
+		pantheon_work_switch_effect = { FEAR = no }
+	}
+
+	option = {
+		name = pantheon_work.0150.let
+	}
+}
+
+# ---- Kindness: healing, harvests, visions and rescue (0200-0250) ----
+
+pantheon_work.0200 = {
+	type = character_event
+	title = pantheon_work.0200.t
+	desc = pantheon_work.0200.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = happiness
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0200.bold
+		pantheon_work_progress_effect = { FRACTION = 0.3 }
+		remove_short_term_gold = minor_gold_value
+		pantheon_work_meter_push_effect = { AMOUNT = 8 }
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0200.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		pantheon_work_risk_effect = { CHANCE = 3 }
+	}
+
+	option = {
+		name = pantheon_work.0200.let
+	}
+}
+
+pantheon_work.0210 = {
+	type = character_event
+	title = pantheon_work.0210.t
+	desc = pantheon_work.0210.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = happiness
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0210.bold
+		pantheon_work_progress_effect = { FRACTION = 0.35 }
+		add_piety = minor_piety_loss
+		pantheon_work_meter_push_effect = { AMOUNT = 10 }
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0210.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		add_prestige = minor_prestige_loss
+		pantheon_work_risk_effect = { CHANCE = 3 }
+	}
+
+	option = {
+		name = pantheon_work.0210.let
+	}
+}
+
+pantheon_work.0220 = {
+	type = character_event
+	title = pantheon_work.0220.t
+	desc = pantheon_work.0220.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = happiness
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0220.bold
+		pantheon_work_progress_effect = { FRACTION = 0.3 }
+		add_stress = minor_stress_gain
+		pantheon_work_risk_effect = { CHANCE = 10 }
+	}
+
+	option = {
+		name = pantheon_work.0220.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0220.let
+	}
+}
+
+pantheon_work.0230 = {
+	type = character_event
+	title = pantheon_work.0230.t
+	desc = pantheon_work.0230.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = happiness
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0230.bold
+		pantheon_work_progress_effect = { FRACTION = 0.35 }
+		remove_short_term_gold = medium_gold_value
+		pantheon_work_meter_push_effect = { AMOUNT = 10 }
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0230.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		add_prestige = minor_prestige_loss
+		pantheon_work_risk_effect = { CHANCE = 3 }
+	}
+
+	option = {
+		name = pantheon_work.0230.let
+	}
+}
+
+pantheon_work.0240 = {
+	type = character_event
+	title = pantheon_work.0240.t
+	desc = pantheon_work.0240.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = happiness
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0240.bold
+		pantheon_work_progress_effect = { FRACTION = 0.3 }
+		remove_short_term_gold = minor_gold_value
+		pantheon_work_meter_push_effect = { AMOUNT = 8 }
+		pantheon_work_risk_effect = { CHANCE = 10 }
+	}
+
+	option = {
+		name = pantheon_work.0240.soft
+		pantheon_work_progress_effect = { FRACTION = 0.2 }
+		add_stress = minor_stress_gain
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0240.let
+	}
+}
+
+pantheon_work.0250 = {
+	type = character_event
+	title = pantheon_work.0250.t
+	desc = pantheon_work.0250.desc
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = happiness
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:scheme
+		exists = scope:target
+		scope:target = { is_alive = yes }
+	}
+
+	option = {
+		name = pantheon_work.0250.bold
+		pantheon_work_progress_effect = { FRACTION = 0.25 }
+		remove_short_term_gold = minor_gold_value
+		pantheon_work_risk_effect = { CHANCE = 5 }
+	}
+
+	option = {
+		name = pantheon_work.0250.switch
+		trigger = {
+			custom_tooltip = {
+				text = pantheon_work_switch_fear_full_tt
+				pantheon_work_fear_free_trigger = { TARGET = scope:target }
+			}
+		}
+		show_as_unavailable = { NOT = { pantheon_work_fear_free_trigger = { TARGET = scope:target } } }
+		pantheon_work_switch_effect = { FEAR = yes }
+	}
+
+	option = {
+		name = pantheon_work.0250.let
+	}
+}
+
+# A won work: what it brought. The lord has already converted; the reward is the Worship lump the success effect kept on the god.
+pantheon_work.0002 = {
+	type = character_event
+	title = pantheon_work.0002.t
+	desc = {
+		first_valid = {
+			triggered_desc = {
+				trigger = { scope:target = { has_variable = pantheon_fear_convert } }
+				desc = pantheon_work.0002.desc_fear
+			}
+			desc = pantheon_work.0002.desc_kind
+		}
+	}
+	theme = faith
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+	right_portrait = {
+		character = scope:target
+		animation = admiration
+	}
+
+	trigger = {
+		has_trait = pantheon_divine
+		exists = scope:target
+	}
+
+	option = {
+		name = pantheon_work.0002.ok
+	}
+}

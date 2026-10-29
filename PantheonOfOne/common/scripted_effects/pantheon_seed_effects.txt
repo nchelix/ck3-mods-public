@@ -1,0 +1,128 @@
+﻿# Pantheon of One 2.8 (#59): seeds and the county conversion meter. Nothing here walks every_county or every_living_character:
+# the monthly effect walks only the god's own list, pantheon_seeded_counties (RF1, RF2).
+
+# Plant (or refresh) a seed. County title scope; scope:pantheon_god is the god. $LEAN$ is 1 fear, 2 kindness, 0 none (a number or
+# a scope value). The full length is always set, so replanting refreshes and never shortens. A newer lean overwrites only when
+# it is not 0. The county joins the god's list if absent (replanting re-enrols one that was pruned; its meter comes back with
+# it). A county already of the god's faith is seeded all the same (works can target its holder, a convert's lands all count);
+# it just gets no meter (the monthly growth skips it). pantheon_seed_end is the year the seed fades, for the Seeded lands list.
+pantheon_plant_seed_effect = {
+	save_temporary_scope_as = pantheon_seed_county
+	set_variable = { name = pantheon_seed value = yes days = pantheon_seed_days }
+	set_variable = { name = pantheon_seed_god value = scope:pantheon_god }
+	set_variable = {
+		name = pantheon_seed_end
+		value = {
+			value = current_year
+			add = pantheon_seed_years
+		}
+	}
+	if = {
+		limit = { $LEAN$ > 0 }
+		set_variable = { name = pantheon_seed_lean value = $LEAN$ }
+	}
+	else_if = {
+		limit = { NOT = { has_variable = pantheon_seed_lean } }
+		set_variable = { name = pantheon_seed_lean value = 0 }
+	}
+	if = {
+		limit = {
+			NOT = { faith = scope:pantheon_god.faith }
+			NOT = { has_variable = pantheon_meter }
+		}
+		set_variable = { name = pantheon_meter value = 0 }
+	}
+	scope:pantheon_god = {
+		if = {
+			limit = {
+				NOT = { is_target_in_variable_list = { name = pantheon_seeded_counties target = scope:pantheon_seed_county } }
+			}
+			add_to_variable_list = { name = pantheon_seeded_counties target = scope:pantheon_seed_county }
+		}
+	}
+}
+
+# Push the meter. County title scope; $AMOUNT$ a number or script value. Counties of the god's faith take nothing. Capped at 100;
+# the monthly effect turns the county when it sees 100.
+pantheon_meter_add_effect = {
+	if = {
+		limit = { NOT = { faith = scope:pantheon_god.faith } }
+		if = {
+			limit = { NOT = { has_variable = pantheon_meter } }
+			set_variable = { name = pantheon_meter value = 0 }
+		}
+		change_variable = { name = pantheon_meter add = $AMOUNT$ }
+		clamp_variable = { name = pantheon_meter min = 0 max = 100 }
+	}
+}
+
+# One seeded county's month (county title scope; scope:pantheon_meter_god is the god). Grows by 0.25 (about 33 years with no
+# events), doubled when the holder is of the god's faith and halved when the holder is zealous. A county of the god's faith
+# loses its meter. At 100 the county turns to the god's faith, the meter clears, the seed stays, and the god gets a message.
+pantheon_meter_county_effect = {
+	save_temporary_scope_as = pantheon_seed_county
+	if = {
+		limit = { faith = scope:pantheon_meter_god.faith }
+		if = {
+			limit = { has_variable = pantheon_meter }
+			remove_variable = pantheon_meter
+		}
+	}
+	else = {
+		set_variable = { name = pantheon_meter_step value = 0.25 }
+		if = {
+			limit = {
+				exists = holder
+				holder = { faith = scope:pantheon_meter_god.faith }
+			}
+			change_variable = { name = pantheon_meter_step multiply = 2 }
+		}
+		if = {
+			limit = {
+				exists = holder
+				holder = { has_trait = zealous }
+			}
+			change_variable = { name = pantheon_meter_step multiply = 0.5 }
+		}
+		if = {
+			limit = { NOT = { has_variable = pantheon_meter } }
+			set_variable = { name = pantheon_meter value = 0 }
+		}
+		change_variable = { name = pantheon_meter add = var:pantheon_meter_step }
+		remove_variable = pantheon_meter_step
+		clamp_variable = { name = pantheon_meter min = 0 max = 100 }
+		if = {
+			limit = { var:pantheon_meter >= 100 }
+			set_county_faith = scope:pantheon_meter_god.faith
+			remove_variable = pantheon_meter
+			scope:pantheon_meter_god = {
+				send_interface_message = {
+					type = pantheon_seed_message
+					title = pantheon_county_turned_t
+					desc = pantheon_county_turned_d
+				}
+			}
+		}
+	}
+}
+
+# The monthly pass (the monthly sweep calls it). Root is the god. Walks only pantheon_seeded_counties: the living seeds are
+# copied to a temporary list, the list is cleared and the living re-added (a list is never edited while walked), and each living
+# county takes its month. A seed that expired (pantheon_seed gone) or now belongs to another god leaves the list but KEEPS its
+# pantheon_meter variable, frozen, so a later re-plant re-enrols it with that progress. A county of the god's faith stays
+# listed while its seed lasts.
+pantheon_meter_monthly_effect = {
+	save_temporary_scope_as = pantheon_meter_god
+	every_in_list = {
+		variable = pantheon_seeded_counties
+		limit = { pantheon_county_seeded_trigger = { GOD = scope:pantheon_meter_god } }
+		add_to_temporary_list = pantheon_seed_live
+	}
+	clear_variable_list = pantheon_seeded_counties
+	every_in_list = {
+		list = pantheon_seed_live
+		save_temporary_scope_as = pantheon_seed_row
+		scope:pantheon_meter_god = { add_to_variable_list = { name = pantheon_seeded_counties target = scope:pantheon_seed_row } }
+		pantheon_meter_county_effect = yes
+	}
+}

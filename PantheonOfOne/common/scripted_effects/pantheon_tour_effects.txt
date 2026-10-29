@@ -1,0 +1,41 @@
+﻿# Pantheon of One 2.8 (#59): the Godhood tour's bookkeeping. Root is the god. The tour's variables live on the god:
+# pantheon_tour_county (the title), pantheon_tour_score (0..100), pantheon_tour_lean_fear and pantheon_tour_lean_kind (counters).
+
+# One arrival choice: $SCORE$ added to the tour score (capped at 100) and a point of fear or kindness lean ($FEAR$ and $KIND$ are 0 or 1).
+pantheon_tour_choice_effect = {
+	if = {
+		limit = { has_variable = pantheon_tour_score }
+		change_variable = { name = pantheon_tour_score add = $SCORE$ }
+		clamp_variable = { name = pantheon_tour_score min = 0 max = 100 }
+		change_variable = { name = pantheon_tour_lean_fear add = $FEAR$ }
+		change_variable = { name = pantheon_tour_lean_kind add = $KIND$ }
+	}
+}
+
+# Reset every tour variable (an interrupted tour, the end report, a fresh tour). Safe when they were never set.
+pantheon_tour_clear_effect = {
+	if = {
+		limit = { has_variable = pantheon_tour_county }
+		remove_variable = pantheon_tour_county
+	}
+	if = {
+		limit = { has_variable = pantheon_tour_score }
+		remove_variable = pantheon_tour_score
+	}
+	if = {
+		limit = { has_variable = pantheon_tour_lean_fear }
+		remove_variable = pantheon_tour_lean_fear
+	}
+	if = {
+		limit = { has_variable = pantheon_tour_lean_kind }
+		remove_variable = pantheon_tour_lean_kind
+	}
+	if = {
+		limit = { has_variable = pantheon_tour_spread_duchy }
+		remove_variable = pantheon_tour_spread_duchy
+	}
+	if = {
+		limit = { has_variable = pantheon_tour_spread_kingdom }
+		remove_variable = pantheon_tour_spread_kingdom
+	}
+}

@@ -432,7 +432,8 @@ pantheon_ui_house_revealed = {
 pantheon_ui_devotion = {
 	value = 50
 	if = {
-		limit = { has_variable = pantheon_devotion }
+		# 2.8 repair 4: a purged character in a list reads 50 instead of erroring (has_variable fails on its weak scope)
+		limit = { exists = faith has_variable = pantheon_devotion }
 		value = var:pantheon_devotion
 	}
 }
@@ -891,4 +892,117 @@ pantheon_new_god_worship_floor = {
 		limit = { has_game_rule = pantheon_economy_sandbox }
 		multiply = 0.08333
 	}
+}
+
+# 2.8 (#61): Devotion drift, misfortune blame and the ignored-prayer cost.
+pantheon_drift_quarterly = {
+	value = 2
+}
+
+pantheon_blame_death = {
+	value = 25
+}
+
+pantheon_blame_war = {
+	value = 20
+}
+
+pantheon_blame_prison = {
+	value = 15
+}
+
+pantheon_blame_land = {
+	value = 15
+}
+
+pantheon_blame_health = {
+	value = 10
+}
+
+pantheon_ignored_prayer_devotion = {
+	value = -15
+}
+
+# 2.8 (#59): seeds and the county conversion meter.
+pantheon_seed_years = {
+	value = 20
+}
+
+# a seed lasts pantheon_seed_years years, as the days its days-limited variable runs for
+pantheon_seed_days = {
+	value = pantheon_seed_years
+	multiply = 365
+}
+
+# County scope: the days a seed has left, from the year it fades (pantheon_seed_end). A duration cannot hold script math inline,
+# so pantheon_seed_shorten_effect names this value instead.
+pantheon_seed_remaining_days = {
+	value = var:pantheon_seed_end
+	subtract = current_year
+	multiply = 365
+}
+
+# 2.8 (#59): the county meter's capital push when a work succeeds, and the cap on running works.
+pantheon_meter_capital_push = {
+	value = 50
+}
+
+pantheon_works_max = {
+	value = 3
+}
+
+# 2.8 (#59): the Worship lump for a won work, by the target's rank (barony 600, county 900, duchy 1800, kingdom 3600, empire and
+# above 6000). Runs in the GOD's scope and reads scope:target, which is read before the conversion. Sandbox scales it like the boon prices.
+pantheon_work_worship_reward = {
+	value = 600
+	if = {
+		limit = { scope:target.highest_held_title_tier >= tier_empire }
+		add = 5400
+	}
+	else_if = {
+		limit = { scope:target.highest_held_title_tier >= tier_kingdom }
+		add = 3000
+	}
+	else_if = {
+		limit = { scope:target.highest_held_title_tier >= tier_duchy }
+		add = 1200
+	}
+	else_if = {
+		limit = { scope:target.highest_held_title_tier >= tier_county }
+		add = 300
+	}
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+# 2.8 (#59): scheme scope. How much harder a bigger target is: baron x1, count x1.5, duke x2, king x3, emperor x4. A choice grants
+# its share of the phase divided by this, so more choices are needed (the engine's own phase length cannot be scripted per target).
+pantheon_work_tier_factor = {
+	value = 1
+	scheme_target_character = {
+		if = {
+			limit = { highest_held_title_tier >= tier_empire }
+			add = 3
+		}
+		else_if = {
+			limit = { highest_held_title_tier >= tier_kingdom }
+			add = 2
+		}
+		else_if = {
+			limit = { highest_held_title_tier >= tier_duchy }
+			add = 1
+		}
+		else_if = {
+			limit = { highest_held_title_tier >= tier_county }
+			add = 0.5
+		}
+	}
+}
+
+# 2.8 (#59): scheme scope. Progress at or past this means the phase is full (half a day of slack for rounding).
+pantheon_work_phase_full = {
+	value = scheme_phase_duration
+	subtract = 0.5
 }
