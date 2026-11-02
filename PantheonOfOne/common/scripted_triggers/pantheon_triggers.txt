@@ -112,10 +112,21 @@ pantheon_need_vigor_trigger = {
 	NOT = { has_variable = pantheon_boon_vigor }
 }
 
-# Their capital county has an epidemic.
+# Plague is near them: in their capital county if they hold land, else in the county where they are. 2.9 (in-game test):
+# a landless captain of a mercenary band passed the old `exists = capital_county` and got a Warding that only wards held
+# counties (they hold none), so it did nothing. Warding now also protects the person (pantheon_grant_warding_effect), so the
+# landless may ask too; "holds land" is any_held_county, never capital_county.
 pantheon_need_warding_trigger = {
-	exists = capital_county
-	capital_county = { has_province_with_epidemic = { intensity = any } }
+	OR = {
+		AND = {
+			any_held_county = { always = yes }
+			capital_county ?= { has_province_with_epidemic = { intensity = any } }
+		}
+		AND = {
+			NOT = { any_held_county = { always = yes } }
+			location ?= { county ?= { has_province_with_epidemic = { intensity = any } } }
+		}
+	}
 	NOT = { has_variable = pantheon_boon_warding }
 }
 
@@ -182,6 +193,41 @@ pantheon_need_spouse_trigger = {
 	NOT = { has_variable = pantheon_boon_fertility }
 	trigger_if = { limit = { is_female = yes } is_pregnant = no }
 	can_marry_common_trigger = yes # 2.4.1 #30: monks, nuns and anyone who may not marry never pray for a spouse (vanilla 00_marriage_triggers.txt)
+}
+
+# ---- 2.9 "Grace": needs 11-14, each also a Bless option. Character scope, no parameter, nothing read from root.
+
+# 11 Cleanse their vices: deep stress (level 2 of 3) or a vanilla "bad" stress-coping trait (drunkard, hashishiyah, rakish,
+# irritable, flagellant, profligate, contrite, comfort_eater, inappetetic; game/common/scripted_triggers/00_stress_triggers.txt).
+pantheon_need_cleanse_trigger = {
+	OR = {
+		stress_level >= 2
+		has_a_bad_stress_coping_trait_trigger = yes
+	}
+}
+
+# 12 Make them whole: a lasting injury. A wounded_N trait alone is Healing's need (7), never this one.
+pantheon_need_whole_trigger = {
+	OR = {
+		has_trait = maimed
+		has_trait = one_eyed
+		has_trait = one_legged
+		has_trait = disfigured
+		has_trait = blind
+	}
+}
+
+# 13 Comfort in grief: a close relative of theirs died within the year (pantheon.0231 sets the marker, one year).
+pantheon_need_grief_trigger = {
+	has_variable = pantheon_grief
+}
+
+# 14 Mend a feud: any living rival (vanilla `any_relation = { type = rival }`).
+pantheon_need_feud_trigger = {
+	any_relation = {
+		type = rival
+		is_alive = yes
+	}
 }
 
 # ---- 2.4 Freedom (need 9). Research (T1 step 1), from the 1.20 logs and vanilla:
@@ -971,6 +1017,11 @@ pantheon_prayer_need_valid_trigger = {
 		AND = { var:pantheon_prayer_need ?= 9 pantheon_need_freedom_trigger = yes }
 		# 2.5: a relative's prayer for a jailed loved one (need 10); the relative is free, so no is_imprisoned guard
 		AND = { var:pantheon_prayer_need ?= 10 pantheon_kin_need_valid_trigger = yes }
+		# 2.9: Cleanse, Whole, Grief, Feud (not in a cell, like needs 1-8)
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 11 pantheon_need_cleanse_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 12 pantheon_need_whole_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 13 pantheon_need_grief_trigger = yes }
+		AND = { is_imprisoned = no var:pantheon_prayer_need ?= 14 pantheon_need_feud_trigger = yes }
 	}
 }
 
@@ -1265,6 +1316,27 @@ pantheon_bless_suits_warding_trigger = {
 	any_character_epidemic = { always = yes }
 }
 
+# 2.9: the four need-backed blessings suit exactly whoever has the need
+pantheon_bless_suits_cleanse_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	pantheon_need_cleanse_trigger = yes
+}
+
+pantheon_bless_suits_whole_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	pantheon_need_whole_trigger = yes
+}
+
+pantheon_bless_suits_grief_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	pantheon_need_grief_trigger = yes
+}
+
+pantheon_bless_suits_feud_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	pantheon_need_feud_trigger = yes
+}
+
 # 2.8 repair 4 (item 2): a character that is safe to READ (variables, traits) in a list walk. A purged character stays in a
 # variable list as a "weak" scope that still resolves a name and passes `is_alive = yes` (the 8 has_variable errors on
 # Ketill Flatnefr, id 12001, in test 3), but `has_variable` on it errors ("This scope doesn't support variables"). `exists` is
@@ -1298,4 +1370,44 @@ pantheon_blame_health_trigger = {
 		has_trait = one_legged
 		has_contagious_deadly_disease_trigger = yes
 	}
+}
+
+# 2.9 (Task 5, the steadying act): a follower the "slipping" reach keeps (follower scope): Devotion below 50, or blamed the god in
+# the last year (pantheon_blamed_recently is set on every blame, sheltered or not). No Devotion variable means the starting 50.
+pantheon_steady_slipping_trigger = {
+	OR = {
+		AND = {
+			has_variable = pantheon_devotion
+			var:pantheon_devotion < 50
+		}
+		has_variable = pantheon_blamed_recently
+	}
+}
+
+# 2.9 (Task 5): a follower of the kingdom the god picked (follower scope; ROOT is the god, who holds the title in
+# pantheon_steady_kingdom). A person's region is their capital county's de jure kingdom if they hold land, else the kingdom of the
+# county they stand in. Not every county has a de jure kingdom: each side is guarded with exists, so a landless follower at sea
+# or in a kingdom-less county belongs to no region and is never reached by a kingdom.
+pantheon_steady_in_region_trigger = {
+	root = { has_variable = pantheon_steady_kingdom }
+	OR = {
+		AND = {
+			is_landed = yes
+			exists = capital_county.kingdom
+			capital_county.kingdom = root.var:pantheon_steady_kingdom
+		}
+		AND = {
+			is_landed = no
+			exists = location.county.kingdom
+			location.county.kingdom = root.var:pantheon_steady_kingdom
+		}
+	}
+}
+
+# 2.9 (Task 5): may the act be sent at a reach that needs Great Temple tier $TIER$ (1 the slipping, 3 a kingdom, 5 the whole faith)?
+# God scope. An active temple (a dormant one unlocks nothing: pantheon_temple_active_tier is 0 then), the tier, and no rest running.
+pantheon_steady_reach_open_trigger = {
+	pantheon_temple_active_trigger = yes
+	pantheon_temple_active_tier >= $TIER$
+	NOT = { has_variable = pantheon_steady_cooldown }
 }

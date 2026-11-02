@@ -9,7 +9,9 @@
 # pantheon_on_imprison_freedom uses). $KIND$ is 1 death, 2 war, 3 prison, 4 land, 5 health; $AMOUNT$ a pantheon_blame_* value.
 pantheon_blame_dispatch_effect = {
 	set_variable = { name = pantheon_blame_in value = $AMOUNT$ }
-	set_variable = { name = pantheon_blame_kind value = $KIND$ }
+	# 2.9 (Codex review): the incoming kind has its own field. pantheon_blame_kind labels a feed message still waiting to be
+	# sent; only pantheon_blame_effect writes it, and only when a cut is recorded, so a sheltered blame never relabels it.
+	set_variable = { name = pantheon_blame_kind_in value = $KIND$ }
 	if = {
 		limit = { exists = scope:pantheon_target }
 		clear_saved_scope = pantheon_target
@@ -36,56 +38,73 @@ pantheon_blame_effect = {
 				NOT = { this = root }
 			}
 		}
-		scope:pantheon_target = {
-			set_variable = { name = pantheon_blame_pending value = $AMOUNT$ }
-			set_variable = { name = pantheon_blame_kind value = $KIND$ }
-			if = {
-				limit = { var:pantheon_devotion >= 90 }
-				change_variable = { name = pantheon_blame_pending multiply = 0.5 }
-			}
-			if = {
-				limit = { has_variable = pantheon_fear_convert }
-				change_variable = { name = pantheon_blame_pending multiply = 1.5 }
-			}
-			round_variable = { name = pantheon_blame_pending nearest = 1 }
-		}
-		# Scripted-effect arguments are plain tokens, never blocks: the negative cut goes into a variable first. The
-		# follower's Devotion before the change is remembered so the feed reports what was really lost (clamped at 0).
-		scope:pantheon_target = {
-			set_variable = { name = pantheon_blame_before value = var:pantheon_devotion }
-			set_variable = { name = pantheon_blame_neg value = var:pantheon_blame_pending }
-			change_variable = { name = pantheon_blame_neg multiply = -1 }
-		}
-		pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_target.var:pantheon_blame_neg }
-		scope:pantheon_target = {
-			set_variable = { name = pantheon_blame_pending value = var:pantheon_blame_before }
-			change_variable = { name = pantheon_blame_pending subtract = var:pantheon_devotion }
-			if = {
-				limit = { var:pantheon_blame_pending < 0 }
-				set_variable = { name = pantheon_blame_pending value = 0 }
-			}
-			remove_variable = pantheon_blame_before
-			remove_variable = pantheon_blame_neg
-			# 2.8 repair: a prison cut is remembered for two years so a freeing god can refund it (once).
-			if = {
-				limit = { var:pantheon_blame_kind = 3 }
-				set_variable = { name = pantheon_blame_prison_loss value = var:pantheon_blame_pending years = 2 }
-			}
-		}
+		# 2.9 (Grace): a follower under the steadying act's shelter (pantheon_sheltered, one year) is not cut. The blame still
+		# counts as a blame (pantheon_blamed_recently, one year, set on every blame so the act can find the slipping), but no
+		# Devotion moves and no pending record, kind or alert is made. Only this effect reads the shelter: the quarterly drift
+		# and an ignored prayer's -15 never do.
 		if = {
-			limit = {
-				scope:pantheon_target = {
-					pantheon_alert_mode_lapse >= 1
-					var:pantheon_blame_pending > 0
+			limit = { scope:pantheon_target = { has_variable = pantheon_sheltered } }
+			scope:pantheon_target = { set_variable = { name = pantheon_blamed_recently value = yes years = 1 } }
+		}
+		else = {
+			scope:pantheon_target = { set_variable = { name = pantheon_blamed_recently value = yes years = 1 } }
+			scope:pantheon_target = {
+				set_variable = { name = pantheon_blame_pending value = $AMOUNT$ }
+				set_variable = { name = pantheon_blame_kind value = $KIND$ }
+				if = {
+					limit = { var:pantheon_devotion >= 90 }
+					change_variable = { name = pantheon_blame_pending multiply = 0.5 }
 				}
-				NOT = {
-					is_target_in_variable_list = {
-						name = pantheon_alert_pending_blame
-						target = scope:pantheon_target
+				if = {
+					limit = { has_variable = pantheon_fear_convert }
+					change_variable = { name = pantheon_blame_pending multiply = 1.5 }
+				}
+				round_variable = { name = pantheon_blame_pending nearest = 1 }
+			}
+			# Scripted-effect arguments are plain tokens, never blocks: the negative cut goes into a variable first. The
+			# follower's Devotion before the change is remembered so the feed reports what was really lost (clamped at 0).
+			scope:pantheon_target = {
+				set_variable = { name = pantheon_blame_before value = var:pantheon_devotion }
+				set_variable = { name = pantheon_blame_neg value = var:pantheon_blame_pending }
+				change_variable = { name = pantheon_blame_neg multiply = -1 }
+			}
+			pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_target.var:pantheon_blame_neg }
+			scope:pantheon_target = {
+				set_variable = { name = pantheon_blame_pending value = var:pantheon_blame_before }
+				change_variable = { name = pantheon_blame_pending subtract = var:pantheon_devotion }
+				if = {
+					limit = { has_variable = pantheon_blame_pending var:pantheon_blame_pending < 0 }
+					set_variable = { name = pantheon_blame_pending value = 0 }
+				}
+				remove_variable = pantheon_blame_before
+				remove_variable = pantheon_blame_neg
+				# 2.8 repair: a prison cut is remembered for two years so a freeing god can refund it (once).
+				if = {
+					limit = { has_variable = pantheon_blame_pending var:pantheon_blame_kind ?= 3 }
+					set_variable = { name = pantheon_blame_prison_loss value = var:pantheon_blame_pending years = 2 }
+				}
+				# 2.9: a death cut is remembered for a year, so Comfort in grief can give half of it back.
+				if = {
+					limit = { has_variable = pantheon_blame_pending var:pantheon_blame_kind ?= 1 }
+					set_variable = { name = pantheon_blame_death_loss value = var:pantheon_blame_pending years = 1 }
+				}
+			}
+			if = {
+				limit = {
+					scope:pantheon_target = {
+						pantheon_alert_mode_lapse >= 1
+						has_variable = pantheon_blame_pending
+						var:pantheon_blame_pending > 0
+					}
+					NOT = {
+						is_target_in_variable_list = {
+							name = pantheon_alert_pending_blame
+							target = scope:pantheon_target
+						}
 					}
 				}
+				add_to_variable_list = { name = pantheon_alert_pending_blame target = scope:pantheon_target }
 			}
-			add_to_variable_list = { name = pantheon_alert_pending_blame target = scope:pantheon_target }
 		}
 	}
 }

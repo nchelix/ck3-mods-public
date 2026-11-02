@@ -29,8 +29,8 @@ pantheon_ensure_devotion_effect = {
 	}
 }
 
-# Change scope:pantheon_target's Devotion by $AMOUNT$, clamped to 0-100. clamp_variable does not exist in
-# 1.20 (grepped under game/common and game/events): clamp with if/else. Root is the god. (2.7: the Lapsing warning
+# Change scope:pantheon_target's Devotion by $AMOUNT$, clamped to 0-100. clamp_variable exists in 1.20.1 (the effects
+# log), but this clamps with if/else, as it always has. Root is the god. (2.7: the Lapsing warning
 # lives in pantheon_glance_refresh_effect, which this calls.)
 pantheon_change_devotion_effect = {
 	pantheon_ensure_devotion_effect = { START = 50 }
@@ -215,7 +215,12 @@ pantheon_devotion_yearly_pass_effect = {
 # Root is the god.
 pantheon_add_prayer_candidate_effect = {
 	if = {
-		limit = { NOT = { is_in_list = pantheon_prayer_candidates } }
+		# 2.9: a quiet holder is skipped here, before any setter below: this helper writes pantheon_prayer_need on EVERY
+		# candidate it gathers (picked or not, follower or stranger), and a quiet record owns that field.
+		limit = {
+			NOT = { is_in_list = pantheon_prayer_candidates }
+			NOT = { has_variable = pantheon_quiet_open }
+		}
 		# 2.4 (R1): while imprisoned, Freedom (need 9) is the ONLY need, checked first. A prisoner who does not
 		# qualify (valuable, a war leader, held by the god, a hostage) gets no need at all.
 		if = {
@@ -236,6 +241,12 @@ pantheon_add_prayer_candidate_effect = {
 			set_variable = { name = pantheon_prayer_need value = 2 }
 			add_to_temporary_list = pantheon_prayer_candidates
 		}
+		# 2.9: grief comes right after the fertility need (a year of grief is short), then the order below
+		else_if = {
+			limit = { pantheon_need_grief_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 13 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
 		else_if = {
 			limit = { pantheon_need_spouse_trigger = yes }
 			# A third as often as eligible, so it never drowns the other prayers
@@ -250,10 +261,30 @@ pantheon_add_prayer_candidate_effect = {
 			set_variable = { name = pantheon_prayer_need value = 7 }
 			add_to_temporary_list = pantheon_prayer_candidates
 		}
+		# 2.9: Make them whole sits after Healing (a wounded_N alone is Healing's need)
+		else_if = {
+			limit = { pantheon_need_whole_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 12 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
 		else_if = {
 			limit = { pantheon_need_vigor_trigger = yes }
 			set_variable = { name = pantheon_prayer_need value = 3 }
 			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		# 2.9: Cleanse their vices, then Mend a feud (a third as often, like the spouse)
+		else_if = {
+			limit = { pantheon_need_cleanse_trigger = yes }
+			set_variable = { name = pantheon_prayer_need value = 11 }
+			add_to_temporary_list = pantheon_prayer_candidates
+		}
+		else_if = {
+			limit = { pantheon_need_feud_trigger = yes }
+			random = {
+				chance = { value = 33 }
+				set_variable = { name = pantheon_prayer_need value = 14 }
+				add_to_temporary_list = pantheon_prayer_candidates
+			}
 		}
 		else_if = {
 			limit = { pantheon_need_warding_trigger = yes }
@@ -311,8 +342,10 @@ pantheon_prayer_clear_delivery_effect = {
 	}
 }
 
-# Gathers every eligible follower with a need -- rulers of the god's faith, the god's own courtiers of the
-# faith, and any follower at 75+ Devotion, never the god, never someone who prayed in the last 3 years --
+# Gathers every eligible follower with a need -- rulers of the god's faith and the god's own courtiers of the
+# faith, all three pools DEVOUT only (2.9: Devotion 75+; below that a need is a quiet prayer instead, see
+# pantheon_quiet_effects.txt), never the god, never someone who prayed in the last 3 years, never someone who
+# holds a quiet prayer (one open prayer of either kind per person) --
 # picks one at random, and opens the prayer event on them. Does nothing if no one qualifies. Root is the god.
 pantheon_pick_follower_prayer_effect = {
 	pantheon_prayer_clear_delivery_effect = yes
@@ -321,6 +354,8 @@ pantheon_pick_follower_prayer_effect = {
 			faith = root.faith
 			NOT = { this = root }
 			NOT = { has_variable = pantheon_prayed_recently }
+			NOT = { has_variable = pantheon_quiet_open }
+			pantheon_devout_trigger = yes
 			# 1.6 (user): a demigod gets no gifts or prayers of their own.
 			NOT = { has_trait = pantheon_demigod }
 		}
@@ -330,6 +365,8 @@ pantheon_pick_follower_prayer_effect = {
 		limit = {
 			faith = root.faith
 			NOT = { has_variable = pantheon_prayed_recently }
+			NOT = { has_variable = pantheon_quiet_open }
+			pantheon_devout_trigger = yes
 			NOT = { has_trait = pantheon_demigod }
 		}
 		pantheon_add_prayer_candidate_effect = yes
@@ -342,6 +379,7 @@ pantheon_pick_follower_prayer_effect = {
 			has_variable = pantheon_devotion
 			var:pantheon_devotion >= 75
 			NOT = { has_variable = pantheon_prayed_recently }
+			NOT = { has_variable = pantheon_quiet_open }
 			NOT = { has_trait = pantheon_demigod }
 		}
 		pantheon_add_prayer_candidate_effect = yes
@@ -486,6 +524,90 @@ pantheon_pick_gift_effect = {
 	}
 }
 
+# 2.9 (extracted from pantheon_grant_prayer_effect, no behaviour change for popups): do what the suppliant's need asks and
+# charge $PRICE$, the NAME of the variable on scope:pantheon_suppliant that holds the price to pay (pantheon_prayer_price for a
+# popup prayer, pantheon_quiet_price for a quiet one). Root is the god; scope:pantheon_suppliant is the suppliant, and the
+# caller has already checked that the record is open and answerable and that Worship covers the stored price. Leaves
+# scope:pantheon_target = the suppliant. The grants below charge their own recomputed price; the balance is put back and ONLY
+# the stored price charged, so an answer is paid once, never twice. The caller does everything else (Devotion, conversion of a
+# stranger, the toast, closing the record).
+pantheon_prayer_give_need_effect = {
+	scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+	# 2.2.1 (R3/R4), kept: an answered prayer is charged exactly ONCE, here, at the price the prayer RECORD stored
+	# when it opened (pantheon_prayer_price on the suppliant) -- the grant effects below charge their own recomputed
+	# price (they are shared with the window and the old menus); the balance is put back to what it was and the
+	# stored price charged instead. The debt answer (need 5) charges nothing itself.
+	set_variable = { name = pantheon_prayer_balance_before value = var:pantheon_worship }
+	if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
+		pantheon_call_host_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 2 } }
+		pantheon_grant_fertility_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 3 } }
+		pantheon_grant_vigor_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 4 } }
+		pantheon_grant_warding_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 5 } }
+		pantheon_grant_debt_prayer_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 6 } }
+		pantheon_grant_best_gift_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 7 } }
+		pantheon_grant_healing_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 } }
+		pantheon_grant_spouse_effect = yes
+	}
+	# 2.4: Freedom. It pays its own whole Devotion (R3) and charges nothing (the stored price is charged below).
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
+		pantheon_grant_freedom_effect = yes
+	}
+	# 2.5: a relative's prayer for a jailed loved one. It pays its own Devotion (the relative's, read on the prisoner)
+	# and the extras, and charges nothing (the stored price is charged below).
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 10 } }
+		pantheon_grant_kin_freedom_effect = yes
+	}
+	# 2.9: the four need-backed blessings, each charging its own life price (restored and re-charged at the stored one below)
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 11 } }
+		pantheon_grant_cleanse_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 12 } }
+		pantheon_grant_whole_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 13 } }
+		pantheon_grant_grief_effect = yes
+	}
+	else_if = {
+		limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 14 } }
+		pantheon_grant_feud_effect = yes
+	}
+	set_variable = {
+		name = pantheon_worship
+		value = {
+			value = var:pantheon_prayer_balance_before
+			subtract = scope:pantheon_suppliant.var:$PRICE$
+		}
+	}
+	remove_variable = pantheon_prayer_balance_before
+}
+
 # The answers to a prayer (2.3, R5/R15). ONE answer path, used by pantheon.0060's options and (later) the Prayers tab.
 # Root/this = the god; scope:pantheon_suppliant = the suppliant; scope:pantheon_prayer_delivered is set when an event
 # calls (a front-end with no token passes none). Every answer: if the prayer is not open -- or the delivered token is
@@ -508,63 +630,7 @@ pantheon_grant_prayer_effect = {
 		}
 		else_if = {
 			limit = { var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_prayer_price }
-			scope:pantheon_suppliant = { save_scope_as = pantheon_target }
-			# 2.2.1 (R3/R4), kept: an answered prayer is charged exactly ONCE, here, at the price the prayer RECORD stored
-			# when it opened (pantheon_prayer_price on the suppliant) -- the grant effects below charge their own recomputed
-			# price (they are shared with the window and the old menus); the balance is put back to what it was and the
-			# stored price charged instead. The debt answer (need 5) charges nothing itself.
-			set_variable = { name = pantheon_prayer_balance_before value = var:pantheon_worship }
-			if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 1 } }
-				pantheon_call_host_effect = yes
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 2 } }
-				pantheon_grant_fertility_effect = yes
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 3 } }
-				pantheon_grant_vigor_effect = yes
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 4 } }
-				pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding }
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 5 } }
-				pantheon_grant_debt_prayer_effect = yes
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 6 } }
-				pantheon_grant_best_gift_effect = yes
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 7 } }
-				pantheon_grant_healing_effect = yes
-			}
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 8 } }
-				pantheon_grant_spouse_effect = yes
-			}
-			# 2.4: Freedom. It pays its own whole Devotion (R3) and charges nothing (the stored price is charged below).
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 9 } }
-				pantheon_grant_freedom_effect = yes
-			}
-			# 2.5: a relative's prayer for a jailed loved one. It pays its own Devotion (the relative's, read on the prisoner)
-			# and the extras, and charges nothing (the stored price is charged below).
-			else_if = {
-				limit = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 10 } }
-				pantheon_grant_kin_freedom_effect = yes
-			}
-			set_variable = {
-				name = pantheon_worship
-				value = {
-					value = var:pantheon_prayer_balance_before
-					subtract = scope:pantheon_suppliant.var:pantheon_prayer_price
-				}
-			}
-			remove_variable = pantheon_prayer_balance_before
+			pantheon_prayer_give_need_effect = { PRICE = pantheon_prayer_price }
 			if = {
 				limit = { NOT = { scope:pantheon_suppliant = { faith = root.faith } } }
 				scope:pantheon_suppliant = {

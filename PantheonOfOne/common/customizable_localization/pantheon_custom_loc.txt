@@ -137,6 +137,10 @@ pantheon_prayer_need_words = {
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 8 } localization_key = pantheon_prayer_need_spouse }
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 9 } localization_key = pantheon_prayer_need_freedom }
 	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 10 } localization_key = pantheon_prayer_need_kin_freedom }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 11 } localization_key = pantheon_prayer_need_cleanse }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 12 } localization_key = pantheon_prayer_need_whole }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 13 } localization_key = pantheon_prayer_need_grief }
+	text = { trigger = { has_variable = pantheon_prayer_need var:pantheon_prayer_need = 14 } localization_key = pantheon_prayer_need_feud }
 	text = { fallback = yes localization_key = pantheon_prayer_need_gift }
 }
 

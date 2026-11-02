@@ -1,5 +1,31 @@
 ﻿# Changelog — Pantheon of One
 
+## [2.9] — 2026-11-01
+
+Grace: a god of a large faith can see where belief is slipping, and steady it at the scale of the faith, at a price.
+
+### Added
+- Quiet prayers (#63). A follower whose Devotion is under 75 now prays in silence: no popup, no top-bar alert, no message. Their prayers wait on a new Quiet sub-tab of the Prayers tab, weakest Devotion first, each row showing what they pray for, their kingdom and how long is left. A second, blue count on the Pantheon button, beside the old one, says how many are waiting, and a summary above the rows names the kingdoms with the most, so you can see where the faith is slipping. A new one arrives about every 26 days (Prayer Frequency rare, frequent or off changes it); up to 18 can be open at once. Answer one to do what it asks, for half the price of a popup prayer, and the follower gains 10 Devotion. Let it pass closes it for free. Ignored, it fades after a year with no Devotion cut. Whoever's quiet prayer closes does not pray quietly again for a year.
+- A Sign of Steadfastness (#64). A stabiliser for a faith in trouble, sent from the Temple tab. It has three reaches, opened by the Great Temple's tier: the slipping (Devotion under 50, or blamed you in the last year) from tier I, every follower of one kingdom from tier III, and the whole faith at tier V. A dormant temple opens nothing. The window shows how many it reaches and what it costs before you send it. The price is paid in Worship and grows with the share of the faith reached: about a year of your Worship income for the whole faith, never under 600 (a twelfth of that on the Sandbox rule). Everyone it reaches regains 20 Devotion (up to 100), is sheltered for a year (blame still happens but costs them no Devotion), and has any quiet prayer in reach answered as a sign: it closes and they gain 10 more, but the blessing they prayed for is not given. After it the god rests for five years. The kingdom rows of the Quiet tab have a Steady button that arms the act at that kingdom.
+- Five blessings, each a Bless option and also something followers pray for:
+  - Cleanse their vices (#50). Lifts the vices of stress (drink, drugs, rage, self-harm and the rest) and clears the stress. Asked for by a follower with a vice or deep stress.
+  - Vigor lifts old age (#51). Vigor now also removes the ailments of old age, for good. It was already a blessing, and asked for by the aged.
+  - Make them whole (#65). Heals lost eyes and limbs, blindness, maiming and disfigurement, and any wound with them. Asked for by a follower with a lasting injury. Plain wounds are still Healing's.
+  - Comfort in grief (#66). Eases the stress of mourning and gives back half the Devotion a death in the family cost you. Asked for by a follower grieving a close relative, for a year after the death, of any cause.
+  - Mend a feud (#67). Reconciles the follower with one of their rivals, on both sides. Asked for by a follower with a rival.
+- Debug tools (local mod only): open, fill and fade quiet prayers, a page to open the four new kinds of prayer, clear the steadying act's rest, shelter a character from blame.
+
+### Changed
+- Popup prayers now come only from followers at Devotion 75 or more (#63). Prayers of strangers, Freedom prayers for the jailed, Great Prayers and Great Boons are as before, and popup prayers already open from followers under 75 stay open until answered or lapsed.
+- A follower can hold one open prayer at a time, popup or quiet. A jailed follower's Freedom prayer takes the place of a quiet one.
+- Followers sheltered by the act are not cut by blame; drift and the 15 Devotion lost for an ignored prayer still apply (#64).
+- Warding against plague now also protects the follower themself (vanilla's Hiding from Epidemic, which makes catching a sickness far less likely wherever they are), as well as every county they hold. So a landless follower, such as a mercenary captain or a courtier, can now be warded and can pray for it when plague reaches where they are; before, a captain could pray for it and receive nothing.
+- The popup prayer timer now restarts itself if it ever stops, like the monthly tick since 2.6. The quiet prayers' timer does the same, and on a save from before 2.9 it starts within a month.
+
+### Fixed
+- The raid and new-faith hooks no longer fill error.log when the game runs them without their details on a save load (the game does the same to its own hooks). Nothing ran before either; the log is just quieter.
+- The Freedom Great Boon now says the jailer holds the prisoner "as a prize of war" (it read as if the war were the follower's), and when the game names no jailer at that moment (the prison changed hands) it leaves the jailer out instead of an empty gap.
+
 ## [2.8] — 2026-10-29
 
 Winning the faithful: belief is harder to keep, and a god can win unbelievers without spending Worship.

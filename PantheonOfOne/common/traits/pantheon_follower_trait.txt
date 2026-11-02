@@ -188,6 +188,34 @@ pantheon_follower = {
 					}
 					triggered_desc = {
 						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 11
+						}
+						desc = pantheon_follower_prayer_11
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 12
+						}
+						desc = pantheon_follower_prayer_12
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 13
+						}
+						desc = pantheon_follower_prayer_13
+					}
+					triggered_desc = {
+						trigger = {
+							pantheon_follower_prayer_trigger = yes
+							var:pantheon_prayer_need ?= 14
+						}
+						desc = pantheon_follower_prayer_14
+					}
+					triggered_desc = {
+						trigger = {
 							pantheon_follower_boon_trigger = yes
 							var:pantheon_aspiration_kind ?= 1
 						}

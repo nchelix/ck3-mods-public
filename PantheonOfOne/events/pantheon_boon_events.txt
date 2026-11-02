@@ -85,10 +85,23 @@ pantheon.0066 = {
 				trigger = { scope:pantheon_boon_event_kind = 6 }
 				desc = pantheon.0066.desc_fortune
 			}
-			# 2.5: raised by kin, it pleads for the prisoner by name
+			# 2.5: raised by kin, it pleads for the prisoner by name. 2.9 (Section E): when the game names no jailer at the
+			# moment it shows (the prison changed hands), a line without the jailer, never an empty gap.
+			triggered_desc = {
+				trigger = {
+					scope:pantheon_boon_event_kind = 7
+					exists = scope:pantheon_boon_event_prisoner
+					scope:pantheon_boon_event_prisoner = { NOT = { exists = imprisoner } }
+				}
+				desc = pantheon.0066.desc_kin_freedom_nojailer
+			}
 			triggered_desc = {
 				trigger = { scope:pantheon_boon_event_kind = 7 exists = scope:pantheon_boon_event_prisoner }
 				desc = pantheon.0066.desc_kin_freedom
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_boon_event_kind = 7 scope:pantheon_boon_event_follower = { NOT = { exists = imprisoner } } }
+				desc = pantheon.0066.desc_freedom_nojailer
 			}
 			triggered_desc = {
 				trigger = { scope:pantheon_boon_event_kind = 7 }

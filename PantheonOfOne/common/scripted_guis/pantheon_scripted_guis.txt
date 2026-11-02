@@ -22,6 +22,12 @@ pantheon_ui_toggle = {
 			clear_variable_list = pantheon_ui_demigods
 			clear_variable_list = pantheon_ui_houses
 			clear_variable_list = pantheon_ui_prayers
+			# 2.9 (Task 4): and the Quiet sub-tab's two lists
+			clear_variable_list = pantheon_ui_quiet
+			clear_variable_list = pantheon_ui_quiet_kingdoms
+			# 2.9 (Task 5): and the Temple tab's kingdom list; a closed window leaves nothing of the steadying act armed
+			clear_variable_list = pantheon_ui_steady_kingdoms
+			pantheon_steady_clear_effect = yes
 			# Batch 2r1 (repair 4): closing the window must not leave a miracle armed.
 			pantheon_temple_clear_confirm_effect = yes
 		}
@@ -35,6 +41,7 @@ pantheon_ui_toggle = {
 			}
 			# Batch 2r1 (repair 4): re-opening must not resume with a stale armed miracle either.
 			pantheon_temple_clear_confirm_effect = yes
+			pantheon_steady_clear_effect = yes
 			set_variable = pantheon_ui_open
 		}
 	}
@@ -51,6 +58,12 @@ pantheon_ui_close = {
 		clear_variable_list = pantheon_ui_demigods
 		clear_variable_list = pantheon_ui_houses
 		clear_variable_list = pantheon_ui_prayers
+		# 2.9 (Task 4): and the Quiet sub-tab's two lists
+		clear_variable_list = pantheon_ui_quiet
+		clear_variable_list = pantheon_ui_quiet_kingdoms
+		# 2.9 (Task 5): and the Temple tab's kingdom list and anything the steadying act has armed
+		clear_variable_list = pantheon_ui_steady_kingdoms
+		pantheon_steady_clear_effect = yes
 		# Batch 2r1 (repair 4): same guard as the toggle's close branch.
 		pantheon_temple_clear_confirm_effect = yes
 	}
@@ -106,6 +119,15 @@ pantheon_ui_ptab_great = {
 	effect = {
 		set_variable = { name = pantheon_ui_ptab value = 3 }
 		# 2.6 repair 1 (Codex review 2): the Great Boons left waiting are listed here, so the list is rebuilt on opening
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# 2.9 (Task 4): the Quiet sub-tab (ptab 4). Rebuilt on opening, which also prunes faded and invalid quiet prayers first.
+pantheon_ui_ptab_quiet = {
+	scope = character
+	effect = {
+		set_variable = { name = pantheon_ui_ptab value = 4 }
 		pantheon_ui_rebuild_effect = yes
 	}
 }
@@ -296,6 +318,8 @@ pantheon_ui_tab_temple = {
 		set_variable = { name = pantheon_ui_tab value = 4 }
 		# Batch 2r1 (repair 4): a stale armed miracle from a previous visit must not resume silently.
 		pantheon_temple_clear_confirm_effect = yes
+		# 2.9 (Task 5): and a steadying act armed on an earlier visit starts afresh (its count and price may have moved)
+		pantheon_steady_clear_effect = yes
 		pantheon_ui_rebuild_effect = yes
 	}
 }
@@ -435,6 +459,130 @@ pantheon_ui_miracle_victory_armed = {
 	}
 }
 
+# ---- 2.9 (Task 5): the steadying act, "A Sign of Steadfastness" (pantheon_steady_effects.txt). A scripted GUI takes scopes, not
+# numbers, so there is one arm button per reach. Arming only gathers and prices; Send (pantheon_ui_steady_send) gathers and prices
+# AGAIN and re-checks everything before it charges. Reasons are custom_tooltips, never custom_description. The kingdom reach is
+# also armed from the Quiet tab's kingdom rows, where the count is not built, so it does not check the count: the arm refuses an
+# empty reach itself.
+
+pantheon_ui_steady_arm_slipping = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_steady_dormant_tt
+			pantheon_temple_active_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_steady_tier_1_tt
+			pantheon_temple_active_tier >= 1
+		}
+		custom_tooltip = {
+			text = pantheon_steady_cooldown_tt
+			NOT = { has_variable = pantheon_steady_cooldown }
+		}
+		# in-game SA2: "Nobody is in reach" did not say who counts; this reach names its rule
+		custom_tooltip = {
+			text = pantheon_steady_nobody_slipping_tt
+			has_variable = pantheon_ui_steady_slipping_n
+			var:pantheon_ui_steady_slipping_n > 0
+		}
+	}
+	effect = {
+		pantheon_steady_arm_effect = { REACH = 1 }
+	}
+}
+
+# The picked kingdom's title is the saved scope pantheon_steady_title (a Temple-tab list row, or a Quiet-tab kingdom row)
+pantheon_ui_steady_arm_kingdom = {
+	scope = character
+	saved_scopes = { pantheon_steady_title }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_steady_dormant_tt
+			pantheon_temple_active_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_steady_tier_3_tt
+			pantheon_temple_active_tier >= 3
+		}
+		custom_tooltip = {
+			text = pantheon_steady_cooldown_tt
+			NOT = { has_variable = pantheon_steady_cooldown }
+		}
+		custom_tooltip = {
+			text = pantheon_steady_no_kingdom_tt
+			exists = scope:pantheon_steady_title
+		}
+	}
+	effect = {
+		set_variable = { name = pantheon_steady_kingdom value = scope:pantheon_steady_title }
+		pantheon_steady_arm_effect = { REACH = 2 }
+	}
+}
+
+pantheon_ui_steady_arm_faith = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_steady_dormant_tt
+			pantheon_temple_active_trigger = yes
+		}
+		custom_tooltip = {
+			text = pantheon_steady_tier_5_tt
+			pantheon_temple_active_tier >= 5
+		}
+		custom_tooltip = {
+			text = pantheon_steady_cooldown_tt
+			NOT = { has_variable = pantheon_steady_cooldown }
+		}
+		custom_tooltip = {
+			text = pantheon_steady_nobody_tt
+			has_variable = pantheon_ui_steady_all_n
+			var:pantheon_ui_steady_all_n > 0
+		}
+	}
+	effect = {
+		pantheon_steady_arm_effect = { REACH = 3 }
+	}
+}
+
+# Send the armed reach. Greyed unless something is armed and in reach, the reach is still open and Worship covers the stored
+# price; the effect itself checks all of it again against fresh numbers before it charges.
+pantheon_ui_steady_send = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_steady_not_armed_tt
+			has_variable = pantheon_steady_reach
+			has_variable = pantheon_steady_count
+			var:pantheon_steady_count > 0
+		}
+		custom_tooltip = {
+			text = pantheon_steady_reach_closed_tt
+			pantheon_steady_reach_open_trigger = { TIER = pantheon_steady_tier_needed }
+		}
+		custom_tooltip = {
+			text = pantheon_steady_worship_tt
+			trigger_if = {
+				limit = { has_variable = pantheon_steady_price }
+				var:pantheon_worship >= var:pantheon_steady_price
+			}
+			trigger_else = { always = no }
+		}
+	}
+	effect = {
+		pantheon_steady_send_effect = yes
+	}
+}
+
+pantheon_ui_steady_cancel = {
+	scope = character
+	effect = {
+		pantheon_steady_clear_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
 # ---- 2.3 B3: the Prayers tab's row buttons. Each is called with GuiScope.SetRoot( GetPlayer.MakeScope ) and the row's
 # suppliant as the saved scope pantheon_suppliant (AddScope( 'pantheon_suppliant', Character.MakeScope )) -- the very
 # name the answer effects (pantheon_devotion_effects.txt) read, so nothing is re-saved. No scope:pantheon_prayer_delivered
@@ -517,6 +665,56 @@ pantheon_ui_prayer_dismiss = {
 	}
 	effect = {
 		pantheon_dismiss_prayer_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# ---- 2.9 (Task 4): the Quiet sub-tab's row buttons. Called like the prayers' (GuiScope.SetRoot( GetPlayer.MakeScope ) and the row's
+# follower as the saved scope pantheon_suppliant), so they reach the very effects of the quiet stream (pantheon_quiet_effects.txt).
+# The live check comes first in every validity, so a purged follower is never read. The answer is checked against the price STORED
+# on the record when it opened (pantheon_quiet_price), never against the popup price.
+
+pantheon_ui_quiet_answer = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_quiet_no_longer_tt
+			scope:pantheon_suppliant = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_quiet_open
+				has_variable = pantheon_quiet_fades
+				has_variable = pantheon_quiet_price
+				faith = root.faith
+				pantheon_prayer_need_valid_trigger = yes
+			}
+		}
+		custom_tooltip = {
+			text = pantheon_ui_quiet_worship_tt
+			var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_quiet_price
+		}
+	}
+	effect = {
+		pantheon_quiet_answer_effect = yes
+		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# Free: close the record with the lockout
+pantheon_ui_quiet_pass = {
+	scope = character
+	saved_scopes = { pantheon_suppliant }
+	is_valid = {
+		custom_tooltip = {
+			text = pantheon_quiet_no_longer_tt
+			scope:pantheon_suppliant = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_quiet_open
+			}
+		}
+	}
+	effect = {
+		pantheon_quiet_pass_effect = yes
 		pantheon_ui_rebuild_effect = yes
 	}
 }

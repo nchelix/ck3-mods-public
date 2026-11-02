@@ -132,6 +132,36 @@ pantheon_prayer_interval_days = {
 	}
 }
 
+# 2.9: how often pantheon.0051 opens a quiet prayer: 26 days, Rare 52, Frequent 13, from the same game rule as the popups.
+# Off has no value of its own: the timer keeps rescheduling at the Normal interval (it only prunes then) so a later rule
+# change takes effect without restarting.
+pantheon_quiet_interval_days = {
+	value = 26
+	if = {
+		limit = { has_game_rule = pantheon_prayers_rare }
+		value = 52
+	}
+	else_if = {
+		limit = { has_game_rule = pantheon_prayers_frequent }
+		value = 13
+	}
+}
+
+# 2.9: a quiet prayer fades after a year. The marker pantheon_quiet_open never expires by itself; this is the separate timer
+# variable pantheon_quiet_fades, and a prune closes the records whose timer has run out.
+pantheon_quiet_fade_days = {
+	value = 365
+}
+
+# 2.9: what answering a quiet prayer costs: half the popup price, rounded. Worked out in the GOD's scope with
+# scope:pantheon_suppliant saved (pantheon_prayer_cost reads the need from it, and already carries the Sandbox and temple
+# factors), then stored on the suppliant as pantheon_quiet_price so a later temple discount does not change it.
+pantheon_quiet_price_value = {
+	value = pantheon_prayer_cost
+	divide = 2
+	round = yes
+}
+
 # The Worship cost of granting whichever need pantheon_prayer_need (1-6, pantheon.0060) names, reusing the
 # existing boon costs so the Sandbox rule scales this too.
 pantheon_prayer_cost = {
@@ -148,6 +178,11 @@ pantheon_prayer_cost = {
 					var:pantheon_prayer_need = 3
 					var:pantheon_prayer_need = 7
 					var:pantheon_prayer_need = 8
+					# 2.9: Cleanse, Whole, Grief, Feud
+					var:pantheon_prayer_need = 11
+					var:pantheon_prayer_need = 12
+					var:pantheon_prayer_need = 13
+					var:pantheon_prayer_need = 14
 				}
 			}
 		}
@@ -842,6 +877,25 @@ pantheon_ui_count_waiting_boons = {
 	}
 }
 
+# 2.9 (Task 4): how many quiet prayers wait on the god, for the Quiet sub-tab's count and the HUD's second badge. The list is
+# read straight, live and still marked, the way the waiting boons are (the window's own prune also closes stale records, but the
+# badge must be right between rebuilds). The list may not exist yet. NOT part of pantheon_ui_open_prayer_count below: the
+# tab label, the first badge and the top-bar alert (action_pantheon_prayers_waiting) must never fire for a quiet prayer.
+pantheon_ui_count_quiet = {
+	value = 0
+	if = {
+		limit = { has_variable_list = pantheon_quiet_prayers }
+		every_in_list = {
+			variable = pantheon_quiet_prayers
+			limit = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_quiet_open
+			}
+			add = 1
+		}
+	}
+}
+
 pantheon_ui_open_prayer_count = {
 	value = 0
 	add = pantheon_ui_count_prayers
@@ -1005,4 +1059,48 @@ pantheon_work_tier_factor = {
 pantheon_work_phase_full = {
 	value = scheme_phase_duration
 	subtract = 0.5
+}
+
+# ---- 2.9 (Task 5): the steadying act, "A Sign of Steadfastness"
+
+# God scope, read after a gather (pantheon_steady_count = followers reached, pantheon_steady_all = every follower): the price in
+# Worship. Four quarters of the god's income (about a year of it) at the share of the faith reached, never under 600 and
+# rounded, then the Sandbox rule. The share is left out while nobody has been counted. No temple discount: the act is neither a
+# boon nor a prayer.
+pantheon_steady_price_value = {
+	value = pantheon_quarterly_worship_total
+	multiply = 4
+	if = {
+		limit = {
+			has_variable = pantheon_steady_all
+			var:pantheon_steady_all > 0
+			has_variable = pantheon_steady_count
+		}
+		multiply = var:pantheon_steady_count
+		divide = var:pantheon_steady_all
+	}
+	min = 600
+	round = yes
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+# God scope: the Great Temple tier the armed reach needs (1 the slipping, 3 a kingdom, 5 the whole faith); 99 when nothing is
+# armed, so nothing passes by accident.
+pantheon_steady_tier_needed = {
+	value = 99
+	if = {
+		limit = { has_variable = pantheon_steady_reach var:pantheon_steady_reach = 1 }
+		value = 1
+	}
+	else_if = {
+		limit = { has_variable = pantheon_steady_reach var:pantheon_steady_reach = 2 }
+		value = 3
+	}
+	else_if = {
+		limit = { has_variable = pantheon_steady_reach var:pantheon_steady_reach = 3 }
+		value = 5
+	}
 }

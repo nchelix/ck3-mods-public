@@ -17,7 +17,8 @@ widget = {
 		visible = "[GetScriptedGui('pantheon_ui_is_god').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 		onclick = "[GetScriptedGui('pantheon_ui_toggle').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 		# Fix round 2 (H4): with prayers or calls waiting, a second line says how many
-		tooltip = "[Select_CString( GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count'), '(CFixedPoint)0' ), Localize( 'pantheon_ui_button_tt_n' ), Localize( 'pantheon_ui_button_tt' ) )]"
+		# 2.9 (Task 4): a quiet prayer adds a line of its own, in all four combinations (popups waiting or not, quiet waiting or not)
+		tooltip = "[Select_CString( GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count'), '(CFixedPoint)0' ), Select_CString( GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_quiet'), '(CFixedPoint)0' ), Localize( 'pantheon_ui_button_tt_nq' ), Localize( 'pantheon_ui_button_tt_n' ) ), Select_CString( GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_quiet'), '(CFixedPoint)0' ), Localize( 'pantheon_ui_button_tt_q' ), Localize( 'pantheon_ui_button_tt' ) ) )]"
 
 		icon = {
 			parentanchor = center
@@ -46,6 +47,26 @@ widget = {
 			align = nobaseline
 			parentanchor = center
 			text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_open_prayer_count')|0]"
+		}
+	}
+
+	# 2.9 (Task 4): a second badge for the quiet prayers, in the OPPOSITE corner (bottom right) and its own colour, so it reads apart
+	# from the popup badge. It shows only the quiet count, never the popup count, and only while one waits. alwaystransparent like
+	# the first, so it never steals the click from the button. In-game test (QP2, then Section C): neither `color` nor `tintcolor`
+	# changes a highlight_icon's look, so the colour is in the texture: pantheon_quiet_badge.dds is vanilla's
+	# regency_level_button_badge.dds recoloured blue.
+	highlight_icon = {
+		visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_quiet'), '(CFixedPoint)0' )]"
+		parentanchor = bottom|right
+		position = { 6 6 }
+		size = { 28 28 }
+		alwaystransparent = yes
+		texture = "gfx/interface/icons/pantheon_quiet_badge.dds"
+
+		text_single = {
+			align = nobaseline
+			parentanchor = center
+			text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_quiet')|0]"
 		}
 	}
 }
@@ -476,6 +497,23 @@ window = {
 								text_single = {
 									visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_great'), '(CFixedPoint)0' )]"
 									text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_great')|0]"
+									align = nobaseline
+									default_format = "#low"
+									margin_top = 3
+								}
+							}
+						}
+						# 2.9 (Task 4): the fourth sub-tab, Quiet prayers (pantheon_ui_ptab 4); the count shows only above 0
+						button_tab = {
+							onclick = "[GetScriptedGui('pantheon_ui_ptab_quiet').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)4' )]"
+							blockoverride "tab_label" {
+								text = "pantheon_ui_ptab_quiet"
+							}
+							blockoverride "extra_info" {
+								text_single = {
+									visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_quiet'), '(CFixedPoint)0' )]"
+									text = "[GetPlayer.MakeScope.ScriptValue('pantheon_ui_count_quiet')|0]"
 									align = nobaseline
 									default_format = "#low"
 									margin_top = 3
@@ -964,6 +1002,181 @@ window = {
 						# nothing waiting: the spare height goes below the lines, not between them
 						expand = {
 							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_waiting_boons') )]"
+						}
+					}
+
+					# ---- 2.9 Task 4: the Quiet sub-tab (pantheon_ui_ptab 4). Followers whose Devotion is slipping pray in silence; the
+					# god sees them here only. A kingdom summary (the top five kingdoms by count, pantheon_ui_quiet_kingdoms) sits above
+					# the rows (pantheon_ui_quiet, weakest Devotion first), both built by pantheon_ui_rebuild_effect. LAYOUT BUDGET: the
+					# tab content gets about 504 px under the tallest selected-follower strip (the Seeded lands' 290 box lives in the same
+					# budget): sub-tabs 42 (vanilla button_tab) + 8, header 26 + 6, summary 5 rows x 26 + 4 x 2 = 138 + 6, then a FIXED 270
+					# scrollbox (98-high cells, about two and three-quarter visible) = 496. Every text has a fixed size and elides at its width (max_width), the full text in a tooltip; no text
+					# sizes itself, so a long localized name or kingdom can never push a row wider or taller. Row width: 6 margin + 85
+					# portrait + 8 + the widest line (200 + 110 + 120 + 2 x 6 = 442; 330 + 220 + 6 = 556) + 10 margin = 665 of 676.
+					vbox = {
+						visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_ptab').GetValue, '(CFixedPoint)4' )]"
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						spacing = 6
+						text_single = {
+							size = { 676 26 }
+							autoresize = no
+							text = "pantheon_ui_quiet_header"
+							tooltip = "pantheon_ui_quiet_header_tt"
+							using = Font_Size_Medium
+						}
+						# the kingdom summary: one 26-high row per kingdom, at most five, none when no quiet prayer has a kingdom.
+						# The Task 5 "Steady <kingdom>" button joins these rows later (the width after the count is left free for it).
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_quiet_kingdoms')]"
+							spacing = 2
+							item = {
+								widget = {
+									size = { 660 26 }
+									visible = "[Scope.GetLandedTitle.MakeScope.Var('pantheon_ui_quiet_n').IsSet]"
+									datacontext = "[Scope.GetLandedTitle]"
+									background = { using = Background_Area }
+									hbox = {
+										margin_left = 10
+										margin_right = 10
+										spacing = 8
+										text_single = {
+											size = { 300 24 }
+											max_width = 300
+											autoresize = no
+											align = left|vcenter
+											text = "[Title.GetNameNoTooltip]"
+											tooltip = "[Title.GetNameNoTooltip]"
+										}
+										text_single = {
+											size = { 140 24 }
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_quiet_kingdom_n"
+										}
+										# 2.9 Task 5: arm the steadying act at this kingdom (it opens the Temple tab, where the armed panel is)
+										button_standard = {
+											size = { 170 24 }
+											text = "pantheon_ui_btn_steady_kingdom"
+											enabled = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
+											tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ), Localize( 'pantheon_ui_steady_kingdom_after_tt' ), GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
+										}
+									}
+								}
+							}
+						}
+						# the prayer rows. In-game test (Section A): a fixed 270 cut off early with room to spare below, so the box now takes
+						# all the height left, as the Prayers sub-tab's list does (proven in game); it can never overflow the tab
+						scrollbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							blockoverride "scrollbox_empty" {
+								text = "pantheon_ui_quiet_empty"
+								visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_quiet') )]"
+							}
+							blockoverride "scrollbox_content" {
+								vbox = {
+									fixedgridbox = {
+										datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_quiet')]"
+										addcolumn = 680
+										addrow = 98
+										setitemsizefromcell = yes
+										item = {
+											widget = {
+												size = { 676 94 }
+												visible = "[Scope.GetCharacter.MakeScope.Var('pantheon_quiet_open').IsSet]"
+												datacontext = "[Scope.GetCharacter]"
+												background = { using = Background_Area }
+												hbox = {
+													margin_left = 6
+													margin_right = 10
+													margin_top = 4
+													spacing = 8
+													portrait_head_small = {}
+													vbox = {
+														layoutpolicy_horizontal = expanding
+														spacing = 2
+														hbox = {
+															layoutpolicy_horizontal = expanding
+															spacing = 6
+															text_single = {
+																size = { 200 24 }
+																max_width = 200
+																autoresize = no
+																align = left|vcenter
+																text = "[Character.GetUINameNoTooltip]"
+																tooltip = "[Character.GetUINameNoTooltip]"
+															}
+															text_single = {
+																size = { 110 24 }
+																autoresize = no
+																align = left|vcenter
+																text = "pantheon_ui_quiet_devotion"
+															}
+															text_single = {
+																size = { 120 24 }
+																autoresize = no
+																align = left|vcenter
+																text = "pantheon_ui_quiet_left"
+															}
+														}
+														hbox = {
+															layoutpolicy_horizontal = expanding
+															spacing = 6
+															text_single = {
+																size = { 330 24 }
+																max_width = 330
+																autoresize = no
+																align = left|vcenter
+																text = "[Character.Custom('pantheon_prayer_need_words')]"
+																tooltip = "[Character.Custom('pantheon_prayer_need_words')]"
+															}
+															text_single = {
+																visible = "[Character.MakeScope.Var('pantheon_quiet_kingdom').IsSet]"
+																size = { 220 24 }
+																max_width = 220
+																autoresize = no
+																align = left|vcenter
+																text = "pantheon_ui_quiet_kingdom"
+																tooltip = "[Character.MakeScope.Var('pantheon_quiet_kingdom').GetLandedTitle.GetNameNoTooltip]"
+															}
+															text_single = {
+																visible = "[Not( Character.MakeScope.Var('pantheon_quiet_kingdom').IsSet )]"
+																size = { 220 24 }
+																max_width = 220
+																autoresize = no
+																align = left|vcenter
+																text = "pantheon_ui_quiet_no_kingdom"
+															}
+														}
+														hbox = {
+															layoutpolicy_horizontal = expanding
+															spacing = 6
+															button_standard = {
+																size = { 170 30 }
+																text = "pantheon_ui_btn_quiet_answer"
+																enabled = "[GetScriptedGui('pantheon_ui_quiet_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+																tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_quiet_answer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_quiet_answer_after_tt' ), GetScriptedGui('pantheon_ui_quiet_answer').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+																onclick = "[GetScriptedGui('pantheon_ui_quiet_answer').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+															}
+															button_standard = {
+																size = { 140 30 }
+																text = "pantheon_ui_btn_quiet_pass"
+																enabled = "[GetScriptedGui('pantheon_ui_quiet_pass').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+																tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_quiet_pass').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ), Localize( 'pantheon_ui_quiet_pass_after_tt' ), GetScriptedGui('pantheon_ui_quiet_pass').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End ) )]"
+																onclick = "[GetScriptedGui('pantheon_ui_quiet_pass').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_suppliant', Character.MakeScope ).End )]"
+															}
+															expand = {}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1875,6 +2088,8 @@ window = {
 					vbox = {
 						visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
 						layoutpolicy_horizontal = expanding
+						# 2.9 in-game test (Section C): the steadying act's kingdom list takes the height left below
+						layoutpolicy_vertical = expanding
 						spacing = 8
 						datacontext = "[GetPlayer]"
 
@@ -2076,7 +2291,193 @@ window = {
 								text = "pantheon_ui_wrath_note"
 							}
 						}
-						expand = {}
+
+						# ---- 2.9 Task 5: A Sign of Steadfastness, the steadying act. A section under the miracles (shown with the founded temple): either the
+						# picker (nothing armed) or the armed panel, never both. LAYOUT BUDGET (the Temple tab shares the 504 px the Quiet tab budgets under
+						# the tallest selected-follower strip, and tier 5 shows the most): header 22 + 4 + one 100-high block = 126, plus the 8 spacing of
+						# the tab = 134. The picker is a 190-wide column (two 28 buttons and a 24 rest line: 28 + 6 + 28 + 6 + 24 = 92) beside a FIXED
+						# 480 x 100 scrollbox (190 + 8 + 480 = 678 of the 680 the other Temple lists use) whose rows are 450 x 28: 8 + 200 name + 8 + 110
+						# count + 8 + 100 button + 8 = 442. The armed panel is a fixed 678 x 100: 10 + a 440 column (24 + 2 + 24 + 2 + 40 = 92) + 10 + a 200
+						# column of two 32 buttons + 10 = 670. Every text has a FIXED size, does not size itself (autoresize = no) and elides at its width,
+						# the full text in a tooltip, so a long kingdom name or a long localized sentence can never push a row wider or the panel taller.
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							spacing = 4
+							text_single = {
+								size = { 678 22 }
+								autoresize = no
+								text = "pantheon_ui_steady_header"
+								tooltip = "pantheon_ui_steady_header_tt"
+							}
+
+							# nothing armed: the two reach buttons and the kingdom list
+							hbox = {
+								visible = "[Not( GetPlayer.MakeScope.Var('pantheon_steady_reach').IsSet )]"
+								layoutpolicy_horizontal = expanding
+								layoutpolicy_vertical = expanding
+								spacing = 8
+								vbox = {
+									# the buttons stay at the top while the list beside them grows
+									layoutpolicy_vertical = expanding
+									spacing = 6
+									button_standard = {
+										size = { 190 28 }
+										text = "pantheon_ui_btn_steady_slipping"
+										enabled = "[GetScriptedGui('pantheon_ui_steady_arm_slipping').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_slipping').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_ui_steady_slipping_tt' ), GetScriptedGui('pantheon_ui_steady_arm_slipping').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('pantheon_ui_steady_arm_slipping').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										size = { 190 28 }
+										text = "pantheon_ui_btn_steady_faith"
+										enabled = "[GetScriptedGui('pantheon_ui_steady_arm_faith').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_faith').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_ui_steady_faith_tt' ), GetScriptedGui('pantheon_ui_steady_arm_faith').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('pantheon_ui_steady_arm_faith').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									# the five-year rest, while it runs
+									text_single = {
+										visible = "[GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet]"
+										size = { 190 24 }
+										autoresize = no
+										align = left|vcenter
+										text = "pantheon_ui_steady_cooldown_line"
+										tooltip = "pantheon_steady_cooldown_tt"
+									}
+									expand = {}
+								}
+								# the kingdoms that hold followers (most first). In-game test (Section C): a fixed 100 high box cut off with room
+								# to spare, so it takes all the height left below the miracles, as the Quiet and Prayers lists do (never overflows)
+								scrollbox = {
+									layoutpolicy_horizontal = expanding
+									layoutpolicy_vertical = expanding
+									blockoverride "scrollbox_empty" {
+										text = "pantheon_ui_steady_kingdom_empty"
+										visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_steady_kingdoms') )]"
+									}
+									blockoverride "scrollbox_content" {
+										vbox = {
+											layoutpolicy_horizontal = expanding
+											datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_steady_kingdoms')]"
+											spacing = 2
+											item = {
+												widget = {
+													size = { 450 28 }
+													visible = "[Scope.GetLandedTitle.MakeScope.Var('pantheon_ui_steady_n').IsSet]"
+													datacontext = "[Scope.GetLandedTitle]"
+													background = { using = Background_Area }
+													hbox = {
+														margin_left = 8
+														margin_right = 8
+														spacing = 8
+														text_single = {
+															size = { 200 26 }
+															max_width = 200
+															autoresize = no
+															align = left|vcenter
+															text = "[Title.GetNameNoTooltip]"
+															tooltip = "[Title.GetNameNoTooltip]"
+														}
+														text_single = {
+															size = { 110 26 }
+															autoresize = no
+															align = left|vcenter
+															text = "pantheon_ui_steady_kingdom_n"
+														}
+														button_standard = {
+															size = { 100 26 }
+															text = "pantheon_ui_btn_steady_kingdom"
+															enabled = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
+															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ), Localize( 'pantheon_ui_steady_kingdom_after_tt' ), GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ) )]"
+															onclick = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+
+							# armed: what it reaches, what it costs, what it does, Send and Cancel
+							widget = {
+								visible = "[GetPlayer.MakeScope.Var('pantheon_steady_reach').IsSet]"
+								size = { 678 100 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									margin_top = 4
+									spacing = 10
+									vbox = {
+										spacing = 2
+										text_single = {
+											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)1' )]"
+											size = { 440 24 }
+											max_width = 440
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_steady_armed_1"
+										}
+										text_single = {
+											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)2' )]"
+											size = { 440 24 }
+											max_width = 440
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_steady_armed_2"
+											tooltip = "pantheon_ui_steady_armed_2"
+										}
+										text_single = {
+											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)3' )]"
+											size = { 440 24 }
+											max_width = 440
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_steady_armed_3"
+										}
+										text_single = {
+											size = { 440 24 }
+											max_width = 440
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_steady_armed_line"
+											tooltip = "pantheon_ui_steady_armed_line"
+										}
+										text_single = {
+											size = { 440 40 }
+											max_width = 440
+											multiline = yes
+											autoresize = no
+											align = left|top
+											text = "pantheon_ui_steady_effects"
+											tooltip = "pantheon_ui_steady_effects_tt"
+										}
+									}
+									vbox = {
+										spacing = 6
+										button_standard = {
+											size = { 200 32 }
+											text = "pantheon_ui_btn_steady_send"
+											enabled = "[GetScriptedGui('pantheon_ui_steady_send').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_send').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_ui_steady_send_after_tt' ), GetScriptedGui('pantheon_ui_steady_send').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('pantheon_ui_steady_send').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+										button_standard = {
+											size = { 200 32 }
+											text = "pantheon_ui_btn_steady_cancel"
+											tooltip = "pantheon_ui_steady_cancel_tt"
+											onclick = "[GetScriptedGui('pantheon_ui_steady_cancel').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+									}
+								}
+							}
+						}
+						# ---- end 2.9 Task 5
+						# while a sign is armed the fixed armed panel shows instead of the growing list: the spare height goes below it
+						expand = {
+							visible = "[GetPlayer.MakeScope.Var('pantheon_steady_reach').IsSet]"
+						}
 					}
 				}
 			}

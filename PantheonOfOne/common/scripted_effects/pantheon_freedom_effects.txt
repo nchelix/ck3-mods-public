@@ -69,6 +69,12 @@ pantheon_freedom_one_effect = {
 				}
 			}
 		}
+		# 2.9: Freedom outranks a quiet prayer. Close the quiet record FIRST, with no lockout: the need below is shared with it
+		if = {
+			limit = { has_variable = pantheon_quiet_open }
+			save_temporary_scope_as = pantheon_quiet_closing
+			root = { pantheon_quiet_close_core_effect = { WHO = scope:pantheon_quiet_closing LOCKOUT = no } }
+		}
 		set_variable = { name = pantheon_prayer_need value = 9 }
 		set_variable = { name = pantheon_freedom_asked value = yes years = 1 }
 		save_scope_as = pantheon_suppliant
@@ -138,6 +144,12 @@ pantheon_kin_one_effect = {
 				}
 				order_by = pantheon_kin_devotion_score
 				max = 1
+				# 2.9: Freedom outranks a quiet prayer: close the relative's quiet record FIRST, no lockout (the need is shared)
+				if = {
+					limit = { has_variable = pantheon_quiet_open }
+					save_temporary_scope_as = pantheon_quiet_closing
+					root = { pantheon_quiet_close_core_effect = { WHO = scope:pantheon_quiet_closing LOCKOUT = no } }
+				}
 				set_variable = { name = pantheon_prayer_need value = 10 }
 				set_variable = { name = pantheon_prayer_kin value = scope:pantheon_kin_cand_prisoner }
 				scope:pantheon_kin_cand_prisoner = { set_variable = { name = pantheon_kin_prayer_for value = prev } }

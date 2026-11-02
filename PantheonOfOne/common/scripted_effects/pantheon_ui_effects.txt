@@ -5,6 +5,9 @@ pantheon_ui_rebuild_effect = {
 	pantheon_forget_the_dead_effect = yes
 	# 2.3 (R2): prayers that stopped being answerable leave the list silently before the window reads it
 	pantheon_prayer_prune_effect = yes
+	# 2.9 (Task 4): quiet prayers that faded, left the faith or lost their need close silently (with the one-year lockout) before the
+	# Quiet sub-tab's lists are read. The prune only closes and never calls back into this rebuild.
+	pantheon_quiet_prune_effect = yes
 	# 2.3 B5: Retribution calls that are no longer live (war over, a side dead, defender left the faith) go silently, and a
 	# pre-2.3 oath gets its snapshot before the Prayers tab reads it
 	pantheon_retri_prune_effect = yes
@@ -122,6 +125,68 @@ pantheon_ui_rebuild_effect = {
 		save_scope_as = pantheon_ui_row
 		scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_retris target = scope:pantheon_ui_row } }
 	}
+	# 2.9 (Task 4): the Quiet sub-tab. Rows = the god's quiet prayers (pruned above) that are live and still marked, WEAKEST DEVOTION
+	# FIRST: ordered_in_list takes the highest first, hence the negated Devotion (pantheon_ui_devotion reads 50 when they have none).
+	# Copied through a pool like the other lists. The limit is repeated on the ordering, as the prayers' is, because a pool built
+	# earlier in the same chain may hold someone no longer valid.
+	clear_variable_list = pantheon_ui_quiet
+	clear_variable_list = pantheon_ui_quiet_kingdoms
+	clear_variable_list = pantheon_ui_quiet_kingdom_all
+	every_in_list = {
+		variable = pantheon_quiet_prayers
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_quiet_open }
+		add_to_list = pantheon_ui_quiet_pool
+	}
+	ordered_in_list = {
+		list = pantheon_ui_quiet_pool
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_quiet_open }
+		order_by = {
+			value = pantheon_ui_devotion
+			multiply = -1
+		}
+		max = 100
+		check_range_bounds = no
+		save_scope_as = pantheon_ui_row
+		scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_quiet target = scope:pantheon_ui_row } }
+	}
+	# The kingdom summary: how many quiet prayers each de jure kingdom holds. The count lives on the kingdom TITLE
+	# (pantheon_ui_quiet_n), so first every kingdom about to be counted is reset to 0 -- a stale count from an earlier build (or one
+	# the window close left behind) never adds to a new one. A follower with no de jure kingdom has no pantheon_quiet_kingdom and is
+	# skipped here (their row says "No kingdom"); the title is only entered through var:, behind exists. One entry per kingdom
+	# goes to a hidden list, and the top FIVE by count go to the window's list; the hidden list is dropped again at once.
+	every_in_list = {
+		variable = pantheon_ui_quiet
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_quiet_kingdom exists = var:pantheon_quiet_kingdom }
+		var:pantheon_quiet_kingdom = {
+			set_variable = { name = pantheon_ui_quiet_n value = 0 }
+		}
+	}
+	every_in_list = {
+		variable = pantheon_ui_quiet
+		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_quiet_kingdom exists = var:pantheon_quiet_kingdom }
+		var:pantheon_quiet_kingdom = {
+			change_variable = { name = pantheon_ui_quiet_n add = 1 }
+			save_scope_as = pantheon_ui_row
+			scope:pantheon_ui_god = {
+				if = {
+					limit = { NOT = { is_target_in_variable_list = { name = pantheon_ui_quiet_kingdom_all target = scope:pantheon_ui_row } } }
+					add_to_variable_list = { name = pantheon_ui_quiet_kingdom_all target = scope:pantheon_ui_row }
+				}
+			}
+		}
+	}
+	if = {
+		limit = { has_variable_list = pantheon_ui_quiet_kingdom_all }
+		ordered_in_list = {
+			variable = pantheon_ui_quiet_kingdom_all
+			order_by = { value = var:pantheon_ui_quiet_n }
+			max = 5
+			check_range_bounds = no
+			save_scope_as = pantheon_ui_row
+			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_quiet_kingdoms target = scope:pantheon_ui_row } }
+		}
+	}
+	clear_variable_list = pantheon_ui_quiet_kingdom_all
 	clear_variable_list = pantheon_ui_houses
 	every_child = {
 		limit = { has_trait = pantheon_demigod }
@@ -188,13 +253,74 @@ pantheon_ui_rebuild_effect = {
 			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_temple_sites target = scope:pantheon_ui_row } }
 		}
 	}
+	# 2.9 (Task 5): the Temple tab's kingdom list for the steadying act (the kingdoms that hold followers, most first, each carrying
+	# its count). Built ONLY while the Temple tab is shown and a temple stands: it walks the whole follower pool. Anywhere else it is
+	# emptied, so no row of it lingers.
+	clear_variable_list = pantheon_ui_steady_kingdoms
+	if = {
+		limit = {
+			has_variable = pantheon_ui_tab
+			var:pantheon_ui_tab = 4
+			has_variable = pantheon_temple_province
+		}
+		pantheon_steady_ui_build_effect = yes
+	}
+}
+
+# 2.9 (Task 5): the Temple tab's kingdom list (called from pantheon_ui_rebuild_effect ONLY while the Temple tab shows and a temple exists; god scope,
+# scope:pantheon_ui_god saved). Counts the followers in each de jure kingdom on the TITLE (pantheon_ui_steady_n), after resetting every
+# kingdom about to be counted, so a stale count never adds to a new one; a follower with no kingdom counts toward none. The titles go
+# to a deduplicated list and the god's list pantheon_ui_steady_kingdoms is filled most followers first. It also leaves the two counts
+# the arm buttons read to grey an empty reach (pantheon_ui_steady_all_n, pantheon_ui_steady_slipping_n).
+pantheon_steady_ui_build_effect = {
+	set_variable = { name = pantheon_ui_steady_all_n value = 0 }
+	set_variable = { name = pantheon_ui_steady_slipping_n value = 0 }
+	pantheon_steady_pool_effect = { LIST = pantheon_steady_ui_pool }
+	every_in_list = {
+		list = pantheon_steady_ui_pool
+		limit = { pantheon_live_character_trigger = yes }
+		scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_steady_all_n add = 1 } }
+		if = {
+			limit = { pantheon_steady_slipping_trigger = yes }
+			scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_steady_slipping_n add = 1 } }
+		}
+		pantheon_steady_region_effect = yes
+		if = {
+			limit = { exists = scope:pantheon_steady_region_one }
+			scope:pantheon_steady_region_one = { set_variable = { name = pantheon_ui_steady_n value = 0 } }
+		}
+	}
+	every_in_list = {
+		list = pantheon_steady_ui_pool
+		limit = { pantheon_live_character_trigger = yes }
+		pantheon_steady_region_effect = yes
+		if = {
+			limit = { exists = scope:pantheon_steady_region_one }
+			scope:pantheon_steady_region_one = {
+				change_variable = { name = pantheon_ui_steady_n add = 1 }
+				if = {
+					limit = { NOT = { is_in_list = pantheon_steady_ui_titles } }
+					add_to_list = pantheon_steady_ui_titles
+				}
+			}
+		}
+	}
+	ordered_in_list = {
+		list = pantheon_steady_ui_titles
+		order_by = { value = var:pantheon_ui_steady_n }
+		max = 300
+		check_range_bounds = no
+		save_scope_as = pantheon_ui_row
+		scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_steady_kingdoms target = scope:pantheon_ui_row } }
+	}
+	if = { limit = { exists = scope:pantheon_steady_region_one } clear_saved_scope = pantheon_steady_region_one }
 }
 
 # Fix round 1 (F5): a record closed from an EVENT (a wrath landing, a deadline, a Send, an oath ending) must also leave an
 # open window's lists, or its row stays behind with the record gone. Rebuilds only while the window is open (root = the
 # god). NEVER call this from the _core_ closers or the prune effects: the rebuild prunes through them (recursion).
 # Fix round 2 (H3): the Prayers tab opens on the first sub-tab that has something: Prayers, then Retribution, then
-# Great Prayers; all empty -> Prayers. Run AFTER pantheon_ui_rebuild_effect (it prunes stale records first). God scope.
+# Great Prayers, then (2.9) Quiet; all empty -> Prayers. Run AFTER pantheon_ui_rebuild_effect (it prunes stale records first). God scope.
 pantheon_ui_pick_ptab_effect = {
 	if = {
 		limit = { pantheon_ui_count_prayers > 0 }
@@ -207,6 +333,11 @@ pantheon_ui_pick_ptab_effect = {
 	else_if = {
 		limit = { pantheon_ui_count_great > 0 }
 		set_variable = { name = pantheon_ui_ptab value = 3 }
+	}
+	# 2.9 (Task 4): the Quiet sub-tab comes last, so a popup, a call or a Great Prayer always shows first
+	else_if = {
+		limit = { pantheon_ui_count_quiet > 0 }
+		set_variable = { name = pantheon_ui_ptab value = 4 }
 	}
 	else = {
 		set_variable = { name = pantheon_ui_ptab value = 1 }

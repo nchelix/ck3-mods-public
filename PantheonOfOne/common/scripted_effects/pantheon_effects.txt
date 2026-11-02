@@ -234,8 +234,11 @@ pantheon_take_throne_effect = {
 	trigger_event = { id = pantheon.0010 days = 91 }
 	set_variable = { name = pantheon_monthly_alive value = yes days = 45 }
 	trigger_event = { id = pantheon.0011 days = 1 }
-	set_variable = pantheon_prayer_timer
+	set_variable = { name = pantheon_prayer_alive value = yes days = 400 }
 	trigger_event = { id = pantheon.0050 days = pantheon_prayer_interval_days }
+	# 2.9: the quiet-prayer timer (pantheon.0051), beside the popup one, with an expiring heartbeat like the monthly chain
+	set_variable = { name = pantheon_quiet_alive value = yes days = 120 }
+	trigger_event = { id = pantheon.0051 days = pantheon_quiet_interval_days }
 	pantheon_new_god_worship_floor_effect = yes
 }
 
@@ -335,6 +338,18 @@ pantheon_grant_realm_effect = {
 	pantheon_bless_opinion_effect = yes
 }
 
+# Warded from Pestilence (Bless and need 4). The realm boon (every held county gets pantheon_warding, epidemic_resistance 100,
+# which vanilla reads from the county a character stands in) AND, 2.9 (in-game test), the person themself: vanilla's
+# hiding_from_epidemic character modifier, which character_infection_chance_default_value multiplies by 0.25 wherever they
+# are (game/common/script_values/06_ce1_epidemics_values.txt; its only other effect is legitimacy_loss_mult 0.1). So a landless
+# follower (a mercenary captain, a courtier) is protected too. Root is the god; scope:pantheon_target the recipient.
+pantheon_grant_warding_effect = {
+	pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding }
+	scope:pantheon_target = {
+		add_character_modifier = { modifier = hiding_from_epidemic years = pantheon_blessing_years desc = pantheon_warding_personal_desc }
+	}
+}
+
 pantheon_grant_vigor_effect = {
 	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
 	pantheon_apply_vigor_effect = yes
@@ -348,6 +363,31 @@ pantheon_apply_vigor_effect = {
 			limit = { NOT = { has_trait = immortal } }
 			add_trait = immortal
 			set_variable = pantheon_vigor_gave_immortal
+		}
+		# 2.9 (#51): Vigor also lifts the ailments of old age (vanilla flag age_related_ailment: infirm, withering_mind,
+		# clouded_eyes, faltering_heart, fragile_bones). They are removed outright and not restored when the blessing fades.
+		if = {
+			limit = { has_trait_with_flag = age_related_ailment }
+			if = {
+				limit = { has_trait = infirm }
+				remove_trait = infirm
+			}
+			if = {
+				limit = { has_trait = withering_mind }
+				remove_trait = withering_mind
+			}
+			if = {
+				limit = { has_trait = clouded_eyes }
+				remove_trait = clouded_eyes
+			}
+			if = {
+				limit = { has_trait = faltering_heart }
+				remove_trait = faltering_heart
+			}
+			if = {
+				limit = { has_trait = fragile_bones }
+				remove_trait = fragile_bones
+			}
 		}
 		add_character_modifier = { modifier = pantheon_vigor years = pantheon_blessing_years }
 		set_variable = {
@@ -1058,6 +1098,153 @@ pantheon_cure_effect = {
 		limit = { has_trait = wounded_3 }
 		remove_trait = wounded_3
 	}
+}
+
+# ---- 2.9 "Grace": four blessings that are also prayer needs 11-14. Root is the god; scope:pantheon_target the recipient. Each
+# charges pantheon_cost_life (the prayer path restores the balance and charges the stored price instead, like every grant).
+
+# Cleanse their vices (need 11): the nine bad stress-coping traits go and the stress is cleared.
+pantheon_grant_cleanse_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = { pantheon_cleanse_effect = yes }
+	pantheon_bless_opinion_effect = yes
+}
+
+# In the follower's scope. Vanilla's has_a_bad_stress_coping_trait_trigger list; stress back to 0.
+pantheon_cleanse_effect = {
+	if = {
+		limit = { has_trait = drunkard }
+		remove_trait = drunkard
+	}
+	if = {
+		limit = { has_trait = hashishiyah }
+		remove_trait = hashishiyah
+	}
+	if = {
+		limit = { has_trait = rakish }
+		remove_trait = rakish
+	}
+	if = {
+		limit = { has_trait = irritable }
+		remove_trait = irritable
+	}
+	if = {
+		limit = { has_trait = flagellant }
+		remove_trait = flagellant
+	}
+	if = {
+		limit = { has_trait = profligate }
+		remove_trait = profligate
+	}
+	if = {
+		limit = { has_trait = contrite }
+		remove_trait = contrite
+	}
+	if = {
+		limit = { has_trait = comfort_eater }
+		remove_trait = comfort_eater
+	}
+	if = {
+		limit = { has_trait = inappetetic }
+		remove_trait = inappetetic
+	}
+	add_stress = { value = stress multiply = -1 }
+}
+
+# Make them whole (need 12): the lasting injuries, and any wound with them.
+pantheon_grant_whole_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = { pantheon_make_whole_effect = yes }
+	pantheon_bless_opinion_effect = yes
+}
+
+# In the follower's scope.
+pantheon_make_whole_effect = {
+	if = {
+		limit = { has_trait = maimed }
+		remove_trait = maimed
+	}
+	if = {
+		limit = { has_trait = one_eyed }
+		remove_trait = one_eyed
+	}
+	if = {
+		limit = { has_trait = one_legged }
+		remove_trait = one_legged
+	}
+	if = {
+		limit = { has_trait = disfigured }
+		remove_trait = disfigured
+	}
+	if = {
+		limit = { has_trait = blind }
+		remove_trait = blind
+	}
+	if = {
+		limit = { has_trait = wounded_1 }
+		remove_trait = wounded_1
+	}
+	if = {
+		limit = { has_trait = wounded_2 }
+		remove_trait = wounded_2
+	}
+	if = {
+		limit = { has_trait = wounded_3 }
+		remove_trait = wounded_3
+	}
+}
+
+# Comfort in grief (need 13): stress eases, half of the Devotion a death blame took is given back (pantheon.0231 and
+# pantheon_blame_effect record it as pantheon_blame_death_loss, one year), and the grief ends. Every read of a variable this
+# effect sets is guarded (a tooltip preview skips set_variable).
+pantheon_grant_grief_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = {
+		add_stress = -100
+		if = {
+			limit = { has_variable = pantheon_blame_death_loss }
+			set_variable = { name = pantheon_grief_back value = var:pantheon_blame_death_loss }
+			# a tooltip preview skips the set_variable above: never change a variable that may not exist yet
+			if = {
+				limit = { has_variable = pantheon_grief_back }
+				change_variable = { name = pantheon_grief_back multiply = 0.5 }
+				round_variable = { name = pantheon_grief_back nearest = 1 }
+			}
+		}
+	}
+	if = {
+		limit = { scope:pantheon_target = { has_variable = pantheon_grief_back } }
+		pantheon_change_devotion_effect = { AMOUNT = scope:pantheon_target.var:pantheon_grief_back }
+	}
+	scope:pantheon_target = {
+		if = {
+			limit = { has_variable = pantheon_grief_back }
+			remove_variable = pantheon_grief_back
+		}
+		if = {
+			limit = { has_variable = pantheon_blame_death_loss }
+			remove_variable = pantheon_blame_death_loss
+		}
+		if = {
+			limit = { has_variable = pantheon_grief }
+			remove_variable = pantheon_grief
+		}
+	}
+	pantheon_bless_opinion_effect = yes
+}
+
+# Mend a feud (Bless and need 14). Root is the god, scope:pantheon_target the recipient; charges pantheon_cost_life.
+# One living rival is forgiven, on both sides (a relation is mutual). Besides the union undo, the only relation removal.
+pantheon_grant_feud_effect = {
+	change_variable = { name = pantheon_worship subtract = pantheon_cost_life }
+	scope:pantheon_target = {
+		random_relation = { type = rival limit = { is_alive = yes } save_temporary_scope_as = pantheon_feud_rival }
+		if = {
+			limit = { exists = scope:pantheon_feud_rival }
+			remove_relation_rival = scope:pantheon_feud_rival
+		}
+	}
+	pantheon_bless_opinion_effect = yes
 }
 
 # A spouse and children (1.3, a prayer answer): a fitting spouse at their court, married at once, and

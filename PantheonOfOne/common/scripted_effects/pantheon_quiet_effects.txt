@@ -1,0 +1,258 @@
+﻿# Pantheon of One 2.9: quiet prayers, the stream. A SECOND prayer stream beside the popup one (pantheon_prayer_effects.txt):
+# a follower below Devotion 75 with a need leaves a quiet prayer instead of an event. Nothing is shown when one is made, fades or
+# is pruned: no popup, no toast, no feed message, no alert, no Devotion change. The god sees them in the window (Task 4).
+#
+#   On the god:        the list pantheon_quiet_prayers (cap 18, pantheon.0051 in events/pantheon_quiet_events.txt)
+#   On the suppliant:  pantheon_quiet_open    (presence = open. NEVER expires by itself: a faded record must keep blocking popups
+#                                              until it is closed, or a popup could open over its need)
+#                      pantheon_quiet_fades   (days = pantheon_quiet_fade_days: the fade timer; a prune closes records without it)
+#                      pantheon_prayer_need / _gift   (SHARED with popup records; about 40 readers use them)
+#                      pantheon_quiet_price   (snapshotted when it opens: half the popup price, fixed for its life)
+#                      pantheon_quiet_kingdom (a title; absent when they have no de jure kingdom)
+#                      pantheon_quiet_recently (years = 1: the lockout set when a record closes, so they are not asked at once)
+#
+# Because the need and gift are shared, five rules keep a quiet record and a popup record from ever coexisting (plan, Decisions):
+#   1. pantheon_quiet_open never expires; the fade is a separate variable and a prune closes records whose timer is gone.
+#   2. Every popup producer that does not SKIP a quiet holder closes the quiet record FIRST, with no lockout (Freedom, kin-Freedom,
+#      the debug opener). The pools skip quiet holders.
+#   3. The quiet close clears the shared need/gift only when no popup record is open.
+#   4. A list entry that is not a live character is removed from the list ONLY. Nothing is read or written on that character.
+#   5. pantheon_add_prayer_candidate_effect and pantheon_prayer_adopt_legacy_effect skip quiet holders.
+#
+# Effects: root/this is the god; scope:pantheon_suppliant is the follower.
+
+# Gather the follower pool, keep those who can pray quietly, pick one at random and open the record. Does nothing if no one
+# qualifies. The pool is the one every 2.9 follower walk uses: the god's faith's rulers, the god's own courtiers of the faith, and
+# pantheon_known (live), deduplicated through ONE temporary list; never the god, never a demigod. Quiet pool: Devotion below 75,
+# no popup prayer open, no quiet one, not locked out, not in a cell (Freedom stays a popup).
+pantheon_quiet_pick_effect = {
+	pantheon_prayer_clear_delivery_effect = yes
+	every_ruler = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
+			NOT = { has_trait = pantheon_demigod }
+			NOT = { is_in_list = pantheon_quiet_pool }
+		}
+		add_to_temporary_list = pantheon_quiet_pool
+	}
+	every_courtier = {
+		limit = {
+			faith = root.faith
+			NOT = { this = root }
+			NOT = { has_trait = pantheon_demigod }
+			NOT = { is_in_list = pantheon_quiet_pool }
+		}
+		add_to_temporary_list = pantheon_quiet_pool
+	}
+	every_in_list = {
+		variable = pantheon_known
+		limit = {
+			NOT = { this = root }
+			pantheon_live_character_trigger = yes
+			faith = root.faith
+			NOT = { has_trait = pantheon_demigod }
+			NOT = { is_in_list = pantheon_quiet_pool }
+		}
+		add_to_temporary_list = pantheon_quiet_pool
+	}
+	every_in_list = {
+		list = pantheon_quiet_pool
+		limit = {
+			NOT = { pantheon_devout_trigger = yes }
+			NOT = { has_variable = pantheon_prayer_open }
+			NOT = { has_variable = pantheon_quiet_open }
+			NOT = { has_variable = pantheon_quiet_recently }
+			is_imprisoned = no
+		}
+		# writes pantheon_prayer_need on the candidate (and skips anyone who holds a quiet record already)
+		pantheon_add_prayer_candidate_effect = yes
+	}
+	random_in_list = { list = pantheon_prayer_candidates save_scope_as = pantheon_suppliant }
+	if = {
+		limit = { exists = scope:pantheon_suppliant }
+		pantheon_quiet_create_effect = yes
+	}
+	# saved scopes ride into timer chains: forget the pick
+	pantheon_prayer_clear_delivery_effect = yes
+}
+
+# Open the quiet record for scope:pantheon_suppliant, whose pantheon_prayer_need (and gift) the candidate helper has already set.
+# The price is worked out HERE, in the god's scope, and stored on the suppliant. Silent.
+pantheon_quiet_create_effect = {
+	if = {
+		limit = { exists = scope:pantheon_quiet_price_now }
+		clear_saved_scope = pantheon_quiet_price_now
+	}
+	save_scope_value_as = {
+		name = pantheon_quiet_price_now
+		value = {
+			value = pantheon_quiet_price_value
+		}
+	}
+	scope:pantheon_suppliant = {
+		set_variable = { name = pantheon_quiet_open value = yes }
+		set_variable = { name = pantheon_quiet_fades value = yes days = pantheon_quiet_fade_days }
+		set_variable = { name = pantheon_quiet_price value = scope:pantheon_quiet_price_now }
+		# the region they count toward: their capital county's de jure kingdom if they hold land, else where they stand.
+		# Not every county has a de jure kingdom: stored only when it exists (a missing one is "no kingdom").
+		if = {
+			limit = { is_landed = yes exists = capital_county.kingdom }
+			set_variable = { name = pantheon_quiet_kingdom value = capital_county.kingdom }
+		}
+		else_if = {
+			limit = { is_landed = no exists = location.county.kingdom }
+			set_variable = { name = pantheon_quiet_kingdom value = location.county.kingdom }
+		}
+	}
+	if = {
+		limit = { NOT = { is_target_in_variable_list = { name = pantheon_quiet_prayers target = scope:pantheon_suppliant } } }
+		add_to_variable_list = { name = pantheon_quiet_prayers target = scope:pantheon_suppliant }
+	}
+	clear_saved_scope = pantheon_quiet_price_now
+}
+
+# Close the quiet record of $WHO$ (a scope reference to a LIVE character; never a purged one: see the prune). $LOCKOUT$ is yes or no:
+# yes sets the one-year pantheon_quiet_recently. The quiet variables go; the SHARED need and gift go only when no popup record is
+# open (rule 3); nothing else of a popup record is touched. Off the god's list. Idempotent. Silent. Root/this is the god.
+pantheon_quiet_close_core_effect = {
+	$WHO$ = {
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_quiet_open }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_quiet_fades }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_quiet_price }
+		pantheon_prayer_forget_var_effect = { NAME = pantheon_quiet_kingdom }
+		if = {
+			limit = { NOT = { has_variable = pantheon_prayer_open } }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_need }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_gift }
+		}
+		if = {
+			limit = { always = $LOCKOUT$ }
+			set_variable = { name = pantheon_quiet_recently value = yes years = 1 }
+		}
+	}
+	if = {
+		limit = { is_target_in_variable_list = { name = pantheon_quiet_prayers target = $WHO$ } }
+		remove_list_variable = { name = pantheon_quiet_prayers target = $WHO$ }
+	}
+}
+
+# Close scope:pantheon_suppliant's quiet record. Root/this is the god.
+pantheon_quiet_close_effect = {
+	pantheon_quiet_close_core_effect = { WHO = scope:pantheon_suppliant LOCKOUT = $LOCKOUT$ }
+}
+
+# Drop what is no longer a quiet prayer, silently, no Devotion change. Root/this is the god. Called by pantheon.0051 FIRST (under
+# the Off rule too, before the cap check) so faded or invalid records close with no window open, and by the window rebuild (Task 4).
+# Two branches, gathered into temporary lists first because a list is never edited while it is walked:
+#   - an entry that is not a live character is removed from the list ONLY (nothing is read or written on it);
+#   - a live entry that has left the faith, lost its fade timer, lost its marker or whose need no longer holds is closed, with the
+#     lockout. Each removal re-checks staleness, so a temporary list that outlives one call can never close a valid record.
+pantheon_quiet_prune_effect = {
+	save_temporary_scope_as = pantheon_quiet_god
+	every_in_list = {
+		variable = pantheon_quiet_prayers
+		limit = { NOT = { pantheon_live_character_trigger = yes } }
+		add_to_temporary_list = pantheon_quiet_dead
+	}
+	every_in_list = {
+		list = pantheon_quiet_dead
+		limit = { NOT = { pantheon_live_character_trigger = yes } }
+		save_temporary_scope_as = pantheon_quiet_dead_one
+		scope:pantheon_quiet_god = {
+			if = {
+				limit = { is_target_in_variable_list = { name = pantheon_quiet_prayers target = scope:pantheon_quiet_dead_one } }
+				remove_list_variable = { name = pantheon_quiet_prayers target = scope:pantheon_quiet_dead_one }
+			}
+		}
+	}
+	every_in_list = {
+		variable = pantheon_quiet_prayers
+		limit = {
+			pantheon_live_character_trigger = yes
+			OR = {
+				NOT = { faith = scope:pantheon_quiet_god.faith }
+				NOT = { has_variable = pantheon_quiet_fades }
+				NOT = { has_variable = pantheon_quiet_open }
+				NOT = { pantheon_prayer_need_valid_trigger = yes }
+			}
+		}
+		add_to_temporary_list = pantheon_quiet_stale
+	}
+	every_in_list = {
+		list = pantheon_quiet_stale
+		limit = {
+			pantheon_live_character_trigger = yes
+			OR = {
+				NOT = { faith = scope:pantheon_quiet_god.faith }
+				NOT = { has_variable = pantheon_quiet_fades }
+				NOT = { has_variable = pantheon_quiet_open }
+				NOT = { pantheon_prayer_need_valid_trigger = yes }
+			}
+			scope:pantheon_quiet_god = { is_target_in_variable_list = { name = pantheon_quiet_prayers target = prev } }
+		}
+		save_temporary_scope_as = pantheon_quiet_stale_one
+		scope:pantheon_quiet_god = {
+			pantheon_quiet_close_core_effect = { WHO = scope:pantheon_quiet_stale_one LOCKOUT = yes }
+		}
+	}
+}
+
+# Answer scope:pantheon_suppliant's quiet prayer: do what the need asks (pantheon_prayer_give_need_effect: the grant's own charge
+# is undone and ONLY the stored quiet price is paid, once), +10 Devotion, close with the lockout. Answerable only while the record is
+# open, unfaded, listed, of the god's faith and its need still holds, and only if Worship covers the stored price. Anything else
+# changes nothing but a silent prune. No toast: the window's row simply goes. Root/this is the god.
+pantheon_quiet_answer_effect = {
+	if = {
+		limit = {
+			exists = scope:pantheon_suppliant
+			is_target_in_variable_list = { name = pantheon_quiet_prayers target = scope:pantheon_suppliant }
+			scope:pantheon_suppliant = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_quiet_open
+				has_variable = pantheon_quiet_fades
+				has_variable = pantheon_quiet_price
+				faith = root.faith
+				pantheon_prayer_need_valid_trigger = yes
+			}
+		}
+		if = {
+			limit = { var:pantheon_worship >= scope:pantheon_suppliant.var:pantheon_quiet_price }
+			pantheon_prayer_give_need_effect = { PRICE = pantheon_quiet_price }
+			pantheon_change_devotion_effect = { AMOUNT = 10 }
+			pantheon_quiet_close_effect = { LOCKOUT = yes }
+		}
+	}
+	else = { pantheon_quiet_prune_effect = yes }
+}
+
+# Let it pass: close the record with the lockout. Free, no Devotion change. Root/this is the god.
+pantheon_quiet_pass_effect = {
+	if = {
+		limit = {
+			exists = scope:pantheon_suppliant
+			scope:pantheon_suppliant = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_quiet_open
+			}
+		}
+		pantheon_quiet_close_effect = { LOCKOUT = yes }
+	}
+}
+
+# A sign (the steadying act, Task 5): +10 Devotion and close with the lockout. Costs nothing itself (the act charges once). Root/this
+# is the god.
+pantheon_quiet_sign_effect = {
+	if = {
+		limit = {
+			exists = scope:pantheon_suppliant
+			scope:pantheon_suppliant = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_quiet_open
+			}
+		}
+		scope:pantheon_suppliant = { save_scope_as = pantheon_target }
+		pantheon_change_devotion_effect = { AMOUNT = 10 }
+		pantheon_quiet_close_effect = { LOCKOUT = yes }
+	}
+}

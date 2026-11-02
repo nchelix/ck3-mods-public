@@ -231,6 +231,9 @@ pantheon_prayer_adopt_legacy_effect = {
 				is_alive = yes
 				has_variable = pantheon_prayer_need
 				NOT = { has_variable = pantheon_prayer_open }
+				# 2.9: a suppliant who now holds a QUIET prayer owns that need: no popup record may be made over it. A legacy
+				# event whose suppliant became a quiet holder finds no record and takes its existing "gone" path.
+				NOT = { has_variable = pantheon_quiet_open }
 			}
 		}
 		pantheon_prayer_create_effect = yes

@@ -8,6 +8,9 @@ pantheon.0050 = {
 	hidden = yes
 	trigger = { has_trait = pantheon_divine }
 	immediate = {
+		# 2.9: the heartbeat (400 days, more than the longest interval): while this chain runs, the monthly pantheon.0011 never
+		# starts a second one; if the chain dies, it lapses and the monthly tick restarts it
+		set_variable = { name = pantheon_prayer_alive value = yes days = 400 }
 		if = {
 			limit = { NOT = { has_game_rule = pantheon_prayers_off } }
 			pantheon_send_prayer_effect = yes
@@ -135,6 +138,23 @@ pantheon.0060 = {
 			triggered_desc = {
 				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 10 } }
 				desc = pantheon.0060.desc_kin_freedom
+			}
+			# 2.9: Cleanse, Whole, Grief, Feud
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 11 } }
+				desc = pantheon.0060.desc_cleanse
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 12 } }
+				desc = pantheon.0060.desc_whole
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 13 } }
+				desc = pantheon.0060.desc_grief
+			}
+			triggered_desc = {
+				trigger = { scope:pantheon_suppliant = { var:pantheon_prayer_need = 14 } }
+				desc = pantheon.0060.desc_feud
 			}
 			desc = pantheon.0060.desc_gift
 		}
@@ -323,7 +343,7 @@ pantheon.0060 = {
 
 # 2.3 (R2): the deadline of one prayer, scheduled by pantheon_prayer_create_effect six months after it opened.
 # Hidden; root is the god; it carries the suppliant and the token of the prayer it was scheduled for. See
-# pantheon_prayer_deadline_effect: invalidation first, then the lapse (a follower -5 Devotion, both a toast).
+# pantheon_prayer_deadline_effect: invalidation first, then the lapse (a follower -15 Devotion, both a toast).
 pantheon.0061 = {
 	type = character_event
 	hidden = yes

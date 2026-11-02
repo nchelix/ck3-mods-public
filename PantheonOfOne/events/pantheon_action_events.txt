@@ -19,7 +19,7 @@ pantheon.0100 = {
 			else_if = { limit = { var:pantheon_ui_choice = flag:sage } pantheon_grant_trait_effect = { TRAIT = pantheon_sage } }
 			else_if = { limit = { var:pantheon_ui_choice = flag:harvest } pantheon_grant_realm_effect = { KEY = harvest MODIFIER = pantheon_harvest } }
 			else_if = { limit = { var:pantheon_ui_choice = flag:walls } pantheon_grant_realm_effect = { KEY = walls MODIFIER = pantheon_walls } }
-			else_if = { limit = { var:pantheon_ui_choice = flag:warding } pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding } }
+			else_if = { limit = { var:pantheon_ui_choice = flag:warding } pantheon_grant_warding_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:vigor } pantheon_grant_vigor_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:fertility } pantheon_grant_fertility_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:lineage } pantheon_grant_lineage_effect = yes }
@@ -54,6 +54,11 @@ pantheon.0100 = {
 					pantheon_ui_refresh_if_open_effect = yes
 				}
 			}
+			# 2.9: the four need-backed blessings
+			else_if = { limit = { var:pantheon_ui_choice = flag:cleanse } pantheon_grant_cleanse_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:whole } pantheon_grant_whole_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:grief } pantheon_grant_grief_effect = yes }
+			else_if = { limit = { var:pantheon_ui_choice = flag:feud } pantheon_grant_feud_effect = yes }
 			# 2.4 (R3): the generic +10 for a Bless is skipped for Freedom: its own Devotion is the whole reward
 			if = {
 				limit = { NOT = { var:pantheon_ui_choice = flag:freedom } }

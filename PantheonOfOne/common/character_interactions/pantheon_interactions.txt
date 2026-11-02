@@ -334,6 +334,10 @@ pantheon_bless_interaction = {
 				scope:pantheon_bless_lineage = yes
 				scope:pantheon_bless_host = yes
 				scope:pantheon_bless_freedom = yes
+				scope:pantheon_bless_cleanse = yes
+				scope:pantheon_bless_whole = yes
+				scope:pantheon_bless_grief = yes
+				scope:pantheon_bless_feud = yes
 				scope:pantheon_bless_conception = yes
 			}
 		}
@@ -351,6 +355,10 @@ pantheon_bless_interaction = {
 				pantheon_bless_suits_warlord_trigger = yes
 				pantheon_bless_suits_champion_trigger = yes
 				pantheon_bless_suits_warding_trigger = yes
+				pantheon_bless_suits_cleanse_trigger = yes
+				pantheon_bless_suits_whole_trigger = yes
+				pantheon_bless_suits_grief_trigger = yes
+				pantheon_bless_suits_feud_trigger = yes
 			}
 		}
 	}
@@ -471,7 +479,7 @@ pantheon_bless_interaction = {
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
-				custom_tooltip = { text = pantheon_bless_landless_tt any_held_county = { always = yes } }
+				# 2.9 (in-game test): Warding also protects the person (hiding_from_epidemic), so the landless may have it
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_warding } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
 			}
@@ -585,6 +593,88 @@ pantheon_bless_interaction = {
 			}
 		}
 	}
+	# 2.9 (Grace): four more blessings, each also a prayer need (11-14, pantheon_need_<x>_trigger). Greyed with a reason unless the
+	# recipient has the need; marked "Suits them" when they do. Not for the god himself (nothing to cleanse, mend or comfort).
+	send_option = {
+		flag = pantheon_bless_cleanse
+		localization = pantheon_bless_opt_cleanse
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_cleanse_trigger = yes } }
+					desc = pantheon_bless_suits_why_cleanse
+				}
+			}
+		}
+		is_shown = { NOT = { scope:recipient = scope:actor } }
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_no_need_cleanse_tt pantheon_need_cleanse_trigger = yes }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_whole
+		localization = pantheon_bless_opt_whole
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_whole_trigger = yes } }
+					desc = pantheon_bless_suits_why_whole
+				}
+			}
+		}
+		is_shown = { NOT = { scope:recipient = scope:actor } }
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_no_need_whole_tt pantheon_need_whole_trigger = yes }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_grief
+		localization = pantheon_bless_opt_grief
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_grief_trigger = yes } }
+					desc = pantheon_bless_suits_why_grief
+				}
+			}
+		}
+		is_shown = { NOT = { scope:recipient = scope:actor } }
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_no_need_grief_tt pantheon_need_grief_trigger = yes }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_bless_feud
+		localization = pantheon_bless_opt_feud
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_feud_trigger = yes } }
+					desc = pantheon_bless_suits_why_feud
+				}
+			}
+		}
+		is_shown = { NOT = { scope:recipient = scope:actor } }
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_no_need_feud_tt pantheon_need_feud_trigger = yes }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
 	# 2.5: Divine Conception, formerly its own interaction. Eligibility beyond these is checked on accept by pantheon.0101,
 	# which says why when it refuses (1.2: greying it with reasons made the old page option vanish).
 	send_option = {
@@ -633,6 +723,14 @@ pantheon_bless_interaction = {
 		if = { limit = { scope:pantheon_bless_freedom = yes } custom_tooltip = pantheon_tip.0100.freedom.tt }
 		if = { limit = { scope:pantheon_bless_freedom = yes } custom_tooltip = pantheon_worship_line_freedom }
 		if = { limit = { scope:pantheon_bless_freedom = yes scope:recipient = { OR = { pantheon_valuable_prisoner_trigger = yes pantheon_war_leader_prisoner_trigger = yes } } } custom_tooltip = pantheon_worship_line_freedom_great }
+		if = { limit = { scope:pantheon_bless_cleanse = yes } custom_tooltip = pantheon_tip.0300.cleanse.tt }
+		if = { limit = { scope:pantheon_bless_cleanse = yes } custom_tooltip = pantheon_worship_line_life }
+		if = { limit = { scope:pantheon_bless_whole = yes } custom_tooltip = pantheon_tip.0300.whole.tt }
+		if = { limit = { scope:pantheon_bless_whole = yes } custom_tooltip = pantheon_worship_line_life }
+		if = { limit = { scope:pantheon_bless_grief = yes } custom_tooltip = pantheon_tip.0300.grief.tt }
+		if = { limit = { scope:pantheon_bless_grief = yes } custom_tooltip = pantheon_worship_line_life }
+		if = { limit = { scope:pantheon_bless_feud = yes } custom_tooltip = pantheon_tip.0300.feud.tt }
+		if = { limit = { scope:pantheon_bless_feud = yes } custom_tooltip = pantheon_worship_line_life }
 		hidden_effect = {
 			scope:actor = {
 				# The handoff to pantheon.0100 (I3); pantheon_ui_target also stays, so the pane keeps showing
@@ -651,6 +749,10 @@ pantheon_bless_interaction = {
 				else_if = { limit = { scope:pantheon_bless_lineage = yes } set_variable = { name = pantheon_ui_choice value = flag:lineage } }
 				else_if = { limit = { scope:pantheon_bless_host = yes } set_variable = { name = pantheon_ui_choice value = flag:host } }
 				else_if = { limit = { scope:pantheon_bless_freedom = yes } set_variable = { name = pantheon_ui_choice value = flag:freedom } }
+				else_if = { limit = { scope:pantheon_bless_cleanse = yes } set_variable = { name = pantheon_ui_choice value = flag:cleanse } }
+				else_if = { limit = { scope:pantheon_bless_whole = yes } set_variable = { name = pantheon_ui_choice value = flag:whole } }
+				else_if = { limit = { scope:pantheon_bless_grief = yes } set_variable = { name = pantheon_ui_choice value = flag:grief } }
+				else_if = { limit = { scope:pantheon_bless_feud = yes } set_variable = { name = pantheon_ui_choice value = flag:feud } }
 				# Divine Conception (moved here in 2.5) runs in pantheon.0101, with no blessing choice
 				if = { limit = { scope:pantheon_bless_conception = yes } trigger_event = pantheon.0101 }
 				else = { trigger_event = pantheon.0100 }

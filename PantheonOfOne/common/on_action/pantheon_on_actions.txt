@@ -52,62 +52,71 @@ pantheon_on_raid_start = {
 		exists = scope:county
 	}
 	effect = {
+		# 2.9: the same checks again inside the effect. CK3 1.20 can run an on_action's effect without its trigger and without
+		# its scopes (seen on a save load, Section D log, alongside vanilla's own hooks); this keeps that run silent.
 		if = {
-			limit = { exists = scope:pantheon_raid_army }
-			clear_saved_scope = pantheon_raid_army
-		}
-		save_scope_as = pantheon_raid_army
-		if = {
-			limit = { exists = scope:pantheon_raider }
-			clear_saved_scope = pantheon_raider
-		}
-		scope:raider = { save_scope_as = pantheon_raider }
-		every_player = {
 			limit = {
-				has_trait = pantheon_divine
-				has_variable = pantheon_enthroned
+				exists = scope:raider
+				exists = scope:barony
+				exists = scope:county
 			}
 			if = {
-				limit = { exists = scope:pantheon_god }
-				clear_saved_scope = pantheon_god
+				limit = { exists = scope:pantheon_raid_army }
+				clear_saved_scope = pantheon_raid_army
 			}
-			save_scope_as = pantheon_god
+			save_scope_as = pantheon_raid_army
 			if = {
+				limit = { exists = scope:pantheon_raider }
+				clear_saved_scope = pantheon_raider
+			}
+			scope:raider = { save_scope_as = pantheon_raider }
+			every_player = {
 				limit = {
-					scope:county.holder ?= scope:pantheon_god
-					NOT = { scope:raider = scope:pantheon_god }
-					NOT = { scope:raider = { is_at_war_with = scope:pantheon_god } }
+					has_trait = pantheon_divine
+					has_variable = pantheon_enthroned
 				}
 				if = {
-					limit = { scope:raider = { var:pantheon_marked_by ?= scope:pantheon_god } }
-					scope:pantheon_raid_army ?= { pantheon_annihilate_army_effect = yes }
-					send_interface_toast = {
-						type = event_toast_effect_good
-						title = pantheon_raid_annihilated_t
-						left_icon = scope:raider
-					}
+					limit = { exists = scope:pantheon_god }
+					clear_saved_scope = pantheon_god
 				}
-				else = {
+				save_scope_as = pantheon_god
+				if = {
+					limit = {
+						scope:county.holder ?= scope:pantheon_god
+						NOT = { scope:raider = scope:pantheon_god }
+						NOT = { scope:raider = { is_at_war_with = scope:pantheon_god } }
+					}
 					if = {
-						limit = { scope:raider = { NOT = { var:pantheon_raid_alerted_by ?= scope:pantheon_god } } }
-						scope:raider = { set_variable = { name = pantheon_raided_god value = scope:pantheon_god years = 5 } }
-						trigger_event = pantheon.0112
+						limit = { scope:raider = { var:pantheon_marked_by ?= scope:pantheon_god } }
+						scope:pantheon_raid_army ?= { pantheon_annihilate_army_effect = yes }
+						send_interface_toast = {
+							type = event_toast_effect_good
+							title = pantheon_raid_annihilated_t
+							left_icon = scope:raider
+						}
 					}
-					scope:raider = { set_variable = { name = pantheon_raid_alerted_by value = scope:pantheon_god days = 30 } }
-				}
-			}
-			else_if = {
-				limit = {
-					# 2.4 repair 1 (R8): any raider the god does not protect (a fellow believer too), but never the holder's own raid
-					scope:raider = { NOT = { pantheon_wrath_protected_trigger = { GOD = scope:pantheon_god } } }
-					NOT = { scope:barony.holder ?= { this = scope:raider } }
-					scope:barony.holder ?= {
-						faith = scope:pantheon_god.faith
-						NOT = { this = scope:pantheon_god }
-						pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god }
+					else = {
+						if = {
+							limit = { scope:raider = { NOT = { var:pantheon_raid_alerted_by ?= scope:pantheon_god } } }
+							scope:raider = { set_variable = { name = pantheon_raided_god value = scope:pantheon_god years = 5 } }
+							trigger_event = pantheon.0112
+						}
+						scope:raider = { set_variable = { name = pantheon_raid_alerted_by value = scope:pantheon_god days = 30 } }
 					}
 				}
-				pantheon_give_raid_grievance_effect = { WHO = scope:barony.holder OFFENDER = scope:raider }
+				else_if = {
+					limit = {
+						# 2.4 repair 1 (R8): any raider the god does not protect (a fellow believer too), but never the holder's own raid
+						scope:raider = { NOT = { pantheon_wrath_protected_trigger = { GOD = scope:pantheon_god } } }
+						NOT = { scope:barony.holder ?= { this = scope:raider } }
+						scope:barony.holder ?= {
+							faith = scope:pantheon_god.faith
+							NOT = { this = scope:pantheon_god }
+							pantheon_grievance_eligible_trigger = { GOD = scope:pantheon_god }
+						}
+					}
+					pantheon_give_raid_grievance_effect = { WHO = scope:barony.holder OFFENDER = scope:raider }
+				}
 			}
 		}
 	}
@@ -612,49 +621,57 @@ pantheon_on_faith_created = {
 		}
 	}
 	effect = {
+		# 2.9: the scope checks again inside the effect, for CK3's scopeless run of on_actions on a save load (see
+		# pantheon_on_raid_start).
 		if = {
-			limit = { exists = scope:pantheon_new_faith }
-			clear_saved_scope = pantheon_new_faith
-		}
-		if = {
-			limit = { NOT = { this = scope:old_faith } }
-			save_scope_as = pantheon_new_faith
-		}
-		else = {
-			# CK3 1.20 reports a reform by a sitting Head of Faith with the OLD faith as root (proven in game 2026-10-23):
-			# the engine builds the new faith but cannot move its head into it, and root is the founder's faith. The new
-			# faith is then the one in the same religion that the god founded and that nobody follows yet. CK3 offers no
-			# way to tell which of two such faiths is newer (an earlier one the god founded may have emptied out), so the
-			# hook acts only when exactly one matches; otherwise it does nothing, as vanilla would (Codex review 2026-10-24).
-			scope:old_faith.religion = {
-				if = {
-					limit = {
-						# exactly one: "count = N" means at least N
-						any_faith = {
-							pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder }
-						}
-						NOT = {
+			limit = {
+				exists = scope:old_faith
+				exists = scope:founder
+			}
+			if = {
+				limit = { exists = scope:pantheon_new_faith }
+				clear_saved_scope = pantheon_new_faith
+			}
+			if = {
+				limit = { NOT = { this = scope:old_faith } }
+				save_scope_as = pantheon_new_faith
+			}
+			else = {
+				# CK3 1.20 reports a reform by a sitting Head of Faith with the OLD faith as root (proven in game 2026-10-23):
+				# the engine builds the new faith but cannot move its head into it, and root is the founder's faith. The new
+				# faith is then the one in the same religion that the god founded and that nobody follows yet. CK3 offers no
+				# way to tell which of two such faiths is newer (an earlier one the god founded may have emptied out), so the
+				# hook acts only when exactly one matches; otherwise it does nothing, as vanilla would (Codex review 2026-10-24).
+				scope:old_faith.religion = {
+					if = {
+						limit = {
+							# exactly one: "count = N" means at least N
 							any_faith = {
-								count = 2
 								pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder }
 							}
+							NOT = {
+								any_faith = {
+									count = 2
+									pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder }
+								}
+							}
 						}
-					}
-					random_faith = {
-						limit = { pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder } }
-						save_scope_as = pantheon_new_faith
+						random_faith = {
+							limit = { pantheon_reform_new_faith_candidate_trigger = { OLD = scope:old_faith FOUNDER = scope:founder } }
+							save_scope_as = pantheon_new_faith
+						}
 					}
 				}
 			}
-		}
-		if = {
-			limit = { exists = scope:pantheon_new_faith }
 			if = {
-				limit = { exists = scope:pantheon_old_faith }
-				clear_saved_scope = pantheon_old_faith
+				limit = { exists = scope:pantheon_new_faith }
+				if = {
+					limit = { exists = scope:pantheon_old_faith }
+					clear_saved_scope = pantheon_old_faith
+				}
+				scope:old_faith = { save_scope_as = pantheon_old_faith }
+				scope:founder = { trigger_event = pantheon.0120 }
 			}
-			scope:old_faith = { save_scope_as = pantheon_old_faith }
-			scope:founder = { trigger_event = pantheon.0120 }
 		}
 	}
 }
