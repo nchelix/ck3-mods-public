@@ -101,3 +101,10 @@ pantheon_foreseen = {
 pantheon_lent = {
 	icon = prestige_positive
 }
+
+# 2.9.1 (#71): display marker on a follower the god has warded from sickness. It carries no stats: the protection is vanilla's
+# immune_to_disease flag, set (and timed) by pantheon_grant_warding_effect. It does NOT tell whether the flag is ours: the
+# timed variable pantheon_ward_flag_ours does (repair 1).
+pantheon_warded_person = {
+	icon = health_positive
+}

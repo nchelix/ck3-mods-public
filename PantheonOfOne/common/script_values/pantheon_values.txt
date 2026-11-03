@@ -467,8 +467,8 @@ pantheon_ui_house_revealed = {
 pantheon_ui_devotion = {
 	value = 50
 	if = {
-		# 2.8 repair 4: a purged character in a list reads 50 instead of erroring (has_variable fails on its weak scope)
-		limit = { exists = faith has_variable = pantheon_devotion }
+		# 2.9.1: a dead character reads 50 instead of erroring; exists = faith stays true on the dead (Ketill 12001, probe 2026-11-02), so is_alive guards the read
+		limit = { is_alive = yes has_variable = pantheon_devotion }
 		value = var:pantheon_devotion
 	}
 }

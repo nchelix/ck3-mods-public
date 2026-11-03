@@ -65,7 +65,7 @@
  pantheon_tip.0100.sage.tt: "+10 learning and intrigue, and far stronger, more secret schemes, for a time."
  pantheon_tip.0200.harvest.tt: "Double taxes and levies, and fast development, in all their counties."
  pantheon_tip.0200.walls.tt: "Massive fortifications and garrisons in all their counties."
- pantheon_tip.0200.warding.tt: "Plague turns aside from them, and from all the counties they hold."
+ pantheon_tip.0200.warding.tt: "They cannot catch a sickness while the ward lasts, and plague turns aside from all the counties they hold."
  pantheon_tip.0300.vigor.tt: "They stop aging and grow hale for [EmptyScope.ScriptValue('pantheon_blessing_years')|0] years."
  pantheon_tip.0300.fertility.tt: "Their fertility doubles for [EmptyScope.ScriptValue('pantheon_blessing_years')|0] years."
  pantheon_tip.0300.lineage.tt: "Their next child is born a beautiful genius."

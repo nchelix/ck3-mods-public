@@ -479,7 +479,7 @@ pantheon_bless_interaction = {
 		is_valid = {
 			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_realm_tt pantheon_can_afford_trigger = { COST = pantheon_cost_realm } } }
 			scope:recipient = {
-				# 2.9 (in-game test): Warding also protects the person (hiding_from_epidemic), so the landless may have it
+				# 2.9 (in-game test): Warding also protects the person, so the landless may have it. 2.9.1 (#71): that is vanilla's immune_to_disease flag, timed, with its own ownership variable (pantheon_grant_warding_effect)
 				custom_tooltip = { text = pantheon_bless_already_tt NOT = { has_variable = pantheon_boon_warding } }
 				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
 			}

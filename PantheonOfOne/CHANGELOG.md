@@ -1,5 +1,14 @@
 ﻿# Changelog — Pantheon of One
 
+## [2.9.1] — 2026-11-02
+
+### Changed
+- Warding now makes the follower immune to sickness for its years (vanilla's own disease immunity, as the god has), shown as "Warded by the God"; it no longer uses Hiding from Plague (no legitimacy loss). A follower who is already immune by some other means (the god, another effect) keeps their own immunity untouched.
+
+### Fixed
+- The Pantheon window's follower lists no longer log an error each month for a follower who has died (#69), and they no longer keep a follower who has left the faith until the game is reloaded.
+- The Temple's steadying list no longer keeps a kingdom that has lost all its followers.
+
 ## [2.9] — 2026-11-01
 
 Grace: a god of a large faith can see where belief is slipping, and steady it at the scale of the faith, at a price.

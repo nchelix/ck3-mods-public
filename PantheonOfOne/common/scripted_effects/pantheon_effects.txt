@@ -339,14 +339,40 @@ pantheon_grant_realm_effect = {
 }
 
 # Warded from Pestilence (Bless and need 4). The realm boon (every held county gets pantheon_warding, epidemic_resistance 100,
-# which vanilla reads from the county a character stands in) AND, 2.9 (in-game test), the person themself: vanilla's
-# hiding_from_epidemic character modifier, which character_infection_chance_default_value multiplies by 0.25 wherever they
-# are (game/common/script_values/06_ce1_epidemics_values.txt; its only other effect is legitimacy_loss_mult 0.1). So a landless
-# follower (a mercenary captain, a courtier) is protected too. Root is the god; scope:pantheon_target the recipient.
+# which vanilla reads from the county a character stands in) AND the person themself. 2.9 used vanilla's hiding_from_epidemic
+# (only a 0.25 chance multiplier, and legitimacy loss); 2.9.1 (#71) gives vanilla's immune_to_disease flag instead, which
+# can_contract_disease_trigger refuses outright, plus the pantheon_warded_person display modifier. So a landless follower (a
+# mercenary captain, a courtier) is protected too. Root is the god; scope:pantheon_target the recipient.
 pantheon_grant_warding_effect = {
 	pantheon_grant_realm_effect = { KEY = warding MODIFIER = pantheon_warding }
 	scope:pantheon_target = {
-		add_character_modifier = { modifier = hiding_from_epidemic years = pantheon_blessing_years desc = pantheon_warding_personal_desc }
+		# 2.9.1 (#71): the person is protected by vanilla's own disease immunity (the flag the god carries), for the blessing's years.
+		# Ownership of the flag is its own timed variable, pantheon_ward_flag_ours, set with the same years as the flag. It is NOT
+		# read off the display modifier: that modifier can be there (or gone) without the flag being ours.
+		#  - ours: remove the flag first (the engine's behaviour when a timed flag is added over an existing one is undocumented, so
+		#    never rely on it), then add it again for a fresh full duration and renew the variable.
+		#  - no flag at all: add the timed flag and set the variable.
+		#  - a flag that is not ours (the god's permanent one, vanilla Temujin's): touch neither the flag nor the variable. Left
+		#    alone by having no branch of its own: it falls through both limits below.
+		# Known accepted edge: a FOREIGN timed flag (someone else's) can end before our ward does; the person is then unprotected
+		# for the rest of the ward, until the next Bless. Decide on the flag BEFORE the display modifier is re-added.
+		if = {
+			limit = { has_variable = pantheon_ward_flag_ours }
+			remove_character_flag = immune_to_disease
+			add_character_flag = { flag = immune_to_disease years = pantheon_blessing_years }
+			set_variable = { name = pantheon_ward_flag_ours value = yes years = pantheon_blessing_years }
+		}
+		else_if = {
+			limit = { NOT = { has_character_flag = immune_to_disease } }
+			add_character_flag = { flag = immune_to_disease years = pantheon_blessing_years }
+			set_variable = { name = pantheon_ward_flag_ours value = yes years = pantheon_blessing_years }
+		}
+		# a fresh full duration when they are already warded
+		if = {
+			limit = { has_character_modifier = pantheon_warded_person }
+			remove_character_modifier = pantheon_warded_person
+		}
+		add_character_modifier = { modifier = pantheon_warded_person years = pantheon_blessing_years }
 	}
 }
 
@@ -481,7 +507,14 @@ pantheon_divine_health_effect = {
 		limit = { has_trait = fornicator }
 		remove_trait = fornicator
 	}
-	# Vanilla's own immunity: can_contract_disease_trigger refuses anyone with this flag
+	# Vanilla's own immunity: can_contract_disease_trigger refuses anyone with this flag.
+	# 2.9.1 (#71): a Warding Bless may have left a TIMED flag of ours on this person before they ascended (marked by
+	# pantheon_ward_flag_ours). Convert it first: drop the timed flag and the marker, so the add below makes it permanent.
+	if = {
+		limit = { has_variable = pantheon_ward_flag_ours }
+		remove_character_flag = immune_to_disease
+		remove_variable = pantheon_ward_flag_ours
+	}
 	if = {
 		limit = { NOT = { has_character_flag = immune_to_disease } }
 		add_character_flag = immune_to_disease

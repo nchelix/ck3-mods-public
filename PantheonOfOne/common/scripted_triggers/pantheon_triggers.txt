@@ -1338,9 +1338,11 @@ pantheon_bless_suits_feud_trigger = {
 }
 
 # 2.8 repair 4 (item 2): a character that is safe to READ (variables, traits) in a list walk. A purged character stays in a
-# variable list as a "weak" scope that still resolves a name and passes `is_alive = yes` (the 8 has_variable errors on
-# Ketill Flatnefr, id 12001, in test 3), but `has_variable` on it errors ("This scope doesn't support variables"). `exists` is
-# safe on any scope (triggers log: "Supported Scopes: none"); a live character always has a faith, a purged shell has none.
+# variable list as a "weak" scope that still resolves a name (the 8 has_variable errors on Ketill Flatnefr, id 12001, in
+# test 3; the 2.8 note that it passed `is_alive = yes` was wrong), but `has_variable` on it errors ("This scope doesn't support variables"). `exists` is
+# safe on any scope (triggers log: "Supported Scopes: none"). `exists = faith` does NOT tell the dead from the living: a dead
+# character keeps its faith (Ketill, probe 2026-11-02: dead, faith still set, has_variable errors), so the last check is
+# `is_alive`, and the UI sort and Devotion read guard with `is_alive` themselves (2.9.1, #69).
 # The checks run in this order so the first that fails stops the rest.
 pantheon_live_character_trigger = {
 	exists = this

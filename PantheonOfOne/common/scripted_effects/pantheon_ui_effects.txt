@@ -1,7 +1,23 @@
 ﻿# Pantheon of One 2.0: the Pantheon window's lists, rebuilt on the god whenever the window opens, a tab changes or
 # the sort changes. The window cannot sort a datamodel, so the order lives in the list (pantheon_ui_fill_sorted_effect).
 # The dead are dropped first. Saved scopes, not temporary ones, and never pantheon_target (1.4 lesson).
+# 2.9.1 repair 4: a temporary list lives until the enclosing top-level effect ends, not until each scripted-effect call, and one
+# effect can run the rebuild twice (pantheon.0011: oath upkeep rebuilds an open window, then the glance sweep rebuilds again).
+# The second build would read the first build's pools, so every pool is emptied before anything fills one.
+pantheon_ui_clear_pools_effect = {
+	every_in_list = { list = pantheon_ui_lost_pool remove_from_list = pantheon_ui_lost_pool }
+	every_in_list = { list = pantheon_ui_follower_pool remove_from_list = pantheon_ui_follower_pool }
+	every_in_list = { list = pantheon_ui_blessed_pool remove_from_list = pantheon_ui_blessed_pool }
+	every_in_list = { list = pantheon_ui_demigod_pool remove_from_list = pantheon_ui_demigod_pool }
+	every_in_list = { list = pantheon_ui_prayer_pool remove_from_list = pantheon_ui_prayer_pool }
+	every_in_list = { list = pantheon_ui_retri_pool remove_from_list = pantheon_ui_retri_pool }
+	every_in_list = { list = pantheon_ui_quiet_pool remove_from_list = pantheon_ui_quiet_pool }
+	every_in_list = { list = pantheon_steady_ui_pool remove_from_list = pantheon_steady_ui_pool }
+	every_in_list = { list = pantheon_steady_ui_titles remove_from_list = pantheon_steady_ui_titles }
+}
+
 pantheon_ui_rebuild_effect = {
+	pantheon_ui_clear_pools_effect = yes
 	pantheon_forget_the_dead_effect = yes
 	# 2.3 (R2): prayers that stopped being answerable leave the list silently before the window reads it
 	pantheon_prayer_prune_effect = yes
@@ -33,6 +49,9 @@ pantheon_ui_rebuild_effect = {
 			scope:pantheon_ui_god = { add_to_variable_list = { name = pantheon_ui_waiting_boons target = prev } }
 		}
 	}
+	# 2.9.1 (#69): every pool below is a TEMPORARY list. pantheon.0011 reschedules itself, so the event chain never breaks and an
+	# persistent list would outlive the rebuild and keep the dead and the departed. Repair 4: the pools are also emptied at the start of
+	# every rebuild (pantheon_ui_clear_pools_effect), because one effect can rebuild twice and the second would read the first's pools.
 	# 2.7: the Followers tab's Lost followers sub-tab -- the living members of pantheon_lost, the latest departure first
 	# (year 0 = "before 2.7" last). Copied through a temporary pool; the list is never ordered in place. The monthly sweep
 	# prunes the dead; is_alive here covers the days between.
@@ -42,7 +61,7 @@ pantheon_ui_rebuild_effect = {
 		every_in_list = {
 			variable = pantheon_lost
 			limit = { pantheon_live_character_trigger = yes }
-			add_to_list = pantheon_ui_lost_pool
+			add_to_temporary_list = pantheon_ui_lost_pool
 		}
 		ordered_in_list = {
 			list = pantheon_ui_lost_pool
@@ -63,17 +82,17 @@ pantheon_ui_rebuild_effect = {
 	# prayed or were blessed, landless or not). In-game round 1: pantheon_known alone left the tab empty until a blessing.
 	every_ruler = {
 		limit = { pantheon_live_character_trigger = yes faith = scope:pantheon_ui_god.faith NOT = { this = scope:pantheon_ui_god } }
-		add_to_list = pantheon_ui_follower_pool
+		add_to_temporary_list = pantheon_ui_follower_pool
 	}
 	every_in_list = {
 		variable = pantheon_known
 		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } }
-		add_to_list = pantheon_ui_follower_pool
+		add_to_temporary_list = pantheon_ui_follower_pool
 	}
 	every_in_list = {
 		variable = pantheon_blessed
 		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } }
-		add_to_list = pantheon_ui_blessed_pool
+		add_to_temporary_list = pantheon_ui_blessed_pool
 	}
 	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_follower_pool TARGET = pantheon_ui_followers DEFAULT = pantheon_ui_devotion }
 	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_blessed_pool TARGET = pantheon_ui_blessed DEFAULT = pantheon_ui_devotion }
@@ -81,7 +100,7 @@ pantheon_ui_rebuild_effect = {
 	# every house holding a living Godsblood
 	every_child = {
 		limit = { has_trait = pantheon_demigod is_alive = yes }
-		add_to_list = pantheon_ui_demigod_pool
+		add_to_temporary_list = pantheon_ui_demigod_pool
 	}
 	pantheon_ui_fill_sorted_effect = { LIST = pantheon_ui_demigod_pool TARGET = pantheon_ui_demigods DEFAULT = pantheon_total_skill }
 	# 2.3 B3: the Prayers tab's rows -- the god's open prayers (pruned above), OLDEST FIRST: the token only grows, so
@@ -91,7 +110,7 @@ pantheon_ui_rebuild_effect = {
 	every_in_list = {
 		variable = pantheon_open_prayers
 		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_prayer_token }
-		add_to_list = pantheon_ui_prayer_pool
+		add_to_temporary_list = pantheon_ui_prayer_pool
 	}
 	ordered_in_list = {
 		list = pantheon_ui_prayer_pool
@@ -111,7 +130,7 @@ pantheon_ui_rebuild_effect = {
 	every_in_list = {
 		variable = pantheon_open_retributions
 		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_retri_token }
-		add_to_list = pantheon_ui_retri_pool
+		add_to_temporary_list = pantheon_ui_retri_pool
 	}
 	ordered_in_list = {
 		list = pantheon_ui_retri_pool
@@ -135,7 +154,7 @@ pantheon_ui_rebuild_effect = {
 	every_in_list = {
 		variable = pantheon_quiet_prayers
 		limit = { pantheon_live_character_trigger = yes has_variable = pantheon_quiet_open }
-		add_to_list = pantheon_ui_quiet_pool
+		add_to_temporary_list = pantheon_ui_quiet_pool
 	}
 	ordered_in_list = {
 		list = pantheon_ui_quiet_pool
@@ -300,7 +319,7 @@ pantheon_steady_ui_build_effect = {
 				change_variable = { name = pantheon_ui_steady_n add = 1 }
 				if = {
 					limit = { NOT = { is_in_list = pantheon_steady_ui_titles } }
-					add_to_list = pantheon_steady_ui_titles
+					add_to_temporary_list = pantheon_steady_ui_titles
 				}
 			}
 		}
@@ -358,34 +377,35 @@ pantheon_ui_refresh_if_open_effect = {
 # Copy temporary list $LIST$ into the god's variable list $TARGET$, ordered by the chosen sort (var:pantheon_ui_sort:
 # 1 diplomacy, 2 martial, 3 stewardship, 4 intrigue, 5 learning, 6 prowess), else by the script value $DEFAULT$.
 # Root (the god) is scope:pantheon_ui_god.
+# 2.9.1 (#69): every branch drops the dead. The is_alive limit is a safety net: the cause was the pools never emptying (they are now temporary lists).
 pantheon_ui_fill_sorted_effect = {
 	clear_variable_list = $TARGET$
 	if = {
 		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 1 }
-		ordered_in_list = { list = $LIST$ order_by = diplomacy max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = diplomacy max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 	else_if = {
 		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 2 }
-		ordered_in_list = { list = $LIST$ order_by = martial max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = martial max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 	else_if = {
 		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 3 }
-		ordered_in_list = { list = $LIST$ order_by = stewardship max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = stewardship max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 	else_if = {
 		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 4 }
-		ordered_in_list = { list = $LIST$ order_by = intrigue max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = intrigue max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 	else_if = {
 		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 5 }
-		ordered_in_list = { list = $LIST$ order_by = learning max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = learning max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 	else_if = {
 		limit = { has_variable = pantheon_ui_sort var:pantheon_ui_sort = 6 }
-		ordered_in_list = { list = $LIST$ order_by = prowess max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = prowess max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 	else = {
-		ordered_in_list = { list = $LIST$ order_by = $DEFAULT$ max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
+		ordered_in_list = { list = $LIST$ limit = { is_alive = yes } order_by = $DEFAULT$ max = 300 check_range_bounds = no save_scope_as = pantheon_ui_row scope:pantheon_ui_god = { add_to_variable_list = { name = $TARGET$ target = scope:pantheon_ui_row } } }
 	}
 }
 
