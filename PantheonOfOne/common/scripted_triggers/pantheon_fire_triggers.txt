@@ -1,0 +1,55 @@
+﻿# Pantheon of One 2.10 "Fire from Heaven": who is spared and who may be struck. Root is the god in every one of these.
+
+# Never killed, never loses land, titles or government: the god, the god's demigods, and the faithful. Character scope.
+# Rechecked at every destructive step of the strike, because land changes hands mid-strike through inheritance.
+pantheon_fire_protected_trigger = {
+	OR = {
+		this = root
+		has_trait = pantheon_demigod
+		AND = {
+			faith = root.faith
+			has_variable = pantheon_devotion
+			var:pantheon_devotion > 25
+		}
+	}
+}
+
+# A ruler the god may aim at (GOD = the god; interactions have no root): landed, not the god, and not one of the devout (75 Devotion or more). Character scope.
+pantheon_fire_target_valid_trigger = {
+	is_landed = yes
+	NOT = { this = $GOD$ }
+	NOT = {
+		AND = {
+			has_variable = pantheon_devotion
+			var:pantheon_devotion >= 75
+		}
+	}
+}
+
+# A county the strike skips: held by a protected character, or the Great Temple's own county. County scope.
+pantheon_fire_county_exempt_trigger = {
+	OR = {
+		holder = { pantheon_fire_protected_trigger = yes }
+		AND = {
+			exists = root.var:pantheon_temple_province
+			this = root.var:pantheon_temple_province.county
+		}
+	}
+}
+
+# A barony directly held by a protected character is never razed, even inside a struck county. Province scope.
+pantheon_fire_barony_protected_trigger = {
+	exists = barony.holder
+	barony.holder = { pantheon_fire_protected_trigger = yes }
+}
+
+# Task 8: a county the Restore decision can work on. Title scope; needs no root (decisions run it in the UI).
+# A struck county (it has a stage) with no effort already running (one per county at a time), whose stage clock outlasts a
+# new effort: when the stage ends first, pantheon_fire_advance_stage_effect clears the counter and the gold would buy nothing.
+# (So Burning, 60 months, is never restored: the effort is 120.)
+pantheon_fire_restorable_trigger = {
+	tier = tier_county
+	has_variable = pantheon_fire_stage
+	NOT = { has_variable = pantheon_fire_restore_months }
+	var:pantheon_fire_months > pantheon_fire_restore_months
+}

@@ -1,0 +1,754 @@
+﻿# Pantheon of One 2.10 "Fire from Heaven": the strike's scripted effects. Root is the god throughout.
+
+# Finds the duke, king and emperor of the struck ruler's chain, in the TARGET's scope (the ruler the god right-clicked):
+# the target itself if its primary title has that tier, else the liege_or_above whose primary title does (a chain holds at most
+# one per tier). Saves scope:pantheon_fire_duke, scope:pantheon_fire_king and scope:pantheon_fire_emperor; each is left unset
+# when there is none. It runs only inside pantheon_fire.0001, never in a UI trigger (it saves scopes).
+pantheon_fire_find_chain_effect = {
+	if = {
+		limit = { primary_title.tier = tier_duchy }
+		save_scope_as = pantheon_fire_duke
+	}
+	else_if = {
+		limit = { any_liege_or_above = { primary_title.tier = tier_duchy } }
+		random_liege_or_above = {
+			limit = { primary_title.tier = tier_duchy }
+			save_scope_as = pantheon_fire_duke
+		}
+	}
+	if = {
+		limit = { primary_title.tier = tier_kingdom }
+		save_scope_as = pantheon_fire_king
+	}
+	else_if = {
+		limit = { any_liege_or_above = { primary_title.tier = tier_kingdom } }
+		random_liege_or_above = {
+			limit = { primary_title.tier = tier_kingdom }
+			save_scope_as = pantheon_fire_king
+		}
+	}
+	if = {
+		limit = { primary_title.tier = tier_empire }
+		save_scope_as = pantheon_fire_emperor
+	}
+	else_if = {
+		limit = { any_liege_or_above = { primary_title.tier = tier_empire } }
+		random_liege_or_above = {
+			limit = { primary_title.tier = tier_empire }
+			save_scope_as = pantheon_fire_emperor
+		}
+	}
+}
+
+# ---- Task 3: gather, snapshot, deaths. Root is the god. The strike is one immediate, so every temporary list below is shared
+# between these effects.
+
+# Lists the counties the strike will try to burn in the temporary list pantheon_fire_counties, and saves
+# scope:pantheon_fire_struck_ruler and scope:pantheon_fire_center. Run after pantheon_fire_find_chain_effect.
+# Size 1: the target's capital county. Sizes 2 to 4: every county of the chain ruler's sub-realm (their own and their vassals').
+# Counties held by a protected character, and the Great Temple's county, are left out.
+pantheon_fire_gather_effect = {
+	if = {
+		limit = { var:pantheon_fire_size = 1 }
+		scope:pantheon_fire_target = { save_scope_as = pantheon_fire_struck_ruler }
+		# A plain scope link takes no `limit` (only iterators and `if` do; no vanilla precedent): the guard is an `if`.
+		scope:pantheon_fire_target.capital_county ?= {
+			if = {
+				limit = { NOT = { pantheon_fire_county_exempt_trigger = yes } }
+				add_to_temporary_list = pantheon_fire_counties
+			}
+		}
+	}
+	else = {
+		if = {
+			limit = { var:pantheon_fire_size = 2 }
+			scope:pantheon_fire_duke ?= { save_scope_as = pantheon_fire_struck_ruler }
+		}
+		else_if = {
+			limit = { var:pantheon_fire_size = 3 }
+			scope:pantheon_fire_king ?= { save_scope_as = pantheon_fire_struck_ruler }
+		}
+		else_if = {
+			limit = { var:pantheon_fire_size = 4 }
+			scope:pantheon_fire_emperor ?= { save_scope_as = pantheon_fire_struck_ruler }
+		}
+		scope:pantheon_fire_struck_ruler ?= {
+			every_sub_realm_county = {
+				limit = { NOT = { pantheon_fire_county_exempt_trigger = yes } }
+				add_to_temporary_list = pantheon_fire_counties
+			}
+		}
+	}
+	# The centre of the blow: the struck ruler's capital county if it is listed, else the most developed listed county.
+	scope:pantheon_fire_struck_ruler.capital_county ?= {
+		if = {
+			limit = { is_in_list = pantheon_fire_counties }
+			save_scope_as = pantheon_fire_center
+		}
+	}
+	if = {
+		limit = {
+			NOT = { exists = scope:pantheon_fire_center }
+			any_in_list = { list = pantheon_fire_counties }
+		}
+		ordered_in_list = {
+			list = pantheon_fire_counties
+			order_by = development_level
+			max = 1
+			save_scope_as = pantheon_fire_center
+		}
+	}
+}
+
+# Character scope (a ruler to strike, not protected). Fills pantheon_fire_titles with the duchy-or-higher titles they hold,
+# then pantheon_fire_tribal_rulers and pantheon_fire_tribal_seats when their primary title is a listed county or a listed title.
+pantheon_fire_snapshot_ruler_effect = {
+	if = {
+		limit = { NOT = { pantheon_fire_protected_trigger = yes } }
+		if = {
+			# This runs in the struck ruler's (or a vassal's) scope; the size lives on the god.
+			limit = { root.var:pantheon_fire_size > 1 }
+			every_held_title = {
+				limit = { tier >= tier_duchy }
+				add_to_temporary_list = pantheon_fire_titles
+			}
+		}
+		pantheon_fire_snapshot_tribal_effect = yes
+	}
+}
+
+# Character scope. A ruler whose primary title is struck (a listed county, or a title in pantheon_fire_titles) goes tribal:
+# remember them and their seat (their capital county) before anyone dies.
+pantheon_fire_snapshot_tribal_effect = {
+	if = {
+		limit = {
+			exists = primary_title
+			NOT = { pantheon_fire_protected_trigger = yes }
+			primary_title = {
+				OR = {
+					is_in_list = pantheon_fire_counties
+					is_in_list = pantheon_fire_titles
+				}
+			}
+		}
+		add_to_temporary_list = pantheon_fire_tribal_rulers
+		capital_county ?= { add_to_temporary_list = pantheon_fire_tribal_seats }
+	}
+}
+
+# Runs before anyone dies, after the gather and the payment, and fills these temporary lists:
+#   pantheon_fire_titles          sizes 2 to 4: duchy-or-higher titles held in the struck realm by non-protected holders
+#   pantheon_fire_tribal_rulers   rulers whose primary title is struck, with their seats in pantheon_fire_tribal_seats
+#   pantheon_fire_people          non-protected characters present in the listed counties
+#   pantheon_fire_armies          armies there whose owner is not protected
+#   pantheon_fire_notice          holders of listed counties plus the tribal rulers
+# Task 5 destroys the titles and sets the governments; Task 6 notifies; this effect only records.
+pantheon_fire_snapshot_effect = {
+	if = {
+		limit = { var:pantheon_fire_size = 1 }
+		scope:pantheon_fire_target.capital_county ?= {
+			holder ?= { pantheon_fire_snapshot_tribal_effect = yes }
+		}
+	}
+	else = {
+		scope:pantheon_fire_struck_ruler ?= {
+			pantheon_fire_snapshot_ruler_effect = yes
+			every_vassal_or_below = { pantheon_fire_snapshot_ruler_effect = yes }
+		}
+	}
+	every_in_list = {
+		list = pantheon_fire_counties
+		holder ?= { add_to_temporary_list = pantheon_fire_notice }
+		every_county_province = {
+			every_character_in_location = {
+				limit = { NOT = { pantheon_fire_protected_trigger = yes } }
+				add_to_temporary_list = pantheon_fire_people
+			}
+			every_army_in_location = {
+				limit = { NOT = { army_owner ?= { pantheon_fire_protected_trigger = yes } } }
+				add_to_temporary_list = pantheon_fire_armies
+			}
+		}
+	}
+	every_in_list = {
+		list = pantheon_fire_tribal_rulers
+		add_to_temporary_list = pantheon_fire_notice
+	}
+}
+
+# Rolls the death chance for everyone in pantheon_fire_people (dead or survivor), THEN kills the dead in a separate pass
+# (the death can pass titles to heirs and change the world under the first loop), and wipes the armies out.
+# Keeps the report counts on the god: pantheon_fire_report_dead and pantheon_fire_report_counties (Task 4 fills the second).
+pantheon_fire_kill_effect = {
+	set_variable = { name = pantheon_fire_report_dead value = 0 }
+	set_variable = { name = pantheon_fire_report_counties value = 0 }
+	every_in_list = {
+		list = pantheon_fire_people
+		random = {
+			chance = pantheon_fire_death_chance
+			add_to_temporary_list = pantheon_fire_dead
+		}
+		if = {
+			limit = { NOT = { is_in_list = pantheon_fire_dead } }
+			add_to_temporary_list = pantheon_fire_survivors
+		}
+	}
+	every_in_list = {
+		list = pantheon_fire_dead
+		limit = { is_alive = yes }
+		death = { death_reason = death_pantheon_fire killer = root }
+		root = { change_variable = { name = pantheon_fire_report_dead add = 1 } }
+	}
+	every_in_list = {
+		list = pantheon_fire_armies
+		deplete_army_by_percentage = 0.95
+	}
+}
+
+# ---- Task 4: ruin the land. Root is the god.
+
+# Ruins the land of every listed county. The holder may have changed through inheritance since the gather, so protection is
+# rechecked per county; the counties that really burn go into pantheon_fire_ruined, which from here on is the strike's real
+# footprint (the report counts it, Task 5's tribal rule matches it, Task 7's aftermath and crater use only it).
+# Per ruined county: development and control to 0; in every province not directly held by a protected character, the specials and duchy
+# capital building go, a great building is ruined, the capital becomes a tribal holding (and loses the buildings a tribal
+# holding can keep), and every other holding is removed.
+pantheon_fire_ruin_land_effect = {
+	every_in_list = {
+		list = pantheon_fire_counties
+		limit = { NOT = { pantheon_fire_county_exempt_trigger = yes } }
+		add_to_temporary_list = pantheon_fire_ruined
+	}
+	# Reselect the centre from the real footprint, on the pre-strike development (it is zeroed below).
+	if = {
+		limit = {
+			exists = scope:pantheon_fire_center
+			NOT = { scope:pantheon_fire_center = { is_in_list = pantheon_fire_ruined } }
+		}
+		clear_saved_scope = pantheon_fire_center
+	}
+	if = {
+		limit = {
+			NOT = { exists = scope:pantheon_fire_center }
+			any_in_list = { list = pantheon_fire_ruined }
+		}
+		ordered_in_list = {
+			list = pantheon_fire_ruined
+			order_by = development_level
+			max = 1
+			save_scope_as = pantheon_fire_center
+		}
+	}
+	every_in_list = {
+		list = pantheon_fire_ruined
+		root = { change_variable = { name = pantheon_fire_report_counties add = 1 } }
+		change_development_level = { subtract = development_level }
+		# Control to 0: -500 is vanilla's own "lowest control" (common/character_interactions/00_debug_interactions.txt:2276).
+		change_county_control = -500
+		every_county_province = {
+			limit = { NOT = { pantheon_fire_barony_protected_trigger = yes } }
+			pantheon_fire_remove_specials_effect = yes
+			if = {
+				limit = { has_great_building = yes }
+				ruin_great_building = yes
+			}
+			if = {
+				limit = { is_county_capital = yes }
+				if = {
+					limit = { NOT = { has_holding_type = tribal_holding } }
+					set_holding_type = tribal_holding
+				}
+				pantheon_fire_remove_ordinary_effect = yes
+			}
+			else_if = {
+				limit = { has_holding = yes }
+				remove_holding = yes
+			}
+		}
+	}
+}
+
+# ---- Task 5: titles fall, governments go tribal. Root is the god.
+
+# Destroys the duchy-or-higher titles the snapshot listed (sizes 2 to 4 only; a county strike destroys no title). The holder is
+# rechecked here, because a title can change hands through inheritance after the snapshot. destroy_title runs on the god with the
+# title as its target. pantheon_fire_report_titles (on the god) counts the titles actually destroyed, for the report.
+pantheon_fire_fall_titles_effect = {
+	set_variable = { name = pantheon_fire_report_titles value = 0 }
+	if = {
+		limit = { var:pantheon_fire_size > 1 }
+		every_in_list = {
+			list = pantheon_fire_titles
+			limit = {
+				exists = holder
+				NOT = { holder = { pantheon_fire_protected_trigger = yes } }
+			}
+			save_temporary_scope_as = pantheon_fire_title
+			root = {
+				destroy_title = scope:pantheon_fire_title
+				change_variable = { name = pantheon_fire_report_titles add = 1 }
+			}
+		}
+	}
+}
+
+# Rulers whose primary title was struck go tribal. The snapshot recorded them (pantheon_fire_tribal_rulers) and their seats
+# (pantheon_fire_tribal_seats) before anyone died. A ruler still alive goes tribal at once. A ruler who died is replaced by the
+# current holder of a recorded seat: that holder goes tribal only if their own primary title is one that was really ruined, so an
+# outside heir whose own primary title was never struck stays as they are. The seat list is not paired with the rulers, so this
+# pass also sees the seats of the living; the not-yet-tribal check makes that harmless. Protection is rechecked on both branches.
+# pantheon_fire_report_tribal (on the god) counts the rulers actually converted, for the report (A7 P6).
+pantheon_fire_tribal_effect = {
+	set_variable = { name = pantheon_fire_report_tribal value = 0 }
+	every_in_list = {
+		list = pantheon_fire_tribal_rulers
+		limit = {
+			is_alive = yes
+			NOT = { pantheon_fire_protected_trigger = yes }
+			NOT = { has_government = tribal_government }
+		}
+		change_government = tribal_government
+		root = { change_variable = { name = pantheon_fire_report_tribal add = 1 } }
+	}
+	every_in_list = {
+		list = pantheon_fire_tribal_seats
+		holder ?= {
+			if = {
+				limit = {
+					is_alive = yes
+					NOT = { pantheon_fire_protected_trigger = yes }
+					NOT = { has_government = tribal_government }
+					exists = primary_title
+					primary_title = { is_in_list = pantheon_fire_ruined }
+				}
+				change_government = tribal_government
+				root = { change_variable = { name = pantheon_fire_report_tribal add = 1 } }
+			}
+		}
+	}
+}
+
+# ---- Task 6: the world's reaction. Root is the god. Runs once per strike, outside every county loop.
+
+# 1. The grieving (the survivors, and the living close family of the dead, never the protected) hold it against the god most
+#    (pantheon_fire_survivor_opinion, 50 years). 2. Every other ruler (barons are not rulers here; accepted) holds the lighter
+#    pantheon_fire_burned_world_opinion for 50 years. 3. The god gains dread by the size of the strike. 4. The faithful the mod
+#    already tracks (those with a Devotion value) fear the god more: a single global pass. 5. The living players who lost land
+#    or a seat are told (pantheon_fire.0003).
+pantheon_fire_reaction_effect = {
+	every_in_list = {
+		list = pantheon_fire_survivors
+		limit = {
+			is_alive = yes
+			NOT = { pantheon_fire_protected_trigger = yes }
+		}
+		add_to_temporary_list = pantheon_fire_grieving
+	}
+	every_in_list = {
+		list = pantheon_fire_dead
+		limit = { is_alive = no }
+		every_close_family_member = {
+			limit = {
+				is_alive = yes
+				NOT = { pantheon_fire_protected_trigger = yes }
+			}
+			add_to_temporary_list = pantheon_fire_grieving
+		}
+	}
+	every_in_list = {
+		list = pantheon_fire_grieving
+		add_opinion = { target = root modifier = pantheon_fire_survivor_opinion years = 50 }
+	}
+	every_ruler = {
+		limit = {
+			NOT = { pantheon_fire_protected_trigger = yes }
+			NOT = { is_in_list = pantheon_fire_grieving }
+		}
+		add_opinion = { target = root modifier = pantheon_fire_burned_world_opinion years = 50 }
+	}
+	if = {
+		limit = { var:pantheon_fire_size = 1 }
+		add_dread = pantheon_fire_dread_county
+	}
+	else_if = {
+		limit = { var:pantheon_fire_size = 2 }
+		add_dread = pantheon_fire_dread_duchy
+	}
+	else_if = {
+		limit = { var:pantheon_fire_size = 3 }
+		add_dread = pantheon_fire_dread_kingdom
+	}
+	else_if = {
+		limit = { var:pantheon_fire_size = 4 }
+		add_dread = pantheon_fire_dread_empire
+	}
+	if = {
+		limit = { exists = scope:pantheon_target }
+		clear_saved_scope = pantheon_target
+	}
+	every_living_character = {
+		limit = {
+			faith = root.faith
+			has_variable = pantheon_devotion
+			NOT = { this = root }
+		}
+		save_scope_as = pantheon_target
+		root = { pantheon_change_devotion_effect = { AMOUNT = 10 } }
+	}
+	every_in_list = {
+		list = pantheon_fire_notice
+		limit = {
+			is_alive = yes
+			is_ai = no
+			NOT = { this = root }
+		}
+		trigger_event = pantheon_fire.0003
+	}
+}
+
+# ---- Task 7: the aftermath. Per-county effects run in the county scope; begin runs with the god as root.
+
+# State, per struck county (all variables on the county):
+#   pantheon_fire_stage (1 Burning, 2 Smouldering, 3 Scarred), pantheon_fire_months (months left in this stage),
+#   pantheon_fire_situation (the scorch situation whose sub-region holds the county),
+#   pantheon_fire_restore_months (only while the recovery decision of batch B2 is running: months left of its effort),
+#   pantheon_fire_crater_province (only on the strike's centre: the province batch B2 puts the crater on).
+# The counties still in an aftermath are the global_var list pantheon_fire_struck (a temporary list lasts one immediate only).
+
+# County scope. Removes the stage modifiers and the recovery marker.
+pantheon_fire_clear_stage_effect = {
+	remove_county_modifier = pantheon_fire_burning
+	remove_county_modifier = pantheon_fire_smouldering
+	remove_county_modifier = pantheon_fire_scarred
+	remove_county_modifier = pantheon_fire_restoring
+}
+
+# County scope. Puts on the modifier of the county's current stage (the recovery marker is not touched).
+pantheon_fire_stage_modifier_effect = {
+	remove_county_modifier = pantheon_fire_burning
+	remove_county_modifier = pantheon_fire_smouldering
+	remove_county_modifier = pantheon_fire_scarred
+	if = {
+		limit = { var:pantheon_fire_stage = 1 }
+		add_county_modifier = pantheon_fire_burning
+	}
+	else_if = {
+		limit = { var:pantheon_fire_stage = 2 }
+		add_county_modifier = pantheon_fire_smouldering
+	}
+	else_if = {
+		limit = { var:pantheon_fire_stage = 3 }
+		add_county_modifier = pantheon_fire_scarred
+	}
+}
+
+# Situation scope (a scorch situation). Sets the phase of its sub-region from the stages of the struck counties still in it: Scarred
+# once none of them is behind stage 3, else Smouldering once none of them is still Burning. Membership is the mod's own bookkeeping
+# (the global list and each county's var:pantheon_fire_situation, as in the leave effect below), so the rule never depends on the
+# sub-region being updated within the same effect. The phase only moves forward (no county goes back a stage inside one situation:
+# a re-strike starts a new one) and is never set on an empty situation (the leave ends that one instead). The one phase rule of the
+# mod (batch B review, finding 2): the advance calls it after a county moves on, the leave after a county goes (a re-strike or a
+# heal), so a situation whose lagging county left takes the phase of the counties that stay.
+pantheon_fire_situation_phase_effect = {
+	save_temporary_scope_as = pantheon_fire_phase_situation
+	situation_sub_region:pantheon_fire_area = {
+		if = {
+			limit = {
+				any_in_global_list = {
+					variable = pantheon_fire_struck
+					has_variable = pantheon_fire_situation
+					var:pantheon_fire_situation = scope:pantheon_fire_phase_situation
+				}
+				NOT = { sub_region_current_phase = scarred }
+				NOT = {
+					any_in_global_list = {
+						variable = pantheon_fire_struck
+						has_variable = pantheon_fire_situation
+						var:pantheon_fire_situation = scope:pantheon_fire_phase_situation
+						var:pantheon_fire_stage < 3
+					}
+				}
+			}
+			change_phase = scarred
+		}
+		else_if = {
+			limit = {
+				sub_region_current_phase = burning
+				NOT = {
+					any_in_global_list = {
+						variable = pantheon_fire_struck
+						has_variable = pantheon_fire_situation
+						var:pantheon_fire_situation = scope:pantheon_fire_phase_situation
+						var:pantheon_fire_stage < 2
+					}
+				}
+			}
+			change_phase = smouldering
+		}
+	}
+}
+
+# County scope. The county leaves the sub-region of the scorch situation it is in (a re-strike, or healing). The situation ends
+# when no other struck county still belongs to it; otherwise its phase is set again from the counties that stay (the shared rule
+# above). Own bookkeeping through the global list, so neither depends on the sub-region being updated within the same effect. All
+# of it runs inside the situation's own scope, so the saved scope of the old situation is always this call's, never an earlier
+# county's.
+pantheon_fire_leave_situation_effect = {
+	if = {
+		limit = { has_variable = pantheon_fire_situation }
+		save_temporary_scope_as = pantheon_fire_leaving_county
+		var:pantheon_fire_situation ?= {
+			save_temporary_scope_as = pantheon_fire_old_situation
+			situation_sub_region:pantheon_fire_area = {
+				remove_dejure_title_from_sub_region = scope:pantheon_fire_leaving_county
+			}
+			scope:pantheon_fire_leaving_county = { remove_variable = pantheon_fire_situation }
+			if = {
+				limit = {
+					any_in_global_list = {
+						variable = pantheon_fire_struck
+						has_variable = pantheon_fire_situation
+						var:pantheon_fire_situation = scope:pantheon_fire_old_situation
+					}
+				}
+				pantheon_fire_situation_phase_effect = yes
+			}
+			else = {
+				end_situation = yes
+			}
+		}
+		# A pointer whose situation no longer exists.
+		if = {
+			limit = { has_variable = pantheon_fire_situation }
+			remove_variable = pantheon_fire_situation
+		}
+	}
+}
+
+# ---- Task 8: the crater. One per strike, on the centre county's capital province (var:pantheon_fire_crater_province on that
+# county), in three states that follow the centre's stage: burning (1), smouldering (2), cold (3). It goes when the centre heals.
+# The buildings: common/buildings/pantheon_fire_crater.txt. Swap form: the Great Temple's tiers (pantheon_temple_effects.txt,
+# pantheon_temple_complete_effect: remove_building, then add_special_building).
+
+# Province scope. Removes whichever crater state stands here.
+pantheon_fire_crater_clear_effect = {
+	if = { limit = { has_building = pantheon_fire_crater_burning } remove_building = pantheon_fire_crater_burning }
+	if = { limit = { has_building = pantheon_fire_crater_smouldering } remove_building = pantheon_fire_crater_smouldering }
+	if = { limit = { has_building = pantheon_fire_crater_cold } remove_building = pantheon_fire_crater_cold }
+}
+
+# Province scope. Puts up the crater in state $STATE$ (burning, smouldering or cold) in place of any crater already here. A
+# special building that is not ours (one the strike's wipe does not know, e.g. another mod's) is never replaced: add_special_building
+# would take its slot ("will also add/change a special slot if needed", effects log). The guard is read before the clear.
+pantheon_fire_crater_set_effect = {
+	if = {
+		limit = {
+			OR = {
+				has_special_building = no
+				has_building = pantheon_fire_crater_burning
+				has_building = pantheon_fire_crater_smouldering
+				has_building = pantheon_fire_crater_cold
+			}
+		}
+		pantheon_fire_crater_clear_effect = yes
+		add_special_building = pantheon_fire_crater_$STATE$
+	}
+}
+
+# County scope. When this county carries the strike's crater, shows the state that matches its stage. Every placement and swap
+# goes through here, and each one rechecks the barony first (batch B review, finding 7): protected land carries no scar, so a crater
+# province that a protected character now holds loses our crater (if it stands), the county forgets the province, and nothing is
+# placed.
+pantheon_fire_crater_show_effect = {
+	if = {
+		limit = { has_variable = pantheon_fire_crater_province }
+		if = {
+			limit = { var:pantheon_fire_crater_province = { pantheon_fire_barony_protected_trigger = yes } }
+			var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+			remove_variable = pantheon_fire_crater_province
+		}
+		else_if = {
+			limit = { var:pantheon_fire_stage = 1 }
+			var:pantheon_fire_crater_province = { pantheon_fire_crater_set_effect = { STATE = burning } }
+		}
+		else_if = {
+			limit = { var:pantheon_fire_stage = 2 }
+			var:pantheon_fire_crater_province = { pantheon_fire_crater_set_effect = { STATE = smouldering } }
+		}
+		else_if = {
+			limit = { var:pantheon_fire_stage = 3 }
+			var:pantheon_fire_crater_province = { pantheon_fire_crater_set_effect = { STATE = cold } }
+		}
+	}
+}
+
+# Root is the god. Every county that really burned (pantheon_fire_ruined, never pantheon_fire_counties: a county spared by
+# inheritance gets no aftermath) starts again at Burning in the sub-region of this strike's own scorch situation. A county
+# already in an earlier strike's aftermath leaves that sub-region first (and the old situation ends if it was the last).
+# A county that is an earlier strike's centre has its crater reset to burning. This strike's crater goes on the centre's
+# capital province, unless that barony is protected; an old crater the centre carried is taken down first.
+pantheon_fire_begin_aftermath_effect = {
+	if = {
+		limit = { any_in_list = { list = pantheon_fire_ruined } }
+		start_situation = {
+			type = pantheon_fire_scorch
+			save_scope_as = pantheon_fire_situation
+		}
+		every_in_list = {
+			list = pantheon_fire_ruined
+			# Not "pantheon_fire_county": a strike from the menu carries the interaction's send_option flag of that name as a
+			# permanent scope, and the engine refused the temporary one (part 2 error.log).
+			save_temporary_scope_as = pantheon_fire_struck_county
+			pantheon_fire_leave_situation_effect = yes
+			pantheon_fire_clear_stage_effect = yes
+			remove_variable = pantheon_fire_restore_months
+			set_variable = { name = pantheon_fire_stage value = 1 }
+			set_variable = { name = pantheon_fire_months value = pantheon_fire_stage1_months }
+			set_variable = { name = pantheon_fire_situation value = scope:pantheon_fire_situation }
+			if = {
+				limit = { NOT = { is_target_in_global_variable_list = { name = pantheon_fire_struck target = this } } }
+				add_to_global_variable_list = { name = pantheon_fire_struck target = this }
+			}
+			scope:pantheon_fire_situation = {
+				situation_sub_region:pantheon_fire_area = {
+					add_dejure_title_to_sub_region = scope:pantheon_fire_struck_county
+				}
+			}
+			add_county_modifier = pantheon_fire_burning
+			# An earlier strike's centre: its crater burns again, unless its barony is now protected (spared by this strike).
+			if = {
+				limit = {
+					has_variable = pantheon_fire_crater_province
+					var:pantheon_fire_crater_province = { pantheon_fire_barony_protected_trigger = yes }
+				}
+				var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+				remove_variable = pantheon_fire_crater_province
+			}
+			pantheon_fire_crater_show_effect = yes
+		}
+		scope:pantheon_fire_center ?= {
+			if = {
+				limit = { has_variable = pantheon_fire_crater_province }
+				var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+			}
+			remove_variable = pantheon_fire_crater_province
+			title_province = {
+				save_temporary_scope_as = pantheon_fire_crater_prov
+				if = {
+					limit = { NOT = { pantheon_fire_barony_protected_trigger = yes } }
+					scope:pantheon_fire_center = {
+						set_variable = { name = pantheon_fire_crater_province value = scope:pantheon_fire_crater_prov }
+					}
+				}
+			}
+			pantheon_fire_crater_show_effect = yes
+		}
+	}
+}
+
+# County scope. The county is healed: modifiers, variables, sub-region membership and its place in the global list all go.
+# A centre county takes its crater down with it (Task 8).
+pantheon_fire_heal_effect = {
+	if = {
+		limit = { has_variable = pantheon_fire_crater_province }
+		var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+	}
+	remove_variable = pantheon_fire_crater_province
+	pantheon_fire_clear_stage_effect = yes
+	pantheon_fire_leave_situation_effect = yes
+	remove_variable = pantheon_fire_stage
+	remove_variable = pantheon_fire_months
+	remove_variable = pantheon_fire_restore_months
+	remove_list_global_variable = { name = pantheon_fire_struck target = this }
+}
+
+# County scope. Moves the county one stage on and restarts that stage's clock; Scarred goes on to healed. Called by the monthly
+# countdown (stage clock or restore counter at 0) and by the debug mod's "Advance the struck land one stage" (the recovery
+# decision only starts the counter; it never advances). The sub-region changes phase once no county in it is still behind the
+# new stage (the shared rule, pantheon_fire_situation_phase_effect). At the end, a centre county's crater follows its new stage (on
+# the last step heal has already taken it down).
+pantheon_fire_advance_stage_effect = {
+	remove_variable = pantheon_fire_restore_months
+	remove_county_modifier = pantheon_fire_restoring
+	if = {
+		limit = { var:pantheon_fire_stage = 1 }
+		set_variable = { name = pantheon_fire_stage value = 2 }
+		set_variable = { name = pantheon_fire_months value = pantheon_fire_stage2_months }
+		pantheon_fire_stage_modifier_effect = yes
+		var:pantheon_fire_situation ?= { pantheon_fire_situation_phase_effect = yes }
+	}
+	else_if = {
+		limit = { var:pantheon_fire_stage = 2 }
+		set_variable = { name = pantheon_fire_stage value = 3 }
+		set_variable = { name = pantheon_fire_months value = pantheon_fire_stage3_months }
+		pantheon_fire_stage_modifier_effect = yes
+		var:pantheon_fire_situation ?= { pantheon_fire_situation_phase_effect = yes }
+	}
+	else_if = {
+		limit = { var:pantheon_fire_stage = 3 }
+		pantheon_fire_heal_effect = yes
+	}
+	pantheon_fire_crater_show_effect = yes
+}
+
+# Character scope: the ruler taking pantheon_fire_restore_decision (its whole effect, apart from the tooltip; the debug mod's
+# self-test calls it too). Pays the gold, then starts a restoration effort on the one restorable county they hold that comes
+# first by pantheon_fire_restore_priority: the counter the monthly pulse counts down, and the marker modifier for as long.
+pantheon_fire_restore_start_effect = {
+	remove_short_term_gold = pantheon_fire_restore_cost
+	ordered_held_title = {
+		limit = { pantheon_fire_restorable_trigger = yes }
+		order_by = pantheon_fire_restore_priority
+		max = 1
+		set_variable = { name = pantheon_fire_restore_months value = pantheon_fire_restore_months }
+		# Untimed: the marker lasts exactly as long as the counter. Every path that ends the effort takes it down (the advance, the
+		# clear on a re-strike, the heal). A timed marker drifted from the counter: `months = 120` showed "9 years" in game, and
+		# `years = 10` could run out before a counter that misses a February tick (Codex part 2 review).
+		add_county_modifier = pantheon_fire_restoring
+	}
+}
+
+# Called from the god's monthly pulse (pantheon.0011). Counts every struck county's stage clock (and its restore counter, when the
+# recovery decision runs one) down by a month; a county whose clock or counter is at 0 advances a stage. Every god runs its own
+# 30-day pulse, so with several gods it runs several times a month: the tick is keyed to the calendar month (batch B review,
+# finding 1). The month of the last tick is kept in the global variable pantheon_fire_period (pantheon_fire_period_value, year x 12 +
+# month), and a pulse ticks only when the month differs: never two ticks in one calendar month. (A lone god's 30-day pulse can
+# miss a 28-day February: that year has eleven ticks.) The due counties are collected first and advanced in a second pass: the
+# global list changes when a county heals.
+pantheon_fire_aftermath_monthly_effect = {
+	if = {
+		limit = {
+			any_in_global_list = { variable = pantheon_fire_struck always = yes }
+			OR = {
+				NOT = { has_global_variable = pantheon_fire_period }
+				NOT = { global_var:pantheon_fire_period = pantheon_fire_period_value }
+			}
+		}
+		set_global_variable = { name = pantheon_fire_period value = pantheon_fire_period_value }
+		every_in_global_list = {
+			variable = pantheon_fire_struck
+			limit = { has_variable = pantheon_fire_months }
+			change_variable = { name = pantheon_fire_months subtract = 1 }
+			if = {
+				limit = { has_variable = pantheon_fire_restore_months }
+				change_variable = { name = pantheon_fire_restore_months subtract = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						var:pantheon_fire_months <= 0
+						AND = {
+							has_variable = pantheon_fire_restore_months
+							var:pantheon_fire_restore_months <= 0
+						}
+					}
+				}
+				add_to_temporary_list = pantheon_fire_due
+			}
+		}
+		every_in_list = {
+			list = pantheon_fire_due
+			pantheon_fire_advance_stage_effect = yes
+		}
+	}
+}

@@ -24,3 +24,47 @@ pantheon_ascend_decision = {
 	ai_check_interval = 0
 	ai_will_do = { base = 0 }
 }
+
+# 2.10 "Fire from Heaven" (Task 8): Restore the Scorched Land. Any ruler holding a struck county pays gold up front, scaled to
+# income, to start a ten-year restoration effort on one of them. The effort never moves the stage itself: it sets the county's
+# pantheon_fire_restore_months, which the god's monthly pulse counts down (pantheon_fire_aftermath_monthly_effect); at 0 the
+# county moves one stage on. Root is the deciding character; is_shown and is_valid hold triggers only (they run in the UI).
+# Gold form: vanilla dlc_decisions/tgp/tgp_silk_road_decisions.txt visit_silk_road_market_decision (is_valid gold >= X, effect
+# remove_short_term_gold = X). AI: restore_mandala_capital_decision (tgp_east_asia_decisions.txt) zeroes the weight below the
+# cost; `modifier = { add = <skill> always = yes }` is 03_fp2_decisions.txt's form.
+pantheon_fire_restore_decision = {
+	picture = { reference = "gfx/interface/illustrations/decisions/decision_spend_money.dds" }
+	desc = pantheon_fire_restore_decision_desc
+	selection_tooltip = pantheon_fire_restore_decision_tooltip
+	confirm_text = pantheon_fire_restore_decision_confirm
+
+	is_shown = {
+		any_held_title = { pantheon_fire_restorable_trigger = yes }
+	}
+
+	is_valid = {
+		gold >= pantheon_fire_restore_cost
+	}
+
+	# The effect is one scripted effect (pantheon_fire_effects.txt) so the debug mod's self-test runs this very effect (B3).
+	effect = {
+		pantheon_fire_restore_start_effect = yes
+		custom_tooltip = pantheon_fire_restore_decision_effect_tt
+	}
+
+	# Months between AI looks (vanilla common/decisions/_decisions.info). 60 was one look per five years, as long as the whole
+	# Smouldering restore window, and the AI never restored in game (part 2, T5).
+	ai_check_interval = 6
+	ai_will_do = {
+		base = 10
+		modifier = { add = stewardship always = yes }
+		modifier = {
+			factor = 2
+			capital_county ?= { has_variable = pantheon_fire_stage }
+		}
+		modifier = {
+			factor = 0
+			gold < pantheon_fire_restore_cost
+		}
+	}
+}

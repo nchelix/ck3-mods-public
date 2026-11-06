@@ -3,3 +3,9 @@ death_pantheon_smitten = {
 	public_knowledge = yes
 	icon = "death_murder.dds"
 }
+
+# 2.10: burned by Fire from Heaven
+death_pantheon_fire = {
+	public_knowledge = yes
+	icon = "death_murder.dds"
+}

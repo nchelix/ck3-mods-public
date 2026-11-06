@@ -115,3 +115,13 @@ pantheon_work_exposed_opinion = {
 	decaying = yes
 	years = 5
 }
+
+# 2.10: Fire from Heaven. Everyone but the faithful holds it against the god (given with years = 50)
+pantheon_fire_burned_world_opinion = {
+	opinion = -50
+}
+
+# 2.10: a survivor of the burned land, or kin of the dead (given with years = 50)
+pantheon_fire_survivor_opinion = {
+	opinion = -100
+}

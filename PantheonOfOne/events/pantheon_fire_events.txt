@@ -1,0 +1,211 @@
+﻿namespace = pantheon_fire
+
+# Pantheon of One 2.10 "Fire from Heaven": the strike. One hidden event on the god (root is the god), fired by the
+# interaction with var:pantheon_fire_size (1 county, 2 duchy, 3 kingdom, 4 empire) and var:pantheon_fire_target (re-saved as a scope).
+# The whole strike is this one immediate, so the temporary lists the effects fill are shared between them.
+# (pantheon.0001 is an unrelated old event: never touch it.)
+
+pantheon_fire.0001 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_fire_target ?= { save_scope_as = pantheon_fire_target }
+		# 1. The guard: still ready, the target still there and valid, the Worship still in hand, and a size to strike.
+		if = {
+			limit = {
+				pantheon_miracle_ready_trigger = yes
+				exists = scope:pantheon_fire_target
+				scope:pantheon_fire_target = { pantheon_fire_target_valid_trigger = { GOD = root } }
+				has_variable = pantheon_fire_size
+				var:pantheon_fire_size >= 1
+				var:pantheon_fire_size <= 4
+				pantheon_can_afford_trigger = { COST = pantheon_fire_cost_selected }
+			}
+			# 2. Resolve the chain (the target may have been crowned or deposed since the interaction opened).
+			scope:pantheon_fire_target = { pantheon_fire_find_chain_effect = yes }
+			if = {
+				limit = {
+					NOR = {
+						var:pantheon_fire_size = 1
+						AND = { var:pantheon_fire_size = 2 exists = scope:pantheon_fire_duke }
+						AND = { var:pantheon_fire_size = 3 exists = scope:pantheon_fire_king }
+						AND = { var:pantheon_fire_size = 4 exists = scope:pantheon_fire_emperor }
+					}
+				}
+				# The size is gone: no payment, no cooldown.
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = pantheon_fire_size_gone
+					custom_tooltip = pantheon_fire_size_gone_tt
+					left_icon = root
+				}
+			}
+			else = {
+				pantheon_fire_gather_effect = yes
+				# 3. Nothing can burn (the whole footprint is spared): no payment, no cooldown.
+				if = {
+					limit = { NOT = { any_in_list = { list = pantheon_fire_counties } } }
+					send_interface_toast = {
+						type = event_toast_effect_bad
+						title = pantheon_fire_nothing_to_burn
+						custom_tooltip = pantheon_fire_nothing_to_burn_tt
+						left_icon = root
+					}
+				}
+				else = {
+					# 4. Pay.
+					change_variable = { name = pantheon_worship subtract = pantheon_fire_cost_selected }
+					# 5. Snapshot the titles, tribal rulers, people and armies before anyone dies.
+					pantheon_fire_snapshot_effect = yes
+					# 6. Roll, then kill.
+					pantheon_fire_kill_effect = yes
+					# 7. Ruin the land, rechecking protection.
+					pantheon_fire_ruin_land_effect = yes
+					# 8. The titles of the struck realm fall (sizes 2 to 4), 9. and the rulers whose seat burned go tribal.
+					pantheon_fire_fall_titles_effect = yes
+					pantheon_fire_tribal_effect = yes
+					# 10. The world's reaction: opinions, dread, Devotion by fear, and the notices.
+					pantheon_fire_reaction_effect = yes
+					# 11. The aftermath: the scorch situation, the stage clocks, the county modifiers.
+					pantheon_fire_begin_aftermath_effect = yes
+					# 12. The shared miracle cooldown starts, only after a strike that burned something.
+					pantheon_miracle_cast_effect = yes
+					# 13. The god's report.
+					trigger_event = pantheon_fire.0002
+				}
+			}
+		}
+		# The guard failed: say why, in this order. Nothing was paid and no cooldown started (the hand-off variables go below).
+		else = {
+			if = {
+				limit = { NOT = { pantheon_miracle_ready_trigger = yes } }
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = pantheon_fire_fizzle
+					custom_tooltip = pantheon_fire_fizzle_ready_tt
+					left_icon = root
+				}
+			}
+			else_if = {
+				limit = { NOT = { scope:pantheon_fire_target ?= { pantheon_fire_target_valid_trigger = { GOD = root } } } }
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = pantheon_fire_fizzle
+					custom_tooltip = pantheon_fire_fizzle_target_tt
+					left_icon = root
+				}
+			}
+			else_if = {
+				limit = {
+					NOT = {
+						AND = {
+							has_variable = pantheon_fire_size
+							var:pantheon_fire_size >= 1
+							var:pantheon_fire_size <= 4
+						}
+					}
+				}
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = pantheon_fire_fizzle
+					custom_tooltip = pantheon_fire_fizzle_size_tt
+					left_icon = root
+				}
+			}
+			else_if = {
+				limit = { NOT = { pantheon_can_afford_trigger = { COST = pantheon_fire_cost_selected } } }
+				send_interface_toast = {
+					type = event_toast_effect_bad
+					title = pantheon_fire_fizzle
+					custom_tooltip = pantheon_fire_fizzle_worship_tt
+					left_icon = root
+				}
+			}
+		}
+		# The hand-off variables are spent on every path, the refusals included.
+		remove_variable = pantheon_fire_target
+		remove_variable = pantheon_fire_size
+	}
+}
+
+# The god's report. The counts are the variables the strike set on the god (pantheon_fire_report_*); the picture is the
+# strike's own event background (common/event_backgrounds/pantheon_event_backgrounds.txt).
+pantheon_fire.0002 = {
+	type = character_event
+	title = pantheon_fire.0002.t
+	# Built from parts the vanilla way (events/court_events/court_events_general.txt:2189-2215, court.3011: desc = { desc = ...
+	# first_valid = { triggered_desc = { trigger = ... desc = ... } } }). Triggers run in the event's root, the god, so the
+	# report variables are read as var:. The numbers come from the loc keys ([GetPlayer.MakeScope.Var(...)]).
+	desc = {
+		desc = pantheon_fire.0002.desc.open
+		first_valid = {
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_counties = 1 }
+				desc = pantheon_fire.0002.desc.county_one
+			}
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_counties > 1 }
+				desc = pantheon_fire.0002.desc.county_many
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_dead = 1 }
+				desc = pantheon_fire.0002.desc.dead_one
+			}
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_dead > 1 }
+				desc = pantheon_fire.0002.desc.dead_many
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_titles = 1 }
+				desc = pantheon_fire.0002.desc.title_one
+			}
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_titles > 1 }
+				desc = pantheon_fire.0002.desc.title_many
+			}
+		}
+		first_valid = {
+			triggered_desc = {
+				trigger = { var:pantheon_fire_report_tribal > 0 }
+				desc = pantheon_fire.0002.desc.tribal
+			}
+		}
+		desc = pantheon_fire.0002.desc.blame
+	}
+	theme = faith
+	override_background = {
+		reference = pantheon_fire_strike
+	}
+	left_portrait = {
+		character = root
+		animation = personality_zealous
+	}
+
+	option = {
+		name = pantheon_fire.0002.ok
+	}
+}
+
+# The notice to a living player who held a burned county or whose seat burned. No scope is carried from the strike, so the
+# text stays general.
+pantheon_fire.0003 = {
+	type = character_event
+	title = pantheon_fire.0003.t
+	desc = pantheon_fire.0003.desc
+	theme = faith
+	override_background = {
+		reference = pantheon_fire_strike
+	}
+	left_portrait = {
+		character = root
+		animation = fear
+	}
+
+	option = {
+		name = pantheon_fire.0003.ok
+	}
+}

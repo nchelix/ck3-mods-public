@@ -1,0 +1,53 @@
+﻿# 2.10 (Task 7): the scorch left by Fire from Heaven. One situation per strike, one sub-region holding the struck counties. The
+# situation only paints vanilla's drought province effect on the map (proven in the graphics spike, docs/reference/graphics-spike-74.md);
+# the phases never time out on their own (100 years), the scripted effects in pantheon_fire_effects.txt change them.
+# Form: vanilla common/situation/situations/tgp_natural_disaster.txt and the spike.
+pantheon_fire_scorch = {
+	is_unique = no
+	gui_window_name = "window_situation"
+	gui_participation_window_name = "window_situation_participation"
+	illustration = "gfx/interface/illustrations/event_scenes/tgp_ruined_holding.dds"
+	situation_group_type = minor
+
+	sub_regions = {
+		pantheon_fire_area = {
+			icon = "gfx/interface/icons/situation_types/pantheon_fire_scorch.dds"
+			map_color = { 1 0.2 0.2 }
+		}
+	}
+
+	participant_groups = {
+		pantheon_fire_rulers = {
+			icon = "gfx/interface/icons/flat_icons/prestige.dds"
+			require_realm_in_sub_region = yes
+			auto_add_rulers = yes
+			map_color = { 1 0.3 0 }
+		}
+	}
+
+	start_phase = burning
+
+	phases = {
+		burning = {
+			icon = "gfx/interface/icons/situation_types/pantheon_fire_scorch.dds"
+			illustration = "gfx/interface/illustrations/event_scenes/tgp_ruined_holding.dds"
+			map_province_effect = drought
+			map_province_effect_intensity = 1.0
+			max_duration = { years = 100 }
+		}
+		smouldering = {
+			icon = "gfx/interface/icons/situation_types/pantheon_fire_scorch.dds"
+			illustration = "gfx/interface/illustrations/event_scenes/tgp_ruined_holding.dds"
+			map_province_effect = drought
+			map_province_effect_intensity = 0.7
+			max_duration = { years = 100 }
+		}
+		scarred = {
+			icon = "gfx/interface/icons/situation_types/pantheon_fire_scorch.dds"
+			illustration = "gfx/interface/illustrations/event_scenes/tgp_ruined_holding.dds"
+			map_province_effect = drought
+			map_province_effect_intensity = 0.4
+			max_duration = { years = 100 }
+		}
+	}
+}

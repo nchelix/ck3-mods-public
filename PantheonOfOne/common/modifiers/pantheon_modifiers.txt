@@ -1,26 +1,26 @@
 ﻿# Pantheon of One. County modifiers (the Holy Seat and the realm boons), then character modifiers.
 
 pantheon_holy_seat = {
-	icon = county_modifier_control_positive
+	icon = pantheon_holy_seat
 	fort_level = 20
 	garrison_size = 10
 }
 
 pantheon_harvest = {
-	icon = county_modifier_control_positive
+	icon = pantheon_harvest
 	tax_mult = 1
 	levy_size = 1
 	development_growth_factor = 1
 }
 
 pantheon_walls = {
-	icon = county_modifier_control_positive
+	icon = pantheon_walls
 	fort_level = 10
 	garrison_size = 5
 }
 
 pantheon_warding = {
-	icon = county_modifier_control_positive
+	icon = pantheon_warding
 	epidemic_resistance = 100
 }
 
@@ -63,21 +63,21 @@ pantheon_cursed = {
 
 # A Disaster: the kind follows the capital's terrain, and the effect is the same for all three.
 pantheon_disaster_flood = {
-	icon = county_modifier_development_negative
+	icon = pantheon_disaster_flood
 	development_growth_factor = -0.5
 	tax_mult = -0.5
 	levy_size = -0.5
 }
 
 pantheon_disaster_quake = {
-	icon = county_modifier_development_negative
+	icon = pantheon_disaster_quake
 	development_growth_factor = -0.5
 	tax_mult = -0.5
 	levy_size = -0.5
 }
 
 pantheon_disaster_famine = {
-	icon = county_modifier_development_negative
+	icon = pantheon_disaster_famine
 	development_growth_factor = -0.5
 	tax_mult = -0.5
 	levy_size = -0.5
@@ -107,4 +107,35 @@ pantheon_lent = {
 # timed variable pantheon_ward_flag_ours does (repair 1).
 pantheon_warded_person = {
 	icon = health_positive
+}
+
+# 2.10 (Task 7): the aftermath of Fire from Heaven, one stage modifier per struck county. The growth penalties are the
+# heavy part of the aftermath (Burning and Smouldering are the same); pantheon_fire_restoring is a marker for the
+# recovery decision (batch B2) and carries no stats.
+# Supply (part 2, the user): the engine never goes below MINIMUM_SUPPLY_LIMIT (1000, vanilla 00_defines.txt), so -1 while Burning
+# is the floor, then the development's steps; vanilla's own disasters use the same modifier (10_tgp_natural_disasters_modifiers.txt).
+# Control: the strike drops it to 0 (pantheon_fire_ruin_land_effect); these keep its regrowth slow, on the development's steps.
+pantheon_fire_burning = {
+	icon = pantheon_fire_burning
+	development_growth_factor = -0.9
+	supply_limit_mult = -1
+	monthly_county_control_growth_factor = -0.9
+}
+
+pantheon_fire_smouldering = {
+	icon = pantheon_fire_smouldering
+	development_growth_factor = -0.9
+	supply_limit_mult = -0.9
+	monthly_county_control_growth_factor = -0.9
+}
+
+pantheon_fire_scarred = {
+	icon = pantheon_fire_scarred
+	development_growth_factor = -0.5
+	supply_limit_mult = -0.5
+	monthly_county_control_growth_factor = -0.5
+}
+
+pantheon_fire_restoring = {
+	icon = pantheon_fire_restoring
 }

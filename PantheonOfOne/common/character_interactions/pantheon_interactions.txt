@@ -296,6 +296,141 @@ pantheon_wrath_of_heaven_interaction = {
 	ai_will_do = { base = 0 }
 }
 
+# 2.10: the fifth Great Temple miracle, Fire from Heaven. Same frame as the Wrath of Heaven (hostile, never offered to the AI,
+# only while the miracle is ready), plus a radio option per size. A size above the county is shown only when the ruler has such a
+# title or a liege who does (triggers only: the chain itself is resolved inside pantheon_fire.0001). on_accept only records the
+# size and the target, then fires the strike event on the god, which pays, burns and sets the cooldown.
+pantheon_fire_from_heaven_interaction = {
+	category = interaction_category_hostile
+	icon = pantheon_fire_from_heaven_interaction # placeholder: a copy of the Wrath's icon until the 2.10 art (Task 9)
+	common_interaction = yes
+	use_diplomatic_range = no
+	ignores_pending_interaction_block = yes
+	desc = pantheon_fire_from_heaven_interaction_desc
+	is_shown = {
+		scope:actor = {
+			is_ai = no
+			has_trait = pantheon_divine
+			has_variable = pantheon_enthroned
+			pantheon_miracle_ready_trigger = yes
+		}
+		scope:recipient = { pantheon_fire_target_valid_trigger = { GOD = scope:actor } }
+	}
+	can_send = {
+		custom_tooltip = {
+			text = pantheon_pick_option_tt
+			OR = {
+				scope:pantheon_fire_county = yes
+				scope:pantheon_fire_duchy = yes
+				scope:pantheon_fire_kingdom = yes
+				scope:pantheon_fire_empire = yes
+			}
+		}
+	}
+
+	send_options_exclusive = yes
+	send_option = {
+		flag = pantheon_fire_county
+		localization = pantheon_fire_opt_county
+		current_description = {
+			first_valid = {
+				desc = pantheon_fire_desc_county
+			}
+		}
+		is_valid = {
+			scope:actor = {
+				custom_tooltip = { text = pantheon_fire_needs_worship_county_tt pantheon_can_afford_trigger = { COST = pantheon_cost_fire_county } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_fire_duchy
+		localization = pantheon_fire_opt_duchy
+		current_description = {
+			first_valid = {
+				desc = pantheon_fire_desc_duchy
+			}
+		}
+		is_shown = {
+			scope:recipient = {
+				OR = {
+					primary_title.tier = tier_duchy
+					any_liege_or_above = { primary_title.tier = tier_duchy }
+				}
+			}
+		}
+		is_valid = {
+			scope:actor = {
+				custom_tooltip = { text = pantheon_fire_needs_worship_duchy_tt pantheon_can_afford_trigger = { COST = pantheon_cost_fire_duchy } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_fire_kingdom
+		localization = pantheon_fire_opt_kingdom
+		current_description = {
+			first_valid = {
+				desc = pantheon_fire_desc_kingdom
+			}
+		}
+		is_shown = {
+			scope:recipient = {
+				OR = {
+					primary_title.tier = tier_kingdom
+					any_liege_or_above = { primary_title.tier = tier_kingdom }
+				}
+			}
+		}
+		is_valid = {
+			scope:actor = {
+				custom_tooltip = { text = pantheon_fire_needs_worship_kingdom_tt pantheon_can_afford_trigger = { COST = pantheon_cost_fire_kingdom } }
+			}
+		}
+	}
+	send_option = {
+		flag = pantheon_fire_empire
+		localization = pantheon_fire_opt_empire
+		current_description = {
+			first_valid = {
+				desc = pantheon_fire_desc_empire
+			}
+		}
+		is_shown = {
+			scope:recipient = {
+				OR = {
+					primary_title.tier = tier_empire
+					any_liege_or_above = { primary_title.tier = tier_empire }
+				}
+			}
+		}
+		is_valid = {
+			scope:actor = {
+				custom_tooltip = { text = pantheon_fire_needs_worship_empire_tt pantheon_can_afford_trigger = { COST = pantheon_cost_fire_empire } }
+			}
+		}
+	}
+
+	on_accept = {
+		if = { limit = { scope:pantheon_fire_county = yes } custom_tooltip = pantheon_fire_tip_county }
+		if = { limit = { scope:pantheon_fire_duchy = yes } custom_tooltip = pantheon_fire_tip_duchy }
+		if = { limit = { scope:pantheon_fire_kingdom = yes } custom_tooltip = pantheon_fire_tip_kingdom }
+		if = { limit = { scope:pantheon_fire_empire = yes } custom_tooltip = pantheon_fire_tip_empire }
+		hidden_effect = {
+			scope:actor = {
+				if = { limit = { scope:pantheon_fire_county = yes } set_variable = { name = pantheon_fire_size value = 1 } }
+				else_if = { limit = { scope:pantheon_fire_duchy = yes } set_variable = { name = pantheon_fire_size value = 2 } }
+				else_if = { limit = { scope:pantheon_fire_kingdom = yes } set_variable = { name = pantheon_fire_size value = 3 } }
+				else_if = { limit = { scope:pantheon_fire_empire = yes } set_variable = { name = pantheon_fire_size value = 4 } }
+			}
+			scope:actor = { set_variable = { name = pantheon_fire_target value = scope:recipient } }
+			# pantheon_fire.0001 (Task 3) pays, burns and sets the cooldown
+			scope:actor = { trigger_event = pantheon_fire.0001 }
+		}
+	}
+	auto_accept = yes
+	ai_will_do = { base = 0 }
+}
+
 # 2.0: Bless, one interaction with a radio option per blessing (radio options, proven in the Task 0 prototype).
 # The work runs in pantheon.0100 on the god; on_accept only previews and records the choice in variables.
 pantheon_bless_interaction = {
@@ -338,6 +473,7 @@ pantheon_bless_interaction = {
 				scope:pantheon_bless_whole = yes
 				scope:pantheon_bless_grief = yes
 				scope:pantheon_bless_feud = yes
+				scope:pantheon_bless_heal = yes
 				scope:pantheon_bless_conception = yes
 			}
 		}
@@ -359,6 +495,7 @@ pantheon_bless_interaction = {
 				pantheon_bless_suits_whole_trigger = yes
 				pantheon_bless_suits_grief_trigger = yes
 				pantheon_bless_suits_feud_trigger = yes
+				pantheon_bless_suits_heal_trigger = yes
 			}
 		}
 	}
@@ -675,6 +812,27 @@ pantheon_bless_interaction = {
 			}
 		}
 	}
+	# 2.10 (#72): Heal them, the twin of Make them whole for sickness and plain wounds (prayer need 7, Divine Healing)
+	send_option = {
+		flag = pantheon_bless_heal
+		localization = pantheon_bless_opt_heal
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = { NOT = { scope:recipient = scope:actor } scope:recipient = { pantheon_bless_suits_heal_trigger = yes } }
+					desc = pantheon_bless_suits_why_heal
+				}
+			}
+		}
+		is_shown = { NOT = { scope:recipient = scope:actor } }
+		is_valid = {
+			scope:actor = { custom_tooltip = { text = pantheon_needs_worship_life_tt pantheon_can_afford_trigger = { COST = pantheon_cost_life } } }
+			scope:recipient = {
+				custom_tooltip = { text = pantheon_bless_no_need_heal_tt pantheon_need_healing_trigger = yes }
+				custom_tooltip = { text = pantheon_not_a_demigod_tt NOT = { has_trait = pantheon_demigod } }
+			}
+		}
+	}
 	# 2.5: Divine Conception, formerly its own interaction. Eligibility beyond these is checked on accept by pantheon.0101,
 	# which says why when it refuses (1.2: greying it with reasons made the old page option vanish).
 	send_option = {
@@ -731,6 +889,8 @@ pantheon_bless_interaction = {
 		if = { limit = { scope:pantheon_bless_grief = yes } custom_tooltip = pantheon_worship_line_life }
 		if = { limit = { scope:pantheon_bless_feud = yes } custom_tooltip = pantheon_tip.0300.feud.tt }
 		if = { limit = { scope:pantheon_bless_feud = yes } custom_tooltip = pantheon_worship_line_life }
+		if = { limit = { scope:pantheon_bless_heal = yes } custom_tooltip = pantheon_tip.0300.heal.tt }
+		if = { limit = { scope:pantheon_bless_heal = yes } custom_tooltip = pantheon_worship_line_life }
 		hidden_effect = {
 			scope:actor = {
 				# The handoff to pantheon.0100 (I3); pantheon_ui_target also stays, so the pane keeps showing
@@ -753,6 +913,7 @@ pantheon_bless_interaction = {
 				else_if = { limit = { scope:pantheon_bless_whole = yes } set_variable = { name = pantheon_ui_choice value = flag:whole } }
 				else_if = { limit = { scope:pantheon_bless_grief = yes } set_variable = { name = pantheon_ui_choice value = flag:grief } }
 				else_if = { limit = { scope:pantheon_bless_feud = yes } set_variable = { name = pantheon_ui_choice value = flag:feud } }
+				else_if = { limit = { scope:pantheon_bless_heal = yes } set_variable = { name = pantheon_ui_choice value = flag:heal } }
 				# Divine Conception (moved here in 2.5) runs in pantheon.0101, with no blessing choice
 				if = { limit = { scope:pantheon_bless_conception = yes } trigger_event = pantheon.0101 }
 				else = { trigger_event = pantheon.0100 }

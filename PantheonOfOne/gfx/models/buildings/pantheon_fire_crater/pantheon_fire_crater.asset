@@ -1,0 +1,66 @@
+# Pantheon of One 2.10 "Fire from Heaven" (Task 9): the crater's mesh and its three states, one entity each.
+# Written by tools/build_pantheon_crater_assets.py from the Meshy crater (Blender step:
+# tools/pantheon_crater/crater_convert.py, which also measures the locators below on the converted surface).
+# pdxmesh form: vanilla game/gfx/models/buildings/special/trosky_castle/building_special_trosky_castle_01.asset,
+# as the Great Temple's. Entities and particles: the graphics spike's GraphicsSpike/gfx/models/spike/spike_crater.asset,
+# proven in game (docs/reference/graphics-spike-74.md, runs 1 to 3): a fire inside a mesh is hidden, so the fires
+# sit on the bowl's open inner slope just inside the rim and the smoke over the pit at its centre; roco_fireplace
+# (a court-room fire) needs its locator scaled to 0.1 or it fills the screen.
+# Encoding as the spike's: plain ASCII, no BOM, LF.
+
+pdxmesh = {
+	name = "pantheon_fire_crater_mesh"
+	file = "pantheon_fire_crater.mesh"
+
+	cull_distance = 5000.0
+
+	meshsettings = {
+		name = "pantheon_fire_crater_LOD0"
+		index = 0
+		texture_diffuse = "pantheon_fire_crater_diffuse.dds"
+		texture_normal = "pantheon_fire_crater_normal.dds"
+		texture_specular = "pantheon_fire_crater_properties.dds"
+		shader = "standard_winter"
+		shader_file = "gfx/FX/pdxmesh.shader"
+	}
+}
+
+# Burning: three fires and the siege smoke.
+entity = {
+	name = "pantheon_fire_crater_burning_entity"
+	pdxmesh = "pantheon_fire_crater_mesh"
+
+	locator = { name = "vfx_fire_breached" position = { -2.38 0.86 -1.66 } }
+	locator = { name = "vfx_fire_pyre" position = { 2.38 0.92 -1.66 } }
+	locator = { name = "vfx_fire_roco" position = { 0 0.9 2.9 } scale = 0.1 }
+	locator = { name = "vfx_smoke" position = { 0 1.03 0 } }
+
+	default_state = "idle"
+	state = {
+		name = "idle" state_time = 5 looping = yes
+		event = { time = 0 node = "vfx_fire_breached" particle = "city/city_siege_breached" trigger_once = yes keep_particle = yes }
+		event = { time = 0 node = "vfx_fire_pyre" particle = "city/pyre_02" trigger_once = yes keep_particle = yes }
+		event = { time = 0 node = "vfx_fire_roco" particle = "roco_fireplace" trigger_once = yes keep_particle = yes }
+		event = { time = 0 node = "vfx_smoke" particle = "city/city_siege_smoke" trigger_once = yes keep_particle = yes }
+	}
+}
+
+# Smouldering: the smoke only.
+entity = {
+	name = "pantheon_fire_crater_smouldering_entity"
+	pdxmesh = "pantheon_fire_crater_mesh"
+
+	locator = { name = "vfx_smoke" position = { 0 1.03 0 } }
+
+	default_state = "idle"
+	state = {
+		name = "idle" state_time = 5 looping = yes
+		event = { time = 0 node = "vfx_smoke" particle = "city/city_siege_smoke" trigger_once = yes keep_particle = yes }
+	}
+}
+
+# Cold: the mesh alone, no particles (form: vanilla gfx/models/buildings/special/building_special_colosseum.asset's entity).
+entity = {
+	name = "pantheon_fire_crater_cold_entity"
+	pdxmesh = "pantheon_fire_crater_mesh"
+}

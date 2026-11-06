@@ -59,6 +59,8 @@ pantheon.0100 = {
 			else_if = { limit = { var:pantheon_ui_choice = flag:whole } pantheon_grant_whole_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:grief } pantheon_grant_grief_effect = yes }
 			else_if = { limit = { var:pantheon_ui_choice = flag:feud } pantheon_grant_feud_effect = yes }
+			# 2.10 (#72): Heal them, the Divine Healing grant of the prayer answer
+			else_if = { limit = { var:pantheon_ui_choice = flag:heal } pantheon_grant_healing_effect = yes }
 			# 2.4 (R3): the generic +10 for a Bless is skipped for Freedom: its own Devotion is the whole reward
 			if = {
 				limit = { NOT = { var:pantheon_ui_choice = flag:freedom } }

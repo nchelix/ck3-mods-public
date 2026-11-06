@@ -1,0 +1,113 @@
+﻿# Pantheon of One 2.10 "Fire from Heaven": the fifth Great Temple miracle. Every number in one place.
+# The Sandbox rule pays 1/12 of every Worship price (multiply = 0.08333), like the other costs in pantheon_values.txt.
+
+pantheon_cost_fire_county = {
+	value = 6000
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_fire_duchy = {
+	value = 15000
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_fire_kingdom = {
+	value = 36000
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+pantheon_cost_fire_empire = {
+	value = 90000
+	if = {
+		limit = { has_game_rule = pantheon_economy_sandbox }
+		multiply = 0.08333
+	}
+}
+
+# The price of the size picked in the interaction (var:pantheon_fire_size 1 to 4). God scope.
+pantheon_fire_cost_selected = {
+	value = 0
+	if = { limit = { var:pantheon_fire_size ?= 1 } add = pantheon_cost_fire_county }
+	else_if = { limit = { var:pantheon_fire_size ?= 2 } add = pantheon_cost_fire_duchy }
+	else_if = { limit = { var:pantheon_fire_size ?= 3 } add = pantheon_cost_fire_kingdom }
+	else_if = { limit = { var:pantheon_fire_size ?= 4 } add = pantheon_cost_fire_empire }
+}
+
+# Percent chance that a ruler or courtier in the burned land dies.
+pantheon_fire_death_chance = {
+	value = 80
+}
+
+# The Devotion lost by the faithful who watch the land burn (county, duchy, kingdom, empire).
+pantheon_fire_dread_county = {
+	value = 25
+}
+
+pantheon_fire_dread_duchy = {
+	value = 50
+}
+
+pantheon_fire_dread_kingdom = {
+	value = 75
+}
+
+pantheon_fire_dread_empire = {
+	value = 100
+}
+
+# The aftermath, in months: Burning, Smouldering, Scarred; then the land is healed. One restore is 120 months of effort.
+pantheon_fire_stage1_months = {
+	value = 60
+}
+
+pantheon_fire_stage2_months = {
+	value = 180
+}
+
+pantheon_fire_stage3_months = {
+	value = 360
+}
+
+pantheon_fire_restore_months = {
+	value = 120
+}
+# The calendar month as one number (year x 12 + month): the aftermath ticks once per month, keyed to this (batch B review,
+# finding 1). current_year and current_month are date triggers that read as values (docs/reference/ck3-1.20.1.1-triggers.log:556
+# and ck3-1.20.1.1-triggers.log:543); vanilla stores both with value = (events/war_events/combat_events.txt:2289-2293) and nests
+# current_year in a value block (common/script_values/08_bp3_values.txt:69-73, inspection_levy_reward_value).
+pantheon_fire_period_value = {
+	value = current_year
+	multiply = 12
+	add = { value = current_month }
+}
+
+# What a restoring lord pays for one stage of healing, in gold. Character scope.
+pantheon_fire_restore_cost = {
+	value = monthly_character_income
+	multiply = 36
+	min = 100
+}
+
+# Task 8: which struck county the Restore decision works on (ordered_held_title takes the highest). County title scope.
+# The lowest stage first; among equal stages, the holder's capital county (the capital bonus stays below one stage's step).
+# Capital test form: vanilla common/council_tasks/00_kurultai_tasks.txt (scope:county = scope:county.holder.capital_county).
+pantheon_fire_restore_priority = {
+	value = 40
+	subtract = {
+		value = var:pantheon_fire_stage
+		multiply = 10
+	}
+	if = {
+		limit = { this = holder.capital_county }
+		add = 5
+	}
+}

@@ -1327,6 +1327,12 @@ pantheon_bless_suits_whole_trigger = {
 	pantheon_need_whole_trigger = yes
 }
 
+# 2.10 (#72): Heal them suits exactly whoever is sick or wounded (Healing's need, 7)
+pantheon_bless_suits_heal_trigger = {
+	NOT = { has_trait = pantheon_divine }
+	pantheon_need_healing_trigger = yes
+}
+
 pantheon_bless_suits_grief_trigger = {
 	NOT = { has_trait = pantheon_divine }
 	pantheon_need_grief_trigger = yes

@@ -352,6 +352,8 @@ pantheon.0011 = {
 		pantheon_grievance_dead_upkeep_effect = yes
 		# 2.6: the Follower trait: leavers lose it, old-save followers get it
 		pantheon_glance_sweep_effect = yes
+		# 2.10 (Task 7): the Fire from Heaven aftermath counts a month down (once a month, however many gods run this)
+		pantheon_fire_aftermath_monthly_effect = yes
 		# 2.2 R6: the Great Temple's build timer is a months-left counter counted down here, not a delayed
 		# event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215) nor a date (no vanilla
 		# precedent for adding days to current_date); completion when it reaches 0.

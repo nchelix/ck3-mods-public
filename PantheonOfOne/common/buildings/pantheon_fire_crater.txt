@@ -1,0 +1,63 @@
+﻿# Pantheon of One 2.10 "Fire from Heaven" (Task 8): the crater a strike leaves on its centre's capital barony. Three special
+# buildings, one per aftermath state, never offered in the build menu: common/scripted_effects/pantheon_fire_effects.txt
+# places and swaps them (pantheon_fire_crater_show_effect) and removes them at heal. Form: the graphics spike's crater
+# (GraphicsSpike/common/buildings/spike_buildings.txt, proven in game 2026-11-03, docs/reference/graphics-spike-74.md),
+# whose asset is an ENTITY so it can run particles, as vanilla's Zoroastrian cathedral does. Purely visual: no modifiers.
+# Task 9: the mesh is the mod's own Meshy crater and type_icon its render (tools/build_pantheon_crater_assets.py).
+
+pantheon_fire_crater_burning = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_fire_crater.dds"
+
+	asset = {
+		type = entity
+		name = "pantheon_fire_crater_burning_entity"
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	ai_value = {
+		base = 0
+	}
+}
+
+pantheon_fire_crater_smouldering = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_fire_crater.dds"
+
+	asset = {
+		type = entity
+		name = "pantheon_fire_crater_smouldering_entity"
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	ai_value = {
+		base = 0
+	}
+}
+
+pantheon_fire_crater_cold = {
+	type = special
+	construction_time = 1
+	type_icon = "icon_structure_pantheon_fire_crater.dds"
+
+	asset = {
+		type = entity
+		name = "pantheon_fire_crater_cold_entity"
+	}
+
+	can_construct_potential = {
+		always = no
+	}
+
+	ai_value = {
+		base = 0
+	}
+}

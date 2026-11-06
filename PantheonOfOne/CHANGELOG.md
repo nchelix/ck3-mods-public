@@ -1,5 +1,24 @@
 ﻿# Changelog — Pantheon of One
 
+## [2.10] — 2026-11-05
+
+Fire from Heaven: the god's final answer to a great enemy, and a mercy beside it.
+
+### Added
+- Fire from Heaven (#73), a fifth miracle of the Great Temple at tier V. Right-click a ruler and burn the land around their capital at one of four sizes: their county (6,000 Worship), duchy (15,000), kingdom (36,000) or empire (90,000); a twelfth of that on the Sandbox rule. The sizes follow the real liege chain, not the de jure map, and each option shows its price and how many counties it would burn. It shares the miracles' cooldown. A ruler at Devotion 75 or more cannot be struck.
+  - In the struck land about 80% of the people die ("burned by fire from heaven"), and armies standing in it are lost. Development drops to zero, county control to 0, every building that can be destroyed is destroyed, each county's seat becomes a tribal holding and its other baronies are razed.
+  - Every duchy, kingdom and empire inside the struck realm is destroyed, and a ruler whose primary title was struck goes tribal. A county strike destroys no title.
+  - Spared: the god, the demigods, the Great Temple's county and the god's own land, and the faithful above Devotion 25 with all their land and titles.
+  - The world reacts: -50 opinion of the god from the world's rulers for 50 years, -100 from the survivors and the kin of the dead, dread by the size of the strike, and +10 Devotion to every follower, out of fear. The god gets a report with its own picture.
+  - The aftermath lasts decades: Burning for 5 years, Smouldering until year 20, Scarred until year 50, then healed. The land is scorched on the map, a crater of our own burns and smokes at the struck capital, and each stage keeps development growth, supply and control low.
+  - Restore the Scorched Land: a later ruler, the AI included, pays about three years of income to start ten years of work on one scorched county, which then moves one stage closer to healing.
+- Heal them (#72): a Bless that cures a sick, plague-struck or wounded character outright, for the price of answering a healing prayer (600 Worship).
+- Debug tools (local mod only): a self-test that burns test land and checks the strike and its aftermath; advance a scorched county one stage.
+
+### Changed
+- The Wrath of Heaven has a new icon, and its text calls it the lighter strike.
+- Blessings and disasters on a county (Harvest, Walls, Warding, Flood, Quake, Famine) and the Holy Seat show their own icons in the county view.
+
 ## [2.9.1] — 2026-11-02
 
 ### Changed
