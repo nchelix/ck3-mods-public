@@ -1565,6 +1565,55 @@ one_trait_ui_act_hostility_lift_click_effect = {
 	}
 }
 
+one_trait_ui_act_hostility_break_25_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_hostility_break_25_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_break_50_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_hostility_break_50_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_break_75_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_target }
+		one_trait_diplomacy_hostility_break_75_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_break_all_click_effect = {
+	if = {
+		limit = { has_variable = one_trait_ui_target }
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 405
+				has_variable = one_trait_ui_confirm_target
+				var:one_trait_ui_confirm_target = var:one_trait_ui_target
+			}
+			remove_variable = one_trait_ui_confirm
+			remove_variable = one_trait_ui_confirm_target
+			var:one_trait_ui_target = { save_scope_as = one_trait_target }
+			one_trait_diplomacy_hostility_break_all_effect = yes
+		}
+		else = {
+			set_variable = { name = one_trait_ui_confirm value = 405 }
+			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
+		}
+	}
+}
+
 one_trait_ui_act_court_chancellor_click_effect = {
 	if = {
 		limit = { has_variable = one_trait_ui_target }

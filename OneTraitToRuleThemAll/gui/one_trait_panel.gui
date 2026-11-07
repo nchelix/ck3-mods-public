@@ -7714,6 +7714,61 @@ window = {
 									}
 								}
 							}
+							widget = {
+								visible = "[GetScriptedGui('one_trait_ui_act_hostility_break_25').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								size = { 680 44 }
+								background = { using = Background_Area }
+								hbox = {
+									margin_left = 10
+									margin_right = 10
+									spacing = 10
+									icon = { size = { 30 30 } texture = "gfx/interface/icons/icon_maa_countered.dds" }
+									text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_hostility_break" tooltip = "one_trait_panel_act_hostility_break_tt" }
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_hostility_break_25_btn"
+										enabled = "[GetScriptedGui('one_trait_ui_act_hostility_break_25').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_hostility_break_25').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_hostility_break_25').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_hostility_break_25').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_hostility_break_50_btn"
+										enabled = "[GetScriptedGui('one_trait_ui_act_hostility_break_50').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_hostility_break_50').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_hostility_break_50').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_hostility_break_50').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									button_standard = {
+										size = { 80 32 }
+										text = "one_trait_panel_act_hostility_break_75_btn"
+										enabled = "[GetScriptedGui('one_trait_ui_act_hostility_break_75').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip = "[GetScriptedGui('one_trait_ui_act_hostility_break_75').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_hostility_break_75').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										onclick = "[GetScriptedGui('one_trait_ui_act_hostility_break_75').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									widget = {
+										size = { 80 32 }
+										button_standard = {
+											visible = "[Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)405' ) )]"
+											size = { 80 32 }
+											text = "one_trait_panel_act_hostility_break_all_btn"
+											enabled = "[GetScriptedGui('one_trait_ui_act_hostility_break_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip = "[GetScriptedGui('one_trait_ui_act_hostility_break_all').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_hostility_break_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('one_trait_ui_act_hostility_break_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+										button_standard = {
+											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)405' )]"
+											size = { 80 32 }
+											text = "one_trait_panel_act_confirm"
+											enabled = "[GetScriptedGui('one_trait_ui_act_hostility_break_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+											onclick = "[GetScriptedGui('one_trait_ui_act_hostility_break_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										}
+									}
+								}
+							}
 						}
 					}
 					expand = {}

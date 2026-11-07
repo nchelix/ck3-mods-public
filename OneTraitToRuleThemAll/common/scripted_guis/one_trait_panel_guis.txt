@@ -3521,6 +3521,66 @@ one_trait_ui_act_hostility_lift = {
 	}
 }
 
+one_trait_ui_act_hostility_break_25 = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_25_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_25_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_break_25_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_break_50 = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_50_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_50_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_break_50_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_break_75 = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_75_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_75_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_break_75_click_effect = yes
+	}
+}
+
+one_trait_ui_act_hostility_break_all = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_all_shown_trigger = yes }
+	}
+	is_valid = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_all_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_hostility_break_all_click_effect = yes
+	}
+}
+
 one_trait_ui_act_court_chancellor = {
 	scope = character
 	is_shown = {

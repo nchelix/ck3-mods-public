@@ -657,6 +657,73 @@ one_trait_diplomacy_hostility_lift_valid_trigger = {
 	has_trait = excommunicated
 }
 
+# 2.11: Break their army (one_trait_break_army_effects.txt). Unlike every other Diplomacy row these are hidden on
+# yourself (spec: a slip would hurt), and the effect refuses the player too (plan R4). The four share one valid
+# trigger with one reason.
+one_trait_diplomacy_hostility_break_25_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_diplomacy_hostility_break_25_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_has_troops_tt
+		one_trait_break_army_has_troops_trigger = yes
+	}
+}
+
+one_trait_diplomacy_hostility_break_50_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_diplomacy_hostility_break_50_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_has_troops_tt
+		one_trait_break_army_has_troops_trigger = yes
+	}
+}
+
+one_trait_diplomacy_hostility_break_75_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_diplomacy_hostility_break_75_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_has_troops_tt
+		one_trait_break_army_has_troops_trigger = yes
+	}
+}
+
+one_trait_diplomacy_hostility_break_all_shown_trigger = {
+	NOT = { this = root }
+}
+one_trait_diplomacy_hostility_break_all_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_diplomacy_has_troops_tt
+		one_trait_break_army_has_troops_trigger = yes
+	}
+}
+
+# Plan R5: true only when a click would change something:
+# - an army the target owns (any_army, triggers.log:1287; army_owner, event_targets.log:1386, compared with prev =
+#   the target: vanilla compares army_owner with a scope at game/events/game_rule_events.txt:576, and a link with
+#   prev inside an any_ iterator at game/common/scripted_triggers/00_cultural_triggers.txt:329-330), or
+# - a regiment at home that the men-at-arms pass reaches (not raised, triggers.log:9364; not event troops, :9333)
+#   and that still has soldiers (maa_current_troops_count, :9388) or can be destroyed (not hired, :9339;
+#   effects.log:13347).
+# A captain whose only regiments are hired out is greyed.
+one_trait_break_army_has_troops_trigger = {
+	OR = {
+		any_army = {
+			army_owner = prev
+		}
+		any_maa_regiment = {
+			is_raised = no
+			is_event_maa_regiment = no
+			OR = {
+				maa_current_troops_count > 0
+				is_hired_maa_regiment = no
+			}
+		}
+	}
+}
+
 # ---- Puppets (one_trait_menu.1000; secular is above)
 
 # The menu option's conditions: clergy, not incapable, not already your puppet.

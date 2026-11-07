@@ -1,5 +1,22 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.11] — 2026-11-06
+
+A new cheat aimed at the other side, and the gold army look goes.
+
+### Added
+- **Break their army**, on Diplomacy > Hostility: cut the panel character's men-at-arms and their armies in the field
+  by 25%, 50%, 75% or All. Men-at-arms lose the share whether they are at home or in the field, and a raised regiment
+  is cut only once. All destroys their men-at-arms regiments (asks for a second click); regiments in battle, and hired
+  mercenaries or holy orders, are emptied instead, and armies in the field are cut by about 99.75% (the game ignores a
+  full 100%). An army in battle is cut when the battle ends (the game holds its numbers until then). Levies at home, allies and vassals' own armies are not touched. Hidden on yourself; greyed when they
+  have nothing to break. Regiments that survive refill at the normal rate.
+
+### Removed
+- **The gilded host**, the experimental gold look (and fifth army-quality level) from 1.9 for armies made mostly of
+  One Trait regiments. It clashed with other unit and graphics mods for little gain. The regiments themselves are
+  unchanged; they now look like vanilla troops of their culture.
+
 ## [2.10] — 2026-10-24
 
 Edit anyone's sexuality and education from the panel, and Marry and Give a title move into it. A player asked for the

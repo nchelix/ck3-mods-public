@@ -358,6 +358,33 @@ one_trait_diplomacy_hostility_lift_effect = {
 	}
 }
 
+# 2.11: Break their army, four buttons on one row (no menu option behind them). Each calls the shared effect in
+# one_trait_break_army_effects.txt in the target's scope; SHARE and ALL per the plan's "Names used across tasks"
+# ("All" is two 0.95 army passes, never the ignored 1).
+one_trait_diplomacy_hostility_break_25_effect = {
+	scope:one_trait_target = {
+		one_trait_break_army_effect = { SHARE = 0.25 ALL = no }
+	}
+}
+
+one_trait_diplomacy_hostility_break_50_effect = {
+	scope:one_trait_target = {
+		one_trait_break_army_effect = { SHARE = 0.5 ALL = no }
+	}
+}
+
+one_trait_diplomacy_hostility_break_75_effect = {
+	scope:one_trait_target = {
+		one_trait_break_army_effect = { SHARE = 0.75 ALL = no }
+	}
+}
+
+one_trait_diplomacy_hostility_break_all_effect = {
+	scope:one_trait_target = {
+		one_trait_break_army_effect = { SHARE = 0.95 ALL = yes }
+	}
+}
+
 # ---- Puppets (one_trait_menu.1000; secular is above). Each steals the target from any other puppeteer, frees
 # the slot of its type, sets the puppet, then rebuilds the Puppets list (plan R6).
 
