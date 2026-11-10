@@ -29,6 +29,9 @@ one_trait_ui_toggle = {
 			set_variable = { name = one_trait_ui_target value = this }
 			if = { limit = { NOT = { has_variable = one_trait_ui_tab } } set_variable = { name = one_trait_ui_tab value = 1 } }
 			one_trait_ui_puppets_effect = yes
+			# 2.12: the Apply-to switch starts on This character whenever the panel opens; the dead drop off the pins
+			if = { limit = { has_variable = one_trait_ui_apply_all } remove_variable = one_trait_ui_apply_all }
+			one_trait_pin_prune_effect = yes
 			set_variable = one_trait_ui_open
 		}
 	}
@@ -55,6 +58,108 @@ one_trait_ui_yourself = {
 		one_trait_ui_clear_confirm_effect = yes
 		set_variable = { name = one_trait_ui_target value = this }
 	}
+}
+
+# ---- 2.12 Task 2: the pinned characters (common/scripted_effects/one_trait_pin_effects.txt and
+# common/scripted_triggers/one_trait_pin_triggers.txt). The header's Pin and Unpin act on the panel's character and are
+# hidden on yourself; a strip portrait or a Details row passes its character as scope:pinned (AddScope).
+one_trait_ui_pin = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		NOT = { var:one_trait_ui_target = root }
+		NOT = { one_trait_pin_target_pinned_trigger = yes }
+	}
+	is_valid = { one_trait_pin_can_add_trigger = yes }
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_pin_add_effect = yes
+	}
+}
+
+one_trait_ui_unpin = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		NOT = { var:one_trait_ui_target = root }
+		one_trait_pin_target_pinned_trigger = yes
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_who }
+		one_trait_pin_remove_effect = { WHO = one_trait_pin_who }
+	}
+}
+
+# A strip portrait or a Details row: the panel moves to them, on whatever category and tab is open
+one_trait_ui_pin_select = {
+	scope = character
+	is_valid = {
+		exists = scope:pinned
+		scope:pinned = { is_alive = yes }
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_target value = scope:pinned }
+	}
+}
+
+# A Details row's x
+one_trait_ui_pin_drop = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_pin_remove_effect = { WHO = pinned }
+	}
+}
+
+# Folds the Details list open or away; greyed with nobody pinned
+one_trait_ui_pins_details = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = one_trait_pin_none_yet_tt
+			one_trait_pin_any_trigger = yes
+		}
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		if = { limit = { has_variable = one_trait_ui_pins_open } remove_variable = one_trait_ui_pins_open }
+		else = { set_variable = one_trait_ui_pins_open }
+	}
+}
+
+# The Apply-to switch: This character | All pinned (the _on GUIs light the current half). Batch A: no row reads it yet.
+one_trait_ui_apply_this = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		if = { limit = { has_variable = one_trait_ui_apply_all } remove_variable = one_trait_ui_apply_all }
+	}
+}
+
+one_trait_ui_apply_this_on = {
+	scope = character
+	is_valid = { NOT = { has_variable = one_trait_ui_apply_all } }
+}
+
+one_trait_ui_apply_all = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = one_trait_pin_none_yet_tt
+			one_trait_pin_any_trigger = yes
+		}
+	}
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = one_trait_ui_apply_all
+	}
+}
+
+one_trait_ui_apply_all_on = {
+	scope = character
+	is_valid = { has_variable = one_trait_ui_apply_all }
 }
 
 one_trait_ui_tab_character = {
@@ -275,231 +380,525 @@ one_trait_ui_subtab_hostility = {
 
 one_trait_ui_trait_health = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_health } remove_trait = one_trait_health }
-			else = { add_trait = one_trait_health }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_health GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_health GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_immortality = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_immortality } remove_trait = one_trait_immortality }
-			else = { add_trait = one_trait_immortality }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_immortality GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_immortality GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_giant = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_giant } remove_trait = one_trait_giant }
-			else = { add_trait = one_trait_giant }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_giant GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_giant GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_fertility = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_fertility } remove_trait = one_trait_fertility }
-			else = { add_trait = one_trait_fertility }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_fertility GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_fertility GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_celibate = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_celibate } remove_trait = one_trait_celibate }
-			else = { add_trait = one_trait_celibate }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_celibate GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_celibate GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_stress = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_stress } remove_trait = one_trait_stress }
-			else = { add_trait = one_trait_stress }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_stress GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_stress GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_stats = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_stats } remove_trait = one_trait_stats }
-			else = { add_trait = one_trait_stats }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_stats GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_stats GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_xp = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_xp } remove_trait = one_trait_xp }
-			else = { add_trait = one_trait_xp }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_xp GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_xp GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_one_trait = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait } remove_trait = one_trait }
-			else = { add_trait = one_trait }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_wealth = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_wealth } remove_trait = one_trait_wealth }
-			else = { add_trait = one_trait_wealth }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_wealth GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_wealth GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_fame = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_fame } remove_trait = one_trait_fame }
-			else = { add_trait = one_trait_fame }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_fame GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_fame GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_faith = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_faith } remove_trait = one_trait_faith }
-			else = { add_trait = one_trait_faith change_spiritual_fulfillment = 200 }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_faith GIVE = one_trait_trait_give_faith_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_faith GIVE = one_trait_trait_give_faith_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_charisma = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_charisma } remove_trait = one_trait_charisma }
-			else = { add_trait = one_trait_charisma }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_charisma GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_charisma GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_dread = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_dread } remove_trait = one_trait_dread }
-			else = { add_trait = one_trait_dread }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_dread GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_dread GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_manager = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_manager } remove_trait = one_trait_manager }
-			else = { add_trait = one_trait_manager }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_manager GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_manager GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_builder = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_builder } remove_trait = one_trait_builder }
-			else = { add_trait = one_trait_builder }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_builder GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_builder GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_domain = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_domain } remove_trait = one_trait_domain }
-			else = { add_trait = one_trait_domain }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_domain GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_domain GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_commander = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_commander } remove_trait = one_trait_commander }
-			else = { add_trait = one_trait_commander }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_commander GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_commander GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_scheme = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_scheme } remove_trait = one_trait_scheme }
-			else = { add_trait = one_trait_scheme }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_scheme GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_scheme GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_steppe = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_steppe } remove_trait = one_trait_steppe }
-			else = { add_trait = one_trait_steppe }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_steppe GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_steppe GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
 
 one_trait_ui_trait_wanderer = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= {
-			if = { limit = { has_trait = one_trait_wanderer } remove_trait = one_trait_wanderer }
-			else = { add_trait = one_trait_wanderer }
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_effect = { TRAIT = one_trait_wanderer GIVE = one_trait_trait_give_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_toggle_effect = { TRAIT = one_trait_wanderer GIVE = one_trait_trait_give_effect } }
 		}
 	}
 }
@@ -508,6 +907,7 @@ one_trait_ui_trait_wanderer = {
 one_trait_ui_remove_all = {
 	scope = character
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		var:one_trait_ui_target ?= {
 			OR = {
 				has_trait = one_trait_health
@@ -566,6 +966,7 @@ one_trait_ui_remove_all = {
 
 one_trait_ui_army_knights = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -577,6 +978,7 @@ one_trait_ui_army_knights = {
 
 one_trait_ui_army_unlimited_knights = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -588,6 +990,7 @@ one_trait_ui_army_unlimited_knights = {
 
 one_trait_ui_army_menatarms = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -599,6 +1002,7 @@ one_trait_ui_army_menatarms = {
 
 one_trait_ui_army_free_menatarms = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -610,6 +1014,7 @@ one_trait_ui_army_free_menatarms = {
 
 one_trait_ui_army_tireless = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -624,6 +1029,7 @@ one_trait_ui_army_tireless = {
 
 one_trait_ui_army_swift = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -673,6 +1079,7 @@ one_trait_ui_army_swift_on = {
 one_trait_ui_ring_level_godlike = {
 	scope = character
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		var:one_trait_ui_target ?= {
 			custom_tooltip = {
 				text = one_trait_ring_send_home_tt
@@ -694,6 +1101,7 @@ one_trait_ui_ring_level_godlike_on = {
 one_trait_ui_ring_level_elite = {
 	scope = character
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		var:one_trait_ui_target ?= {
 			custom_tooltip = {
 				text = one_trait_ring_send_home_tt
@@ -715,6 +1123,7 @@ one_trait_ui_ring_level_elite_on = {
 one_trait_ui_ring_level_regular = {
 	scope = character
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		var:one_trait_ui_target ?= {
 			custom_tooltip = {
 				text = one_trait_ring_send_home_tt
@@ -735,7 +1144,10 @@ one_trait_ui_ring_level_regular_on = {
 
 one_trait_ui_sex_heterosexual = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = heterosexual } }
@@ -749,7 +1161,10 @@ one_trait_ui_sex_heterosexual_on = {
 
 one_trait_ui_sex_homosexual = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = homosexual } }
@@ -763,7 +1178,10 @@ one_trait_ui_sex_homosexual_on = {
 
 one_trait_ui_sex_bisexual = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = bisexual } }
@@ -777,7 +1195,10 @@ one_trait_ui_sex_bisexual_on = {
 
 one_trait_ui_sex_asexual = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_sexuality_effect = { SEX = asexual } }
@@ -791,7 +1212,10 @@ one_trait_ui_sex_asexual_on = {
 
 one_trait_ui_edu_diplomacy = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = diplomacy } }
@@ -805,7 +1229,10 @@ one_trait_ui_edu_diplomacy_on = {
 
 one_trait_ui_edu_martial = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = martial } }
@@ -819,7 +1246,10 @@ one_trait_ui_edu_martial_on = {
 
 one_trait_ui_edu_stewardship = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = stewardship } }
@@ -833,7 +1263,10 @@ one_trait_ui_edu_stewardship_on = {
 
 one_trait_ui_edu_intrigue = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = intrigue } }
@@ -847,7 +1280,10 @@ one_trait_ui_edu_intrigue_on = {
 
 one_trait_ui_edu_learning = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = learning } }
@@ -866,7 +1302,10 @@ one_trait_ui_edu_none_on = {
 
 one_trait_ui_edu_tier_1 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 1 } }
@@ -885,7 +1324,10 @@ one_trait_ui_edu_tier_1_on = {
 
 one_trait_ui_edu_tier_2 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 2 } }
@@ -904,7 +1346,10 @@ one_trait_ui_edu_tier_2_on = {
 
 one_trait_ui_edu_tier_3 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 3 } }
@@ -923,7 +1368,10 @@ one_trait_ui_edu_tier_3_on = {
 
 one_trait_ui_edu_tier_4 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 4 } }
@@ -942,7 +1390,10 @@ one_trait_ui_edu_tier_4_on = {
 
 one_trait_ui_edu_tier_5 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 5 } }
@@ -961,7 +1412,10 @@ one_trait_ui_edu_tier_5_on = {
 
 one_trait_ui_edu_prowess_0 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 0 } }
@@ -975,7 +1429,10 @@ one_trait_ui_edu_prowess_0_on = {
 
 one_trait_ui_edu_prowess_1 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 1 } }
@@ -989,7 +1446,10 @@ one_trait_ui_edu_prowess_1_on = {
 
 one_trait_ui_edu_prowess_2 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 2 } }
@@ -1003,7 +1463,10 @@ one_trait_ui_edu_prowess_2_on = {
 
 one_trait_ui_edu_prowess_3 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 3 } }
@@ -1017,7 +1480,10 @@ one_trait_ui_edu_prowess_3_on = {
 
 one_trait_ui_edu_prowess_4 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 4 } }
@@ -1031,7 +1497,10 @@ one_trait_ui_edu_prowess_4_on = {
 
 one_trait_ui_edu_republican_0 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 0 } }
@@ -1045,7 +1514,10 @@ one_trait_ui_edu_republican_0_on = {
 
 one_trait_ui_edu_republican_1 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 1 } }
@@ -1059,7 +1531,10 @@ one_trait_ui_edu_republican_1_on = {
 
 one_trait_ui_edu_republican_2 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 2 } }
@@ -1073,7 +1548,10 @@ one_trait_ui_edu_republican_2_on = {
 
 one_trait_ui_edu_republican_3 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 3 } }
@@ -1087,7 +1565,10 @@ one_trait_ui_edu_republican_3_on = {
 
 one_trait_ui_edu_republican_4 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 4 } }
@@ -1101,6 +1582,7 @@ one_trait_ui_edu_republican_4_on = {
 
 one_trait_ui_ring_count_m1000 = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		one_trait_ring_count_step_effect = { AMOUNT = -1000 }
@@ -1109,6 +1591,7 @@ one_trait_ui_ring_count_m1000 = {
 
 one_trait_ui_ring_count_m100 = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		one_trait_ring_count_step_effect = { AMOUNT = -100 }
@@ -1117,6 +1600,7 @@ one_trait_ui_ring_count_m100 = {
 
 one_trait_ui_ring_count_p100 = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		one_trait_ring_count_step_effect = { AMOUNT = 100 }
@@ -1125,6 +1609,7 @@ one_trait_ui_ring_count_p100 = {
 
 one_trait_ui_ring_count_p1000 = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		one_trait_ring_count_step_effect = { AMOUNT = 1000 }
@@ -1133,6 +1618,7 @@ one_trait_ui_ring_count_p1000 = {
 
 one_trait_ui_spawn_legion = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_ring_grant_effect = { ROLE = legion } }
@@ -1141,6 +1627,7 @@ one_trait_ui_spawn_legion = {
 
 one_trait_ui_spawn_bowmen = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_ring_grant_effect = { ROLE = bowmen } }
@@ -1149,6 +1636,7 @@ one_trait_ui_spawn_bowmen = {
 
 one_trait_ui_spawn_riders = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= { one_trait_ring_grant_effect = { ROLE = riders } }
@@ -1158,6 +1646,7 @@ one_trait_ui_spawn_riders = {
 one_trait_ui_disband = {
 	scope = character
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		var:one_trait_ui_target ?= {
 			any_maa_regiment = { one_trait_ring_regiment_trigger = yes }
 		}
@@ -1177,7 +1666,10 @@ one_trait_ui_has_sanctum = {
 
 one_trait_ui_sanctum_raise = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_can_raise_sanctum = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_can_raise_sanctum = yes }
+	}
 	effect = { one_trait_ui_clear_confirm_effect = yes var:one_trait_ui_target ?= { one_trait_raise_sanctum = yes } }
 }
 
@@ -1188,14 +1680,20 @@ one_trait_ui_sanctum_blocked = {
 
 one_trait_ui_sanctum_teardown = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_sanctum = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_has_sanctum = yes }
+	}
 	effect = { one_trait_ui_clear_confirm_effect = yes var:one_trait_ui_target ?= { one_trait_tear_down_sanctum = yes } }
 }
 
 # Runs every awakened power once, right now
 one_trait_ui_sanctum_invoke = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_sanctum_any_power_on = yes } }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		var:one_trait_ui_target ?= { one_trait_sanctum_any_power_on = yes }
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1214,6 +1712,7 @@ one_trait_ui_power_builder_on = {
 
 one_trait_ui_power_builder = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1230,6 +1729,7 @@ one_trait_ui_power_golden_age_on = {
 
 one_trait_ui_power_golden_age = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1246,6 +1746,7 @@ one_trait_ui_power_one_faith_on = {
 
 one_trait_ui_power_one_faith = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1262,6 +1763,7 @@ one_trait_ui_power_one_people_on = {
 
 one_trait_ui_power_one_people = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1278,6 +1780,7 @@ one_trait_ui_power_all_seeing_on = {
 
 one_trait_ui_power_all_seeing = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1294,6 +1797,7 @@ one_trait_ui_power_leash_on = {
 
 one_trait_ui_power_leash = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1310,6 +1814,7 @@ one_trait_ui_power_no_dissent_on = {
 
 one_trait_ui_power_no_dissent = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1326,6 +1831,7 @@ one_trait_ui_power_relic_forge_on = {
 
 one_trait_ui_power_relic_forge = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1342,6 +1848,7 @@ one_trait_ui_power_champions_on = {
 
 one_trait_ui_power_champions = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1358,6 +1865,7 @@ one_trait_ui_power_levies_on = {
 
 one_trait_ui_power_levies = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1374,6 +1882,7 @@ one_trait_ui_power_tribute_on = {
 
 one_trait_ui_power_tribute = {
 	scope = character
+	is_valid = { one_trait_pin_single_mode_trigger = yes }
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		var:one_trait_ui_target ?= {
@@ -1387,7 +1896,10 @@ one_trait_ui_power_tribute = {
 
 one_trait_ui_release_secular = {
 	scope = character
-	is_valid = { exists = puppet:external_ruler_puppet }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		exists = puppet:external_ruler_puppet
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		puppet:external_ruler_puppet ?= { clear_puppet_status = yes }
@@ -1397,7 +1909,10 @@ one_trait_ui_release_secular = {
 
 one_trait_ui_release_clerical = {
 	scope = character
-	is_valid = { exists = puppet:external_theological_agent_puppet }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		exists = puppet:external_theological_agent_puppet
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		puppet:external_theological_agent_puppet ?= { clear_puppet_status = yes }
@@ -1407,7 +1922,10 @@ one_trait_ui_release_clerical = {
 
 one_trait_ui_release_realm_priest = {
 	scope = character
-	is_valid = { exists = puppet:theological_agent_puppet }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		exists = puppet:theological_agent_puppet
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		puppet:theological_agent_puppet ?= { clear_puppet_status = yes }
@@ -1417,7 +1935,10 @@ one_trait_ui_release_realm_priest = {
 
 one_trait_ui_release_ot_clerical = {
 	scope = character
-	is_valid = { exists = puppet:one_trait_external_theological_agent_puppet }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		exists = puppet:one_trait_external_theological_agent_puppet
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		puppet:one_trait_external_theological_agent_puppet ?= { clear_puppet_status = yes }
@@ -1427,7 +1948,10 @@ one_trait_ui_release_ot_clerical = {
 
 one_trait_ui_release_ot_realm_priest = {
 	scope = character
-	is_valid = { exists = puppet:one_trait_theological_agent_puppet }
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		exists = puppet:one_trait_theological_agent_puppet
+	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
 		puppet:one_trait_theological_agent_puppet ?= { clear_puppet_status = yes }
@@ -1438,6 +1962,7 @@ one_trait_ui_release_ot_realm_priest = {
 one_trait_ui_release_all = {
 	scope = character
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		OR = {
 			exists = puppet:external_ruler_puppet
 			exists = puppet:external_theological_agent_puppet
@@ -1465,32 +1990,66 @@ one_trait_ui_release_all = {
 one_trait_ui_step_age_m10 = {
 	scope = character
 	is_valid = {
-		NOT = {
-			var:one_trait_ui_target ?= {
-				is_adult = yes
-				age = 16
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_age_down_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes NOT = { AND = { is_adult = yes age = 16 } } }
+			}
+		}
+		trigger_else = {
+			NOT = {
+				var:one_trait_ui_target ?= {
+					is_adult = yes
+					age = 16
+				}
 			}
 		}
 	}
 	effect = {
-		one_trait_ui_age_step_effect = { AMOUNT = -10 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_age_down_step_effect = { AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_age_step_effect = { AMOUNT = -10 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_age_m1 = {
 	scope = character
 	is_valid = {
-		NOT = {
-			var:one_trait_ui_target ?= {
-				is_adult = yes
-				age = 16
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_age_down_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes NOT = { AND = { is_adult = yes age = 16 } } }
+			}
+		}
+		trigger_else = {
+			NOT = {
+				var:one_trait_ui_target ?= {
+					is_adult = yes
+					age = 16
+				}
 			}
 		}
 	}
 	effect = {
-		one_trait_ui_age_step_effect = { AMOUNT = -1 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_age_down_step_effect = { AMOUNT = -1 }
+		}
+		else = {
+			one_trait_ui_age_step_effect = { AMOUNT = -1 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
@@ -1506,8 +2065,24 @@ one_trait_ui_age_p1_reaches_16 = {
 
 one_trait_ui_step_age_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_age_p1_click_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_pin_all_age_p1_click_effect = yes
+		}
+		else = {
+			one_trait_ui_age_p1_click_effect = yes
+		}
 	}
 }
 
@@ -1523,300 +2098,936 @@ one_trait_ui_age_p10_reaches_16 = {
 
 one_trait_ui_step_age_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_age_p10_click_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_pin_all_age_p10_click_effect = yes
+		}
+		else = {
+			one_trait_ui_age_p10_click_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_gold_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_gold_step_effect = { AMOUNT = -10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_gold_step_effect = { AMOUNT = -10000 }
+		}
+		else = {
+			one_trait_ui_gold_step_effect = { AMOUNT = -10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_gold_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_gold_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_gold_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_gold_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_gold_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_gold_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_gold_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_gold_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_gold_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_gold_step_effect = { AMOUNT = 10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_gold_step_effect = { AMOUNT = 10000 }
+		}
+		else = {
+			one_trait_ui_gold_step_effect = { AMOUNT = 10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_grandeur_m10 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_royal_court = yes } }
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_grandeur_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes has_royal_court = yes }
+			}
+		}
+		trigger_else = {
+			var:one_trait_ui_target ?= { has_royal_court = yes }
+		}
+	}
 	effect = {
-		one_trait_ui_grandeur_step_effect = { AMOUNT = -100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_grandeur_step_effect = { AMOUNT = -100 }
+		}
+		else = {
+			one_trait_ui_grandeur_step_effect = { AMOUNT = -100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_grandeur_m1 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_royal_court = yes } }
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_grandeur_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes has_royal_court = yes }
+			}
+		}
+		trigger_else = {
+			var:one_trait_ui_target ?= { has_royal_court = yes }
+		}
+	}
 	effect = {
-		one_trait_ui_grandeur_step_effect = { AMOUNT = -10 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_grandeur_step_effect = { AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_grandeur_step_effect = { AMOUNT = -10 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_grandeur_p1 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_royal_court = yes } }
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_grandeur_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes has_royal_court = yes }
+			}
+		}
+		trigger_else = {
+			var:one_trait_ui_target ?= { has_royal_court = yes }
+		}
+	}
 	effect = {
-		one_trait_ui_grandeur_step_effect = { AMOUNT = 10 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_grandeur_step_effect = { AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_grandeur_step_effect = { AMOUNT = 10 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_grandeur_p10 = {
 	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_royal_court = yes } }
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_grandeur_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes has_royal_court = yes }
+			}
+		}
+		trigger_else = {
+			var:one_trait_ui_target ?= { has_royal_court = yes }
+		}
+	}
 	effect = {
-		one_trait_ui_grandeur_step_effect = { AMOUNT = 100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_grandeur_step_effect = { AMOUNT = 100 }
+		}
+		else = {
+			one_trait_ui_grandeur_step_effect = { AMOUNT = 100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_influence_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_influence_step_effect = { AMOUNT = -10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_influence_step_effect = { AMOUNT = -10000 }
+		}
+		else = {
+			one_trait_ui_influence_step_effect = { AMOUNT = -10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_influence_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_influence_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_influence_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_influence_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_influence_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_influence_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_influence_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_influence_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_influence_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_influence_step_effect = { AMOUNT = 10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_influence_step_effect = { AMOUNT = 10000 }
+		}
+		else = {
+			one_trait_ui_influence_step_effect = { AMOUNT = 10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_merit_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_merit_step_effect = { AMOUNT = -10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_merit_step_effect = { AMOUNT = -10000 }
+		}
+		else = {
+			one_trait_ui_merit_step_effect = { AMOUNT = -10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_merit_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_merit_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_merit_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_merit_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_merit_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_merit_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_merit_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_merit_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_merit_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_merit_step_effect = { AMOUNT = 10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_merit_step_effect = { AMOUNT = 10000 }
+		}
+		else = {
+			one_trait_ui_merit_step_effect = { AMOUNT = 10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_legitimacy_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_legitimacy_step_effect = { AMOUNT = -10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_legitimacy_step_effect = { AMOUNT = -10000 }
+		}
+		else = {
+			one_trait_ui_legitimacy_step_effect = { AMOUNT = -10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_legitimacy_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_legitimacy_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_legitimacy_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_legitimacy_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_legitimacy_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_legitimacy_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_legitimacy_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_legitimacy_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_legitimacy_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_legitimacy_step_effect = { AMOUNT = 10000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_legitimacy_step_effect = { AMOUNT = 10000 }
+		}
+		else = {
+			one_trait_ui_legitimacy_step_effect = { AMOUNT = 10000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_prestige_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_prestige_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_prestige_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_prestige_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_prestige_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_prestige_step_effect = { AMOUNT = -100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_prestige_step_effect = { AMOUNT = -100 }
+		}
+		else = {
+			one_trait_ui_prestige_step_effect = { AMOUNT = -100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_prestige_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_prestige_step_effect = { AMOUNT = 100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_prestige_step_effect = { AMOUNT = 100 }
+		}
+		else = {
+			one_trait_ui_prestige_step_effect = { AMOUNT = 100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_prestige_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_prestige_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_prestige_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_prestige_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_piety_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_piety_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_piety_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_piety_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_piety_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_piety_step_effect = { AMOUNT = -100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_piety_step_effect = { AMOUNT = -100 }
+		}
+		else = {
+			one_trait_ui_piety_step_effect = { AMOUNT = -100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_piety_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_piety_step_effect = { AMOUNT = 100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_piety_step_effect = { AMOUNT = 100 }
+		}
+		else = {
+			one_trait_ui_piety_step_effect = { AMOUNT = 100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_piety_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_piety_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_piety_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_piety_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_renown_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_renown_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes exists = dynasty }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_renown_step_effect = { AMOUNT = -1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_renown_step_effect = { AMOUNT = -1000 }
+		}
+		else = {
+			one_trait_ui_renown_step_effect = { AMOUNT = -1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_renown_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_renown_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes exists = dynasty }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_renown_step_effect = { AMOUNT = -100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_renown_step_effect = { AMOUNT = -100 }
+		}
+		else = {
+			one_trait_ui_renown_step_effect = { AMOUNT = -100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_renown_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_renown_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes exists = dynasty }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_renown_step_effect = { AMOUNT = 100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_renown_step_effect = { AMOUNT = 100 }
+		}
+		else = {
+			one_trait_ui_renown_step_effect = { AMOUNT = 100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_renown_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_renown_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes exists = dynasty }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_renown_step_effect = { AMOUNT = 1000 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_renown_step_effect = { AMOUNT = 1000 }
+		}
+		else = {
+			one_trait_ui_renown_step_effect = { AMOUNT = 1000 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_stress_m10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_stress_step_effect = { AMOUNT = -100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_stress_step_effect = { AMOUNT = -100 }
+		}
+		else = {
+			one_trait_ui_stress_step_effect = { AMOUNT = -100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_stress_m1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_stress_step_effect = { AMOUNT = -10 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_stress_step_effect = { AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_stress_step_effect = { AMOUNT = -10 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_stress_p1 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_stress_step_effect = { AMOUNT = 10 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_stress_step_effect = { AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_stress_step_effect = { AMOUNT = 10 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
 one_trait_ui_step_stress_p10 = {
 	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
 	effect = {
-		one_trait_ui_stress_step_effect = { AMOUNT = 100 }
-		one_trait_ui_clear_confirm_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_stress_step_effect = { AMOUNT = 100 }
+		}
+		else = {
+			one_trait_ui_stress_step_effect = { AMOUNT = 100 }
+			one_trait_ui_clear_confirm_effect = yes
+		}
 	}
 }
 
@@ -1845,6 +3056,7 @@ one_trait_ui_gov_feudal = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = feudal_government } }
 		var:one_trait_ui_target = { one_trait_can_get_feudal_trigger = yes }
@@ -1858,6 +3070,7 @@ one_trait_ui_gov_clan = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = clan_government } }
 		var:one_trait_ui_target = { one_trait_can_get_clan_trigger = yes }
@@ -1871,6 +3084,7 @@ one_trait_ui_gov_tribal = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = tribal_government } }
 		var:one_trait_ui_target = { one_trait_can_get_tribal_trigger = yes }
@@ -1884,6 +3098,7 @@ one_trait_ui_gov_nomad = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = nomad_government } }
 		var:one_trait_ui_target = { one_trait_can_get_nomad_trigger = yes }
@@ -1897,6 +3112,7 @@ one_trait_ui_gov_administrative = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = administrative_government } }
 		var:one_trait_ui_target = { one_trait_can_get_administrative_trigger = yes }
@@ -1910,6 +3126,7 @@ one_trait_ui_gov_ecclesiastical = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = ecclesiastical_government } }
 		var:one_trait_ui_target = { one_trait_can_get_ecclesiastical_trigger = yes }
@@ -1923,6 +3140,7 @@ one_trait_ui_gov_republic = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = republic_government } }
 		NOT = { var:one_trait_ui_target = root }
@@ -1938,6 +3156,7 @@ one_trait_ui_gov_theocracy = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = theocracy_government } }
 		var:one_trait_ui_target = { one_trait_can_get_theocracy_trigger = yes }
@@ -1952,6 +3171,7 @@ one_trait_ui_gov_celestial = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = celestial_government } }
 		var:one_trait_ui_target = { one_trait_can_get_celestial_trigger = yes }
@@ -1965,6 +3185,7 @@ one_trait_ui_gov_meritocratic = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = meritocratic_government } }
 		var:one_trait_ui_target = { one_trait_can_get_meritocratic_trigger = yes }
@@ -1978,6 +3199,7 @@ one_trait_ui_gov_japan_administrative = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = japan_administrative_government } }
 		var:one_trait_ui_target = { one_trait_can_get_japan_administrative_trigger = yes }
@@ -1991,6 +3213,7 @@ one_trait_ui_gov_japan_feudal = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = japan_feudal_government } }
 		var:one_trait_ui_target = { one_trait_can_get_japan_feudal_trigger = yes }
@@ -2004,6 +3227,7 @@ one_trait_ui_gov_mandala = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = mandala_government } }
 		var:one_trait_ui_target = { one_trait_can_get_mandala_trigger = yes }
@@ -2017,6 +3241,7 @@ one_trait_ui_gov_wanua = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = wanua_government } }
 		var:one_trait_ui_target = { one_trait_can_get_wanua_trigger = yes }
@@ -2030,6 +3255,7 @@ one_trait_ui_gov_steppe_admin = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_government = steppe_admin_government } }
 		var:one_trait_ui_target = { one_trait_can_get_steppe_admin_trigger = yes }
@@ -2047,6 +3273,7 @@ one_trait_ui_law_partition = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = {
 			NOT = { has_realm_law = partition_succession_law }
@@ -2063,6 +3290,7 @@ one_trait_ui_law_high_partition = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = {
 			NOT = { has_realm_law = high_partition_succession_law }
@@ -2079,6 +3307,7 @@ one_trait_ui_law_confederate_partition = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = {
 			NOT = { has_realm_law = confederate_partition_succession_law }
@@ -2095,6 +3324,7 @@ one_trait_ui_law_primogeniture = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = {
 			NOT = { has_realm_law = single_heir_succession_law }
@@ -2111,6 +3341,7 @@ one_trait_ui_law_ultimogeniture = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = {
 			NOT = { has_realm_law = single_heir_succession_law_youngest }
@@ -2127,6 +3358,7 @@ one_trait_ui_law_house_seniority = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = {
 			NOT = { has_realm_law = single_heir_dynasty_house }
@@ -2143,6 +3375,7 @@ one_trait_ui_law_male_only = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_realm_law = male_only_law } }
 	}
@@ -2156,6 +3389,7 @@ one_trait_ui_law_male_preference = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_realm_law = male_preference_law } }
 	}
@@ -2169,6 +3403,7 @@ one_trait_ui_law_equal = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_realm_law = equal_law } }
 	}
@@ -2182,6 +3417,7 @@ one_trait_ui_law_female_preference = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_realm_law = female_preference_law } }
 	}
@@ -2195,6 +3431,7 @@ one_trait_ui_law_female_only = {
 	scope = character
 	is_shown = { always = yes }
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { NOT = { has_realm_law = female_only_law } }
 	}
@@ -2217,6 +3454,7 @@ one_trait_ui_act_succession_heir_everything = {
 		var:one_trait_ui_target = { one_trait_realm_succession_heir_everything_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_succession_heir_everything_valid_trigger = yes }
 	}
@@ -2232,6 +3470,7 @@ one_trait_ui_act_succession_authority_up = {
 		var:one_trait_ui_target = { one_trait_realm_succession_authority_up_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_succession_authority_up_valid_trigger = yes }
 	}
@@ -2247,6 +3486,7 @@ one_trait_ui_act_succession_authority_down = {
 		var:one_trait_ui_target = { one_trait_realm_succession_authority_down_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_succession_authority_down_valid_trigger = yes }
 	}
@@ -2262,6 +3502,7 @@ one_trait_ui_act_succession_crowned = {
 		var:one_trait_ui_target = { one_trait_realm_succession_crowned_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_succession_crowned_valid_trigger = yes }
 	}
@@ -2277,6 +3518,7 @@ one_trait_ui_act_succession_anointed = {
 		var:one_trait_ui_target = { one_trait_realm_succession_anointed_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_succession_anointed_valid_trigger = yes }
 	}
@@ -2292,6 +3534,7 @@ one_trait_ui_act_succession_create_titles = {
 		var:one_trait_ui_target = { one_trait_realm_succession_create_titles_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_succession_create_titles_valid_trigger = yes }
 	}
@@ -2307,6 +3550,7 @@ one_trait_ui_act_titles_take_all = {
 		var:one_trait_ui_target = { one_trait_realm_titles_take_all_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_take_all_valid_trigger = yes }
 	}
@@ -2322,6 +3566,7 @@ one_trait_ui_act_titles_take_realm = {
 		var:one_trait_ui_target = { one_trait_realm_titles_take_realm_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_take_realm_valid_trigger = yes }
 	}
@@ -2337,6 +3582,7 @@ one_trait_ui_act_titles_destroy_primary = {
 		var:one_trait_ui_target = { one_trait_realm_titles_destroy_primary_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_destroy_primary_valid_trigger = yes }
 	}
@@ -2352,6 +3598,7 @@ one_trait_ui_act_titles_claims = {
 		var:one_trait_ui_target = { one_trait_realm_titles_claims_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_claims_valid_trigger = yes }
 	}
@@ -2367,6 +3614,7 @@ one_trait_ui_act_titles_give = {
 		var:one_trait_ui_target = { one_trait_realm_titles_give_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_give_valid_trigger = yes }
 	}
@@ -2379,6 +3627,7 @@ one_trait_ui_act_culture_innovations_era = {
 		var:one_trait_ui_target = { one_trait_realm_culture_innovations_era_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_culture_innovations_era_valid_trigger = yes }
 	}
@@ -2394,6 +3643,7 @@ one_trait_ui_act_culture_innovations_all = {
 		var:one_trait_ui_target = { one_trait_realm_culture_innovations_all_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_culture_innovations_all_valid_trigger = yes }
 	}
@@ -2409,6 +3659,7 @@ one_trait_ui_act_culture_acceptance = {
 		var:one_trait_ui_target = { one_trait_realm_culture_acceptance_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_culture_acceptance_valid_trigger = yes }
 	}
@@ -2424,6 +3675,7 @@ one_trait_ui_act_buildings_domain = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_domain_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_domain_valid_trigger = yes }
 	}
@@ -2439,6 +3691,7 @@ one_trait_ui_act_buildings_realm = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_realm_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_realm_valid_trigger = yes }
 	}
@@ -2454,6 +3707,7 @@ one_trait_ui_act_buildings_baronies = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_baronies_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_baronies_valid_trigger = yes }
 	}
@@ -2469,6 +3723,7 @@ one_trait_ui_act_buildings_duchy = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_duchy_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_duchy_valid_trigger = yes }
 	}
@@ -2484,6 +3739,7 @@ one_trait_ui_act_buildings_great_projects = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_great_projects_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_great_projects_valid_trigger = yes }
 	}
@@ -2499,6 +3755,7 @@ one_trait_ui_act_buildings_rebuild = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_rebuild_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_rebuild_valid_trigger = yes }
 	}
@@ -2514,6 +3771,7 @@ one_trait_ui_act_realm_events_herd = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_valid_trigger = yes }
 	}
@@ -2529,6 +3787,7 @@ one_trait_ui_act_realm_events_herd_drain = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_drain_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_herd_drain_valid_trigger = yes }
 	}
@@ -2544,6 +3803,7 @@ one_trait_ui_act_realm_events_domicile = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_domicile_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_domicile_valid_trigger = yes }
 	}
@@ -2559,6 +3819,7 @@ one_trait_ui_act_realm_events_struggle = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_struggle_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_struggle_valid_trigger = yes }
 	}
@@ -2574,6 +3835,7 @@ one_trait_ui_act_realm_events_tributary = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_tributary_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_tributary_valid_trigger = yes }
 	}
@@ -2589,6 +3851,7 @@ one_trait_ui_act_realm_events_conqueror = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_valid_trigger = yes }
 	}
@@ -2604,6 +3867,7 @@ one_trait_ui_act_realm_events_scourge = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_scourge_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_scourge_valid_trigger = yes }
 	}
@@ -2619,6 +3883,7 @@ one_trait_ui_act_realm_events_conqueror_end = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_end_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_conqueror_end_valid_trigger = yes }
 	}
@@ -2630,15 +3895,38 @@ one_trait_ui_act_realm_events_conqueror_end = {
 one_trait_ui_act_identity_culture_give = {
 	scope = character
 	is_shown = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_culture_give_shown_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			always = yes
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_culture_give_shown_trigger = yes }
+		}
 	}
 	is_valid = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_culture_give_valid_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_identity_culture_give_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes one_trait_character_identity_culture_give_shown_trigger = yes one_trait_character_identity_culture_give_valid_trigger = yes }
+			}
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_culture_give_valid_trigger = yes }
+		}
 	}
 	effect = {
-		one_trait_ui_act_identity_culture_give_click_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_act_identity_culture_give_effect = yes
+		}
+		else = {
+			one_trait_ui_act_identity_culture_give_click_effect = yes
+		}
 	}
 }
 
@@ -2649,6 +3937,7 @@ one_trait_ui_act_identity_culture_take = {
 		var:one_trait_ui_target = { one_trait_character_identity_culture_take_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_identity_culture_take_valid_trigger = yes }
 	}
@@ -2660,15 +3949,38 @@ one_trait_ui_act_identity_culture_take = {
 one_trait_ui_act_identity_culture_their_capital = {
 	scope = character
 	is_shown = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_culture_their_capital_shown_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			always = yes
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_culture_their_capital_shown_trigger = yes }
+		}
 	}
 	is_valid = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_culture_their_capital_valid_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_identity_culture_their_capital_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes one_trait_character_identity_culture_their_capital_shown_trigger = yes one_trait_character_identity_culture_their_capital_valid_trigger = yes }
+			}
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_culture_their_capital_valid_trigger = yes }
+		}
 	}
 	effect = {
-		one_trait_ui_act_identity_culture_their_capital_click_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_act_identity_culture_their_capital_effect = yes
+		}
+		else = {
+			one_trait_ui_act_identity_culture_their_capital_click_effect = yes
+		}
 	}
 }
 
@@ -2679,6 +3991,7 @@ one_trait_ui_act_identity_culture_your_capital = {
 		var:one_trait_ui_target = { one_trait_character_identity_culture_your_capital_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_identity_culture_your_capital_valid_trigger = yes }
 	}
@@ -2690,15 +4003,38 @@ one_trait_ui_act_identity_culture_your_capital = {
 one_trait_ui_act_identity_faith_give = {
 	scope = character
 	is_shown = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_faith_give_shown_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			always = yes
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_faith_give_shown_trigger = yes }
+		}
 	}
 	is_valid = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_faith_give_valid_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_identity_faith_give_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes one_trait_character_identity_faith_give_shown_trigger = yes one_trait_character_identity_faith_give_valid_trigger = yes }
+			}
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_faith_give_valid_trigger = yes }
+		}
 	}
 	effect = {
-		one_trait_ui_act_identity_faith_give_click_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_act_identity_faith_give_effect = yes
+		}
+		else = {
+			one_trait_ui_act_identity_faith_give_click_effect = yes
+		}
 	}
 }
 
@@ -2709,6 +4045,7 @@ one_trait_ui_act_identity_faith_take = {
 		var:one_trait_ui_target = { one_trait_character_identity_faith_take_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_identity_faith_take_valid_trigger = yes }
 	}
@@ -2720,15 +4057,38 @@ one_trait_ui_act_identity_faith_take = {
 one_trait_ui_act_identity_faith_their_capital = {
 	scope = character
 	is_shown = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_faith_their_capital_shown_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			always = yes
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_faith_their_capital_shown_trigger = yes }
+		}
 	}
 	is_valid = {
-		has_variable = one_trait_ui_target
-		var:one_trait_ui_target = { one_trait_character_identity_faith_their_capital_valid_trigger = yes }
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_qualify_identity_faith_their_capital_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes one_trait_character_identity_faith_their_capital_shown_trigger = yes one_trait_character_identity_faith_their_capital_valid_trigger = yes }
+			}
+		}
+		trigger_else = {
+			has_variable = one_trait_ui_target
+			var:one_trait_ui_target = { one_trait_character_identity_faith_their_capital_valid_trigger = yes }
+		}
 	}
 	effect = {
-		one_trait_ui_act_identity_faith_their_capital_click_effect = yes
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_act_identity_faith_their_capital_effect = yes
+		}
+		else = {
+			one_trait_ui_act_identity_faith_their_capital_click_effect = yes
+		}
 	}
 }
 
@@ -2739,6 +4099,7 @@ one_trait_ui_act_identity_faith_your_capital = {
 		var:one_trait_ui_target = { one_trait_character_identity_faith_your_capital_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_identity_faith_your_capital_valid_trigger = yes }
 	}
@@ -2754,6 +4115,7 @@ one_trait_ui_act_identity_name_reroll = {
 		var:one_trait_ui_target = { one_trait_character_identity_name_reroll_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_identity_name_reroll_valid_trigger = yes }
 	}
@@ -2769,6 +4131,7 @@ one_trait_ui_act_identity_name_give = {
 		var:one_trait_ui_target = { one_trait_character_identity_name_give_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_identity_name_give_valid_trigger = yes }
 	}
@@ -2784,6 +4147,7 @@ one_trait_ui_act_traits_looks_genetics = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_genetics_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_genetics_valid_trigger = yes }
 	}
@@ -2799,6 +4163,7 @@ one_trait_ui_act_traits_looks_cleanse = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_cleanse_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_cleanse_valid_trigger = yes }
 	}
@@ -2814,6 +4179,7 @@ one_trait_ui_act_traits_looks_personality_give = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_give_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_give_valid_trigger = yes }
 	}
@@ -2829,6 +4195,7 @@ one_trait_ui_act_traits_looks_personality_take = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_take_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_personality_take_valid_trigger = yes }
 	}
@@ -2844,6 +4211,7 @@ one_trait_ui_act_traits_looks_coping = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_coping_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_coping_valid_trigger = yes }
 	}
@@ -2859,6 +4227,7 @@ one_trait_ui_act_traits_looks_looks_give = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_give_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_give_valid_trigger = yes }
 	}
@@ -2874,6 +4243,7 @@ one_trait_ui_act_traits_looks_looks_take = {
 		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_take_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_traits_looks_looks_take_valid_trigger = yes }
 	}
@@ -2889,6 +4259,7 @@ one_trait_ui_act_family_heir = {
 		var:one_trait_ui_target = { one_trait_character_family_heir_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_family_heir_valid_trigger = yes }
 	}
@@ -2904,6 +4275,7 @@ one_trait_ui_act_family_adopt = {
 		var:one_trait_ui_target = { one_trait_character_family_adopt_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_family_adopt_valid_trigger = yes }
 	}
@@ -2919,6 +4291,7 @@ one_trait_ui_act_family_disown = {
 		var:one_trait_ui_target = { one_trait_character_family_disown_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_family_disown_valid_trigger = yes }
 	}
@@ -2934,6 +4307,7 @@ one_trait_ui_act_family_court = {
 		var:one_trait_ui_target = { one_trait_character_family_court_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_family_court_valid_trigger = yes }
 	}
@@ -2949,6 +4323,7 @@ one_trait_ui_act_family_marry = {
 		var:one_trait_ui_target = { one_trait_character_family_marry_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_family_marry_valid_trigger = yes }
 	}
@@ -2961,6 +4336,7 @@ one_trait_ui_act_family_give_title = {
 		var:one_trait_ui_target = { one_trait_character_family_give_title_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_family_give_title_valid_trigger = yes }
 	}
@@ -2973,6 +4349,7 @@ one_trait_ui_act_legacy_legend = {
 		var:one_trait_ui_target = { one_trait_character_legacy_legend_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_legend_valid_trigger = yes }
 	}
@@ -2988,6 +4365,7 @@ one_trait_ui_act_legacy_glory = {
 		var:one_trait_ui_target = { one_trait_character_legacy_glory_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_glory_valid_trigger = yes }
 	}
@@ -3003,6 +4381,7 @@ one_trait_ui_act_legacy_relic = {
 		var:one_trait_ui_target = { one_trait_character_legacy_relic_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_relic_valid_trigger = yes }
 	}
@@ -3018,6 +4397,7 @@ one_trait_ui_act_legacy_canonize_father = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_father_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_father_valid_trigger = yes }
 	}
@@ -3033,6 +4413,7 @@ one_trait_ui_act_legacy_canonize_mother = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_mother_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_mother_valid_trigger = yes }
 	}
@@ -3048,6 +4429,7 @@ one_trait_ui_act_legacy_canonize_paternal_grandfather = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandfather_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandfather_valid_trigger = yes }
 	}
@@ -3063,6 +4445,7 @@ one_trait_ui_act_legacy_canonize_paternal_grandmother = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandmother_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_paternal_grandmother_valid_trigger = yes }
 	}
@@ -3078,6 +4461,7 @@ one_trait_ui_act_legacy_canonize_maternal_grandfather = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_maternal_grandfather_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_maternal_grandfather_valid_trigger = yes }
 	}
@@ -3093,6 +4477,7 @@ one_trait_ui_act_legacy_canonize_house_founder = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_house_founder_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_house_founder_valid_trigger = yes }
 	}
@@ -3108,6 +4493,7 @@ one_trait_ui_act_legacy_canonize_dynasty_founder = {
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_dynasty_founder_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_character_legacy_canonize_dynasty_founder_valid_trigger = yes }
 	}
@@ -3123,6 +4509,7 @@ one_trait_ui_act_alliances_create = {
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_create_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_create_valid_trigger = yes }
 	}
@@ -3138,6 +4525,7 @@ one_trait_ui_act_alliances_inherit = {
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_inherit_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_inherit_valid_trigger = yes }
 	}
@@ -3153,6 +4541,7 @@ one_trait_ui_act_alliances_isolate = {
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_isolate_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_isolate_valid_trigger = yes }
 	}
@@ -3168,6 +4557,7 @@ one_trait_ui_act_alliances_end = {
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_end_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_alliances_end_valid_trigger = yes }
 	}
@@ -3183,6 +4573,7 @@ one_trait_ui_act_vassals_vassalize = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_vassalize_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_vassalize_valid_trigger = yes }
 	}
@@ -3198,6 +4589,7 @@ one_trait_ui_act_vassals_release = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_release_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_release_valid_trigger = yes }
 	}
@@ -3213,6 +4605,7 @@ one_trait_ui_act_vassals_tributary = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_tributary_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_tributary_valid_trigger = yes }
 	}
@@ -3228,6 +4621,7 @@ one_trait_ui_act_vassals_free = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_free_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_free_valid_trigger = yes }
 	}
@@ -3243,6 +4637,7 @@ one_trait_ui_act_vassals_become_vassal = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_vassal_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_vassal_valid_trigger = yes }
 	}
@@ -3258,6 +4653,7 @@ one_trait_ui_act_vassals_break_free = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_break_free_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_break_free_valid_trigger = yes }
 	}
@@ -3273,6 +4669,7 @@ one_trait_ui_act_vassals_become_tributary = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_tributary_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_become_tributary_valid_trigger = yes }
 	}
@@ -3288,6 +4685,7 @@ one_trait_ui_act_vassals_stop_tribute = {
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_stop_tribute_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_vassals_stop_tribute_valid_trigger = yes }
 	}
@@ -3303,6 +4701,7 @@ one_trait_ui_act_war_peace_white_peace = {
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_white_peace_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_white_peace_valid_trigger = yes }
 	}
@@ -3318,6 +4717,7 @@ one_trait_ui_act_war_peace_win = {
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_win_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_win_valid_trigger = yes }
 	}
@@ -3333,6 +4733,7 @@ one_trait_ui_act_war_peace_truce = {
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_truce_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_truce_valid_trigger = yes }
 	}
@@ -3348,6 +4749,7 @@ one_trait_ui_act_war_peace_erase_truces = {
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_erase_truces_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_war_peace_erase_truces_valid_trigger = yes }
 	}
@@ -3363,6 +4765,7 @@ one_trait_ui_act_relations_hook = {
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_hook_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_hook_valid_trigger = yes }
 	}
@@ -3378,6 +4781,7 @@ one_trait_ui_act_relations_friend = {
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_friend_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_friend_valid_trigger = yes }
 	}
@@ -3393,6 +4797,7 @@ one_trait_ui_act_relations_best_friend = {
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_best_friend_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_best_friend_valid_trigger = yes }
 	}
@@ -3408,6 +4813,7 @@ one_trait_ui_act_relations_end_rivalry = {
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_end_rivalry_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_end_rivalry_valid_trigger = yes }
 	}
@@ -3423,6 +4829,7 @@ one_trait_ui_act_relations_adore = {
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_adore_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_relations_adore_valid_trigger = yes }
 	}
@@ -3438,6 +4845,7 @@ one_trait_ui_act_hostility_strike = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_strike_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_strike_valid_trigger = yes }
 	}
@@ -3453,6 +4861,7 @@ one_trait_ui_act_hostility_imprison = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_imprison_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_imprison_valid_trigger = yes }
 	}
@@ -3468,6 +4877,7 @@ one_trait_ui_act_hostility_free = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_free_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_free_valid_trigger = yes }
 	}
@@ -3483,6 +4893,7 @@ one_trait_ui_act_hostility_banish = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_banish_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_banish_valid_trigger = yes }
 	}
@@ -3498,6 +4909,7 @@ one_trait_ui_act_hostility_excommunicate = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_excommunicate_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_excommunicate_valid_trigger = yes }
 	}
@@ -3513,6 +4925,7 @@ one_trait_ui_act_hostility_lift = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_lift_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_lift_valid_trigger = yes }
 	}
@@ -3528,6 +4941,7 @@ one_trait_ui_act_hostility_break_25 = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_25_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_25_valid_trigger = yes }
 	}
@@ -3543,6 +4957,7 @@ one_trait_ui_act_hostility_break_50 = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_50_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_50_valid_trigger = yes }
 	}
@@ -3558,6 +4973,7 @@ one_trait_ui_act_hostility_break_75 = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_75_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_75_valid_trigger = yes }
 	}
@@ -3573,6 +4989,7 @@ one_trait_ui_act_hostility_break_all = {
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_all_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_diplomacy_hostility_break_all_valid_trigger = yes }
 	}
@@ -3588,6 +5005,7 @@ one_trait_ui_act_court_chancellor = {
 		var:one_trait_ui_target = { one_trait_realm_court_chancellor_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_chancellor_valid_trigger = yes }
 	}
@@ -3603,6 +5021,7 @@ one_trait_ui_act_court_marshal = {
 		var:one_trait_ui_target = { one_trait_realm_court_marshal_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_marshal_valid_trigger = yes }
 	}
@@ -3618,6 +5037,7 @@ one_trait_ui_act_court_steward = {
 		var:one_trait_ui_target = { one_trait_realm_court_steward_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_steward_valid_trigger = yes }
 	}
@@ -3633,6 +5053,7 @@ one_trait_ui_act_court_spymaster = {
 		var:one_trait_ui_target = { one_trait_realm_court_spymaster_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_spymaster_valid_trigger = yes }
 	}
@@ -3648,6 +5069,7 @@ one_trait_ui_act_court_chaplain = {
 		var:one_trait_ui_target = { one_trait_realm_court_chaplain_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_chaplain_valid_trigger = yes }
 	}
@@ -3663,6 +5085,7 @@ one_trait_ui_act_court_champion = {
 		var:one_trait_ui_target = { one_trait_realm_court_champion_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_champion_valid_trigger = yes }
 	}
@@ -3678,6 +5101,7 @@ one_trait_ui_act_court_spouse = {
 		var:one_trait_ui_target = { one_trait_realm_court_spouse_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_spouse_valid_trigger = yes }
 	}
@@ -3693,6 +5117,7 @@ one_trait_ui_act_court_ward = {
 		var:one_trait_ui_target = { one_trait_realm_court_ward_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_court_ward_valid_trigger = yes }
 	}
@@ -3708,6 +5133,7 @@ one_trait_ui_act_puppets_secular = {
 		var:one_trait_ui_target = { one_trait_puppets_puppets_secular_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_puppets_puppets_secular_valid_trigger = yes }
 	}
@@ -3723,6 +5149,7 @@ one_trait_ui_act_puppets_clerical = {
 		var:one_trait_ui_target = { one_trait_puppets_puppets_clerical_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_puppets_puppets_clerical_valid_trigger = yes }
 	}
@@ -3738,6 +5165,7 @@ one_trait_ui_act_puppets_realm_priest = {
 		var:one_trait_ui_target = { one_trait_puppets_puppets_realm_priest_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_puppets_puppets_realm_priest_valid_trigger = yes }
 	}
@@ -3753,6 +5181,7 @@ one_trait_ui_act_puppets_release = {
 		var:one_trait_ui_target = { one_trait_puppets_puppets_release_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_puppets_puppets_release_valid_trigger = yes }
 	}
@@ -3775,6 +5204,7 @@ one_trait_ui_list_titles_take_one_take = {
 		var:one_trait_ui_target = { one_trait_realm_titles_take_one_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		scope:landed_title.holder = var:one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_take_one_take_valid_trigger = yes }
@@ -3792,6 +5222,7 @@ one_trait_ui_list_titles_take_one_claim = {
 		var:one_trait_ui_target = { one_trait_realm_titles_take_one_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		scope:landed_title.holder = var:one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_take_one_claim_valid_trigger = yes }
@@ -3809,6 +5240,7 @@ one_trait_ui_list_titles_take_one_destroy = {
 		var:one_trait_ui_target = { one_trait_realm_titles_take_one_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		scope:landed_title.holder = var:one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_titles_take_one_destroy_valid_trigger = yes }
@@ -3839,6 +5271,7 @@ one_trait_ui_list_buildings_county_max = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_county_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		scope:landed_title.holder = var:one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_county_max_valid_trigger = yes }
@@ -3856,6 +5289,7 @@ one_trait_ui_list_buildings_county_slot = {
 		var:one_trait_ui_target = { one_trait_realm_buildings_county_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		scope:landed_title.holder = var:one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_buildings_county_slot_valid_trigger = yes }
@@ -3873,6 +5307,7 @@ one_trait_ui_list_realm_events_plague_plague = {
 		var:one_trait_ui_target = { one_trait_realm_realm_events_plague_shown_trigger = yes }
 	}
 	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
 		has_variable = one_trait_ui_target
 		scope:landed_title.holder = var:one_trait_ui_target
 		var:one_trait_ui_target = { one_trait_realm_realm_events_plague_plague_valid_trigger = yes }
@@ -3893,4 +5328,196 @@ one_trait_ui_list_realm_events_plague_plague_armed = {
 		has_variable = one_trait_ui_confirm_title
 		scope:landed_title = var:one_trait_ui_confirm_title
 	}
+}
+
+# ---- 2.12 Task 3: read only in All pinned mode (wire_all_pinned) ----
+one_trait_ui_trait_health_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_health } }
+	}
+}
+
+one_trait_ui_trait_immortality_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_immortality } }
+	}
+}
+
+one_trait_ui_trait_giant_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_giant } }
+	}
+}
+
+one_trait_ui_trait_fertility_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_fertility } }
+	}
+}
+
+one_trait_ui_trait_celibate_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_celibate } }
+	}
+}
+
+one_trait_ui_trait_stress_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_stress } }
+	}
+}
+
+one_trait_ui_trait_stats_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_stats } }
+	}
+}
+
+one_trait_ui_trait_xp_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_xp } }
+	}
+}
+
+one_trait_ui_trait_one_trait_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait } }
+	}
+}
+
+one_trait_ui_trait_wealth_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_wealth } }
+	}
+}
+
+one_trait_ui_trait_fame_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_fame } }
+	}
+}
+
+one_trait_ui_trait_faith_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_faith } }
+	}
+}
+
+one_trait_ui_trait_charisma_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_charisma } }
+	}
+}
+
+one_trait_ui_trait_dread_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_dread } }
+	}
+}
+
+one_trait_ui_trait_manager_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_manager } }
+	}
+}
+
+one_trait_ui_trait_builder_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_builder } }
+	}
+}
+
+one_trait_ui_trait_domain_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_domain } }
+	}
+}
+
+one_trait_ui_trait_commander_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_commander } }
+	}
+}
+
+one_trait_ui_trait_scheme_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_scheme } }
+	}
+}
+
+one_trait_ui_trait_steppe_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_steppe } }
+	}
+}
+
+one_trait_ui_trait_wanderer_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = one_trait_wanderer } }
+	}
+}
+
+one_trait_ui_pin_age_p1_reaches_16 = {
+	scope = character
+	is_valid = {
+		has_variable_list = one_trait_pinned
+		any_in_list = { variable = one_trait_pinned is_alive = yes is_adult = no age >= 15 }
+	}
+}
+
+one_trait_ui_pin_age_p10_reaches_16 = {
+	scope = character
+	is_valid = {
+		has_variable_list = one_trait_pinned
+		any_in_list = { variable = one_trait_pinned is_alive = yes is_adult = no age >= 6 }
+	}
+}
+
+# R3: the grandeur readout shows the PANEL's character's court (the grandeur buttons' single-character
+# condition), never the buttons' All pinned validity.
+one_trait_ui_target_has_royal_court = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_royal_court = yes } }
 }

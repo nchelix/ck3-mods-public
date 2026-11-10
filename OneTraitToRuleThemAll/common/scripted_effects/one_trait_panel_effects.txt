@@ -34,6 +34,9 @@ one_trait_ui_open_panel_effect = {
 	set_variable = { name = one_trait_ui_subtab value = 1 }
 	one_trait_ui_clear_confirm_effect = yes
 	one_trait_ui_puppets_effect = yes
+	# 2.12: the Apply-to switch starts on This character whenever the panel opens; the dead drop off the pins
+	if = { limit = { has_variable = one_trait_ui_apply_all } remove_variable = one_trait_ui_apply_all }
+	one_trait_pin_prune_effect = yes
 	set_variable = one_trait_ui_open
 }
 
@@ -1812,5 +1815,500 @@ one_trait_ui_list_realm_events_plague_plague_click_effect = {
 			set_variable = { name = one_trait_ui_confirm_target value = var:one_trait_ui_target }
 			set_variable = { name = one_trait_ui_confirm_title value = scope:landed_title }
 		}
+	}
+}
+
+
+# ---- 2.12 Task 3 (R1): a trait tile's toggle, on the character in scope. Single mode runs it on the panel's
+# character exactly as the tile's inline body did (if they have it, take it; else give it). $GIVE$ is the give
+# effect, so the faith tile keeps the retired option's spiritual fulfilment (TRAIT_GRANT_EXTRA, .0720.faith).
+one_trait_trait_toggle_effect = {
+	if = { limit = { has_trait = $TRAIT$ } remove_trait = $TRAIT$ }
+	else = { $GIVE$ = { TRAIT = $TRAIT$ } }
+}
+one_trait_trait_give_effect = {
+	add_trait = $TRAIT$
+}
+
+one_trait_trait_give_faith_effect = {
+	add_trait = $TRAIT$
+	change_spiritual_fulfillment = 200
+}
+
+# ---- 2.12 Task 3: All pinned. Run on the player (root) by the supported rows' scripted GUIs while the switch
+# is on All pinned (wire_all_pinned). Every loop is pin_loop(): the living pins only.
+
+# age: one_trait_ui_age_step_effect on every living pin (the plus buttons; their confirm is one_trait_pin_all_age_<p1|p10>_click_effect).
+one_trait_pin_all_age_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_age_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# gold: one_trait_ui_gold_step_effect on every living pin.
+one_trait_pin_all_gold_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_gold_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# grandeur: one_trait_ui_grandeur_step_effect on every living pin holding a royal court (spec: grandeur only for those with one).
+one_trait_pin_all_grandeur_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { has_royal_court = yes }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_grandeur_step_effect = { AMOUNT = $AMOUNT$ }
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# influence: one_trait_ui_influence_step_effect on every living pin.
+one_trait_pin_all_influence_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_influence_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# merit: one_trait_ui_merit_step_effect on every living pin.
+one_trait_pin_all_merit_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_merit_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# legitimacy: one_trait_ui_legitimacy_step_effect on every living pin.
+one_trait_pin_all_legitimacy_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_legitimacy_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# prestige: one_trait_ui_prestige_step_effect on every living pin.
+one_trait_pin_all_prestige_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_prestige_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# piety: one_trait_ui_piety_step_effect on every living pin.
+one_trait_pin_all_piety_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_piety_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# renown: one_trait_ui_renown_step_effect on every living pin, once per dynasty (spec "My calls"); the toast counts dynasties.
+one_trait_pin_all_renown_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { exists = dynasty dynasty = { NOT = { is_in_list = one_trait_pin_dynasties } } }
+				dynasty = { add_to_temporary_list = one_trait_pin_dynasties }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_renown_step_effect = { AMOUNT = $AMOUNT$ }
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_dynasties_toast_t }
+	}
+}
+
+# stress: one_trait_ui_stress_step_effect on every living pin.
+one_trait_pin_all_stress_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			save_scope_as = one_trait_pin_recipient
+			root = {
+				set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+				one_trait_ui_stress_step_effect = { AMOUNT = $AMOUNT$ }
+				change_variable = { name = one_trait_pin_applied add = 1 }
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# age, the minus buttons: an adult already 16 is skipped (nobody goes below 16: one_trait_ui_age_step_effect).
+one_trait_pin_all_age_down_step_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { NOT = { AND = { is_adult = yes age = 16 } } }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_age_step_effect = { AMOUNT = $AMOUNT$ }
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# R1: Age +1 for the group. If any living pinned child would reach 16, the first click arms 102
+# (one number for the group, both plus buttons; never one_trait_ui_confirm_target) and the second ages everyone;
+# otherwise it ages everyone at once. Children land on 16 by one_trait_ui_age_step_effect's birthday branch.
+one_trait_pin_all_age_p1_click_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_confirm
+			var:one_trait_ui_confirm = 102
+			has_variable_list = one_trait_pinned
+			any_in_list = { variable = one_trait_pinned is_alive = yes is_adult = no age >= 15 }
+		}
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_pin_all_age_step_effect = { AMOUNT = 1 }
+	}
+	else_if = {
+		limit = {
+			has_variable_list = one_trait_pinned
+			any_in_list = { variable = one_trait_pinned is_alive = yes is_adult = no age >= 15 }
+		}
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_confirm value = 102 }
+	}
+	else = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_pin_all_age_step_effect = { AMOUNT = 1 }
+	}
+}
+
+# R1: Age +10 for the group. If any living pinned child would reach 16, the first click arms 102
+# (one number for the group, both plus buttons; never one_trait_ui_confirm_target) and the second ages everyone;
+# otherwise it ages everyone at once. Children land on 16 by one_trait_ui_age_step_effect's birthday branch.
+one_trait_pin_all_age_p10_click_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_confirm
+			var:one_trait_ui_confirm = 102
+			has_variable_list = one_trait_pinned
+			any_in_list = { variable = one_trait_pinned is_alive = yes is_adult = no age >= 6 }
+		}
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_pin_all_age_step_effect = { AMOUNT = 10 }
+	}
+	else_if = {
+		limit = {
+			has_variable_list = one_trait_pinned
+			any_in_list = { variable = one_trait_pinned is_alive = yes is_adult = no age >= 6 }
+		}
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_confirm value = 102 }
+	}
+	else = {
+		one_trait_ui_clear_confirm_effect = yes
+		one_trait_pin_all_age_step_effect = { AMOUNT = 10 }
+	}
+}
+
+# R1 / spec "Decisions": a trait tile. If any living pin lacks it, everyone without it gets it; if all have it,
+# it is taken from all. Two clicks always leave everyone the same. Acts on each pin; the panel never moves.
+one_trait_pin_all_trait_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		if = {
+			limit = { any_in_list = { variable = one_trait_pinned is_alive = yes NOT = { has_trait = $TRAIT$ } } }
+			every_in_list = {
+				variable = one_trait_pinned
+				limit = { is_alive = yes }
+				if = {
+					limit = { NOT = { has_trait = $TRAIT$ } }
+					$GIVE$ = { TRAIT = $TRAIT$ }
+					root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+				}
+			}
+		}
+		else = {
+			every_in_list = {
+				variable = one_trait_pinned
+				limit = { is_alive = yes }
+				if = {
+					limit = { has_trait = $TRAIT$ }
+					remove_trait = $TRAIT$
+					root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+				}
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# identity_culture_give: the row's own click effect on every living pin its shown and valid triggers allow (root stays the
+# player: "your" culture or faith is yours; a capital row reads each pin's own capital).
+one_trait_pin_all_act_identity_culture_give_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { one_trait_character_identity_culture_give_shown_trigger = yes one_trait_character_identity_culture_give_valid_trigger = yes }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_act_identity_culture_give_click_effect = yes
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# identity_faith_give: the row's own click effect on every living pin its shown and valid triggers allow (root stays the
+# player: "your" culture or faith is yours; a capital row reads each pin's own capital).
+one_trait_pin_all_act_identity_faith_give_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { one_trait_character_identity_faith_give_shown_trigger = yes one_trait_character_identity_faith_give_valid_trigger = yes }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_act_identity_faith_give_click_effect = yes
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# identity_culture_their_capital: the row's own click effect on every living pin its shown and valid triggers allow (root stays the
+# player: "your" culture or faith is yours; a capital row reads each pin's own capital).
+one_trait_pin_all_act_identity_culture_their_capital_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { one_trait_character_identity_culture_their_capital_shown_trigger = yes one_trait_character_identity_culture_their_capital_valid_trigger = yes }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_act_identity_culture_their_capital_click_effect = yes
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# identity_faith_their_capital: the row's own click effect on every living pin its shown and valid triggers allow (root stays the
+# player: "your" culture or faith is yours; a capital row reads each pin's own capital).
+one_trait_pin_all_act_identity_faith_their_capital_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_target
+			has_variable_list = one_trait_pinned
+		}
+		var:one_trait_ui_target = { save_scope_as = one_trait_pin_panel_target }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { one_trait_character_identity_faith_their_capital_shown_trigger = yes one_trait_character_identity_faith_their_capital_valid_trigger = yes }
+				save_scope_as = one_trait_pin_recipient
+				root = {
+					set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_recipient }
+					one_trait_ui_act_identity_faith_their_capital_click_effect = yes
+					change_variable = { name = one_trait_pin_applied add = 1 }
+				}
+			}
+		}
+		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
 	}
 }

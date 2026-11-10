@@ -1,0 +1,14 @@
+﻿# One Trait 2.12: the pinned list follows the player to their next character (spec "My calls": the player dies and
+# plays on as an heir). Root is the new player character, scope:previous_player_character the old one (vanilla
+# common/on_action/player_change_on_actions.txt:3-6). The vanilla block already has an effect, so this appends a
+# uniquely named child through on_actions, as _on_actions.info prescribes (plan R2; the same form as
+# one_trait_tireless_on_actions.txt).
+on_player_character_change = {
+	on_actions = { one_trait_pin_player_change }
+}
+
+one_trait_pin_player_change = {
+	effect = {
+		one_trait_pin_inherit_effect = yes
+	}
+}

@@ -1,0 +1,103 @@
+﻿# One Trait 2.12: the pinned-characters list (plan Task 1, "Names used across tasks"). Run on the player
+# (root = the player in the panel's scripted GUIs and in on_player_character_change). The list is the variable list
+# one_trait_pinned, in pin order; the panel's character is var:one_trait_ui_target; one_trait_ui_apply_all is the
+# All pinned switch.
+# Engine names (docs/reference/ck3-1.20.1.1-effects.log): add_to_variable_list :91, remove_list_variable :2591,
+# clear_variable_list :254, every_in_list :940 (`variable = name` or `list = name`), add_to_temporary_list :83,
+# save_temporary_scope_as :2693.
+
+# Pins the panel's character, when one_trait_pin_can_add_trigger allows it (not you, alive, not yet pinned, below
+# the cap). New pins go to the end of the list.
+one_trait_pin_add_effect = {
+	if = {
+		limit = { one_trait_pin_can_add_trigger = yes }
+		add_to_variable_list = { name = one_trait_pinned target = var:one_trait_ui_target }
+	}
+}
+
+# Unpins scope:$WHO$ (the header's Unpin passes the panel's character, a Details row's x passes scope:pinned). The
+# panel stays on whoever it is on. If nobody living is left, the switch goes back to This character.
+one_trait_pin_remove_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		remove_list_variable = { name = one_trait_pinned target = scope:$WHO$ }
+	}
+	one_trait_pin_clear_mode_if_none_effect = yes
+}
+
+# All pinned mode needs someone pinned (plan Review Focus #3).
+one_trait_pin_clear_mode_if_none_effect = {
+	if = {
+		limit = {
+			has_variable = one_trait_ui_apply_all
+			NOT = { one_trait_pin_any_trigger = yes }
+		}
+		remove_variable = one_trait_ui_apply_all
+	}
+}
+
+# Drops the dead (and anyone gone from the game) and the player themselves; the rest keep their order. The entries to
+# drop are collected in a temporary list first and then removed, so no list is edited while it is walked.
+# Self-test part 8 (s40c1, 2026-11-09): the earlier keep-and-rebuild form re-added dead pins on a second prune in the
+# same effect, because a temporary list lives for the whole effect and still held the first prune's survivors. Only
+# entries that should be dropped ever go on this list, so a leftover from an earlier prune can only drop more of the
+# same (remove_list_variable on a target no longer in the list does nothing).
+one_trait_pin_prune_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		save_temporary_scope_as = one_trait_pin_owner
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = {
+				OR = {
+					is_alive = no
+					this = scope:one_trait_pin_owner
+				}
+			}
+			add_to_temporary_list = one_trait_pin_drop
+		}
+		every_in_list = {
+			list = one_trait_pin_drop
+			save_temporary_scope_as = one_trait_pin_drop_one
+			scope:one_trait_pin_owner = {
+				remove_list_variable = { name = one_trait_pinned target = scope:one_trait_pin_drop_one }
+			}
+		}
+	}
+	one_trait_pin_clear_mode_if_none_effect = yes
+}
+
+# on_player_character_change (common/on_action/one_trait_pin_on_actions.txt): root = the new player,
+# scope:previous_player_character = the old one (vanilla common/on_action/player_change_on_actions.txt:4-5). The old
+# player's list moves to the new one (no doubles, never past the cap), the old list is emptied, and the prune drops
+# the new player, who cannot be pinned by themselves (spec "My calls").
+one_trait_pin_inherit_effect = {
+	if = {
+		limit = {
+			exists = scope:previous_player_character
+			NOT = { scope:previous_player_character = root }
+			scope:previous_player_character = { has_variable_list = one_trait_pinned }
+		}
+		scope:previous_player_character = {
+			every_in_list = {
+				variable = one_trait_pinned
+				save_temporary_scope_as = one_trait_pin_moving
+				root = {
+					if = {
+						limit = { NOT = { has_variable_list = one_trait_pinned } }
+						add_to_variable_list = { name = one_trait_pinned target = scope:one_trait_pin_moving }
+					}
+					else_if = {
+						limit = {
+							NOT = { is_target_in_variable_list = { name = one_trait_pinned target = scope:one_trait_pin_moving } }
+							variable_list_size = { name = one_trait_pinned value < one_trait_pin_cap_value }
+						}
+						add_to_variable_list = { name = one_trait_pinned target = scope:one_trait_pin_moving }
+					}
+				}
+			}
+			clear_variable_list = one_trait_pinned
+		}
+		root = { one_trait_pin_prune_effect = yes }
+	}
+}

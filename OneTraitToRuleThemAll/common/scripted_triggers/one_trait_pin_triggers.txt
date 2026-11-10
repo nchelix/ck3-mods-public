@@ -1,0 +1,55 @@
+﻿# One Trait 2.12: the pinned-characters list (plan Task 1, "Names used across tasks").
+# The list is a variable list on the player, one_trait_pinned, in pin order. Evaluated on the player (root = the
+# player in the panel's scripted GUIs); the panel's character is var:one_trait_ui_target.
+# Engine names (docs/reference/ck3-1.20.1.1-triggers.log): is_target_in_variable_list :830, variable_list_size :1075
+# (vanilla form `value >= N`, common/character_interactions/06_ep3_interactions.txt:12210), any_in_list :286
+# (`variable = name`), has_variable_list :656, is_alive :5009.
+# variable_list_size on a list that does not exist is an error (PantheonOfOne/common/script_values/pantheon_values.txt:818),
+# so every size check sits behind has_variable_list.
+
+# The Pin button's is_valid: the panel's character can join the list. Each part names its own reason.
+one_trait_pin_can_add_trigger = {
+	has_variable = one_trait_ui_target
+	custom_tooltip = {
+		text = one_trait_pin_not_you_tt
+		NOT = { var:one_trait_ui_target = root }
+	}
+	custom_tooltip = {
+		text = one_trait_pin_dead_tt
+		var:one_trait_ui_target = { is_alive = yes }
+	}
+	custom_tooltip = {
+		text = one_trait_pin_already_tt
+		NOT = { one_trait_pin_target_pinned_trigger = yes }
+	}
+	custom_tooltip = {
+		text = one_trait_pin_full_tt
+		trigger_if = {
+			limit = { has_variable_list = one_trait_pinned }
+			variable_list_size = { name = one_trait_pinned value < one_trait_pin_cap_value }
+		}
+	}
+}
+
+# The panel's character is on the list (the header shows Unpin instead of Pin).
+one_trait_pin_target_pinned_trigger = {
+	has_variable = one_trait_ui_target
+	has_variable_list = one_trait_pinned
+	is_target_in_variable_list = { name = one_trait_pinned target = var:one_trait_ui_target }
+}
+
+# At least one pinned character is alive (the All pinned switch and the Details button need someone).
+one_trait_pin_any_trigger = {
+	has_variable_list = one_trait_pinned
+	any_in_list = { variable = one_trait_pinned is_alive = yes }
+}
+
+# 2.12 Task 3: first in the is_valid of every panel row that does NOT act on all pinned characters (the generator's
+# wire_all_pinned, tools/build_one_trait_panel.py), so in All pinned mode the row greys with this reason instead of
+# acting on the panel's character alone (spec anti-goal: a row that silently does nothing). Read on the player.
+one_trait_pin_single_mode_trigger = {
+	custom_tooltip = {
+		text = one_trait_panel_not_for_all_pinned_tt
+		NOT = { has_variable = one_trait_ui_apply_all }
+	}
+}

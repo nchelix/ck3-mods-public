@@ -1,0 +1,18 @@
+﻿# One Trait 2.12: the most characters the player can pin (spec "My calls": enough for a family). The Pin button
+# greys at this many with one_trait_pin_full_tt (one_trait_pin_can_add_trigger).
+one_trait_pin_cap_value = 12
+
+# 2.12 Task 3: how many pinned characters are alive, read on the player: the "Everyone pinned (N)" in the All pinned
+# tooltips (tools/build_one_trait_panel.py loc()). Counting with every_in_list + add is vanilla's form
+# (game/common/script_values/00_activity_values.txt:1007-1010); a list that does not exist is not read.
+one_trait_pin_living_count_value = {
+	value = 0
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			add = 1
+		}
+	}
+}

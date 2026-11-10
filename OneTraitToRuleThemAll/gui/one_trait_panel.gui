@@ -67,21 +67,125 @@ window = {
 			layoutpolicy_horizontal = expanding
 			spacing = 10
 			portrait_head_small = {}
-			text_single = {
-				text = "[Character.GetFullNameNoTooltip]"
-				using = Font_Size_Medium
-			}
-			# Character.IsLocalPlayer: game/gui/hud.gui:3432.
-			text_single = {
-				visible = "[Character.IsLocalPlayer]"
-				text = "one_trait_panel_you"
-				using = Font_Size_Medium
-			}
-			expand = {}
-			button_standard = {
-				size = { 120 32 }
-				text = "one_trait_panel_yourself"
-				onclick = "[GetScriptedGui('one_trait_ui_yourself').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+			# 2.12 Task 2: a column beside the portrait: the name line (Pin/Unpin, Yourself, the Apply-to switch), then the strip line
+			vbox = {
+				layoutpolicy_horizontal = expanding
+				spacing = 6
+				hbox = {
+					layoutpolicy_horizontal = expanding
+					spacing = 10
+					text_single = {
+						text = "[Character.GetFullNameNoTooltip]"
+						using = Font_Size_Medium
+						max_width = 280
+						elide = right
+					}
+					# Character.IsLocalPlayer: game/gui/hud.gui:3432.
+					text_single = {
+						visible = "[Character.IsLocalPlayer]"
+						text = "one_trait_panel_you"
+						using = Font_Size_Medium
+					}
+					expand = {}
+					button_standard = {
+						visible = "[GetScriptedGui('one_trait_ui_pin').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						size = { 90 32 }
+						text = "one_trait_panel_pin"
+						enabled = "[GetScriptedGui('one_trait_ui_pin').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_pin').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_pin_tt' ), GetScriptedGui('one_trait_ui_pin').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+						onclick = "[GetScriptedGui('one_trait_ui_pin').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					}
+					button_standard = {
+						visible = "[GetScriptedGui('one_trait_ui_unpin').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						size = { 90 32 }
+						text = "one_trait_panel_unpin"
+						tooltip = "one_trait_panel_unpin_tt"
+						onclick = "[GetScriptedGui('one_trait_ui_unpin').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					}
+					button_standard = {
+						size = { 120 32 }
+						text = "one_trait_panel_yourself"
+						onclick = "[GetScriptedGui('one_trait_ui_yourself').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					}
+					text_single = { size = { 64 32 } autoresize = no align = right|vcenter text = "one_trait_panel_apply_to" }
+					hbox = {
+						spacing = 2
+						button_standard = {
+							size = { 116 32 }
+							text = "one_trait_panel_apply_this"
+							down = "[GetScriptedGui('one_trait_ui_apply_this_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "one_trait_panel_apply_this_tt"
+							onclick = "[GetScriptedGui('one_trait_ui_apply_this').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							visible = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							size = { 100 32 }
+							text = "one_trait_panel_apply_all"
+							enabled = "[GetScriptedGui('one_trait_ui_apply_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_apply_all_tt' ), GetScriptedGui('one_trait_ui_apply_all').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							onclick = "[GetScriptedGui('one_trait_ui_apply_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+						button_standard = {
+							visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							size = { 100 32 }
+							text = "one_trait_panel_apply_all_lit"
+							down = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "one_trait_panel_apply_all_on_tt"
+							onclick = "[GetScriptedGui('one_trait_ui_apply_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						}
+					}
+				}
+				hbox = {
+					layoutpolicy_horizontal = expanding
+					spacing = 8
+					widget = {
+						size = { 572 52 }
+						scissor = yes
+						text_single = {
+							visible = "[Not( GetScriptedGui('one_trait_ui_pins_details').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							size = { 572 52 }
+							autoresize = no
+							align = left|vcenter
+							text = "one_trait_panel_pins_empty"
+						}
+						hbox = {
+							hbox = {
+								spacing = 4
+								datamodel = "[GetPlayer.MakeScope.GetList('one_trait_pinned')]"
+								item = {
+									button_standard = {
+										visible = "[Scope.GetCharacter.IsAlive]"
+										datacontext = "[Scope.GetCharacter]"
+										size = { 44 52 }
+										down = "[ObjectsEqual( GetPlayer.MakeScope.Var('one_trait_ui_target').Char, Character.Self )]"
+										tooltip = "one_trait_panel_pin_select_tt"
+										onclick = "[GetScriptedGui('one_trait_ui_pin_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pinned', Character.MakeScope ).End )]"
+										portrait_button = {
+											parentanchor = center
+											size = { 42 50 }
+											alwaystransparent = yes
+											using = portrait_base
+											portrait_texture = "[Character.GetPortrait('environment_head', 'camera_head', 'idle', PdxGetWidgetScreenSize(PdxGuiWidget.Self))]"
+											mask = "gfx/portraits/portrait_mask_head_small.dds"
+											effectname = "NoHighlight"
+											tooltip_visible = no
+										}
+									}
+								}
+							}
+							expand = {}
+						}
+					}
+					expand = {}
+					button_standard = {
+						size = { 92 32 }
+						text = "one_trait_panel_pins_details"
+						down = "[GetPlayer.MakeScope.Var('one_trait_ui_pins_open').IsSet]"
+						enabled = "[GetScriptedGui('one_trait_ui_pins_details').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_pins_details').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_pins_details_tt' ), GetScriptedGui('one_trait_ui_pins_details').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+						onclick = "[GetScriptedGui('one_trait_ui_pins_details').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+					}
+				}
 			}
 			}
 		}
@@ -281,43 +385,47 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10"
-									tooltip = "one_trait_panel_step_age_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_age_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_age_all_tt' ), GetScriptedGui('one_trait_ui_step_age_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_age_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_age_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_age_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1"
-									tooltip = "one_trait_panel_step_age_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_age_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_age_all_tt' ), GetScriptedGui('one_trait_ui_step_age_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_age_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_age_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_age_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
-									visible = "[Not( And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+									visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)102' ), GetScriptedGui('one_trait_ui_pin_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) )]"
 									size = { 80 32 }
 									raw_text = "+1"
-									tooltip = "one_trait_panel_step_age_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_age_all_tt' ), Localize( 'one_trait_panel_step_age_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_step_age_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_age_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
-									visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)102' ), GetScriptedGui('one_trait_ui_pin_age_p1_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 									size = { 80 32 }
 									text = "one_trait_panel_gov_confirm"
-									tooltip = "one_trait_panel_step_age_confirm_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_age_all_confirm_tt' ), Localize( 'one_trait_panel_step_age_confirm_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_step_age_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_age_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
-									visible = "[Not( And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+									visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)102' ), GetScriptedGui('one_trait_ui_pin_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) ) )]"
 									size = { 80 32 }
 									raw_text = "+10"
-									tooltip = "one_trait_panel_step_age_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_age_all_tt' ), Localize( 'one_trait_panel_step_age_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_step_age_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_age_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
-									visible = "[And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)101' ), GetScriptedGui('one_trait_ui_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), And( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('one_trait_ui_confirm').GetValue, '(CFixedPoint)102' ), GetScriptedGui('one_trait_ui_pin_age_p10_reaches_16').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 									size = { 80 32 }
 									text = "one_trait_panel_gov_confirm"
-									tooltip = "one_trait_panel_step_age_confirm_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_age_all_confirm_tt' ), Localize( 'one_trait_panel_step_age_confirm_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_step_age_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_age_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 							}
@@ -341,28 +449,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10,000"
-									tooltip = "one_trait_panel_step_gold_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_gold_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_gold_all_tt' ), GetScriptedGui('one_trait_ui_step_gold_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_gold_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_gold_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_gold_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_gold_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_gold_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_gold_all_tt' ), GetScriptedGui('one_trait_ui_step_gold_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_gold_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_gold_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_gold_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_gold_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_gold_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_gold_all_tt' ), GetScriptedGui('one_trait_ui_step_gold_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_gold_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_gold_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_gold_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+10,000"
-									tooltip = "one_trait_panel_step_gold_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_gold_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_gold_all_tt' ), GetScriptedGui('one_trait_ui_step_gold_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_gold_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_gold_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_gold_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -380,12 +488,12 @@ window = {
 								size = { 110 32 }
 								widget = {
 									size = { 110 32 }
-									visible = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									visible = "[GetScriptedGui('one_trait_ui_target_has_royal_court').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									datacontext = "[Character.GetCourtGrandeurData]"
 									text_single = { size = { 110 32 } autoresize = no align = right|vcenter text = "[CourtGrandeurData.GetCurrent|V0]" }
 								}
 								text_single = {
-									visible = "[Not( GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+									visible = "[Not( GetScriptedGui('one_trait_ui_target_has_royal_court').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									size = { 110 32 }
 									autoresize = no
 									align = right|vcenter
@@ -397,28 +505,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-100"
-									tooltip = "one_trait_panel_step_grandeur_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_grandeur_all_tt' ), GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_grandeur_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10"
-									tooltip = "one_trait_panel_step_grandeur_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_grandeur_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_grandeur_all_tt' ), GetScriptedGui('one_trait_ui_step_grandeur_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_grandeur_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+10"
-									tooltip = "one_trait_panel_step_grandeur_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_grandeur_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_grandeur_all_tt' ), GetScriptedGui('one_trait_ui_step_grandeur_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_grandeur_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+100"
-									tooltip = "one_trait_panel_step_grandeur_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_grandeur_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_grandeur_all_tt' ), GetScriptedGui('one_trait_ui_step_grandeur_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_grandeur_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_grandeur_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_grandeur_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -443,28 +551,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10,000"
-									tooltip = "one_trait_panel_step_influence_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_influence_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_influence_all_tt' ), GetScriptedGui('one_trait_ui_step_influence_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_influence_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_influence_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_influence_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_influence_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_influence_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_influence_all_tt' ), GetScriptedGui('one_trait_ui_step_influence_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_influence_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_influence_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_influence_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_influence_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_influence_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_influence_all_tt' ), GetScriptedGui('one_trait_ui_step_influence_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_influence_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_influence_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_influence_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+10,000"
-									tooltip = "one_trait_panel_step_influence_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_influence_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_influence_all_tt' ), GetScriptedGui('one_trait_ui_step_influence_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_influence_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_influence_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_influence_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -489,28 +597,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10,000"
-									tooltip = "one_trait_panel_step_merit_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_merit_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_merit_all_tt' ), GetScriptedGui('one_trait_ui_step_merit_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_merit_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_merit_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_merit_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_merit_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_merit_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_merit_all_tt' ), GetScriptedGui('one_trait_ui_step_merit_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_merit_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_merit_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_merit_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_merit_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_merit_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_merit_all_tt' ), GetScriptedGui('one_trait_ui_step_merit_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_merit_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_merit_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_merit_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+10,000"
-									tooltip = "one_trait_panel_step_merit_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_merit_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_merit_all_tt' ), GetScriptedGui('one_trait_ui_step_merit_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_merit_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_merit_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_merit_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -535,28 +643,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10,000"
-									tooltip = "one_trait_panel_step_legitimacy_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_legitimacy_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_legitimacy_all_tt' ), GetScriptedGui('one_trait_ui_step_legitimacy_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_legitimacy_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_legitimacy_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_legitimacy_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_legitimacy_all_tt' ), GetScriptedGui('one_trait_ui_step_legitimacy_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_legitimacy_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_legitimacy_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_legitimacy_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_legitimacy_all_tt' ), GetScriptedGui('one_trait_ui_step_legitimacy_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_legitimacy_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+10,000"
-									tooltip = "one_trait_panel_step_legitimacy_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_legitimacy_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_legitimacy_all_tt' ), GetScriptedGui('one_trait_ui_step_legitimacy_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_legitimacy_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_legitimacy_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_legitimacy_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -581,28 +689,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_prestige_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_prestige_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_prestige_all_tt' ), GetScriptedGui('one_trait_ui_step_prestige_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_prestige_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-100"
-									tooltip = "one_trait_panel_step_prestige_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_prestige_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_prestige_all_tt' ), GetScriptedGui('one_trait_ui_step_prestige_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_prestige_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+100"
-									tooltip = "one_trait_panel_step_prestige_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_prestige_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_prestige_all_tt' ), GetScriptedGui('one_trait_ui_step_prestige_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_prestige_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_prestige_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_prestige_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_prestige_all_tt' ), GetScriptedGui('one_trait_ui_step_prestige_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_prestige_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_prestige_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_prestige_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -627,28 +735,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_piety_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_piety_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_piety_all_tt' ), GetScriptedGui('one_trait_ui_step_piety_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_piety_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_piety_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_piety_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-100"
-									tooltip = "one_trait_panel_step_piety_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_piety_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_piety_all_tt' ), GetScriptedGui('one_trait_ui_step_piety_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_piety_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_piety_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_piety_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+100"
-									tooltip = "one_trait_panel_step_piety_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_piety_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_piety_all_tt' ), GetScriptedGui('one_trait_ui_step_piety_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_piety_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_piety_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_piety_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_piety_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_piety_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_piety_all_tt' ), GetScriptedGui('one_trait_ui_step_piety_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_piety_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_piety_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_piety_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -673,28 +781,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-1,000"
-									tooltip = "one_trait_panel_step_renown_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_renown_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_renown_all_tt' ), GetScriptedGui('one_trait_ui_step_renown_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_renown_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_renown_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_renown_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-100"
-									tooltip = "one_trait_panel_step_renown_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_renown_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_renown_all_tt' ), GetScriptedGui('one_trait_ui_step_renown_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_renown_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_renown_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_renown_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+100"
-									tooltip = "one_trait_panel_step_renown_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_renown_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_renown_all_tt' ), GetScriptedGui('one_trait_ui_step_renown_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_renown_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_renown_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_renown_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+1,000"
-									tooltip = "one_trait_panel_step_renown_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_renown_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_renown_all_tt' ), GetScriptedGui('one_trait_ui_step_renown_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_renown_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_renown_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_renown_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -719,28 +827,28 @@ window = {
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-100"
-									tooltip = "one_trait_panel_step_stress_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_stress_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_stress_all_tt' ), GetScriptedGui('one_trait_ui_step_stress_m10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_stress_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_stress_m10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_stress_m10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "-10"
-									tooltip = "one_trait_panel_step_stress_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_stress_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_stress_all_tt' ), GetScriptedGui('one_trait_ui_step_stress_m1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_stress_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_stress_m1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_stress_m1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+10"
-									tooltip = "one_trait_panel_step_stress_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_stress_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_stress_all_tt' ), GetScriptedGui('one_trait_ui_step_stress_p1').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_stress_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_stress_p1').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_stress_p1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
 								button_standard = {
 									size = { 80 32 }
 									raw_text = "+100"
-									tooltip = "one_trait_panel_step_stress_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_step_stress_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_step_stress_all_tt' ), GetScriptedGui('one_trait_ui_step_stress_p10').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Localize( 'one_trait_panel_step_stress_tt' ) )]"
 									enabled = "[GetScriptedGui('one_trait_ui_step_stress_p10').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									onclick = "[GetScriptedGui('one_trait_ui_step_stress_p10').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								}
@@ -2233,13 +2341,14 @@ window = {
 											margin_right = 10
 											spacing = 10
 											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/culture.dds" }
-											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_give" }
+											text_single = { visible = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_give" }
+											text_single = { visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_give_all" }
 											button_standard = {
 												size = { 80 32 }
 												text = "one_trait_panel_act_do"
 												enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_act_identity_culture_give_all_tt' ), GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip_visible = "[Or( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( GetScriptedGui('one_trait_ui_act_identity_culture_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											}
 										}
@@ -2273,14 +2382,15 @@ window = {
 											margin_right = 10
 											spacing = 10
 											icon = { size = { 30 30 } texture = "gfx/interface/icons/character_interactions/icon_culture.dds" }
-											text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital" }
-											text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital_you" }
+											text_single = { visible = "[And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.IsLocalPlayer ) )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital" }
+											text_single = { visible = "[And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital_you" }
+											text_single = { visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_culture_their_capital_all" }
 											button_standard = {
 												size = { 80 32 }
 												text = "one_trait_panel_act_do"
 												enabled = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_act_identity_culture_their_capital_all_tt' ), GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip_visible = "[Or( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												onclick = "[GetScriptedGui('one_trait_ui_act_identity_culture_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											}
 										}
@@ -2314,13 +2424,14 @@ window = {
 											margin_right = 10
 											spacing = 10
 											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/faith.dds" }
-											text_single = { layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_give" }
+											text_single = { visible = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_give" }
+											text_single = { visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_give_all" }
 											button_standard = {
 												size = { 80 32 }
 												text = "one_trait_panel_act_do"
 												enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_act_identity_faith_give_all_tt' ), GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip_visible = "[Or( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( GetScriptedGui('one_trait_ui_act_identity_faith_give').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_give').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											}
 										}
@@ -2354,14 +2465,15 @@ window = {
 											margin_right = 10
 											spacing = 10
 											icon = { size = { 30 30 } texture = "gfx/interface/icons/flat_icons/known_faiths.dds" }
-											text_single = { visible = "[Not( Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital" }
-											text_single = { visible = "[Character.IsLocalPlayer]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital_you" }
+											text_single = { visible = "[And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.IsLocalPlayer ) )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital" }
+											text_single = { visible = "[And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.IsLocalPlayer )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital_you" }
+											text_single = { visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]" layoutpolicy_horizontal = expanding autoresize = no text = "one_trait_panel_act_identity_faith_their_capital_all" }
 											button_standard = {
 												size = { 80 32 }
 												text = "one_trait_panel_act_do"
 												enabled = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-												tooltip_visible = "[Not( GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Select_CString( GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_act_identity_faith_their_capital_all_tt' ), GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												tooltip_visible = "[Or( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Not( GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												onclick = "[GetScriptedGui('one_trait_ui_act_identity_faith_their_capital').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 											}
 										}
@@ -3038,7 +3150,8 @@ window = {
 								spacing = 4
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_health_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_health_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_health').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_health').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3050,13 +3163,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_health') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_health') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_health_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_health.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_health') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_health') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_health_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_health.dds"
 											}
 										}
@@ -3066,18 +3179,19 @@ window = {
 											text = "trait_one_trait_health"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_health') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_health') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_health_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_health') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_health') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_health_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_immortality_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_immortality_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_immortality').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_immortality').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3089,13 +3203,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_immortality') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_immortality') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_immortality_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_immortality.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_immortality') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_immortality') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_immortality_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_immortality.dds"
 											}
 										}
@@ -3105,18 +3219,19 @@ window = {
 											text = "trait_one_trait_immortality"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_immortality') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_immortality') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_immortality_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_immortality') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_immortality') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_immortality_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_giant_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_giant_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_giant').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_giant').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3128,13 +3243,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_giant') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_giant') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_giant_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_giant.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_giant') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_giant') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_giant_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_giant.dds"
 											}
 										}
@@ -3144,18 +3259,19 @@ window = {
 											text = "trait_one_trait_giant"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_giant') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_giant') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_giant_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_giant') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_giant') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_giant_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_fertility_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_fertility_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_fertility').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_fertility').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3167,13 +3283,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_fertility') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fertility') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fertility_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_fertility.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_fertility') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fertility') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fertility_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_fertility.dds"
 											}
 										}
@@ -3183,18 +3299,19 @@ window = {
 											text = "trait_one_trait_fertility"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_fertility') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fertility') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fertility_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_fertility') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fertility') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fertility_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_celibate_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_celibate_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_celibate').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_celibate').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3206,13 +3323,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_celibate') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_celibate') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_celibate_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_celibate.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_celibate') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_celibate') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_celibate_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_celibate.dds"
 											}
 										}
@@ -3222,18 +3339,19 @@ window = {
 											text = "trait_one_trait_celibate"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_celibate') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_celibate') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_celibate_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_celibate') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_celibate') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_celibate_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_stress_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_stress_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_stress').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_stress').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3245,13 +3363,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_stress') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stress') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stress_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_stress.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_stress') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stress') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stress_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_stress.dds"
 											}
 										}
@@ -3261,18 +3379,19 @@ window = {
 											text = "trait_one_trait_stress"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_stress') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stress') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stress_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_stress') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stress') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stress_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_stats_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_stats_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_stats').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_stats').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3284,13 +3403,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_stats') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stats') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stats_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_stats.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_stats') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stats') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stats_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_stats.dds"
 											}
 										}
@@ -3300,18 +3419,19 @@ window = {
 											text = "trait_one_trait_stats"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_stats') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stats') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stats_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_stats') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_stats') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_stats_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_xp_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_xp_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_xp').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_xp').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3323,13 +3443,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_xp') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_xp') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_xp_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_xp.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_xp') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_xp') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_xp_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_xp.dds"
 											}
 										}
@@ -3339,18 +3459,19 @@ window = {
 											text = "trait_one_trait_xp"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_xp') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_xp') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_xp_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_xp') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_xp') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_xp_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_one_trait_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_one_trait_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_one_trait').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_one_trait').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3362,13 +3483,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_one_trait_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_one_trait_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait.dds"
 											}
 										}
@@ -3378,18 +3499,19 @@ window = {
 											text = "trait_one_trait"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_one_trait_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_one_trait_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_wealth_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_wealth_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_wealth').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_wealth').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3401,13 +3523,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_wealth') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wealth') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wealth_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_wealth.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_wealth') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wealth') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wealth_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_wealth.dds"
 											}
 										}
@@ -3417,18 +3539,19 @@ window = {
 											text = "trait_one_trait_wealth"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_wealth') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wealth') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wealth_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_wealth') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wealth') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wealth_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_fame_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_fame_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_fame').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_fame').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3440,13 +3563,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_fame') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fame') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fame_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_fame.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_fame') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fame') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fame_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_fame.dds"
 											}
 										}
@@ -3456,18 +3579,19 @@ window = {
 											text = "trait_one_trait_fame"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_fame') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fame') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fame_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_fame') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_fame') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_fame_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_faith_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_faith_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_faith').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_faith').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3479,13 +3603,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_faith') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_faith') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_faith_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_faith.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_faith') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_faith') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_faith_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_faith.dds"
 											}
 										}
@@ -3495,18 +3619,19 @@ window = {
 											text = "trait_one_trait_faith"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_faith') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_faith') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_faith_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_faith') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_faith') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_faith_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_charisma_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_charisma_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_charisma').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_charisma').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3518,13 +3643,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_charisma') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_charisma') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_charisma_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_charisma.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_charisma') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_charisma') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_charisma_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_charisma.dds"
 											}
 										}
@@ -3534,18 +3659,19 @@ window = {
 											text = "trait_one_trait_charisma"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_charisma') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_charisma') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_charisma_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_charisma') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_charisma') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_charisma_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_dread_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_dread_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_dread').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_dread').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3557,13 +3683,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_dread') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_dread') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_dread_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_dread.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_dread') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_dread') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_dread_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_dread.dds"
 											}
 										}
@@ -3573,18 +3699,19 @@ window = {
 											text = "trait_one_trait_dread"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_dread') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_dread') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_dread_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_dread') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_dread') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_dread_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_manager_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_manager_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_manager').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_manager').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3596,13 +3723,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_manager') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_manager') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_manager_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_manager.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_manager') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_manager') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_manager_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_manager.dds"
 											}
 										}
@@ -3612,18 +3739,19 @@ window = {
 											text = "trait_one_trait_manager"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_manager') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_manager') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_manager_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_manager') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_manager') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_manager_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_builder_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_builder_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_builder').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_builder').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3635,13 +3763,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_builder') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_builder') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_builder_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_builder.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_builder') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_builder') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_builder_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_builder.dds"
 											}
 										}
@@ -3651,18 +3779,19 @@ window = {
 											text = "trait_one_trait_builder"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_builder') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_builder') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_builder_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_builder') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_builder') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_builder_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_domain_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_domain_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_domain').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_domain').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3674,13 +3803,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_domain') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_domain') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_domain_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_domain.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_domain') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_domain') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_domain_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_domain.dds"
 											}
 										}
@@ -3690,18 +3819,19 @@ window = {
 											text = "trait_one_trait_domain"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_domain') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_domain') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_domain_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_domain') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_domain') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_domain_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_commander_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_commander_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_commander').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_commander').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3713,13 +3843,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_commander') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_commander') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_commander_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_commander.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_commander') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_commander') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_commander_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_commander.dds"
 											}
 										}
@@ -3729,18 +3859,19 @@ window = {
 											text = "trait_one_trait_commander"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_commander') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_commander') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_commander_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_commander') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_commander') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_commander_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_scheme_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_scheme_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_scheme').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_scheme').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3752,13 +3883,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_scheme') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_scheme') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_scheme_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_scheme.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_scheme') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_scheme') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_scheme_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_scheme.dds"
 											}
 										}
@@ -3768,18 +3899,19 @@ window = {
 											text = "trait_one_trait_scheme"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_scheme') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_scheme') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_scheme_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_scheme') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_scheme') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_scheme_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_steppe_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_steppe_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_steppe').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_steppe').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3791,13 +3923,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_steppe') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_steppe') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_steppe_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_steppe.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_steppe') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_steppe') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_steppe_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_steppe.dds"
 											}
 										}
@@ -3807,18 +3939,19 @@ window = {
 											text = "trait_one_trait_steppe"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_steppe') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_steppe') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_steppe_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_steppe') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_steppe') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_steppe_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_trait_wanderer_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_trait_all_tt' ), Localize( 'one_trait_panel_trait_wanderer_tt' ) )]"
+									enabled = "[Or( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetScriptedGui('one_trait_ui_trait_wanderer').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_trait_wanderer').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -3830,13 +3963,13 @@ window = {
 												parentanchor = center
 												size = { 44 44 }
 												alpha = 0.3
-												visible = "[Not( Character.HasTrait( GetTrait('one_trait_wanderer') ) )]"
+												visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wanderer') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wanderer_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_wanderer.dds"
 											}
 											icon = {
 												parentanchor = center
 												size = { 44 44 }
-												visible = "[Character.HasTrait( GetTrait('one_trait_wanderer') )]"
+												visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wanderer') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wanderer_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 												texture = "gfx/interface/icons/traits/one_trait_wanderer.dds"
 											}
 										}
@@ -3846,11 +3979,11 @@ window = {
 											text = "trait_one_trait_wanderer"
 										}
 										text_single = {
-											visible = "[Character.HasTrait( GetTrait('one_trait_wanderer') )]"
+											visible = "[Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wanderer') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wanderer_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
 											text = "one_trait_panel_on"
 										}
 										text_single = {
-											visible = "[Not( Character.HasTrait( GetTrait('one_trait_wanderer') ) )]"
+											visible = "[Not( Or( And( Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Character.HasTrait( GetTrait('one_trait_wanderer') ) ), And( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_trait_wanderer_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
 											text = "one_trait_panel_off"
 										}
 									}
@@ -3861,7 +3994,10 @@ window = {
 					button_standard = {
 						size = { 240 32 }
 						text = "one_trait_panel_remove_all"
-						visible = "[GetScriptedGui('one_trait_ui_remove_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						visible = "[Or( GetScriptedGui('one_trait_ui_remove_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+						enabled = "[GetScriptedGui('one_trait_ui_remove_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						tooltip = "one_trait_panel_not_for_all_pinned_tt"
+						tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						onclick = "[GetScriptedGui('one_trait_ui_remove_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 					}
 					expand = {}
@@ -4556,7 +4692,7 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_partition').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								tooltip = "one_trait_panel_law_not_offered_tt"
+								tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_law_not_offered_tt' ) )]"
 								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_partition').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'partition_succession_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_partition').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
@@ -4579,7 +4715,7 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_high_partition').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								tooltip = "one_trait_panel_law_not_offered_tt"
+								tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_law_not_offered_tt' ) )]"
 								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_high_partition').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'high_partition_succession_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_high_partition').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
@@ -4602,7 +4738,7 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_confederate_partition').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								tooltip = "one_trait_panel_law_not_offered_tt"
+								tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_law_not_offered_tt' ) )]"
 								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_confederate_partition').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'confederate_partition_succession_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_confederate_partition').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
@@ -4625,7 +4761,7 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_primogeniture').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								tooltip = "one_trait_panel_law_not_offered_tt"
+								tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_law_not_offered_tt' ) )]"
 								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_primogeniture').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'single_heir_succession_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_primogeniture').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
@@ -4648,7 +4784,7 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_ultimogeniture').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								tooltip = "one_trait_panel_law_not_offered_tt"
+								tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_law_not_offered_tt' ) )]"
 								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_ultimogeniture').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'single_heir_succession_law_youngest' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_ultimogeniture').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
@@ -4671,7 +4807,7 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_house_seniority').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-								tooltip = "one_trait_panel_law_not_offered_tt"
+								tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_law_not_offered_tt' ) )]"
 								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_house_seniority').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'single_heir_dynasty_house' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_house_seniority').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
@@ -4695,6 +4831,8 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_male_only').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								tooltip = "one_trait_panel_not_for_all_pinned_tt"
+								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_male_only').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'male_only_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_male_only').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
 									margin_left = 14
@@ -4716,6 +4854,8 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_male_preference').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								tooltip = "one_trait_panel_not_for_all_pinned_tt"
+								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_male_preference').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'male_preference_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_male_preference').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
 									margin_left = 14
@@ -4737,6 +4877,8 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_equal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								tooltip = "one_trait_panel_not_for_all_pinned_tt"
+								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_equal').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'equal_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_equal').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
 									margin_left = 14
@@ -4758,6 +4900,8 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_female_preference').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								tooltip = "one_trait_panel_not_for_all_pinned_tt"
+								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_female_preference').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'female_preference_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_female_preference').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
 									margin_left = 14
@@ -4779,6 +4923,8 @@ window = {
 							button_standard = {
 								size = { 680 40 }
 								enabled = "[GetScriptedGui('one_trait_ui_law_female_only').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								tooltip = "one_trait_panel_not_for_all_pinned_tt"
+								tooltip_visible = "[And( Not( GetScriptedGui('one_trait_ui_law_female_only').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), Not( Character.HasRealmLaw( 'female_only_law' ) ) )]"
 								onclick = "[GetScriptedGui('one_trait_ui_law_female_only').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 								hbox = {
 									margin_left = 14
@@ -5820,19 +5966,28 @@ window = {
 						button_standard = {
 							size = { 210 32 }
 							text = "one_trait_panel_raise"
-							visible = "[GetScriptedGui('one_trait_ui_sanctum_raise').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							visible = "[Or( GetScriptedGui('one_trait_ui_sanctum_raise').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							enabled = "[GetScriptedGui('one_trait_ui_sanctum_raise').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_sanctum_raise').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 210 32 }
 							text = "one_trait_panel_teardown"
-							visible = "[GetScriptedGui('one_trait_ui_sanctum_teardown').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							visible = "[Or( GetScriptedGui('one_trait_ui_sanctum_teardown').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							enabled = "[GetScriptedGui('one_trait_ui_sanctum_teardown').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_sanctum_teardown').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 240 32 }
 							text = "one_trait_panel_invoke"
-							visible = "[GetScriptedGui('one_trait_ui_sanctum_invoke').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							visible = "[Or( GetScriptedGui('one_trait_ui_sanctum_invoke').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							enabled = "[GetScriptedGui('one_trait_ui_sanctum_invoke').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_sanctum_invoke').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 					}
@@ -5844,7 +5999,8 @@ window = {
 								spacing = 4
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_builder_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_builder_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_builder').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -5896,7 +6052,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_golden_age_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_golden_age_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_golden_age').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -5948,7 +6105,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_one_faith_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_one_faith_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_one_faith').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6000,7 +6158,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_one_people_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_one_people_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_one_people').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6052,7 +6211,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_all_seeing_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_all_seeing_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_all_seeing').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6104,7 +6264,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_leash_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_leash_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_leash').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6156,7 +6317,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_no_dissent_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_no_dissent_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_no_dissent').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6208,7 +6370,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_relic_forge_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_relic_forge_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_relic_forge').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6260,7 +6423,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_champions_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_champions_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_champions').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6312,7 +6476,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_levies_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_levies_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_levies').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6364,7 +6529,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_power_tribute_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_power_tribute_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_power_tribute').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6435,7 +6601,8 @@ window = {
 								spacing = 4
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_army_knights_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_army_knights_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_army_knights').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6474,7 +6641,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_army_unlimited_knights_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_army_unlimited_knights_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_army_unlimited_knights').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6513,7 +6681,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_army_menatarms_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_army_menatarms_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_army_menatarms').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6552,7 +6721,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_army_free_menatarms_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_army_free_menatarms_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_army_free_menatarms').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6591,7 +6761,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_army_tireless_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_army_tireless_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_army_tireless').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6630,7 +6801,8 @@ window = {
 								}
 								button_standard = {
 									size = { 680 52 }
-									tooltip = "one_trait_panel_army_swift_tt"
+									tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_army_swift_tt' ) )]"
+									enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 									onclick = "[GetScriptedGui('one_trait_ui_army_swift').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									hbox = {
 										margin_left = 8
@@ -6709,25 +6881,29 @@ window = {
 						button_standard = {
 							size = { 80 32 }
 							raw_text = "-1,000"
-							tooltip = "one_trait_panel_ring_count_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_ring_count_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_ring_count_m1000').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 80 32 }
 							raw_text = "-100"
-							tooltip = "one_trait_panel_ring_count_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_ring_count_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_ring_count_m100').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 80 32 }
 							raw_text = "+100"
-							tooltip = "one_trait_panel_ring_count_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_ring_count_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_ring_count_p100').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						button_standard = {
 							size = { 80 32 }
 							raw_text = "+1,000"
-							tooltip = "one_trait_panel_ring_count_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_ring_count_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_ring_count_p1000').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 					}
@@ -6735,7 +6911,8 @@ window = {
 						spacing = 8
 						button_standard = {
 							size = { 80 80 }
-							tooltip = "one_trait_panel_spawn_legion_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_spawn_legion_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_spawn_legion').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							icon = {
 								parentanchor = center
@@ -6758,7 +6935,8 @@ window = {
 						}
 						button_standard = {
 							size = { 80 80 }
-							tooltip = "one_trait_panel_spawn_bowmen_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_spawn_bowmen_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_spawn_bowmen').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							icon = {
 								parentanchor = center
@@ -6781,7 +6959,8 @@ window = {
 						}
 						button_standard = {
 							size = { 80 80 }
-							tooltip = "one_trait_panel_spawn_riders_tt"
+							tooltip = "[Select_CString( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'one_trait_panel_not_for_all_pinned_tt' ), Localize( 'one_trait_panel_spawn_riders_tt' ) )]"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 							onclick = "[GetScriptedGui('one_trait_ui_spawn_riders').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							icon = {
 								parentanchor = center
@@ -6806,7 +6985,10 @@ window = {
 					button_standard = {
 						size = { 320 32 }
 						text = "one_trait_panel_disband"
-						visible = "[GetScriptedGui('one_trait_ui_disband').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						visible = "[Or( GetScriptedGui('one_trait_ui_disband').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+						enabled = "[GetScriptedGui('one_trait_ui_disband').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						tooltip = "one_trait_panel_not_for_all_pinned_tt"
+						tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						onclick = "[GetScriptedGui('one_trait_ui_disband').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 					}
 					expand = {}
@@ -6926,6 +7108,9 @@ window = {
 						button_standard = {
 							size = { 110 32 }
 							text = "one_trait_panel_release"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_release_secular').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						}
@@ -6951,6 +7136,9 @@ window = {
 						button_standard = {
 							size = { 110 32 }
 							text = "one_trait_panel_release"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_release_clerical').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						}
@@ -6976,6 +7164,9 @@ window = {
 						button_standard = {
 							size = { 110 32 }
 							text = "one_trait_panel_release"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_release_realm_priest').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						}
@@ -7001,6 +7192,9 @@ window = {
 						button_standard = {
 							size = { 110 32 }
 							text = "one_trait_panel_release"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_release_ot_clerical').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						}
@@ -7026,6 +7220,9 @@ window = {
 						button_standard = {
 							size = { 110 32 }
 							text = "one_trait_panel_release"
+							enabled = "[Not( GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+							tooltip = "one_trait_panel_not_for_all_pinned_tt"
+							tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 							onclick = "[GetScriptedGui('one_trait_ui_release_ot_realm_priest').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						}
 						}
@@ -7033,7 +7230,10 @@ window = {
 					button_standard = {
 						size = { 260 32 }
 						text = "one_trait_panel_release_all"
-						visible = "[GetScriptedGui('one_trait_ui_release_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						visible = "[Or( GetScriptedGui('one_trait_ui_release_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+						enabled = "[GetScriptedGui('one_trait_ui_release_all').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						tooltip = "one_trait_panel_not_for_all_pinned_tt"
+						tooltip_visible = "[GetScriptedGui('one_trait_ui_apply_all_on').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 						onclick = "[GetScriptedGui('one_trait_ui_release_all').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 					}
 					expand = {}
@@ -7772,6 +7972,87 @@ window = {
 						}
 					}
 					expand = {}
+				}
+			}
+		}
+	}
+
+	# ---- 2.12 Task 2: the Details drop-down, over the sidebar and content (pin_details) ----
+	widget = {
+		name = "one_trait_pin_details"
+		visible = "[And( GetPlayer.MakeScope.Var('one_trait_ui_pins_open').IsSet, GetScriptedGui('one_trait_ui_pins_details').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+		position = { 40 170 }
+		size = { 920 212 }
+		alwaystransparent = no
+		background = { using = Background_Area_Solid }
+		scrollbox = {
+			position = { 8 8 }
+			size = { 904 196 }
+			blockoverride "scrollbox_content" {
+				vbox = {
+					layoutpolicy_horizontal = expanding
+					spacing = 4
+					datamodel = "[GetPlayer.MakeScope.GetList('one_trait_pinned')]"
+					item = {
+						widget = {
+							visible = "[Scope.GetCharacter.IsAlive]"
+							datacontext = "[Scope.GetCharacter]"
+							size = { 820 40 }
+							hbox = {
+								spacing = 8
+								button_standard = {
+									size = { 700 40 }
+									down = "[ObjectsEqual( GetPlayer.MakeScope.Var('one_trait_ui_target').Char, Character.Self )]"
+									tooltip = "one_trait_panel_pin_row_tt"
+									onclick = "[GetScriptedGui('one_trait_ui_pin_select').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pinned', Character.MakeScope ).End )]"
+									hbox = {
+										margin_left = 4
+										margin_right = 8
+										spacing = 8
+										widget = {
+											size = { 32 38 }
+											portrait_button = {
+												parentanchor = center
+												size = { 30 36 }
+												alwaystransparent = yes
+												using = portrait_base
+												portrait_texture = "[Character.GetPortrait('environment_head', 'camera_head', 'idle', PdxGetWidgetScreenSize(PdxGuiWidget.Self))]"
+												mask = "gfx/portraits/portrait_mask_head_small.dds"
+												effectname = "NoHighlight"
+												tooltip_visible = no
+											}
+										}
+										text_single = { size = { 240 32 } autoresize = no elide = right align = left|vcenter text = "[Character.GetUINameNoTooltip]" }
+										hbox = {
+											spacing = 2
+											icon = { size = { 24 24 } texture = "gfx/interface/icons/portraits/elder.dds" }
+											text_single = { size = { 40 32 } autoresize = no align = left|vcenter text = "[Character.GetAge]" }
+										}
+										hbox = {
+											spacing = 2
+											icon = { size = { 24 24 } texture = "gfx/interface/icons/icon_gold.dds" }
+											text_single = { size = { 80 32 } autoresize = no align = left|vcenter text = "[Character.GetGold|0]" }
+										}
+										hbox = {
+											spacing = 2
+											icon = { size = { 24 24 } texture = "[Character.GetPrestigeLevelTexture]" }
+											text_single = { size = { 70 32 } autoresize = no align = left|vcenter text = "[Character.GetPrestige|0]" }
+										}
+										hbox = {
+											spacing = 2
+											icon = { size = { 24 24 } texture = "[Character.GetPietyLevelTexture]" }
+											text_single = { size = { 70 32 } autoresize = no align = left|vcenter text = "[Character.GetPiety|0]" }
+										}
+										expand = {}
+									}
+								}
+								icon = { size = { 28 28 } texture = "gfx/interface/icons/icon_culture.dds" tooltip = "[Character.GetCulture.GetNameNoTooltip]" }
+								icon = { size = { 28 28 } texture = "[Character.GetFaith.GetIcon]" tooltip = "[Character.GetFaith.GetNameNoTooltip]" }
+								button_standard = { size = { 32 32 } text = "one_trait_panel_pin_drop" tooltip = "one_trait_panel_pin_drop_tt" onclick = "[GetScriptedGui('one_trait_ui_pin_drop').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pinned', Character.MakeScope ).End )]" }
+								expand = {}
+							}
+						}
+					}
 				}
 			}
 		}

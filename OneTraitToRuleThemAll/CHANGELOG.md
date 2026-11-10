@@ -1,5 +1,33 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.12] — 2026-11-09
+
+Pin the characters you edit often, and edit them all at once. A long-standing roadmap item (multi-character
+editing), modelled on Divine Intervention's pinned characters.
+
+### Added
+- **Pin and unpin** from the panel header (beside Yourself). Up to twelve characters; you cannot pin yourself.
+- **The pinned strip**: their portraits beside the panel's own, one click to switch the panel to any of them, on
+  whatever tab is open.
+- **Details**: a list over the top of the page with each pinned character's age, gold, prestige, piety, culture
+  and faith, and an unpin button per row. It scrolls past four rows.
+- **Apply to: This character | All pinned.** On All pinned, these act on everyone pinned at once:
+  - every Character > Stats stepper (age, gold, court grandeur, influence, merit, legitimacy, prestige, piety,
+    renown, stress), with each one's usual limits (adults stay at 16 or older; a child reaching 16 asks once for
+    the whole group; grandeur only for those who hold a royal court; renown once per dynasty);
+  - every cheat trait tile: it gives the trait to everyone who lacks it, or takes it from all of them if all have
+    it;
+  - give them your culture or faith, and each adopts their own capital's culture or faith (the unlanded are
+    skipped).
+
+  Every other row is greyed with the reason. A toast says how many were changed. The switch goes back to This
+  character every time the panel opens.
+- The list is saved with your game. Dead characters drop off it. If you die and play on as your heir, the list
+  moves to them (and drops them from it).
+
+### Fixed
+- The panel's window file had one closing brace too many at its end (harmless, now gone).
+
 ## [2.11] — 2026-11-06
 
 A new cheat aimed at the other side, and the gold army look goes.
