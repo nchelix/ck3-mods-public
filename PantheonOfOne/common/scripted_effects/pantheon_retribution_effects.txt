@@ -66,16 +66,24 @@ pantheon_retri_close_core_effect = {
 		limit = { is_target_in_variable_list = { name = pantheon_open_retributions target = $WHO$ } }
 		remove_list_variable = { name = pantheon_open_retributions target = $WHO$ }
 	}
+	# 2.11 repair H: a dead attacker or defender (gathered by the prune) has no variables, so each side is checked alive
+	# before its variables are read or removed; a dead attacker's record is simply dropped from the god's list above.
 	$WHO$ = {
-		# 2.6: the defender stops naming this attacker, if they still do (a newer call by another attacker keeps its name)
-		var:pantheon_retri_defender ?= {
-			if = {
-				limit = { var:pantheon_retri_attacker_shown ?= prev }
-				remove_variable = pantheon_retri_attacker_shown
+		if = {
+			limit = { pantheon_live_character_trigger = yes }
+			# 2.6: the defender stops naming this attacker, if they still do (a newer call by another attacker keeps its name)
+			var:pantheon_retri_defender ?= {
+				if = {
+					limit = {
+						pantheon_live_character_trigger = yes
+						var:pantheon_retri_attacker_shown ?= prev
+					}
+					remove_variable = pantheon_retri_attacker_shown
+				}
 			}
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_token }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_defender }
 		}
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_token }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_retri_defender }
 	}
 }
 

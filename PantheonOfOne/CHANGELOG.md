@@ -1,5 +1,25 @@
 ﻿# Changelog — Pantheon of One
 
+## [2.11] — 2026-11-10
+
+The God page: your godhood at a glance.
+
+### Added
+- The God tab is now a status board (#85), with two sub-tabs, Overview and Seeded lands.
+  - Overview shows your Worship this season and last, and your followers: their number, average Devotion, a bar split by band (Zealous, Devout, Faithful, Wavering, Lapsing) with a count for each, and how many are not yet measured.
+  - A Ready when card gives a bar and the time left for the Great Prayer, the Miracle, the Sign of Steadfastness, Plague's toll (while its Devotion loss lasts) and the Age of Faith, or says what is still needed.
+  - A Your pantheon card lists your Great Temple, demigods, Godsblood houses, prayers heard and boons asked.
+  - Under Your divinity, only the actions you can use right now show.
+  - The Overview scrolls when a tall selected-follower strip leaves it too little room.
+
+### Changed
+- The right-click entry Divine Will is now called Pantheon: it opens the Pantheon window. On a follower, they are selected; on yourself, it opens at The God.
+- The Godhood tour button left the God tab; start a tour from the Activities menu, as before.
+
+### Fixed
+- The window's title reads "The Pantheon of" and your god's name, not "The Pantheon of you".
+- A Great Boon holder who has died no longer floods error.log while the Pantheon window is open; dead suppliants and Retribution attackers also no longer log errors.
+
 ## [2.10] — 2026-11-05
 
 Fire from Heaven: the god's final answer to a great enemy, and a mercy beside it.

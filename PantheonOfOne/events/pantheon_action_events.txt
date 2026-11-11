@@ -173,7 +173,7 @@ pantheon.0107 = {
 	}
 }
 
-# Open the Pantheon window (Divine Will): rebuild the lists, then show it.
+# Open the Pantheon window (the Pantheon interaction, pantheon_divine_will_interaction): rebuild the lists, then show it.
 pantheon.0108 = {
 	type = character_event
 	hidden = yes

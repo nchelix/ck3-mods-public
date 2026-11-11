@@ -93,6 +93,10 @@ pantheon_prayer_create_effect = {
 # Close the prayer record of $WHO$ (a scope reference), silently: off the god's list, the record's variables
 # cleared, and a pending send for exactly this prayer dropped (a send for another prayer or a Retribution call is
 # left alone). Idempotent. Root/this is the god.
+# 2.11 repair H: a dead suppliant (gathered by the prune) has no variables, so every read or write in $WHO$'s scope checks
+# life first and a dead suppliant's record is simply dropped from the god's list. Their pending send is dropped by the
+# rebuild's pantheon_send_validate_effect (recipient dead). Their kin reservation on the prisoner needs no release:
+# its only reader, pantheon_kin_reservation_live_trigger, treats a dead relative's marker as free and the next pass overwrites it.
 pantheon_prayer_close_core_effect = {
 	if = {
 		limit = {
@@ -102,7 +106,10 @@ pantheon_prayer_close_core_effect = {
 				var:pantheon_send_kind = 1
 				var:pantheon_send_kind = 2
 			}
-			$WHO$ = { has_variable = pantheon_prayer_token }
+			$WHO$ = {
+				pantheon_live_character_trigger = yes
+				has_variable = pantheon_prayer_token
+			}
 			var:pantheon_send_token = $WHO$.var:pantheon_prayer_token
 		}
 		remove_variable = pantheon_send_kind
@@ -120,22 +127,25 @@ pantheon_prayer_close_core_effect = {
 	# prisoner's reservation, with the ownership check, BEFORE the record's variables go. `?=` keeps an unset
 	# pantheon_prayer_kin from erroring.
 	if = {
-		limit = { $WHO$ = { var:pantheon_prayer_need ?= 10 } }
+		limit = { $WHO$ = { pantheon_live_character_trigger = yes var:pantheon_prayer_need ?= 10 } }
 		$WHO$ = {
 			save_temporary_scope_as = pantheon_kin_closing
 			var:pantheon_prayer_kin ?= { pantheon_kin_release_reservation_effect = { HOLDER = scope:pantheon_kin_closing } }
 		}
 	}
 	$WHO$ = {
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_open }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_token }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_origin }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_need }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_kin }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_gift }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_price }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_sign_price }
-		pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_window }
+		if = {
+			limit = { pantheon_live_character_trigger = yes }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_open }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_token }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_origin }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_need }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_kin }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_gift }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_price }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_sign_price }
+			pantheon_prayer_forget_var_effect = { NAME = pantheon_prayer_window }
+		}
 	}
 }
 
@@ -187,6 +197,7 @@ pantheon_prayer_deadline_effect = {
 			exists = scope:pantheon_suppliant
 			exists = scope:pantheon_prayer_delivered
 			scope:pantheon_suppliant = {
+				pantheon_live_character_trigger = yes	# 2.11 repair H2: a dead suppliant has no variables (the prune drops the record)
 				has_variable = pantheon_prayer_open
 				has_variable = pantheon_prayer_token
 				var:pantheon_prayer_token = scope:pantheon_prayer_delivered

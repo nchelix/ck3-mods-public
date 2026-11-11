@@ -27,12 +27,14 @@ pantheon_freedom_pass_effect = {
 	# 2.4 repair 1 (R6): a follower who holds a live, unoffered kind 7 (Great Prayer for Freedom) is offered at once, when the
 	# god has no Great Boon event open. It ignores the 182-day tick and the shared Great Prayer cooldown (which a grant or
 	# a refusal still sets). One per pass; same hand-off as pantheon_pick_great_boon_effect.
+	# 2.11 repair G1: the live check leads both lists, before the kind is read (a dead holder has no variables).
 	if = {
 		limit = {
 			NOT = { has_variable = pantheon_boon_event_open }
 			NOT = { has_variable = pantheon_boon_dispatch_pending }
 			any_in_list = {
 				variable = pantheon_boon_holders
+				pantheon_live_character_trigger = yes
 				var:pantheon_aspiration_kind ?= 7
 				pantheon_boon_sendable_trigger = { GOD = root }
 			}
@@ -40,6 +42,7 @@ pantheon_freedom_pass_effect = {
 		ordered_in_list = {
 			variable = pantheon_boon_holders
 			limit = {
+				pantheon_live_character_trigger = yes
 				var:pantheon_aspiration_kind ?= 7
 				pantheon_boon_sendable_trigger = { GOD = root }
 			}
@@ -186,9 +189,13 @@ pantheon_kin_one_effect = {
 # again for a year; a reservation that already belongs to another relative is left alone (the ownership check). Run by
 # the record close (need 10), pantheon_clear_aspiration_effect (kind 7: grant, refusal, expiry, invalidation) and
 # pantheon_boon_new_request_effect (a replacement).
+# 2.11 repair H2: the prisoner may have died while the record stood, and a dead character has no variables: life first.
 pantheon_kin_release_reservation_effect = {
 	if = {
-		limit = { var:pantheon_kin_prayer_for ?= { this = $HOLDER$ } }
+		limit = {
+			pantheon_live_character_trigger = yes
+			var:pantheon_kin_prayer_for ?= { this = $HOLDER$ }
+		}
 		remove_variable = pantheon_kin_prayer_for
 		set_variable = { name = pantheon_kin_asked value = yes years = 1 }
 	}

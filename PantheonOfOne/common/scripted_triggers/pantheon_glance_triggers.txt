@@ -49,6 +49,8 @@ pantheon_follower_oath_trigger = {
 
 # The god has an open Retribution for this follower as the DEFENDER (R5: the holder is saved as a temporary scope and compared;
 # the god's list holds the attackers, each with var:pantheon_retri_defender).
+# 2.11 repair H: an attacker who died stays on the list until the prune, and a dead character has no variables, so each
+# attacker is checked alive before its defender is read (the trait evaluates this often).
 pantheon_follower_retribution_trigger = {
 	is_alive = yes
 	has_variable = pantheon_glance_god
@@ -56,6 +58,7 @@ pantheon_follower_retribution_trigger = {
 	var:pantheon_glance_god ?= {
 		any_in_list = {
 			variable = pantheon_open_retributions
+			pantheon_live_character_trigger = yes
 			var:pantheon_retri_defender ?= scope:pantheon_follower_holder
 		}
 	}

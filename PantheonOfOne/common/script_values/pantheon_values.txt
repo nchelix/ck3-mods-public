@@ -859,6 +859,7 @@ pantheon_ui_count_great = {
 
 # 2.6 (Task 5, R4): a Great Boon left waiting is one more thing waiting on the god, counted only while it is still the
 # live, valid request the flag was set for (an expired or replaced one drops at once). The list may not exist yet.
+# 2.11 repair G1: the live check comes first, because a dead holder stays listed until the quarterly upkeep and has no variables.
 pantheon_ui_count_waiting_boons = {
 	value = 0
 	if = {
@@ -866,6 +867,7 @@ pantheon_ui_count_waiting_boons = {
 		every_in_list = {
 			variable = pantheon_boon_holders
 			limit = {
+				pantheon_live_character_trigger = yes
 				has_variable = pantheon_aspiration_live
 				has_variable = pantheon_aspiration_waiting
 				has_variable = pantheon_aspiration_id
@@ -1103,4 +1105,173 @@ pantheon_steady_tier_needed = {
 		limit = { has_variable = pantheon_steady_reach var:pantheon_steady_reach = 3 }
 		value = 5
 	}
+}
+
+# ---- 2.11 (Task 11, corrected in P2b): the God page's follower statistics. God scope. pantheon_ui_follower_stats_effect
+# (pantheon_ui_effects.txt) counts them on every rebuild over the whole follower pool (rulers of the faith plus pantheon_known,
+# each once) and stores them on the god as pantheon_ui_stat_*; these values only read what it stored. They no longer walk
+# pantheon_ui_followers, which stops at 300. The thresholds, the live-character rule and the measured-only rule (has
+# pantheon_devotion) live in the effect. Each read is guarded: before the first rebuild (an old save) nothing is stored yet.
+pantheon_ui_follower_count = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_count }
+		add = var:pantheon_ui_stat_count
+	}
+}
+
+pantheon_ui_follower_measured = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_measured }
+		add = var:pantheon_ui_stat_measured
+	}
+}
+
+pantheon_ui_follower_unmeasured = {
+	value = pantheon_ui_follower_count
+	subtract = pantheon_ui_follower_measured
+	min = 0
+}
+
+# Review Focus 4: 0 while nobody is measured; never a division by zero
+pantheon_ui_devotion_avg = {
+	value = 0
+	if = {
+		limit = { pantheon_ui_follower_measured > 0 has_variable = pantheon_ui_stat_devotion_sum }
+		add = var:pantheon_ui_stat_devotion_sum
+		divide = pantheon_ui_follower_measured
+		round = yes
+	}
+}
+
+# The five bands, measured followers only (Zealous >= 90, Devout 75-89, Faithful 25-74, Wavering 10-24, Lapsing < 10)
+pantheon_ui_band_zealous = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_zealous }
+		add = var:pantheon_ui_stat_zealous
+	}
+}
+
+pantheon_ui_band_devout = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_devout }
+		add = var:pantheon_ui_stat_devout
+	}
+}
+
+pantheon_ui_band_faithful = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_faithful }
+		add = var:pantheon_ui_stat_faithful
+	}
+}
+
+pantheon_ui_band_wavering = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_wavering }
+		add = var:pantheon_ui_stat_wavering
+	}
+}
+
+pantheon_ui_band_lapsing = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_ui_stat_lapsing }
+		add = var:pantheon_ui_stat_lapsing
+	}
+}
+
+# The stacked bar's cumulative percentages of the measured, 0-100 (Zealous; + Devout; + Faithful; + Wavering; all). The bar
+# draws cum_5 first and cum_1 last, so each band shows as the strip between two of them. 0 while nobody is measured.
+pantheon_ui_band_cum_1 = {
+	value = 0
+	if = {
+		limit = { pantheon_ui_follower_measured > 0 }
+		add = pantheon_ui_band_zealous
+		multiply = 100
+		divide = pantheon_ui_follower_measured
+	}
+}
+
+pantheon_ui_band_cum_2 = {
+	value = 0
+	if = {
+		limit = { pantheon_ui_follower_measured > 0 }
+		add = pantheon_ui_band_zealous
+		add = pantheon_ui_band_devout
+		multiply = 100
+		divide = pantheon_ui_follower_measured
+	}
+}
+
+pantheon_ui_band_cum_3 = {
+	value = 0
+	if = {
+		limit = { pantheon_ui_follower_measured > 0 }
+		add = pantheon_ui_band_zealous
+		add = pantheon_ui_band_devout
+		add = pantheon_ui_band_faithful
+		multiply = 100
+		divide = pantheon_ui_follower_measured
+	}
+}
+
+pantheon_ui_band_cum_4 = {
+	value = 0
+	if = {
+		limit = { pantheon_ui_follower_measured > 0 }
+		add = pantheon_ui_band_zealous
+		add = pantheon_ui_band_devout
+		add = pantheon_ui_band_faithful
+		add = pantheon_ui_band_wavering
+		multiply = 100
+		divide = pantheon_ui_follower_measured
+	}
+}
+
+pantheon_ui_band_cum_5 = {
+	value = 0
+	if = {
+		limit = { pantheon_ui_follower_measured > 0 }
+		value = 100
+	}
+}
+
+# ---- 2.11 (Task 13): the Ready-when card's month bars. God scope; UI only. The miracle cooldown and Age of Faith are
+# months-left counters set in pantheon_miracle_effects.txt (pantheon_miracle_cast_effect, pantheon_miracle_age_effect) and
+# counted down by pantheon.0011. Their full length follows the economy game rule (20 or 10 years; 10 or 20 years), so the
+# bars take their maximum from here, not from a number written in the GUI.
+pantheon_ui_miracle_cd_full = {
+	value = pantheon_miracle_cooldown_years
+	multiply = 12
+}
+
+# The miracle bar fills: the months already waited (full while no cooldown runs)
+pantheon_ui_miracle_cd_elapsed = {
+	value = pantheon_ui_miracle_cd_full
+	if = {
+		limit = { has_variable = pantheon_temple_cooldown_months }
+		subtract = var:pantheon_temple_cooldown_months
+	}
+	min = 0
+}
+
+pantheon_ui_age_full = {
+	value = pantheon_temple_age_years
+	multiply = 12
+}
+
+# Age of Faith is not a cooldown: its bar drains, showing the months left (0 while it is not running)
+pantheon_ui_age_left = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_temple_age_months }
+		add = var:pantheon_temple_age_months
+	}
+	min = 0
 }

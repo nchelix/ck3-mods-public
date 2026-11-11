@@ -1,4 +1,4 @@
-version="2.10"
+version="2.11"
 tags={
 	"Gameplay"
 	"Religion"

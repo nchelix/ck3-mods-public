@@ -1853,73 +1853,853 @@ window = {
 					layoutpolicy_horizontal = expanding
 					layoutpolicy_vertical = expanding
 					spacing = 8
-					text_single = { text = "pantheon_ui_worship_line" using = Font_Size_Medium }
+					# 2.11 (Task 12): the God tab's sub-tabs, as the Followers tab's. pantheon_ui_gtab: 1 Overview (also when absent),
+					# 2 Seeded lands, its count beside the label. The Worship line above every tab is the only Worship line now; the
+					# Godhood tour button is gone (vanilla's Activities list hosts the tour), and the oath, Great Prayer cooldown,
+					# plague and temple lines give way to the Overview's cards.
 					hbox = {
-						spacing = 6
-						button_standard = {
-							size = { 160 32 }
-							text = "pantheon_ui_btn_throne"
-							tooltip = "pantheon_tip.0001.throne.tt"
-							visible = "[GetScriptedGui('pantheon_ui_throne').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							onclick = "[GetScriptedGui('pantheon_ui_throne').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						layoutpolicy_horizontal = expanding
+						spacing = 0
+
+						button_tab = {
+							onclick = "[GetScriptedGui('pantheon_ui_gtab_1').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_ui_gtab').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_gtab').GetValue, '(CFixedPoint)1' ) )]"
+							blockoverride "tab_label" {
+								text = "pantheon_ui_gtab_overview"
+							}
 						}
-						button_standard = {
-							size = { 160 32 }
-							text = "pantheon_ui_btn_proclaim"
-							tooltip = "pantheon_tip.0001.proclaim.tt"
-							visible = "[GetScriptedGui('pantheon_ui_proclaim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							onclick = "[GetScriptedGui('pantheon_ui_proclaim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-						}
-						button_standard = {
-							size = { 160 32 }
-							text = "pantheon_ui_btn_forswear"
-							tooltip = "pantheon_tip.0001.forswear.tt"
-							visible = "[GetScriptedGui('pantheon_ui_forswear').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							onclick = "[GetScriptedGui('pantheon_ui_forswear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-						}
-						button_standard = {
-							size = { 160 32 }
-							text = "pantheon_ui_btn_embrace"
-							tooltip = "pantheon_tip.0001.embrace.tt"
-							visible = "[GetScriptedGui('pantheon_ui_embrace').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+						button_tab = {
+							onclick = "[GetScriptedGui('pantheon_ui_gtab_2').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+							down = "[And( GetPlayer.MakeScope.Var('pantheon_ui_gtab').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_gtab').GetValue, '(CFixedPoint)2' ) )]"
+							blockoverride "tab_label" {
+								text = "pantheon_ui_gtab_seeds"
+							}
+							blockoverride "extra_info" {
+								text_single = {
+									text = "[GetDataModelSize( GetPlayer.MakeScope.GetList('pantheon_ui_seeds') )]"
+									align = nobaseline
+									default_format = "#low"
+									margin_top = 3
+								}
+							}
 						}
 					}
-					# 2.8 (#59): the Godhood tour. A second row: the first is full at 160 wide. The click opens vanilla's planner for
-					# the tour (the same call the activity list's hostable entries make).
-					hbox = {
-						spacing = 6
-						button_standard = {
-							size = { 160 32 }
-							text = "pantheon_ui_btn_tour"
-							tooltip = "pantheon_tip.0001.tour.tt"
-							visible = "[GetScriptedGui('pantheon_ui_tour').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							down = "[IsGameViewDataShown( 'activity_list_detail_host_window', GetActivityType('activity_pantheon_tour').Self )]"
-							onclick = "[ToggleGameViewData( 'activity_list_detail_host_window', GetActivityType('activity_pantheon_tour').Self )]"
-						}
-					}
-					text_single = {
-						visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_active').IsSet]"
-						text = "pantheon_ui_oath_line"
-					}
-					text_single = {
-						visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet]"
-						text = "pantheon_ui_cooldown_line"
-					}
-					text_single = {
-						visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
-						text = "pantheon_ui_plague_line"
-						}
-					# 2.2 Task 4: one line for the Great Temple's tier and state. Batch u1 repair (row 34): the
-					# line always read the tier-5 name regardless of the real tier -- datacontext set directly on
-					# this leaf text_single was not honoured for its own text (the Temple tab's own header and the
-					# Followers list's devotion line both set it on an ANCESTOR instead, and both read correctly).
+
+					# ---- Sub-tab 1: Overview
 					vbox = {
-						datacontext = "[GetPlayer]"
-						text_single = {
-							text = "pantheon_ui_temple_line"
+						visible = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_ui_gtab').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_gtab').GetValue, '(CFixedPoint)1' ) )]"
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						spacing = 8
+
+						# P2d (Codex Phase 2 review): the whole Overview (action strip and cards: 470 high since P2e) scrolls in the height the
+						# window leaves it. The selected-follower strip above every tab varies, 38 with nobody selected to 348 and more
+						# with every blessing, so no one fixed height fits: the box expands into what is left (900 - 137 outer - strip -
+						# 50 sub-tabs; 675 with no strip, everything shows; 365 under a tall one, it scrolls), as the Followers, Prayers
+						# and Quiet lists do (the Quiet tab's fixed 270 cut off early in game). The margins are 0 left and 16 right, room
+						# for vanilla's 12-wide scrollbar, so the 706 the cards take fits the 722 column exactly (vanilla's 15 / 20
+						# would leave 687). The cards draw their own backgrounds, so the box draws none. The content below keeps its
+						# old indentation, so the diff stays small.
+						scrollbox = {
+							layoutpolicy_horizontal = expanding
+							layoutpolicy_vertical = expanding
+							blockoverride "scrollbox_background" {}
+							blockoverride "scrollbox_margins" {
+								margin_right = 16
+							}
+							blockoverride "scrollbox_content" {
+								vbox = {
+									layoutpolicy_horizontal = expanding
+									spacing = 8
+
+						# The action strip "Your divinity:". Each action shows only when usable, as before. The column is 722 wide, so
+						# the label takes its own row and the buttons (200 wide for the longer labels) sit below it. Forswear and
+						# Embrace are exclusive, so at most three buttons show (3 x 200 + 2 x 6 = 612); ignoreinvisible keeps a
+						# hidden one from leaving a gap.
+						vbox = {
+							layoutpolicy_horizontal = expanding
+							margin = { 8 6 }
+							spacing = 4
+							background = { using = Background_Area }
+
+							text_single = {
+								size = { 690 22 }
+								autoresize = no
+								align = left|nobaseline
+								text = "pantheon_ui_god_actions"
+								default_format = "#low"
+							}
+							hbox = {
+								layoutpolicy_horizontal = expanding
+								spacing = 6
+								ignoreinvisible = yes
+								button_standard = {
+									size = { 200 32 }
+									text = "pantheon_ui_btn_throne"
+									tooltip = "pantheon_tip.0001.throne.tt"
+									visible = "[GetScriptedGui('pantheon_ui_throne').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('pantheon_ui_throne').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 200 32 }
+									text = "pantheon_ui_btn_proclaim"
+									tooltip = "pantheon_tip.0001.proclaim.tt"
+									visible = "[GetScriptedGui('pantheon_ui_proclaim').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('pantheon_ui_proclaim').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 200 32 }
+									text = "pantheon_ui_btn_forswear"
+									tooltip = "pantheon_tip.0001.forswear.tt"
+									visible = "[GetScriptedGui('pantheon_ui_forswear').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('pantheon_ui_forswear').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								button_standard = {
+									size = { 200 32 }
+									text = "pantheon_ui_btn_embrace"
+									tooltip = "pantheon_tip.0001.embrace.tt"
+									visible = "[GetScriptedGui('pantheon_ui_embrace').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									onclick = "[GetScriptedGui('pantheon_ui_embrace').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								}
+								expand = {}
+							}
+						}
+
+						# 2.11 (Task 13): the Worship, Followers and Ready-when cards, then Your pantheon (P2e). The column is 722 wide (706 with
+						# the 16 the strip keeps spare), so three ~300 cards do not fit side by side: Worship (250) and Followers (448)
+						# share the top row, 250 + 8 + 448 = 706, and Ready when is full width below. Every card is a fixed-size widget
+						# and every text a fixed size with autoresize = no, so a long translation clips instead of pushing the layout.
+						vbox = {
+							name = "pantheon_god_cards"
+							layoutpolicy_horizontal = expanding
+							spacing = 8
+
+							hbox = {
+								spacing = 8
+
+								# ---- Worship: this season's income (already including the temple and Age of Faith factors), last
+								# season's actual credit, and the factors in force
+								widget = {
+									name = "pantheon_card_worship"
+									size = { 250 146 }
+									background = { using = Background_Area }
+									vbox = {
+										margin = { 10 6 }
+										spacing = 3
+										text_single = {
+											size = { 230 22 }
+											autoresize = no
+											align = left|nobaseline
+											using = Font_Size_Medium
+											text = "pantheon_ui_card_worship_t"
+										}
+										text_single = {
+											size = { 230 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_card_worship_season"
+										}
+										text_single = {
+											visible = "[GetPlayer.MakeScope.Var('pantheon_last_worship').IsSet]"
+											size = { 230 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_card_worship_last"
+										}
+										text_single = {
+											visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_worship_factor'), '(CFixedPoint)1' )]"
+											size = { 230 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_card_worship_temple"
+										}
+										text_single = {
+											visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_age_factor'), '(CFixedPoint)1' )]"
+											size = { 230 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_card_worship_age"
+										}
+										# P2e: takes the spare height, so the lines shown sit under the title whichever are hidden
+										# (a box larger than its children otherwise spreads the spare among them)
+										expand = {}
+									}
+								}
+
+								# ---- Followers: the whole follower set (pantheon_ui_follower_stats_effect counts it on every rebuild)
+								widget = {
+									name = "pantheon_card_followers"
+									size = { 448 146 }
+									background = { using = Background_Area }
+									vbox = {
+										margin = { 10 6 }
+										spacing = 3
+										text_single = {
+											size = { 428 22 }
+											autoresize = no
+											align = left|nobaseline
+											using = Font_Size_Medium
+											text = "pantheon_ui_card_followers_t"
+										}
+										hbox = {
+											spacing = 8
+											text_single = {
+												size = { 200 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_card_followers"
+											}
+											text_single = {
+												size = { 220 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_card_devotion_avg"
+											}
+										}
+										# The stacked Devotion bar: five vanilla progressbar_standard overlaid at one fixed size, the
+										# cumulative shares of the measured from cum_5 (everyone) down to cum_1 (Zealous). Later
+										# children draw on top, so each band shows as the strip between two bars: Zealous on the left,
+										# Lapsing on the right. Only the bottom bar draws an empty track; the four above use blank.dds,
+										# as vanilla's overlaid court-grandeur bars do (window_court_amenities.gui). Nobody measured:
+										# cum_5 is 0 and the bar is an empty track. P2e: vanilla's progress_purple / _green / _blue / _red were too dark
+										# on the card (a tint only darkens), so the bands use the brightest vanilla bars of each colour: Zealous
+										# progress_brown (tan-gold), Devout progress_grandeur_increase, Faithful war_progress_blue, Wavering
+										# progress_orange, Lapsing war_progress_red.
+										widget = {
+											name = "pantheon_band_bar"
+											size = { 428 12 }
+											progressbar_standard = {
+												size = { 428 12 }
+												min = 0
+												max = 100
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_band_cum_5') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/war_progress_red.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												size = { 428 12 }
+												min = 0
+												max = 100
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_band_cum_4') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_orange.dds"
+													noprogresstexture = "gfx/interface/progressbars/blank.dds"
+												}
+											}
+											progressbar_standard = {
+												size = { 428 12 }
+												min = 0
+												max = 100
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_band_cum_3') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/war_progress_blue.dds"
+													noprogresstexture = "gfx/interface/progressbars/blank.dds"
+												}
+											}
+											progressbar_standard = {
+												size = { 428 12 }
+												min = 0
+												max = 100
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_band_cum_2') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_grandeur_increase.dds"
+													noprogresstexture = "gfx/interface/progressbars/blank.dds"
+												}
+											}
+											progressbar_standard = {
+												size = { 428 12 }
+												min = 0
+												max = 100
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_band_cum_1') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_brown.dds"
+													noprogresstexture = "gfx/interface/progressbars/blank.dds"
+												}
+											}
+										}
+										# The band counts, each beside a swatch of its band's colour (3 x 134 + 2 x 6 = 414; P2e: the swatches use the bars' textures)
+										hbox = {
+											spacing = 6
+											hbox = {
+												spacing = 4
+												icon = {
+													size = { 10 10 }
+													texture = "gfx/interface/progressbars/progress_brown.dds"
+												}
+												text_single = {
+													size = { 120 20 }
+													autoresize = no
+													align = left|nobaseline
+													text = "pantheon_ui_card_band_zealous"
+												}
+											}
+											hbox = {
+												spacing = 4
+												icon = {
+													size = { 10 10 }
+													texture = "gfx/interface/progressbars/progress_grandeur_increase.dds"
+												}
+												text_single = {
+													size = { 120 20 }
+													autoresize = no
+													align = left|nobaseline
+													text = "pantheon_ui_card_band_devout"
+												}
+											}
+											hbox = {
+												spacing = 4
+												icon = {
+													size = { 10 10 }
+													texture = "gfx/interface/progressbars/war_progress_blue.dds"
+												}
+												text_single = {
+													size = { 120 20 }
+													autoresize = no
+													align = left|nobaseline
+													text = "pantheon_ui_card_band_faithful"
+												}
+											}
+										}
+										hbox = {
+											spacing = 6
+											hbox = {
+												spacing = 4
+												icon = {
+													size = { 10 10 }
+													texture = "gfx/interface/progressbars/progress_orange.dds"
+												}
+												text_single = {
+													size = { 120 20 }
+													autoresize = no
+													align = left|nobaseline
+													text = "pantheon_ui_card_band_wavering"
+												}
+											}
+											hbox = {
+												spacing = 4
+												icon = {
+													size = { 10 10 }
+													texture = "gfx/interface/progressbars/war_progress_red.dds"
+												}
+												text_single = {
+													size = { 120 20 }
+													autoresize = no
+													align = left|nobaseline
+													text = "pantheon_ui_card_band_lapsing"
+												}
+											}
+										}
+										text_single = {
+											visible = "[GreaterThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_ui_follower_unmeasured'), '(CFixedPoint)0' )]"
+											size = { 428 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_card_unmeasured"
+										}
+										expand = {}
+									}
+								}
+							}
+
+							# ---- Ready when: one row per timer, a label, a fixed 300 x 20 box of alternative bars and a fixed 162 x 20 box of
+							# alternative states (200 + 8 + 300 + 8 + 162 = 678 of the card's 686). A cooldown bar fills (elapsed = full -
+							# remaining) and shows full and green with a green "Ready" when nothing is running (not the Plague's toll, which
+							# is no cooldown: "None" over an empty track; Age of Faith drains). Timed variables read their
+							# days left with VarRemaining (int32), only under a visible holding that variable's IsSet (Review Focus 5); the
+							# months counters (miracle cooldown, Age of Faith) read script values whose full length follows the game rule.
+							# A row whose feature is not there yet says "Needs ..." over an empty track: a miracle needs an active tier 5
+							# temple (pantheon_miracle_ready_trigger), the smallest Sign of Steadfastness an active tier 1
+							# (pantheon_ui_steady_arm_slipping).
+							widget = {
+								name = "pantheon_card_ready"
+								size = { 706 150 }
+								background = { using = Background_Area }
+								vbox = {
+									margin = { 10 6 }
+									spacing = 3
+									text_single = {
+										size = { 686 22 }
+										autoresize = no
+										align = left|nobaseline
+										using = Font_Size_Medium
+										text = "pantheon_ui_card_ready_t"
+									}
+
+									# Great Prayer: pantheon_great_prayer_cooldown, years = 2 (730 days) wherever it is set
+									hbox = {
+										name = "pantheon_ready_great_prayer"
+										spacing = 8
+										text_single = {
+											size = { 200 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_ready_great_prayer"
+										}
+										widget = {
+											size = { 300 20 }
+											progressbar_standard = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 730
+												value = "[IntToFloat( Subtract_int32( '(int32)730', GetPlayer.MakeScope.VarRemaining('pantheon_great_prayer_cooldown') ) )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 1
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_green.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+										}
+										widget = {
+											size = { 162 20 }
+											text_single = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_great_prayer_left"
+											}
+											text_single = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_great_prayer_cooldown').IsSet )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_now"
+											}
+										}
+									}
+
+									# Miracle: pantheon_temple_cooldown_months, a months-left counter of pantheon_miracle_cooldown_years x 12
+									hbox = {
+										name = "pantheon_ready_miracle"
+										spacing = 8
+										text_single = {
+											size = { 200 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_ready_miracle"
+										}
+										widget = {
+											size = { 300 20 }
+											progressbar_standard = {
+												visible = "[LessThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 0
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_miracle_cd_full') )]"
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_miracle_cd_elapsed') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' ), Not( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ) )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 1
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_green.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+										}
+										widget = {
+											size = { 162 20 }
+											text_single = {
+												visible = "[LessThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_needs_temple"
+											}
+											text_single = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' ), LessThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_needs_tier"
+											}
+											text_single = {
+												visible = "[And3( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet, NotEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue, '(CFixedPoint)1' ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_miracle_left"
+											}
+											# P2e: "1 month left", not "1 months left" (the value read only after the IsSet in the same And)
+											text_single = {
+												visible = "[And3( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue, '(CFixedPoint)1' ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_one_month_left"
+											}
+											text_single = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)5' ), Not( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_now"
+											}
+										}
+									}
+
+									# Sign of Steadfastness: pantheon_steady_cooldown, years = 5 (1825 days)
+									hbox = {
+										name = "pantheon_ready_steady"
+										spacing = 8
+										text_single = {
+											size = { 200 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_ready_steady"
+										}
+										widget = {
+											size = { 300 20 }
+											progressbar_standard = {
+												visible = "[LessThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 0
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' ), GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1825
+												value = "[IntToFloat( Subtract_int32( '(int32)1825', GetPlayer.MakeScope.VarRemaining('pantheon_steady_cooldown') ) )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' ), Not( GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet ) )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 1
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_green.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+										}
+										widget = {
+											size = { 162 20 }
+											text_single = {
+												visible = "[LessThan_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_needs_temple"
+											}
+											text_single = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' ), GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_steady_left"
+											}
+											text_single = {
+												visible = "[And( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.ScriptValue('pantheon_temple_active_tier'), '(CFixedPoint)1' ), Not( GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_now"
+											}
+										}
+									}
+
+									# Plague's toll: pantheon_plague_sent, years = 3 (1095 days) at both setters. P2d (user decision
+									# 2026-11-08): it stops no plague being sent; it is the window in which the quarterly pulse takes
+									# 5 Devotion, once, from followers near an outbreak (pantheon_wrath_effects.txt). So the row is
+									# never "Ready": the bar and the time left while it runs, an empty track and a neutral "None" when not.
+									hbox = {
+										name = "pantheon_ready_plague"
+										spacing = 8
+										text_single = {
+											size = { 200 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_ready_plague_toll"
+											tooltip = "pantheon_ui_ready_plague_toll_tt"
+										}
+										widget = {
+											size = { 300 20 }
+											progressbar_standard = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1095
+												value = "[IntToFloat( Subtract_int32( '(int32)1095', GetPlayer.MakeScope.VarRemaining('pantheon_plague_sent') ) )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 0
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+										}
+										widget = {
+											size = { 162 20 }
+											text_single = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_plague_left"
+												tooltip = "pantheon_ui_ready_plague_toll_tt"
+											}
+											text_single = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_plague_sent').IsSet )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_none"
+											}
+										}
+									}
+
+									# Age of Faith: pantheon_temple_age_months, a months-left counter of pantheon_temple_age_years x 12. Not a
+									# cooldown, so its bar drains: the months left.
+									hbox = {
+										name = "pantheon_ready_age"
+										spacing = 8
+										text_single = {
+											size = { 200 20 }
+											autoresize = no
+											align = left|nobaseline
+											text = "pantheon_ui_ready_age"
+										}
+										widget = {
+											size = { 300 20 }
+											progressbar_standard = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_temple_age_months').IsSet]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_age_full') )]"
+												value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_age_left') )]"
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+											progressbar_standard = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_age_months').IsSet )]"
+												position = { 0 4 }
+												size = { 300 12 }
+												min = 0
+												max = 1
+												value = 0
+												blockoverride "progress_textures" {
+													progresstexture = "gfx/interface/progressbars/progress_standard.dds"
+													noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+												}
+											}
+										}
+										widget = {
+											size = { 162 20 }
+											text_single = {
+												visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_age_months').IsSet, NotEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_age_months').GetValue, '(CFixedPoint)1' ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_age_left"
+											}
+											# P2e: "1 month left", not "1 months left" (the value read only after the IsSet in the same And)
+											text_single = {
+												visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_age_months').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_age_months').GetValue, '(CFixedPoint)1' ) )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_one_month_left"
+											}
+											text_single = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_age_months').IsSet )]"
+												size = { 162 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_ready_not_active"
+											}
+										}
+									}
+									expand = {}
+								}
+							}
+
+							# ---- Your pantheon (P2e, user decision 2026-11-09: the footer becomes a card, as the others). Full width as Ready
+							# when, its title in the cards' style, then a grid of 3 columns x 2 rows of fixed cells (300 + 8 + 186 + 8 + 184 = 686,
+							# the card's inner width), so the columns line up down the rows: the temple, Demigods, Godsblood houses; Prayers heard,
+							# Boons asked, an empty cell. P2f (Codex P2e repair review): the first column is the widest, for the longest temple
+							# text, "Temple: Great Temple (building paused)" (270 px in vanilla's 15 px Gitan); the temple texts also name the
+							# temple in a tooltip, for a translation that still overflows. Every cell is one "Label: N" text (the two list
+							# sizes are built in their loc, as vanilla builds counts in loc with GetDataModelSize). The temple name is a Custom loc on the god, so the datacontext sits here on
+							# an ancestor (a leaf text_single's own datacontext is not used for its text). Height: 6 + 22 + 3 + 20 + 3 + 20 + 6 = 80.
+							widget = {
+								name = "pantheon_god_footer"
+								datacontext = "[GetPlayer]"
+								size = { 706 80 }
+								background = { using = Background_Area }
+								vbox = {
+									margin = { 10 6 }
+									spacing = 3
+									text_single = {
+										size = { 686 22 }
+										autoresize = no
+										align = left|nobaseline
+										using = Font_Size_Medium
+										text = "pantheon_ui_card_pantheon_t"
+									}
+									hbox = {
+										spacing = 8
+										widget = {
+											size = { 300 20 }
+											text_single = {
+												visible = "[Or( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet )]"
+												size = { 300 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_temple"
+												tooltip = "pantheon_ui_footer_temple"
+											}
+											text_single = {
+												visible = "[Not( Or( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet ) )]"
+												size = { 300 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_no_temple"
+												tooltip = "pantheon_ui_footer_no_temple"
+											}
+										}
+										widget = {
+											size = { 186 20 }
+											text_single = {
+												size = { 186 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_demigods"
+											}
+										}
+										widget = {
+											size = { 184 20 }
+											text_single = {
+												size = { 184 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_houses"
+											}
+										}
+									}
+									# P2d (Codex Phase 2 review): both counters are set lazily (the first prayer heard, the first boon asked), so each
+									# count is a pair of texts in one fixed cell, as the temple / no-temple pair above: the value only while set, a
+									# literal 0 before (Phase 1 batch F's debug counter, pantheon_dbg_gp_s_nocounter).
+									hbox = {
+										spacing = 8
+										widget = {
+											size = { 300 20 }
+											text_single = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_prayer_seq').IsSet]"
+												size = { 300 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_prayers"
+											}
+											text_single = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_prayer_seq').IsSet )]"
+												size = { 300 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_no_prayers"
+											}
+										}
+										widget = {
+											size = { 186 20 }
+											text_single = {
+												visible = "[GetPlayer.MakeScope.Var('pantheon_boon_request_seq').IsSet]"
+												size = { 186 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_boons"
+											}
+											text_single = {
+												visible = "[Not( GetPlayer.MakeScope.Var('pantheon_boon_request_seq').IsSet )]"
+												size = { 186 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_footer_no_boons"
+											}
+										}
+										widget = {
+											size = { 184 20 }
+										}
+									}
+									expand = {}
+								}
+							}
+						}
+								}
+							}
 						}
 					}
+
+					# ---- Sub-tab 2: Seeded lands, moved here unchanged (P2d: every variable read now behind its IsSet; the seed
+					# effect sets pantheon_seed_lean and pantheon_seed_end on every seeded county, so nothing shown changes)
+					vbox = {
+						visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_gtab').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_gtab').GetValue, '(CFixedPoint)2' ) )]"
+						layoutpolicy_horizontal = expanding
+						layoutpolicy_vertical = expanding
+						spacing = 8
+
 						# 2.8 (#59): Seeded lands. The god's own list of seeded counties (pantheon_seeded_counties), read straight
 						# from the variable list (the Temple tab's list form). Every column has a fixed width, so a long county
 						# or holder name is cut at its cell instead of pushing the row wider.
@@ -1960,21 +2740,21 @@ window = {
 													text = "[Character.GetShortUINameNoTooltip]"
 												}
 												text_single = {
-													visible = "[EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)1' )]"
+													visible = "[And( Title.MakeScope.Var('pantheon_seed_lean').IsSet, EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)1' ) )]"
 													size = { 90 32 }
 													autoresize = no
 													align = left|vcenter
 													text = "pantheon_ui_seed_lean_1"
 												}
 												text_single = {
-													visible = "[EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)2' )]"
+													visible = "[And( Title.MakeScope.Var('pantheon_seed_lean').IsSet, EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)2' ) )]"
 													size = { 90 32 }
 													autoresize = no
 													align = left|vcenter
 													text = "pantheon_ui_seed_lean_2"
 												}
 												text_single = {
-													visible = "[EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)0' )]"
+													visible = "[And( Title.MakeScope.Var('pantheon_seed_lean').IsSet, EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_seed_lean').GetValue, '(CFixedPoint)0' ) )]"
 													size = { 90 32 }
 													autoresize = no
 													align = left|vcenter
@@ -1995,6 +2775,7 @@ window = {
 													text = "pantheon_ui_seed_own"
 												}
 												text_single = {
+													visible = "[Title.MakeScope.Var('pantheon_seed_end').IsSet]"
 													size = { 80 32 }
 													autoresize = no
 													align = left|vcenter
@@ -2006,7 +2787,9 @@ window = {
 								}
 							}
 						}
-					expand = {}
+						# P2d: the tab's trailing expand moved here, so it no longer shares the Overview's height with it
+						expand = {}
+					}
 				}
 
 				# ---- Tab 4: The Temple (2.2 Task 4)

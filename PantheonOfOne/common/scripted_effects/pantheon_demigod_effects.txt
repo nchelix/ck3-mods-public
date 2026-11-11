@@ -140,7 +140,7 @@ pantheon_orphan_return_effect = {
 	else = { set_variable = { name = pantheon_skip_returns value = 1 } }
 }
 
-# Recall early from Divine Will (root the god, scope:pantheon_target the follower, the demigod as $WHO$).
+# Recall early from the Pantheon window (root the god, scope:pantheon_target the follower, the demigod as $WHO$).
 pantheon_recall_demigod_effect = {
 	$WHO$ = {
 		pantheon_orphan_return_effect = yes

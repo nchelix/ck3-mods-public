@@ -84,11 +84,15 @@ pantheon_ui_rebuild_effect = {
 		limit = { pantheon_live_character_trigger = yes faith = scope:pantheon_ui_god.faith NOT = { this = scope:pantheon_ui_god } }
 		add_to_temporary_list = pantheon_ui_follower_pool
 	}
+	# 2.11 P2b: a ruler of the faith who is also in pantheon_known is added once. The docs do not promise that a temporary
+	# list refuses a second add, so the walk skips anyone already in the pool (the is_in_list guard of pantheon_kin_one_effect).
 	every_in_list = {
 		variable = pantheon_known
-		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } }
+		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } NOT = { is_in_list = pantheon_ui_follower_pool } }
 		add_to_temporary_list = pantheon_ui_follower_pool
 	}
+	# 2.11 P2b: the God page's follower statistics, over the whole pool (the sorted list below stops at 300)
+	pantheon_ui_follower_stats_effect = yes
 	every_in_list = {
 		variable = pantheon_blessed
 		limit = { pantheon_live_character_trigger = yes NOT = { this = scope:pantheon_ui_god } }
@@ -371,6 +375,59 @@ pantheon_ui_refresh_if_open_effect = {
 			has_variable = pantheon_ui_open
 		}
 		pantheon_ui_rebuild_effect = yes
+	}
+}
+
+# 2.11 P2b: the God page's follower statistics, stored on the god for the script values pantheon_ui_follower_count,
+# _measured, pantheon_ui_devotion_avg and pantheon_ui_band_* (pantheon_values.txt). Counted over the whole follower set,
+# pantheon_ui_follower_pool (every living ruler of the god's faith plus pantheon_known, the god left out, each once), not
+# over pantheon_ui_followers, which pantheon_ui_fill_sorted_effect caps at 300: a faith with 1,000 followers must not read
+# "300 followers", and its average and bands must not lean to the 300 most devout. Every stat is reset first, so a value
+# from an earlier rebuild never survives. "Measured" = has pantheon_devotion; the Devotion sum and the five bands count only
+# the measured. The bands are the Follower trait's (common/traits/pantheon_follower_trait.txt): Zealous >= 90, Devout 75-89,
+# Faithful 25-74, Wavering 10-24, Lapsing < 10. God scope, called by pantheon_ui_rebuild_effect once the pool is complete
+# (scope:pantheon_ui_god is saved there). UI only: nothing here changes play.
+pantheon_ui_follower_stats_effect = {
+	set_variable = { name = pantheon_ui_stat_count value = 0 }
+	set_variable = { name = pantheon_ui_stat_measured value = 0 }
+	set_variable = { name = pantheon_ui_stat_devotion_sum value = 0 }
+	set_variable = { name = pantheon_ui_stat_zealous value = 0 }
+	set_variable = { name = pantheon_ui_stat_devout value = 0 }
+	set_variable = { name = pantheon_ui_stat_faithful value = 0 }
+	set_variable = { name = pantheon_ui_stat_wavering value = 0 }
+	set_variable = { name = pantheon_ui_stat_lapsing value = 0 }
+	every_in_list = {
+		list = pantheon_ui_follower_pool
+		limit = { pantheon_live_character_trigger = yes }
+		scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_stat_count add = 1 } }
+		if = {
+			limit = { has_variable = pantheon_devotion }
+			save_scope_as = pantheon_ui_stat_row
+			scope:pantheon_ui_god = {
+				change_variable = { name = pantheon_ui_stat_measured add = 1 }
+				change_variable = { name = pantheon_ui_stat_devotion_sum add = scope:pantheon_ui_stat_row.var:pantheon_devotion }
+			}
+			if = {
+				limit = { var:pantheon_devotion >= 90 }
+				scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_stat_zealous add = 1 } }
+			}
+			if = {
+				limit = { var:pantheon_devotion >= 75 var:pantheon_devotion < 90 }
+				scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_stat_devout add = 1 } }
+			}
+			if = {
+				limit = { var:pantheon_devotion >= 25 var:pantheon_devotion < 75 }
+				scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_stat_faithful add = 1 } }
+			}
+			if = {
+				limit = { var:pantheon_devotion >= 10 var:pantheon_devotion < 25 }
+				scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_stat_wavering add = 1 } }
+			}
+			if = {
+				limit = { var:pantheon_devotion < 10 }
+				scope:pantheon_ui_god = { change_variable = { name = pantheon_ui_stat_lapsing add = 1 } }
+			}
+		}
 	}
 }
 

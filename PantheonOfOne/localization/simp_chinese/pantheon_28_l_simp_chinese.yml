@@ -30,8 +30,6 @@
  pantheon_county_turned_t: "[pantheon_seed_county.GetName] has turned to you"
  pantheon_county_turned_d: "The people of [pantheon_seed_county.GetName] have come to believe. The seed stays, and its neighbours may follow."
 # 2.8 (#59): the Godhood tour
- pantheon_ui_btn_tour: "Godhood tour"
- pantheon_tip.0001.tour.tt: "Walk among mortals in a land that does not share your faith. Your deeds there plant a seed that lets you win its lords and its people. It costs gold and prestige, never Worship."
  activity_pantheon_tour: "Godhood Tour"
  activity_pantheon_tour_name: "[ACTIVITY.GetHost.GetNamePossessiveOrMy|U] Godhood Tour"
  activity_pantheon_tour_selection_tooltip: "Walk among the mortals of a land that does not know you. Heal or terrify, bless or burn: what you do there plants a seed in its county, and perhaps in its duchy and kingdom."

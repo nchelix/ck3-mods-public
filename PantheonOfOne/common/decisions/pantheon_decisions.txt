@@ -1,5 +1,5 @@
 ﻿# Pantheon of One: becoming a god. Ascend is the only decision; everything after it lives in
-# Divine Will (right-click yourself): Take Your Throne, Proclaim Your Divinity, Divine Offspring.
+# the Pantheon window (right-click yourself, Pantheon): Take Your Throne, Proclaim Your Divinity, Divine Offspring.
 pantheon_ascend_decision = {
 	picture = { reference = "gfx/interface/illustrations/decisions/decision_activity.dds" }
 	decision_group_type = major
