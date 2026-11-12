@@ -562,8 +562,7 @@
  pantheon_ui_temple_no_sites: "Your faith holds no holy sites yet."
  pantheon_ui_btn_temple_found: "Found the Shrine"
  pantheon_ui_temple_found_cost: "[GetPlayer.MakeScope.ScriptValue('pantheon_temple_cost_1')|0] Worship, [GetPlayer.MakeScope.ScriptValue('pantheon_temple_years_1')|0] years to build"
- pantheon_ui_btn_temple_upgrade: "Upgrade"
- pantheon_ui_temple_next_line: "Next: [Character.Custom('pantheon_temple_next_tier_name')] -- [GetPlayer.MakeScope.ScriptValue('pantheon_temple_next_cost')|0] Worship, [GetPlayer.MakeScope.ScriptValue('pantheon_temple_next_years')|0] years"
+ pantheon_ui_temple_next_line: "Next: [Character.Custom('pantheon_temple_next_tier_name')], [GetPlayer.MakeScope.ScriptValue('pantheon_temple_next_cost')|0] Worship, [GetPlayer.MakeScope.ScriptValue('pantheon_temple_next_years')|0] years"
  # Batch u2 repair (item 3, rows 8/13): one tooltip per ladder cell, naming that tier's bonuses
  # and cost/years (the per-tier script values Task 1 defines, common/script_values/pantheon_values.txt:
  # pantheon_temple_worship_factor/_boon_factor/_host_bonus/_aura, pantheon_temple_cost_N/_years_N).
@@ -579,7 +578,6 @@
  pantheon_ui_miracle_age_tt: "For ten years, Worship income doubles, nearby followers gain extra Devotion, and your faith's fervor burns at its height.\n[GetScriptedGui('pantheon_ui_miracle_age').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
  pantheon_ui_miracle_victory_tt: "Every war a follower leads against an unbeliever ends in their favour.\n[GetScriptedGui('pantheon_ui_miracle_victory').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
  pantheon_ui_btn_confirm: "Confirm?"
- pantheon_ui_wrath_note: "The Wrath of Heaven: right-click a ruler to choose where."
  pantheon_temple_not_faithful_tt: "The site is not in faithful hands."
  pantheon_temple_no_site_tt: "Every barony here already holds a wonder or another god's temple."
  pantheon_temple_cost_tt: "Not enough Worship."

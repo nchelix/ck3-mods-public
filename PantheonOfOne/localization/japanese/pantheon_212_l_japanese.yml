@@ -1,0 +1,58 @@
+﻿l_japanese:
+ # Pantheon of One 2.12 "The Temple page". English only here; tools/sync_pantheon_loc.py copies this file to the other languages.
+
+ # Task 1: the header band
+ pantheon_ui_temple_title: "[Character.Custom('pantheon_temple_title_tier')] · [Character.Custom('pantheon_temple_state_short')]"
+ pantheon_temple_state_short_none: "No temple"
+ pantheon_temple_state_short_paused: "Paused"
+ pantheon_temple_state_short_building: "Building"
+ pantheon_temple_state_short_active: "Active"
+ pantheon_temple_state_short_dormant: "Dormant"
+ pantheon_ui_temple_build_left: "[GetPlayer.MakeScope.Var('pantheon_temple_build_months').GetValue|0] months left"
+ pantheon_ui_temple_complete: "The Great Temple stands."
+ pantheon_ui_temple_next_tt: "$pantheon_ui_temple_next_line$\n\n$pantheon_temple_upgrade_after_tt$"
+ # Test A repair (row A4): the Upgrade button names the tier; beside it, one line of cost and time
+ pantheon_ui_btn_temple_upgrade_to: "Upgrade to [Character.Custom('pantheon_temple_next_tier_name')]"
+ pantheon_ui_temple_next_cost: "[GetPlayer.MakeScope.ScriptValue('pantheon_temple_next_cost')|0] Worship · [GetPlayer.MakeScope.ScriptValue('pantheon_temple_next_years')|0] years"
+
+ # Task 2: no temple yet
+ pantheon_ui_temple_title_none: "No temple yet"
+ pantheon_ui_temple_found_title: "Found your Great Temple"
+
+ # Task 3: the Miracles card. The card tooltips are plain text (no variable, no IsValidTooltip): Select_CString may evaluate both branches.
+ pantheon_ui_miracles_title: "Miracles"
+ pantheon_ui_miracles_needs_tier: "Needs the Great Temple"
+ pantheon_ui_miracles_dormant: "Temple dormant"
+ pantheon_ui_miracles_resting: "Rests [GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue|0] months"
+ pantheon_ui_miracles_resting_1: "Rests 1 month"
+ pantheon_ui_miracles_resting_years: "Rests [GetPlayer.MakeScope.ScriptValue('pantheon_ui_miracle_rest_years')|0] years"
+ pantheon_ui_miracles_ready: "Ready"
+ pantheon_ui_btn_miracle_invoke: "Invoke"
+ pantheon_ui_miracle_right_click: "Right-click a ruler"
+ pantheon_ui_miracle_conversion_line: "Converts every county in reach."
+ pantheon_ui_miracle_age_line: "Ten years of doubled Worship."
+ pantheon_ui_miracle_victory_line: "Followers win their holy wars."
+ pantheon_ui_miracle_conversion_card_tt: "Every county within the temple's reach takes your faith at once."
+ pantheon_ui_miracle_conversion_card_needs_tt: "$pantheon_ui_miracle_conversion_card_tt$\n\nNeeds the Great Temple (tier 5)."
+ pantheon_ui_miracle_conversion_card_dormant_tt: "$pantheon_ui_miracle_conversion_card_tt$\n\nThe temple is dormant: its county is not in faithful hands."
+ pantheon_ui_miracle_conversion_card_resting_tt: "$pantheon_ui_miracle_conversion_card_tt$\n\nThe miracles are resting; the corner shows how long."
+ pantheon_ui_miracle_age_card_tt: "For ten years, Worship income doubles, nearby followers gain extra Devotion, and your faith's fervor burns at its height."
+ pantheon_ui_miracle_age_card_needs_tt: "$pantheon_ui_miracle_age_card_tt$\n\nNeeds the Great Temple (tier 5)."
+ pantheon_ui_miracle_age_card_dormant_tt: "$pantheon_ui_miracle_age_card_tt$\n\nThe temple is dormant: its county is not in faithful hands."
+ pantheon_ui_miracle_age_card_resting_tt: "$pantheon_ui_miracle_age_card_tt$\n\nThe miracles are resting; the corner shows how long."
+ pantheon_ui_miracle_victory_card_tt: "Every war a follower leads against an unbeliever ends in their favour."
+ pantheon_ui_miracle_victory_card_needs_tt: "$pantheon_ui_miracle_victory_card_tt$\n\nNeeds the Great Temple (tier 5)."
+ pantheon_ui_miracle_victory_card_dormant_tt: "$pantheon_ui_miracle_victory_card_tt$\n\nThe temple is dormant: its county is not in faithful hands."
+ pantheon_ui_miracle_victory_card_resting_tt: "$pantheon_ui_miracle_victory_card_tt$\n\nThe miracles are resting; the corner shows how long."
+ pantheon_ui_miracle_wrath_card_tt: "Disaster, plague and fear fall on a huge swath of the world around a ruler's capital, your own followers included. The lighter strike; it costs no Worship. Right-click the ruler to choose where."
+ pantheon_ui_miracle_wrath_card_needs_tt: "$pantheon_ui_miracle_wrath_card_tt$\n\nNeeds the Great Temple (tier 5)."
+ pantheon_ui_miracle_wrath_card_dormant_tt: "$pantheon_ui_miracle_wrath_card_tt$\n\nThe temple is dormant: its county is not in faithful hands."
+ pantheon_ui_miracle_wrath_card_resting_tt: "$pantheon_ui_miracle_wrath_card_tt$\n\nThe miracles are resting; the corner shows how long."
+ pantheon_ui_miracle_fire_card_tt: "Fire falls on a ruler's realm: the land burns to tribal ruin and its people die. Your faithful and the Great Temple's own county are spared. Right-click the ruler and pick the size.\n\nWorship: a county [GetPlayer.MakeScope.ScriptValue('pantheon_cost_fire_county')|0], a duchy [GetPlayer.MakeScope.ScriptValue('pantheon_cost_fire_duchy')|0], a kingdom [GetPlayer.MakeScope.ScriptValue('pantheon_cost_fire_kingdom')|0], an empire [GetPlayer.MakeScope.ScriptValue('pantheon_cost_fire_empire')|0]."
+ pantheon_ui_miracle_fire_card_needs_tt: "$pantheon_ui_miracle_fire_card_tt$\n\nNeeds the Great Temple (tier 5)."
+ pantheon_ui_miracle_fire_card_dormant_tt: "$pantheon_ui_miracle_fire_card_tt$\n\nThe temple is dormant: its county is not in faithful hands."
+ pantheon_ui_miracle_fire_card_resting_tt: "$pantheon_ui_miracle_fire_card_tt$\n\nThe miracles are resting; the corner shows how long."
+ pantheon_ui_steady_ready: "Ready"
+
+ # 2.12 text polish: the Sign card's kingdom row count, singular
+ pantheon_ui_steady_kingdom_n_1: "1 follower"

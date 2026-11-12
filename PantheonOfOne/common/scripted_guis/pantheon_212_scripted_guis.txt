@@ -1,0 +1,13 @@
+﻿# Pantheon of One 2.12: display-only scripted GUIs for the Temple page (gui/pantheon_window.gui, Tab 4). Called with
+# GuiScope.SetRoot( GetPlayer.MakeScope ), so root and this are the god. The GUI can't call a trigger, so these expose
+# one through is_valid. They have no effect: the Temple's actions stay in pantheon_scripted_guis.txt, unchanged.
+
+# The temple works: founded, its building stands, its county in faithful hands, and no build paused. False while the
+# first Shrine builds, while dormant and while a build is paused; true during an upgrade of an active temple. The header
+# picture dims when it is false.
+pantheon_ui_temple_view_active = {
+	scope = character
+	is_valid = {
+		pantheon_temple_active_trigger = yes
+	}
+}

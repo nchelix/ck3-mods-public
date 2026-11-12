@@ -2794,313 +2794,1091 @@ window = {
 
 				# ---- Tab 4: The Temple (2.2 Task 4)
 				vbox = {
-					visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)4' )]"
+					visible = "[And( GetPlayer.MakeScope.Var('pantheon_ui_tab').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_ui_tab').GetValue, '(CFixedPoint)4' ) )]"
 					layoutpolicy_horizontal = expanding
 					layoutpolicy_vertical = expanding
 					spacing = 8
 
-					# Before founding: the faith's holy sites, a scroll list (One Trait 2.7's proven list form,
-					# OneTraitToRuleThemAll/gui/one_trait_panel.gui, datamodel/AddScope('landed_title', Title.MakeScope)).
-					vbox = {
-						visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet )]"
+					# 2.12 Task 1: the whole tab is one page that scrolls in the height the window leaves it, the God page Overview's
+					# form (its P2d comment): the box expands, draws no background of its own (the cards draw theirs) and keeps 16 on
+					# the right for vanilla's scrollbar, so the 706 the cards take fits the 722 column exactly. With no sub-tab row
+					# the page has about 725 high with no follower strip selected and about 415 under the 348-high strip, where it
+					# scrolls. The content below the header keeps its old indentation, so the diff stays small.
+					scrollbox = {
+						name = "pantheon_temple_scroll"
 						layoutpolicy_horizontal = expanding
-						spacing = 8
+						layoutpolicy_vertical = expanding
+						blockoverride "scrollbox_background" {}
+						blockoverride "scrollbox_margins" {
+							margin_right = 16
+						}
+						blockoverride "scrollbox_content" {
+							vbox = {
+								layoutpolicy_horizontal = expanding
+								spacing = 8
+
+								# ---- 2.12 Task 1: the header band, shown with or without a temple. A fixed 706 x 195 card: 10 + the
+								# 200 x 175 picture + 10 + a 476-wide column + 10 = 706; the column's rows are 26 + 20 + 20 + 20 + 46 + 32
+								# = 164, plus five gaps of 2 = 174 of its 175. Every text has a fixed size and autoresize = no, so a long
+								# name or translation clips at its width instead of pushing the card; the ones that may clip carry their
+								# full text as the tooltip. The datacontext sits on this ancestor, not on a leaf (a leaf's own
+								# datacontext was not honoured for its own text, batch u1 row 34).
+								widget = {
+									name = "pantheon_temple_header"
+									size = { 706 195 }
+									background = { using = Background_Area }
+									datacontext = "[GetPlayer]"
+
+									hbox = {
+										margin = { 10 10 }
+										spacing = 10
+
+										# The current tier's picture. Dimmed (the _dim copy) whenever the temple is not working:
+										# dormant, a paused build, and the first Shrine still building -- pantheon_ui_temple_view_active
+										# is pantheon_temple_active_trigger, false in all three. With the tier unset (no temple, or the
+										# first Shrine building) it is the tier-1 picture, dimmed. Hovering gives the tier's bonuses.
+										# The icons let the mouse through, so the widget's own tooltip shows.
+										widget = {
+											name = "pantheon_temple_picture"
+											size = { 200 175 }
+											tooltip = "[Character.Custom('pantheon_temple_tier_desc')]"
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_01.dds"
+											}
+											icon = {
+												visible = "[Or( Not( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet ), And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_01_dim.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_02.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_02_dim.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_03.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_03_dim.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_04.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_04_dim.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_05.dds"
+											}
+											icon = {
+												visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+												size = { 200 175 }
+												alwaystransparent = yes
+												texture = "gfx/interface/icons/pantheon/pantheon_temple_page_05_dim.dds"
+											}
+										}
+
+										vbox = {
+											name = "pantheon_temple_header_column"
+											size = { 476 175 }
+											spacing = 2
+											ignoreinvisible = yes
+
+											# "High Temple · Active": the tier name and the short state. 2.12 Task 2: with no temple
+											# (pantheon_temple_province unset) "No temple yet" in its place, in the same 476 x 26 row.
+											widget = {
+												name = "pantheon_temple_title_row"
+												size = { 476 26 }
+												text_single = {
+													name = "pantheon_temple_title"
+													visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
+													size = { 476 26 }
+													autoresize = no
+													align = left|nobaseline
+													using = Font_Size_Medium
+													text = "pantheon_ui_temple_title"
+													tooltip = "pantheon_ui_temple_title"
+												}
+												text_single = {
+													name = "pantheon_temple_title_none"
+													visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet )]"
+													size = { 476 26 }
+													autoresize = no
+													align = left|nobaseline
+													using = Font_Size_Medium
+													text = "pantheon_ui_temple_title_none"
+													tooltip = "pantheon_ui_temple_title_none"
+												}
+											}
+											# Batch 2r1 (repair 5): which county holds the temple
+											text_single = {
+												name = "pantheon_temple_county_line"
+												visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
+												size = { 476 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_temple_county"
+												tooltip = "pantheon_ui_temple_county"
+											}
+											# The long state (no temple, building with the months left, paused and why, dormant and why),
+											# hidden while the temple simply works (active, nothing building)
+											text_single = {
+												name = "pantheon_temple_state_line"
+												visible = "[Or( Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ), GetPlayer.MakeScope.Var('pantheon_temple_building').IsSet )]"
+												size = { 476 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "[Character.Custom('pantheon_temple_state')]"
+												tooltip = "[Character.Custom('pantheon_temple_state')]"
+											}
+											# R13, batch 2b: the capital could not be made a holy site (e.g. the faith was already at its
+											# holy-site maximum). The temple itself still works fully.
+											text_single = {
+												name = "pantheon_temple_refused_line"
+												visible = "[GetPlayer.MakeScope.Var('pantheon_temple_holy_site_refused').IsSet]"
+												size = { 476 20 }
+												autoresize = no
+												align = left|nobaseline
+												text = "pantheon_ui_temple_holy_site_refused"
+											}
+
+											# The tier track: five round markers joined by a line, the short tier name under each. Plain
+											# icons, no button frame (batch u2: the old button_tab cells looked clickable and did nothing).
+											# Each 92-wide cell (5 x 92 + 4 x 4 = 476) has the empty marker, the filled one up to the current
+											# tier, or the dashed one for the tier being built, exactly one at a time; its tooltip gives that
+											# tier's bonuses, cost and years (pantheon_temple_ladder_tt_N). The line runs in four 72-wide pieces
+											# between the markers (cell centres 96 apart, 24-wide markers), so it never shows through a ring.
+											widget = {
+												name = "pantheon_temple_track"
+												size = { 476 46 }
+												icon = {
+													position = { 58 10 }
+													size = { 72 4 }
+													alwaystransparent = yes
+													texture = "gfx/interface/icons/pantheon/pantheon_temple_track_line.dds"
+												}
+												icon = {
+													position = { 154 10 }
+													size = { 72 4 }
+													alwaystransparent = yes
+													texture = "gfx/interface/icons/pantheon/pantheon_temple_track_line.dds"
+												}
+												icon = {
+													position = { 250 10 }
+													size = { 72 4 }
+													alwaystransparent = yes
+													texture = "gfx/interface/icons/pantheon/pantheon_temple_track_line.dds"
+												}
+												icon = {
+													position = { 346 10 }
+													size = { 72 4 }
+													alwaystransparent = yes
+													texture = "gfx/interface/icons/pantheon/pantheon_temple_track_line.dds"
+												}
+												hbox = {
+													spacing = 4
+													widget = {
+														name = "pantheon_temple_marker_1"
+														size = { 92 46 }
+														tooltip = "pantheon_temple_ladder_tt_1"
+														icon = {
+															visible = "[And( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' ) ) ), Not( And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)1' ) ) ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_empty.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_filled.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)1' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_dashed.dds"
+														}
+														text_single = {
+															position = { 0 28 }
+															size = { 92 18 }
+															autoresize = no
+															align = center|nobaseline
+															using = Font_Size_Small
+															alwaystransparent = yes
+															text = "building_type_pantheon_great_temple_01"
+														}
+													}
+													widget = {
+														name = "pantheon_temple_marker_2"
+														size = { 92 46 }
+														tooltip = "pantheon_temple_ladder_tt_2"
+														icon = {
+															visible = "[And( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' ) ) ), Not( And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)2' ) ) ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_empty.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_filled.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)2' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_dashed.dds"
+														}
+														text_single = {
+															position = { 0 28 }
+															size = { 92 18 }
+															autoresize = no
+															align = center|nobaseline
+															using = Font_Size_Small
+															alwaystransparent = yes
+															text = "building_type_pantheon_great_temple_02"
+														}
+													}
+													widget = {
+														name = "pantheon_temple_marker_3"
+														size = { 92 46 }
+														tooltip = "pantheon_temple_ladder_tt_3"
+														icon = {
+															visible = "[And( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' ) ) ), Not( And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)3' ) ) ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_empty.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_filled.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)3' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_dashed.dds"
+														}
+														text_single = {
+															position = { 0 28 }
+															size = { 92 18 }
+															autoresize = no
+															align = center|nobaseline
+															using = Font_Size_Small
+															alwaystransparent = yes
+															text = "building_type_pantheon_great_temple_03"
+														}
+													}
+													widget = {
+														name = "pantheon_temple_marker_4"
+														size = { 92 46 }
+														tooltip = "pantheon_temple_ladder_tt_4"
+														icon = {
+															visible = "[And( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' ) ) ), Not( And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)4' ) ) ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_empty.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_filled.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)4' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_dashed.dds"
+														}
+														text_single = {
+															position = { 0 28 }
+															size = { 92 18 }
+															autoresize = no
+															align = center|nobaseline
+															using = Font_Size_Small
+															alwaystransparent = yes
+															text = "building_type_pantheon_great_temple_04"
+														}
+													}
+													widget = {
+														name = "pantheon_temple_marker_5"
+														size = { 92 46 }
+														tooltip = "pantheon_temple_ladder_tt_5"
+														icon = {
+															visible = "[And( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) ), Not( And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)5' ) ) ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_empty.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_filled.dds"
+														}
+														icon = {
+															visible = "[And( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_build_tier').GetValue, '(CFixedPoint)5' ) )]"
+															position = { 34 0 }
+															size = { 24 24 }
+															alwaystransparent = yes
+															texture = "gfx/interface/icons/pantheon/pantheon_temple_marker_dashed.dds"
+														}
+														text_single = {
+															position = { 0 28 }
+															size = { 92 18 }
+															autoresize = no
+															align = center|nobaseline
+															using = Font_Size_Small
+															alwaystransparent = yes
+															text = "building_type_pantheon_great_temple_05"
+														}
+													}
+												}
+											}
+
+											# The bottom row, one of three in the same 476 x 32: Upgrade and the next tier's cost and time
+											# (nothing building), the build's progress and months left (building, paused or not), or the
+											# complete line (tier 5). The Upgrade button keeps its four expressions verbatim; Test A repair
+											# (row A4): its label names the tier it builds ("Upgrade to Great Temple", about 207 px of 260).
+											# The row's own Worship IsSet (set from ascension on) guards the Worship read in the cost line's tooltip.
+											widget = {
+												name = "pantheon_temple_bottom_row"
+												size = { 476 32 }
+												hbox = {
+													name = "pantheon_temple_upgrade_row"
+													visible = "[And( GetPlayer.MakeScope.Var('pantheon_worship').IsSet, Not( GetPlayer.MakeScope.Var('pantheon_temple_building').IsSet ) )]"
+													size = { 476 32 }
+													spacing = 10
+													button_standard = {
+														size = { 260 32 }
+														text = "pantheon_ui_btn_temple_upgrade_to"
+														visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														enabled = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_temple_upgrade_after_tt' ), GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_temple_upgrade').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+													}
+													# Batch 2r1 (repair 5), Test A repair (row A4): what the next tier costs, one line of the regular
+													# font centred on the button ("16,000 Worship · 5 years", about 180 px of 206). The tooltip gives
+													# the whole next line (tier, cost, time) and the Worship left after paying.
+													text_single = {
+														name = "pantheon_temple_next_cost_line"
+														visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+														size = { 206 32 }
+														autoresize = no
+														align = left|vcenter
+														text = "pantheon_ui_temple_next_cost"
+														tooltip = "pantheon_ui_temple_next_tt"
+													}
+													expand = {}
+												}
+												# The bar reads pantheon_temple_build_months against the build's total (pantheon_ui_temple_build_progress,
+												# 0-100); the months only count down while the build is not paused, so a paused bar stands still.
+												hbox = {
+													name = "pantheon_temple_build_row"
+													visible = "[GetPlayer.MakeScope.Var('pantheon_temple_building').IsSet]"
+													size = { 476 32 }
+													spacing = 10
+													widget = {
+														size = { 300 32 }
+														progressbar_standard = {
+															parentanchor = vcenter
+															size = { 300 12 }
+															min = 0
+															max = 100
+															value = "[FixedPointToFloat( GetPlayer.MakeScope.ScriptValue('pantheon_ui_temple_build_progress') )]"
+															blockoverride "progress_textures" {
+																progresstexture = "gfx/interface/progressbars/progress_brown.dds"
+																noprogresstexture = "gfx/interface/progressbars/progress_black.dds"
+															}
+														}
+													}
+													text_single = {
+														visible = "[GetPlayer.MakeScope.Var('pantheon_temple_build_months').IsSet]"
+														size = { 166 32 }
+														autoresize = no
+														align = left|vcenter
+														text = "pantheon_ui_temple_build_left"
+													}
+													expand = {}
+												}
+												text_single = {
+													name = "pantheon_temple_complete_line"
+													visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetPlayer.MakeScope.Var('pantheon_temple_building').IsSet ) )]"
+													size = { 476 32 }
+													autoresize = no
+													align = left|vcenter
+													text = "pantheon_ui_temple_complete"
+												}
+											}
+											# the spare height goes below the rows, so the shown ones sit under the title whichever are hidden
+											expand = {}
+										}
+									}
+								}
+								# ---- end 2.12 Task 1 header
+
+					# Before founding: the faith's holy sites (One Trait 2.7's proven list form,
+					# OneTraitToRuleThemAll/gui/one_trait_panel.gui, datamodel/AddScope('landed_title', Title.MakeScope)).
+					# 2.12 Task 2: a 706-wide card under the header (8 + the 690 rows + 8), in place of the miracles and the
+					# Sign until a temple is founded. The list is a plain datamodel vbox that grows inside the page scrollbox
+					# (no scrollbox in a scrollbox); every text has a fixed size and autoresize = no, the clipping ones their
+					# full text as the tooltip. The intro is three lines: 209 characters x 7.5 px over 690-px lines, 20 each.
+					vbox = {
+						name = "pantheon_temple_found_card"
+						visible = "[Not( GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet )]"
+						minimumsize = { 706 0 }
+						background = { using = Background_Area }
+						margin = { 8 6 }
+						spacing = 6
 						text_single = {
+							size = { 690 22 }
+							autoresize = no
+							align = left|nobaseline
+							using = Font_Size_Medium
+							text = "pantheon_ui_temple_found_title"
+							tooltip = "pantheon_ui_temple_found_title"
+						}
+						text_single = {
+							size = { 690 60 }
 							multiline = yes
-							autoresize = yes
-							max_width = 680
+							autoresize = no
+							align = left|top
 							text = "pantheon_ui_temple_intro"
+							tooltip = "pantheon_ui_temple_intro"
 						}
 						text_single = {
 							visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites') )]"
+							size = { 690 20 }
+							autoresize = no
+							align = left|nobaseline
 							text = "pantheon_ui_temple_no_sites"
 						}
-						scrollbox = {
-							size = { 680 480 }
-							blockoverride "scrollbox_content" {
-								vbox = {
-									layoutpolicy_horizontal = expanding
-									datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites')]"
-									spacing = 4
-									item = {
+						vbox = {
+							datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_temple_sites')]"
+							spacing = 4
+							item = {
+								# 10 + 150 name + 10 + 150 holder + 10 + 190 cost + 10 + 150 Found + 10 = 690
+								widget = {
+									name = "pantheon_temple_found_row"
+									size = { 690 50 }
+									datacontext = "[Scope.GetLandedTitle]"
+									background = { using = Background_Area }
+									hbox = {
+										margin_left = 10
+										margin_right = 10
+										spacing = 10
+										text_single = {
+											name = "pantheon_temple_found_name"
+											size = { 150 32 }
+											autoresize = no
+											align = left|vcenter
+											text = "[Title.GetName]"
+											tooltip = "[Title.GetName]"
+										}
+										# the holder's datacontext on this ancestor, not on the leaf text (batch u1 row 34)
 										widget = {
-											size = { 660 50 }
-											datacontext = "[Scope.GetLandedTitle]"
-											background = { using = Background_Area }
-											hbox = {
-												margin_left = 10
-												margin_right = 10
-												spacing = 10
-												text_single = {
-													layoutpolicy_horizontal = expanding
-													autoresize = no
-													text = "[Title.GetName]"
-												}
-												text_single = {
-													layoutpolicy_horizontal = expanding
-													autoresize = no
-													datacontext = "[Title.GetHolder]"
-													text = "[Character.GetShortUINameNoTooltip]"
-												}
-												# Batch 2r1 (repair 5): each row gave no idea what founding there would cost.
-												# Batch u1 repair (row 4): no size at all here rendered as a lone truncated "..."
-												# -- a fixed width gives the text room (One Trait 2.7's lesson again).
-												text_single = {
-													size = { 190 32 }
-													autoresize = no
-													align = left|vcenter
-													text = "pantheon_ui_temple_found_cost"
-													tooltip = "pantheon_temple_found_after_tt"
-												}
-												button_standard = {
-													size = { 150 32 }
-													text = "pantheon_ui_btn_temple_found"
-													enabled = "[GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
-													tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ), Localize( 'pantheon_temple_found_after_tt' ), GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
-													onclick = "[GetScriptedGui('pantheon_ui_temple_found').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
-												}
+											name = "pantheon_temple_found_holder"
+											size = { 150 32 }
+											datacontext = "[Title.GetHolder]"
+											text_single = {
+												size = { 150 32 }
+												autoresize = no
+												align = left|vcenter
+												text = "[Character.GetShortUINameNoTooltip]"
+												tooltip = "[Character.GetShortUINameNoTooltip]"
 											}
+										}
+										# Batch 2r1 (repair 5): each row gave no idea what founding there would cost.
+										# Batch u1 repair (row 4): no size at all here rendered as a lone truncated "..."
+										# -- a fixed width gives the text room (One Trait 2.7's lesson again).
+										# 2.12 Task 2: its tooltip reads the Worship, so its own IsSet (set from ascension on) guards it.
+										text_single = {
+											visible = "[GetPlayer.MakeScope.Var('pantheon_worship').IsSet]"
+											size = { 190 32 }
+											autoresize = no
+											align = left|vcenter
+											text = "pantheon_ui_temple_found_cost"
+											tooltip = "pantheon_temple_found_after_tt"
+										}
+										button_standard = {
+											size = { 150 32 }
+											text = "pantheon_ui_btn_temple_found"
+											enabled = "[GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
+											tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_found').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ), Localize( 'pantheon_temple_found_after_tt' ), GetScriptedGui('pantheon_ui_temple_found').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End ) )]"
+											onclick = "[GetScriptedGui('pantheon_ui_temple_found').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'landed_title', Title.MakeScope ).End )]"
 										}
 									}
 								}
 							}
 						}
+						# the spare height goes below the rows
+						expand = {}
 					}
 
-					# After founding: header, bonuses, upgrade, the ladder, and the tier-5 miracles.
+					# After founding: the Miracles card and the Sign (2.12 Task 1: the header, the upgrade and the ladder moved
+					# into the header band above; Task 3: the Miracles card replaced the tier-5 buttons and the Wrath note; Task 4: the
+					# Sign became a card after it).
 					vbox = {
 						visible = "[GetPlayer.MakeScope.Var('pantheon_temple_province').IsSet]"
 						layoutpolicy_horizontal = expanding
-						# 2.9 in-game test (Section C): the steadying act's kingdom list takes the height left below
-						layoutpolicy_vertical = expanding
+						# 2.12 Task 4: no longer stretches (it did for the Sign's old growing scrollbox); the cards take their own height
 						spacing = 8
 						datacontext = "[GetPlayer]"
 
-						text_single = { using = Font_Size_Medium text = "[Character.Custom('pantheon_temple_tier_name')]" }
-						text_single = { text = "[Character.Custom('pantheon_temple_state')]" }
-						# Batch 2r1 (repair 5): the header omitted which county holds the temple.
-						text_single = { text = "pantheon_ui_temple_county" }
-						text_single = { multiline = yes autoresize = yes max_width = 680 text = "[Character.Custom('pantheon_temple_tier_desc')]" }
-						# R13, batch 2b: the capital could not be made a holy site (e.g. the faith was already at its
-						# holy-site maximum). The temple itself still works fully.
-						text_single = {
-							visible = "[GetPlayer.MakeScope.Var('pantheon_temple_holy_site_refused').IsSet]"
-							text = "pantheon_ui_temple_holy_site_refused"
-						}
-
-						button_standard = {
-							size = { 260 32 }
-							text = "pantheon_ui_btn_temple_upgrade"
-							visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							enabled = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_temple_upgrade').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_temple_upgrade_after_tt' ), GetScriptedGui('pantheon_ui_temple_upgrade').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-							onclick = "[GetScriptedGui('pantheon_ui_temple_upgrade').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-						}
-						# Batch 2r1 (repair 5): the Upgrade button gave no idea what the next tier costs or what it is.
-						text_single = {
-							visible = "[GetScriptedGui('pantheon_ui_temple_upgrade').IsShown( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-							text = "pantheon_ui_temple_next_line"
-							tooltip = "pantheon_temple_upgrade_after_tt"
-						}
-
-						# The five-step ladder: a passive row of tab-styled cells, the current tier's cell down.
-						# Batch u2 repair (item 3, rows 8/13): the cells looked clickable (button_tab's own hover/
-						# press frames) but did nothing. `enabled = no` keeps the "down" toggle look for the current
-						# tier while turning off the button's own hover/pressed states and click handling (the same
-						# property button_standard already uses elsewhere in this file to grey out, just always off
-						# here); each cell's own tooltip gives that tier's bonuses and cost/years
-						# (pantheon_temple_ladder_tt_1..5, localization/english/pantheon_l_english.yml -- built from
-						# the per-tier script values Task 1 already defines, common/script_values/pantheon_values.txt).
-						hbox = {
-							spacing = 4
-							button_tab = {
-								# Batch u1 repair (row 2): a bare hbox sizing itself from five expanding, zero-width
-								# children collapsed to nothing and the five names overlapped at one spot -- fixed-size
-								# cells with an explicit width fix it (the lesson One Trait 2.7 already proved).
-								size = { 132 32 }
-								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)1' )]"
-								enabled = no
-								tooltip = "pantheon_temple_ladder_tt_1"
-								text_single = {
-									size = { 132 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "building_type_pantheon_great_temple_01"
-								}
-							}
-							button_tab = {
-								size = { 132 32 }
-								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)2' )]"
-								enabled = no
-								tooltip = "pantheon_temple_ladder_tt_2"
-								text_single = {
-									size = { 132 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "building_type_pantheon_great_temple_02"
-								}
-							}
-							button_tab = {
-								size = { 132 32 }
-								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)3' )]"
-								enabled = no
-								tooltip = "pantheon_temple_ladder_tt_3"
-								text_single = {
-									size = { 132 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "building_type_pantheon_great_temple_03"
-								}
-							}
-							button_tab = {
-								size = { 132 32 }
-								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)4' )]"
-								enabled = no
-								tooltip = "pantheon_temple_ladder_tt_4"
-								text_single = {
-									size = { 132 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "building_type_pantheon_great_temple_04"
-								}
-							}
-							button_tab = {
-								size = { 132 32 }
-								down = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
-								enabled = no
-								tooltip = "pantheon_temple_ladder_tt_5"
-								text_single = {
-									size = { 132 32 }
-									autoresize = no
-									align = center|vcenter
-									text = "building_type_pantheon_great_temple_05"
-								}
-							}
-						}
-
-						# The miracles (tier 5): arm-then-confirm (pantheon_temple_confirm, One Trait's
-						# one_trait_ui_confirm form) and the Wrath note.
+						# ---- 2.12 Task 3: the Miracles card (the "use the temple" half), at every tier once a temple exists. All five
+						# miracles need an active tier-5 temple and share one rest (pantheon_miracle_ready_trigger), so the card says why they
+						# are greyed: the corner gives the status (needs the tier, dormant, resting, ready, in that order), each card's icon
+						# is shaded, and its tooltip gives the effect plus the reason in the corner's order. The tooltips are plain-text keys
+						# chosen by Select_CString, never an action's IsValidTooltip (pantheon_miracle_cooldown_tt reads the cooldown, unset
+						# below tier 5 or while dormant: "0 months left"). Heights: the 30 title row + 8 + the 112 cards + 8 + the 56 cards
+						# = 214. Widths: 3 x 230 + 2 x 8 = 706 and 2 x 349 + 8 = 706. The cards' children let the mouse through, so the
+						# card's tooltip shows over them; the Invoke button keeps its own.
 						vbox = {
-							visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' )]"
-							layoutpolicy_horizontal = expanding
-							spacing = 6
+							name = "pantheon_temple_miracles"
+							spacing = 8
+							widget = {
+								name = "pantheon_temple_miracles_title_row"
+								size = { 706 30 }
+								background = { using = Background_Area }
+								text_single = {
+									position = { 10 0 }
+									size = { 400 30 }
+									autoresize = no
+									align = left|vcenter
+									using = Font_Size_Medium
+									text = "pantheon_ui_miracles_title"
+								}
+								# the status, exactly one of four; the months only under their own IsSet
+								widget = {
+									name = "pantheon_temple_miracles_corner"
+									position = { 420 0 }
+									size = { 276 30 }
+									text_single = {
+										visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) )]"
+										size = { 276 30 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_miracles_needs_tier"
+									}
+									text_single = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+										size = { 276 30 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_miracles_dormant"
+									}
+									# resting: one of three texts by the months left (2.12 text polish): under 24 "Rests N months"
+									# (exactly 1: "Rests 1 month"), from 24 "Rests N years" rounded up (pantheon_ui_miracle_rest_years)
+									text_single = {
+										visible = "[And( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), And( Not( EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue, '(CFixedPoint)1' ) ), Not( GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue, '(CFixedPoint)24' ) ) ) )]"
+										size = { 276 30 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_miracles_resting"
+										tooltip = "pantheon_ui_miracles_resting"
+									}
+									text_single = {
+										visible = "[And( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue, '(CFixedPoint)1' ) )]"
+										size = { 276 30 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_miracles_resting_1"
+										tooltip = "pantheon_ui_miracles_resting_1"
+									}
+									text_single = {
+										visible = "[And( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), GreaterThanOrEqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').GetValue, '(CFixedPoint)24' ) )]"
+										size = { 276 30 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_miracles_resting_years"
+										tooltip = "pantheon_ui_miracles_resting_years"
+									}
+									text_single = {
+										visible = "[GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										size = { 276 30 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_miracles_ready"
+									}
+								}
+							}
+							# Mass Conversion, Age of Faith, Divine Victory: icon, name, effect, and the Invoke button or the reason
 							hbox = {
-								spacing = 6
-								button_standard = {
-									size = { 210 32 }
-									enabled = "[GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
-									# (and nothing at all while ready) -- now always shows what the miracle does, the reason
-									# (if any) on its own line below.
-									tooltip = "pantheon_ui_miracle_conversion_tt"
-									onclick = "[GetScriptedGui('pantheon_ui_miracle_conversion').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
-									# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
+								spacing = 8
+								widget = {
+									name = "pantheon_card_miracle_conversion"
+									size = { 230 112 }
+									background = { using = Background_Area }
+									tooltip = "[Select_CString( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) ), Localize( 'pantheon_ui_miracle_conversion_card_needs_tt' ), Select_CString( And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), Localize( 'pantheon_ui_miracle_conversion_card_dormant_tt' ), Select_CString( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), Localize( 'pantheon_ui_miracle_conversion_card_resting_tt' ), Localize( 'pantheon_ui_miracle_conversion_card_tt' ) ) ) )]"
 									widget = {
-										size = { 210 32 }
-										text_single = {
-											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
-											size = { 210 32 }
-											autoresize = no
-											align = center|vcenter
-											text = "pantheon_ui_btn_miracle_conversion"
+										position = { 8 8 }
+										size = { 48 48 }
+										alwaystransparent = yes
+										icon = {
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_miracle_conversion.dds"
 										}
-										text_single = {
-											visible = "[GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-											size = { 210 32 }
-											autoresize = no
-											align = center|vcenter
-											text = "pantheon_ui_btn_confirm"
+										# greyed while the miracles are not ready (all five share pantheon_miracle_ready_trigger)
+										icon = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_card_shade.dds"
 										}
 									}
-								}
-								button_standard = {
-									size = { 210 32 }
-									enabled = "[GetScriptedGui('pantheon_ui_miracle_age').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
-									# (and nothing at all while ready) -- now always shows what the miracle does, the reason
-									# (if any) on its own line below.
-									tooltip = "pantheon_ui_miracle_age_tt"
-									onclick = "[GetScriptedGui('pantheon_ui_miracle_age').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									widget = {
+									text_single = {
+										position = { 60 8 }
+										size = { 162 22 }
+										using = Font_Size_Medium
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_ui_btn_miracle_conversion"
+									}
+									text_single = {
+										position = { 60 30 }
+										size = { 162 40 }
+										multiline = yes
+										autoresize = no
+										align = left|top
+										alwaystransparent = yes
+										text = "pantheon_ui_miracle_conversion_line"
+									}
+									# the Invoke button, verbatim but for its position and visible: only at an active tier 5, where its tooltip's
+									# reason (pantheon_miracle_cooldown_tt) reads a cooldown that is set or reads nothing
+									button_standard = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										position = { 10 74 }
 										size = { 210 32 }
-										text_single = {
-											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										enabled = "[GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+										# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+										# (if any) on its own line below.
+										tooltip = "pantheon_ui_miracle_conversion_tt"
+										onclick = "[GetScriptedGui('pantheon_ui_miracle_conversion').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
+										# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
+										widget = {
 											size = { 210 32 }
-											autoresize = no
-											align = center|vcenter
-											text = "pantheon_ui_btn_miracle_age"
-										}
-										text_single = {
-											visible = "[GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-											size = { 210 32 }
-											autoresize = no
-											align = center|vcenter
-											text = "pantheon_ui_btn_confirm"
+											text_single = {
+												visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 210 32 }
+												autoresize = no
+												align = center|vcenter
+												text = "pantheon_ui_btn_miracle_invoke"
+											}
+											text_single = {
+												visible = "[GetScriptedGui('pantheon_ui_miracle_conversion_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												size = { 210 32 }
+												autoresize = no
+												align = center|vcenter
+												text = "pantheon_ui_btn_confirm"
+											}
 										}
 									}
+									# in the button's place below tier 5 or while dormant: the reason, the corner's own conditions
+									text_single = {
+										visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) )]"
+										position = { 10 75 }
+										size = { 210 30 }
+										autoresize = no
+										align = center|vcenter
+										alwaystransparent = yes
+										text = "pantheon_ui_miracles_needs_tier"
+									}
+									text_single = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+										position = { 10 75 }
+										size = { 210 30 }
+										autoresize = no
+										align = center|vcenter
+										alwaystransparent = yes
+										text = "pantheon_ui_miracles_dormant"
+									}
 								}
-								button_standard = {
-									size = { 210 32 }
-									enabled = "[GetScriptedGui('pantheon_ui_miracle_victory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
-									# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
-									# (and nothing at all while ready) -- now always shows what the miracle does, the reason
-									# (if any) on its own line below.
-									tooltip = "pantheon_ui_miracle_victory_tt"
-									onclick = "[GetScriptedGui('pantheon_ui_miracle_victory').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+								widget = {
+									name = "pantheon_card_miracle_age"
+									size = { 230 112 }
+									background = { using = Background_Area }
+									tooltip = "[Select_CString( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) ), Localize( 'pantheon_ui_miracle_age_card_needs_tt' ), Select_CString( And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), Localize( 'pantheon_ui_miracle_age_card_dormant_tt' ), Select_CString( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), Localize( 'pantheon_ui_miracle_age_card_resting_tt' ), Localize( 'pantheon_ui_miracle_age_card_tt' ) ) ) )]"
 									widget = {
+										position = { 8 8 }
+										size = { 48 48 }
+										alwaystransparent = yes
+										icon = {
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_miracle_age.dds"
+										}
+										# greyed while the miracles are not ready (all five share pantheon_miracle_ready_trigger)
+										icon = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_card_shade.dds"
+										}
+									}
+									text_single = {
+										position = { 60 8 }
+										size = { 162 22 }
+										using = Font_Size_Medium
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_ui_btn_miracle_age"
+									}
+									text_single = {
+										position = { 60 30 }
+										size = { 162 40 }
+										multiline = yes
+										autoresize = no
+										align = left|top
+										alwaystransparent = yes
+										text = "pantheon_ui_miracle_age_line"
+									}
+									# the Invoke button, verbatim but for its position and visible: only at an active tier 5, where its tooltip's
+									# reason (pantheon_miracle_cooldown_tt) reads a cooldown that is set or reads nothing
+									button_standard = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										position = { 10 74 }
 										size = { 210 32 }
-										text_single = {
-											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										enabled = "[GetScriptedGui('pantheon_ui_miracle_age').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+										# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+										# (if any) on its own line below.
+										tooltip = "pantheon_ui_miracle_age_tt"
+										onclick = "[GetScriptedGui('pantheon_ui_miracle_age').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
+										# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
+										widget = {
 											size = { 210 32 }
-											autoresize = no
-											align = center|vcenter
-											text = "pantheon_ui_btn_miracle_victory"
+											text_single = {
+												visible = "[Not( GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 210 32 }
+												autoresize = no
+												align = center|vcenter
+												text = "pantheon_ui_btn_miracle_invoke"
+											}
+											text_single = {
+												visible = "[GetScriptedGui('pantheon_ui_miracle_age_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												size = { 210 32 }
+												autoresize = no
+												align = center|vcenter
+												text = "pantheon_ui_btn_confirm"
+											}
 										}
-										text_single = {
-											visible = "[GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+									}
+									# in the button's place below tier 5 or while dormant: the reason, the corner's own conditions
+									text_single = {
+										visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) )]"
+										position = { 10 75 }
+										size = { 210 30 }
+										autoresize = no
+										align = center|vcenter
+										alwaystransparent = yes
+										text = "pantheon_ui_miracles_needs_tier"
+									}
+									text_single = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+										position = { 10 75 }
+										size = { 210 30 }
+										autoresize = no
+										align = center|vcenter
+										alwaystransparent = yes
+										text = "pantheon_ui_miracles_dormant"
+									}
+								}
+								widget = {
+									name = "pantheon_card_miracle_victory"
+									size = { 230 112 }
+									background = { using = Background_Area }
+									tooltip = "[Select_CString( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) ), Localize( 'pantheon_ui_miracle_victory_card_needs_tt' ), Select_CString( And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), Localize( 'pantheon_ui_miracle_victory_card_dormant_tt' ), Select_CString( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), Localize( 'pantheon_ui_miracle_victory_card_resting_tt' ), Localize( 'pantheon_ui_miracle_victory_card_tt' ) ) ) )]"
+									widget = {
+										position = { 8 8 }
+										size = { 48 48 }
+										alwaystransparent = yes
+										icon = {
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_miracle_victory.dds"
+										}
+										# greyed while the miracles are not ready (all five share pantheon_miracle_ready_trigger)
+										icon = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_card_shade.dds"
+										}
+									}
+									text_single = {
+										position = { 60 8 }
+										size = { 162 22 }
+										using = Font_Size_Medium
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_ui_btn_miracle_victory"
+									}
+									text_single = {
+										position = { 60 30 }
+										size = { 162 40 }
+										multiline = yes
+										autoresize = no
+										align = left|top
+										alwaystransparent = yes
+										text = "pantheon_ui_miracle_victory_line"
+									}
+									# the Invoke button, verbatim but for its position and visible: only at an active tier 5, where its tooltip's
+									# reason (pantheon_miracle_cooldown_tt) reads a cooldown that is set or reads nothing
+									button_standard = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+										position = { 10 74 }
+										size = { 210 32 }
+										enabled = "[GetScriptedGui('pantheon_ui_miracle_victory').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										# Batch u1 repair (row 21): the tooltip only ever showed the not-ready/confirm reason
+										# (and nothing at all while ready) -- now always shows what the miracle does, the reason
+										# (if any) on its own line below.
+										tooltip = "pantheon_ui_miracle_victory_tt"
+										onclick = "[GetScriptedGui('pantheon_ui_miracle_victory').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+										# One Trait's confirm-label swap (gui/one_trait_panel.gui:1421-1443): two mutually
+										# exclusive labels in a fixed-size widget, toggled by the armed scripted GUI.
+										widget = {
 											size = { 210 32 }
-											autoresize = no
-											align = center|vcenter
-											text = "pantheon_ui_btn_confirm"
+											text_single = {
+												visible = "[Not( GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+												size = { 210 32 }
+												autoresize = no
+												align = center|vcenter
+												text = "pantheon_ui_btn_miracle_invoke"
+											}
+											text_single = {
+												visible = "[GetScriptedGui('pantheon_ui_miracle_victory_armed').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
+												size = { 210 32 }
+												autoresize = no
+												align = center|vcenter
+												text = "pantheon_ui_btn_confirm"
+											}
 										}
+									}
+									# in the button's place below tier 5 or while dormant: the reason, the corner's own conditions
+									text_single = {
+										visible = "[Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) )]"
+										position = { 10 75 }
+										size = { 210 30 }
+										autoresize = no
+										align = center|vcenter
+										alwaystransparent = yes
+										text = "pantheon_ui_miracles_needs_tier"
+									}
+									text_single = {
+										visible = "[And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) )]"
+										position = { 10 75 }
+										size = { 210 30 }
+										autoresize = no
+										align = center|vcenter
+										alwaystransparent = yes
+										text = "pantheon_ui_miracles_dormant"
 									}
 								}
 							}
-							text_single = {
-								multiline = yes
-								autoresize = yes
-								max_width = 680
-								text = "pantheon_ui_wrath_note"
+							# The Wrath of Heaven and Fire from Heaven: right-click interactions on a ruler, so no button
+							hbox = {
+								spacing = 8
+								widget = {
+									name = "pantheon_card_miracle_wrath"
+									size = { 349 56 }
+									background = { using = Background_Area }
+									tooltip = "[Select_CString( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) ), Localize( 'pantheon_ui_miracle_wrath_card_needs_tt' ), Select_CString( And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), Localize( 'pantheon_ui_miracle_wrath_card_dormant_tt' ), Select_CString( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), Localize( 'pantheon_ui_miracle_wrath_card_resting_tt' ), Localize( 'pantheon_ui_miracle_wrath_card_tt' ) ) ) )]"
+									widget = {
+										position = { 8 4 }
+										size = { 48 48 }
+										alwaystransparent = yes
+										icon = {
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/character_interactions/pantheon_wrath_of_heaven_interaction.dds"
+										}
+										# greyed while the miracles are not ready (all five share pantheon_miracle_ready_trigger)
+										icon = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_card_shade.dds"
+										}
+									}
+									text_single = {
+										position = { 64 6 }
+										size = { 277 22 }
+										using = Font_Size_Medium
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_wrath_of_heaven_interaction"
+									}
+									text_single = {
+										position = { 64 30 }
+										size = { 277 20 }
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_ui_miracle_right_click"
+									}
+								}
+								widget = {
+									name = "pantheon_card_miracle_fire"
+									size = { 349 56 }
+									background = { using = Background_Area }
+									tooltip = "[Select_CString( Not( And( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ) ) ), Localize( 'pantheon_ui_miracle_fire_card_needs_tt' ), Select_CString( And3( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), Not( GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) ) ), Localize( 'pantheon_ui_miracle_fire_card_dormant_tt' ), Select_CString( And4( GetPlayer.MakeScope.Var('pantheon_temple_tier').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_temple_tier').GetValue, '(CFixedPoint)5' ), GetScriptedGui('pantheon_ui_temple_view_active').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), GetPlayer.MakeScope.Var('pantheon_temple_cooldown_months').IsSet ), Localize( 'pantheon_ui_miracle_fire_card_resting_tt' ), Localize( 'pantheon_ui_miracle_fire_card_tt' ) ) ) )]"
+									widget = {
+										position = { 8 4 }
+										size = { 48 48 }
+										alwaystransparent = yes
+										icon = {
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/character_interactions/pantheon_fire_from_heaven_interaction.dds"
+										}
+										# greyed while the miracles are not ready (all five share pantheon_miracle_ready_trigger)
+										icon = {
+											visible = "[Not( GetScriptedGui('pantheon_ui_miracle_conversion').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
+											size = { 48 48 }
+											alwaystransparent = yes
+											texture = "gfx/interface/icons/pantheon/pantheon_card_shade.dds"
+										}
+									}
+									text_single = {
+										position = { 64 6 }
+										size = { 277 22 }
+										using = Font_Size_Medium
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_fire_from_heaven_interaction"
+									}
+									text_single = {
+										position = { 64 30 }
+										size = { 277 20 }
+										autoresize = no
+										align = left|nobaseline
+										alwaystransparent = yes
+										text = "pantheon_ui_miracle_right_click"
+									}
+								}
 							}
+							# the spare height goes below the rows
+							expand = {}
 						}
 
-						# ---- 2.9 Task 5: A Sign of Steadfastness, the steadying act. A section under the miracles (shown with the founded temple): either the
-						# picker (nothing armed) or the armed panel, never both. LAYOUT BUDGET (the Temple tab shares the 504 px the Quiet tab budgets under
-						# the tallest selected-follower strip, and tier 5 shows the most): header 22 + 4 + one 100-high block = 126, plus the 8 spacing of
-						# the tab = 134. The picker is a 190-wide column (two 28 buttons and a 24 rest line: 28 + 6 + 28 + 6 + 24 = 92) beside a FIXED
-						# 480 x 100 scrollbox (190 + 8 + 480 = 678 of the 680 the other Temple lists use) whose rows are 450 x 28: 8 + 200 name + 8 + 110
-						# count + 8 + 100 button + 8 = 442. The armed panel is a fixed 678 x 100: 10 + a 440 column (24 + 2 + 24 + 2 + 40 = 92) + 10 + a 200
-						# column of two 32 buttons + 10 = 670. Every text has a FIXED size, does not size itself (autoresize = no) and elides at its width,
-						# the full text in a tooltip, so a long kingdom name or a long localized sentence can never push a row wider or the panel taller.
+						# ---- 2.9 Task 5: A Sign of Steadfastness, the steadying act. 2.12 Task 4: a 706-wide card after the Miracles card, in its
+						# style: a title row, then either the picker (nothing armed) or the armed panel, never both. LAYOUT: the title row is
+						# 706 x 32: 10 + the 32 icon + 8 + the 260 name + 10 + the 376 corner (the rest while it runs, else "Ready") + 10 = 706.
+						# The picker is 706 wide (8 + 688 + 8): a 190 column of the two 28 reach buttons (28 + 6 + 28 = 62, held at the top)
+						# + 8 + the kingdom list, a PLAIN datamodel vbox of 490 x 28 rows (8 + 240 name + 8 + 110 count + 8 + 100 button + 8
+						# = 482) that grows with its rows inside the page's one scrollbox (no scrollbox in a scrollbox, Review Focus 5). The
+						# armed panel is a fixed 690 x 100: 10 + a 460 column (24 + 2 + 24 + 2 + 40 = 92 under a 4 top margin) + 10 + a 200
+						# column of two 32 buttons + 10 = 690. Every text has a FIXED size and does not size itself (autoresize = no), the
+						# full text in a tooltip where it may clip, so a long kingdom name or a long localized sentence can never push a row
+						# wider or the panel taller. Each loc that reads a variable is guarded by that variable's IsSet in its own visible.
 						vbox = {
-							layoutpolicy_horizontal = expanding
-							layoutpolicy_vertical = expanding
-							spacing = 4
-							text_single = {
-								size = { 678 22 }
-								autoresize = no
-								text = "pantheon_ui_steady_header"
-								tooltip = "pantheon_ui_steady_header_tt"
+							name = "pantheon_temple_sign"
+							spacing = 8
+							widget = {
+								name = "pantheon_temple_sign_title_row"
+								size = { 706 32 }
+								background = { using = Background_Area }
+								icon = {
+									position = { 10 0 }
+									size = { 32 32 }
+									texture = "gfx/interface/icons/pantheon/pantheon_steady.dds"
+								}
+								text_single = {
+									position = { 50 0 }
+									size = { 260 32 }
+									autoresize = no
+									align = left|vcenter
+									using = Font_Size_Medium
+									text = "pantheon_ui_steady_header"
+									tooltip = "pantheon_ui_steady_header_tt"
+								}
+								# the five-year rest while it runs, else Ready; the time only under its own IsSet
+								widget = {
+									name = "pantheon_temple_sign_corner"
+									position = { 320 0 }
+									size = { 376 32 }
+									text_single = {
+										visible = "[GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet]"
+										size = { 376 32 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_steady_cooldown_line"
+										tooltip = "pantheon_steady_cooldown_tt"
+									}
+									text_single = {
+										visible = "[Not( GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet )]"
+										size = { 376 32 }
+										autoresize = no
+										align = right|vcenter
+										text = "pantheon_ui_steady_ready"
+									}
+								}
 							}
 
 							# nothing armed: the two reach buttons and the kingdom list
 							hbox = {
+								name = "pantheon_temple_sign_picker"
 								visible = "[Not( GetPlayer.MakeScope.Var('pantheon_steady_reach').IsSet )]"
-								layoutpolicy_horizontal = expanding
-								layoutpolicy_vertical = expanding
+								minimumsize = { 706 0 }
+								background = { using = Background_Area }
+								margin = { 8 8 }
 								spacing = 8
 								vbox = {
+									name = "pantheon_temple_sign_reach"
 									# the buttons stay at the top while the list beside them grows
 									layoutpolicy_vertical = expanding
 									spacing = 6
@@ -3118,74 +3896,79 @@ window = {
 										tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_faith').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).End ), Localize( 'pantheon_ui_steady_faith_tt' ), GetScriptedGui('pantheon_ui_steady_arm_faith').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).End ) )]"
 										onclick = "[GetScriptedGui('pantheon_ui_steady_arm_faith').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).End )]"
 									}
-									# the five-year rest, while it runs
-									text_single = {
-										visible = "[GetPlayer.MakeScope.Var('pantheon_steady_cooldown').IsSet]"
-										size = { 190 24 }
-										autoresize = no
-										align = left|vcenter
-										text = "pantheon_ui_steady_cooldown_line"
-										tooltip = "pantheon_steady_cooldown_tt"
-									}
 									expand = {}
 								}
-								# the kingdoms that hold followers (most first). In-game test (Section C): a fixed 100 high box cut off with room
-								# to spare, so it takes all the height left below the miracles, as the Quiet and Prayers lists do (never overflows)
-								scrollbox = {
-									layoutpolicy_horizontal = expanding
+								# the kingdoms that hold followers (most first): a plain list that grows with its rows inside the page
+								vbox = {
+									name = "pantheon_temple_sign_kingdoms"
 									layoutpolicy_vertical = expanding
-									blockoverride "scrollbox_empty" {
-										text = "pantheon_ui_steady_kingdom_empty"
+									spacing = 2
+									text_single = {
 										visible = "[IsDataModelEmpty( GetPlayer.MakeScope.GetList('pantheon_ui_steady_kingdoms') )]"
+										size = { 490 28 }
+										autoresize = no
+										align = left|vcenter
+										text = "pantheon_ui_steady_kingdom_empty"
 									}
-									blockoverride "scrollbox_content" {
-										vbox = {
-											layoutpolicy_horizontal = expanding
-											datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_steady_kingdoms')]"
-											spacing = 2
-											item = {
-												widget = {
-													size = { 450 28 }
-													visible = "[Scope.GetLandedTitle.MakeScope.Var('pantheon_ui_steady_n').IsSet]"
-													datacontext = "[Scope.GetLandedTitle]"
-													background = { using = Background_Area }
-													hbox = {
-														margin_left = 8
-														margin_right = 8
-														spacing = 8
+									vbox = {
+										datamodel = "[GetPlayer.MakeScope.GetList('pantheon_ui_steady_kingdoms')]"
+										spacing = 2
+										item = {
+											widget = {
+												name = "pantheon_temple_sign_row"
+												size = { 490 28 }
+												visible = "[Scope.GetLandedTitle.MakeScope.Var('pantheon_ui_steady_n').IsSet]"
+												datacontext = "[Scope.GetLandedTitle]"
+												background = { using = Background_Area }
+												hbox = {
+													margin_left = 8
+													margin_right = 8
+													spacing = 8
+													text_single = {
+														size = { 240 26 }
+														autoresize = no
+														align = left|vcenter
+														text = "[Title.GetNameNoTooltip]"
+														tooltip = "[Title.GetNameNoTooltip]"
+													}
+													# the count: "N followers", or "1 follower"; two texts overlapping in one fixed cell
+													widget = {
+														size = { 110 26 }
 														text_single = {
-															size = { 200 26 }
-															max_width = 200
-															autoresize = no
-															align = left|vcenter
-															text = "[Title.GetNameNoTooltip]"
-															tooltip = "[Title.GetNameNoTooltip]"
-														}
-														text_single = {
+															visible = "[And( Title.MakeScope.Var('pantheon_ui_steady_n').IsSet, Not( EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_ui_steady_n').GetValue, '(CFixedPoint)1' ) ) )]"
 															size = { 110 26 }
 															autoresize = no
 															align = left|vcenter
 															text = "pantheon_ui_steady_kingdom_n"
 														}
-														button_standard = {
-															size = { 100 26 }
-															text = "pantheon_ui_btn_steady_kingdom"
-															enabled = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
-															tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ), Localize( 'pantheon_ui_steady_kingdom_after_tt' ), GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ) )]"
-															onclick = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
+														text_single = {
+															visible = "[And( Title.MakeScope.Var('pantheon_ui_steady_n').IsSet, EqualTo_CFixedPoint( Title.MakeScope.Var('pantheon_ui_steady_n').GetValue, '(CFixedPoint)1' ) )]"
+															size = { 110 26 }
+															autoresize = no
+															align = left|vcenter
+															text = "pantheon_ui_steady_kingdom_n_1"
 														}
+													}
+													button_standard = {
+														size = { 100 26 }
+														text = "pantheon_ui_btn_steady_kingdom"
+														enabled = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
+														tooltip = "[Select_CString( GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValid( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ), Localize( 'pantheon_ui_steady_kingdom_after_tt' ), GetScriptedGui('pantheon_ui_steady_arm_kingdom').IsValidTooltip( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End ) )]"
+														onclick = "[GetScriptedGui('pantheon_ui_steady_arm_kingdom').Execute( GuiScope.SetRoot( GetPlayer.MakeScope ).AddScope( 'pantheon_steady_title', Title.MakeScope ).End )]"
 													}
 												}
 											}
 										}
 									}
+									expand = {}
 								}
 							}
 
 							# armed: what it reaches, what it costs, what it does, Send and Cancel
 							widget = {
+								name = "pantheon_temple_sign_armed"
 								visible = "[GetPlayer.MakeScope.Var('pantheon_steady_reach').IsSet]"
-								size = { 678 100 }
+								size = { 690 100 }
 								background = { using = Background_Area }
 								hbox = {
 									margin_left = 10
@@ -3196,16 +3979,14 @@ window = {
 										spacing = 2
 										text_single = {
 											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)1' )]"
-											size = { 440 24 }
-											max_width = 440
+											size = { 460 24 }
 											autoresize = no
 											align = left|vcenter
 											text = "pantheon_ui_steady_armed_1"
 										}
 										text_single = {
-											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)2' )]"
-											size = { 440 24 }
-											max_width = 440
+											visible = "[And( GetPlayer.MakeScope.Var('pantheon_steady_kingdom').IsSet, EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)2' ) )]"
+											size = { 460 24 }
 											autoresize = no
 											align = left|vcenter
 											text = "pantheon_ui_steady_armed_2"
@@ -3213,23 +3994,21 @@ window = {
 										}
 										text_single = {
 											visible = "[EqualTo_CFixedPoint( GetPlayer.MakeScope.Var('pantheon_steady_reach').GetValue, '(CFixedPoint)3' )]"
-											size = { 440 24 }
-											max_width = 440
+											size = { 460 24 }
 											autoresize = no
 											align = left|vcenter
 											text = "pantheon_ui_steady_armed_3"
 										}
 										text_single = {
-											size = { 440 24 }
-											max_width = 440
+											visible = "[And3( GetPlayer.MakeScope.Var('pantheon_steady_count').IsSet, GetPlayer.MakeScope.Var('pantheon_steady_price').IsSet, GetPlayer.MakeScope.Var('pantheon_worship').IsSet )]"
+											size = { 460 24 }
 											autoresize = no
 											align = left|vcenter
 											text = "pantheon_ui_steady_armed_line"
 											tooltip = "pantheon_ui_steady_armed_line"
 										}
 										text_single = {
-											size = { 440 40 }
-											max_width = 440
+											size = { 460 40 }
 											multiline = yes
 											autoresize = no
 											align = left|top
@@ -3255,13 +4034,15 @@ window = {
 									}
 								}
 							}
+							# the spare height goes below the body
+							expand = {}
 						}
 						# ---- end 2.9 Task 5
-						# while a sign is armed the fixed armed panel shows instead of the growing list: the spare height goes below it
-						expand = {
-							visible = "[GetPlayer.MakeScope.Var('pantheon_steady_reach').IsSet]"
+					}
+							}
 						}
 					}
+					# ---- end 2.12 Task 1 page scrollbox
 				}
 			}
 		}

@@ -43,6 +43,27 @@ pantheon_temple_tier_name = {
 	text = { fallback = yes localization_key = pantheon_temple_name_none }
 }
 
+# 2.12 Test A repair: the bare tier name for the Temple header's title ([Character.Custom('pantheon_temple_title_tier')]),
+# whose short state already says building / paused ("Temple · Paused", not "Temple (building paused) · Paused").
+# The first Shrine still building (tier unset, the build flag set) reads as the Shrine. The other pages keep the
+# suffixed name above.
+pantheon_temple_title_tier = {
+	type = character
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 1 } localization_key = building_type_pantheon_great_temple_01 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 2 } localization_key = building_type_pantheon_great_temple_02 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 3 } localization_key = building_type_pantheon_great_temple_03 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } localization_key = building_type_pantheon_great_temple_04 }
+	text = { trigger = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 5 } localization_key = building_type_pantheon_great_temple_05 }
+	text = {
+		trigger = {
+			NOT = { has_variable = pantheon_temple_tier }
+			has_variable = pantheon_temple_building
+		}
+		localization_key = building_type_pantheon_great_temple_01
+	}
+	text = { fallback = yes localization_key = pantheon_temple_name_none }
+}
+
 # The tier's current bonuses, reusing the building's own description (Task 1's building_type_*_desc loc).
 pantheon_temple_tier_desc = {
 	type = character
@@ -90,6 +111,35 @@ pantheon_temple_state = {
 	text = {
 		fallback = yes
 		localization_key = pantheon_temple_state_dormant
+	}
+}
+
+# 2.12 (Task 1): the short state for the Temple header's title ("High Temple · Active"). The same triggers in the same
+# order as pantheon_temple_state above, so the two never disagree (Pantheon212TempleHeader pins the order).
+pantheon_temple_state_short = {
+	type = character
+	text = {
+		trigger = {
+			NOT = { has_variable = pantheon_temple_tier }
+			NOT = { has_variable = pantheon_temple_building }
+		}
+		localization_key = pantheon_temple_state_short_none
+	}
+	text = {
+		trigger = { pantheon_temple_build_paused_trigger = yes }
+		localization_key = pantheon_temple_state_short_paused
+	}
+	text = {
+		trigger = { has_variable = pantheon_temple_building }
+		localization_key = pantheon_temple_state_short_building
+	}
+	text = {
+		trigger = { pantheon_temple_active_trigger = yes }
+		localization_key = pantheon_temple_state_short_active
+	}
+	text = {
+		fallback = yes
+		localization_key = pantheon_temple_state_short_dormant
 	}
 }
 

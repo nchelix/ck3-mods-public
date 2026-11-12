@@ -1,5 +1,22 @@
 ﻿# Changelog — Pantheon of One
 
+## [2.12] — 2026-11-11
+
+The Temple page: your Great Temple, built and used at a glance.
+
+### Changed
+- The Temple tab is rebuilt as a page of cards (#68), in the style of 2.11's God page.
+  - A header shows a picture of your temple at its current tier, rendered from the same model you see on the map, dimmed while it is dormant, paused or still being built. Beside it are its name and state (e.g. "High Temple · Active"), its county, and a track of the five tiers: built, being built, still to come. Hover the picture or a tier for its bonuses, cost and build time.
+  - Under the track, "Upgrade to <next tier>" with its cost and years; while building, a progress bar with the months left; at the top tier, "The Great Temple stands."
+  - Before a temple exists, a "Found your Great Temple" card lists your holy sites and capital with their cost.
+  - A Miracles card shows all five miracles with new icons. Mass Conversion, Age of Faith and Divine Victory are cast from their cards with Invoke (click twice: Confirm?); Wrath of Heaven and Fire from Heaven say "Right-click a ruler". The corner says Ready, how long the miracles rest ("Rests 20 years"), "Needs the Great Temple" or "Temple dormant", and each card's tooltip gives the same reason.
+  - A Sign of Steadfastness card has its reach buttons beside the full kingdom list, with the rest time in its corner. The page scrolls as one, so the list never gets squashed.
+- No costs, timings or effects changed.
+
+### Fixed
+- Below tier V, or with a dormant temple, the miracles no longer say "The miracle is not ready: 0 months left".
+- A kingdom with one follower reads "1 follower".
+
 ## [2.11] — 2026-11-10
 
 The God page: your godhood at a glance.

@@ -616,6 +616,69 @@ pantheon_temple_next_years = {
 	else_if = { limit = { has_variable = pantheon_temple_tier var:pantheon_temple_tier = 4 } value = pantheon_temple_years_5 }
 }
 
+# 2.12 (Task 1): God scope, display only. The running build's progress for the Temple header's bar, 0-100:
+# (total - left) x 100 / total, where total = pantheon_temple_years_<build tier> x 12 months (what
+# pantheon_temple_found_effect / pantheon_temple_upgrade_effect store at the start) and left =
+# var:pantheon_temple_build_months, which counts down monthly and stands still while the build is paused. A value
+# name can't be built from a variable, so one branch per tier. 0 with either variable unset; a zero total is skipped
+# (no division by zero); clamped to 0-100 (e.g. a debug-shortened timer).
+pantheon_ui_temple_build_progress = {
+	value = 0
+	if = {
+		limit = {
+			has_variable = pantheon_temple_build_tier
+			has_variable = pantheon_temple_build_months
+		}
+		if = {
+			limit = { var:pantheon_temple_build_tier = 1 pantheon_temple_years_1 > 0 }
+			value = pantheon_temple_years_1
+			multiply = 12
+			subtract = var:pantheon_temple_build_months
+			multiply = 100
+			divide = pantheon_temple_years_1
+			divide = 12
+		}
+		else_if = {
+			limit = { var:pantheon_temple_build_tier = 2 pantheon_temple_years_2 > 0 }
+			value = pantheon_temple_years_2
+			multiply = 12
+			subtract = var:pantheon_temple_build_months
+			multiply = 100
+			divide = pantheon_temple_years_2
+			divide = 12
+		}
+		else_if = {
+			limit = { var:pantheon_temple_build_tier = 3 pantheon_temple_years_3 > 0 }
+			value = pantheon_temple_years_3
+			multiply = 12
+			subtract = var:pantheon_temple_build_months
+			multiply = 100
+			divide = pantheon_temple_years_3
+			divide = 12
+		}
+		else_if = {
+			limit = { var:pantheon_temple_build_tier = 4 pantheon_temple_years_4 > 0 }
+			value = pantheon_temple_years_4
+			multiply = 12
+			subtract = var:pantheon_temple_build_months
+			multiply = 100
+			divide = pantheon_temple_years_4
+			divide = 12
+		}
+		else_if = {
+			limit = { var:pantheon_temple_build_tier = 5 pantheon_temple_years_5 > 0 }
+			value = pantheon_temple_years_5
+			multiply = 12
+			subtract = var:pantheon_temple_build_months
+			multiply = 100
+			divide = pantheon_temple_years_5
+			divide = 12
+		}
+	}
+	min = 0
+	max = 100
+}
+
 # Any scope with a faith (the god's own, or a follower's -- both resolve to the same god through
 # faith.religious_head): 0 unless that faith's god has an active (non-dormant) temple, else that temple's
 # tier (1-5).
@@ -1273,5 +1336,20 @@ pantheon_ui_age_left = {
 		limit = { has_variable = pantheon_temple_age_months }
 		add = var:pantheon_temple_age_months
 	}
+	min = 0
+}
+
+# ---- 2.12 text polish: the Miracles card corner shows a long rest in years. God scope; display only.
+# The whole years left, rounded up: ceil(months / 12) = floor((months + 11) / 12), so 240 -> 20, 239 -> 20, 24 -> 2.
+# 0 while no cooldown runs. (floor = yes is the jomini rounding, see _script_values.info.)
+pantheon_ui_miracle_rest_years = {
+	value = 0
+	if = {
+		limit = { has_variable = pantheon_temple_cooldown_months }
+		add = var:pantheon_temple_cooldown_months
+		add = 11
+		divide = 12
+	}
+	floor = yes
 	min = 0
 }
