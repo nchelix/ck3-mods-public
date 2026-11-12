@@ -3,7 +3,7 @@
 
 **Version 2.12** · for Crusader Kings III 1.20.* · [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3811559970) · [Changelog](CHANGELOG.md) · [All versions](https://github.com/nchelix/ck3-mods-public/releases?q=pantheon-of-one&expanded=true)
 
-[[img]https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png[/img]](https://buymeacoffee.com/nchelix)
+[![Buy me a coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://buymeacoffee.com/nchelix)
 **Enjoying it? [☕ Buy me a coffee](https://buymeacoffee.com/nchelix)**
 
 Play as a god. Not a king with a halo: a god whose power is the worship of the
