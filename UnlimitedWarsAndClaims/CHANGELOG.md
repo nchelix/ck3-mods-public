@@ -1,5 +1,18 @@
 # Changelog — Unlimited Wars and Claims
 
+## [1.1.1] — 2026-11-17
+
+### Changed
+- Rebuilt for **CK3 1.21** from the game's own files. The 1.20 copies would have undone 1.21's
+  casus belli changes and used keys 1.21 renamed (for example `development_level`).
+- 19 generated casus belli files instead of 17: 1.21's new `gdp_merchant_wars.txt` and
+  `gdp_republic_wars.txt` are now shipped, so "Several titles in one war" also covers the merchant
+  county seizure and three republic casus belli (62 in all, was 58). The merchant duchy and kingdom
+  seizures keep the one-title limit: on victory the game hands over the counties of only one target
+  title, so a second duchy or kingdom would be won without its counties. The other two new 1.21 files (`00_gdp_burgher_wars.txt`,
+  `00_gdp_guelph_ghibelline_wars.txt`) have no one-title limit and are not touched.
+- `supported_version` is now 1.21.*.
+
 ## [1.1] — 2026-10-26
 
 ### Added

@@ -1,5 +1,13 @@
 # Changelog — Allied AI War Fix
 
+## [1.0.1] — 2026-11-17
+
+### Changed
+- Rebuilt for **CK3 1.21** from the game's own `00_war_values.txt`. The 1.20 copy would have undone
+  1.21's war-value changes and used the province `monthly_income` trigger, which 1.21 renamed.
+  The fix itself (the same two `is_ai = yes` conditions) is unchanged.
+- `supported_version` is now 1.21.*.
+
 ## [1.0] — 2026-10-14
 
 ### Added

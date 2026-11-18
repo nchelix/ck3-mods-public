@@ -1,9 +1,9 @@
-version="1.0"
+version="1.0.1"
 tags={
 	"Fixes"
 	"Warfare"
 }
 name="Allied AI War Fix"
 picture="Thumbnail.png"
-supported_version="1.20.*"
+supported_version="1.21.*"
 remote_file_id="3820079745"
