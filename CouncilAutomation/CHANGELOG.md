@@ -1,5 +1,19 @@
 # Changelog — Council Automation
 
+## [1.2.1] — 2026-11-17
+
+### Changed
+- Rebuilt for **CK3 1.21** from the game's own council tasks and councillor card
+  (`tools/build_council_automation.py`). The 1.20 copies would have undone 1.21's task changes and used
+  removed keys (`monthly_county_control_growth_factor`, `development_level`, `change_development_level`).
+- Conversion and Promote Culture prefer the county with the highest `popular_opinion`, which is 1.21's name for
+  `county_opinion` (the old key no longer exists). Increase Control still prefers the highest `county_control`.
+- Increase Control now targets a county whose control is below its 1.21 control baseline (or that has
+  corruption), the game's own rule, instead of below 100.
+- The councillor card copy follows 1.21's card, which moved the task buttons into the type
+  `flowcontainer_council_position_tasks`. The checkbox is unchanged.
+- `supported_version` is now 1.21.*. The local More Game Rules patch is regenerated too (1.0.1).
+
 ## [1.2] — 2026-10-14
 
 ### Added
