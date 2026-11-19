@@ -1,5 +1,16 @@
 # Changelog — Warrior Trait
 
+## [1.3.1] — 2026-11-18
+
+Compatibility update for **CK3 1.21** (including the 2026-11-18 hotfix). No
+script or gameplay changes: both traits are exactly as powerful as before.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every trait modifier, effect, trigger, scope, interaction field and
+  the `on_combat_end_winner` hook against 1.21: all still valid, none renamed
+  or removed. No file or key in the mod collides with anything 1.21 added.
+
 ## [1.3] — 2026-09-30
 
 Compatibility update for **CK3 1.20 "Crozier"** (and the By God Alone DLC). No
