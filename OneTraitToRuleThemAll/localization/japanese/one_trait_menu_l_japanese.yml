@@ -42,3 +42,4 @@
  one_trait_menu.0430.innovations_era.tt:0 "Their culture gains every innovation of its current era and the eras before it. Regional and culture-specific innovations are left out."
  one_trait_menu.0430.innovations_all.tt:0 "Their culture gains every innovation of every era. Regional and culture-specific innovations are left out; the culture still advances eras at the game's own pace."
  one_trait_cultural_acceptance:0 "Decreed by the One Trait"
+ one_trait_realm_culture_era_next.tt:0 "Their culture joins the next era: Tribal to Early Medieval, Early to High Medieval, High to Late Medieval. It still lacks that era's innovations until they are unlocked."

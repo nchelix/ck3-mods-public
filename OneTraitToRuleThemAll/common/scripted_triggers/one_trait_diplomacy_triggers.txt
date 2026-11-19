@@ -29,14 +29,19 @@ one_trait_diplomacy_relations_friend_valid_trigger = {
 # Court rows. The five councillor rows seat the summoned character on the court owner's council (this = the panel's
 # character), so they are VALID only when that seat can exist (Codex review #1 finding 1; the engine refuses the
 # assignment otherwise and the row would promise a seat that never comes):
-# 1. The owner's government has a council. The governments with council = no, in
-#    game/common/governments/00_government_types.txt: mercenary_government (:330, flag government_is_mercenary :349),
-#    holy_order_government (:367, government_is_holy_order :389), monastic_holy_order_government (:403, the same flag
-#    :432), landless_adventurer_government (:568, government_is_landless_adventurer :616) and herder_government (:743,
-#    government_is_herder :778).
-# 2. The position's own valid_position (game/common/council_positions/00_council_positions.txt): chancellor :53-58,
-#    steward :203-208, marshal :339-344 and court chaplain :823-828 exclude government_is_landless_adventurer and
-#    government_is_nomadic; spymaster :481-483 excludes only government_is_landless_adventurer.
+# 1. The owner's government has a council: government_allows = council, as every 1.21 valid_position below asks
+#    (1.20 had no such line). The governments with council = no, in 1.21 game/common/governments/
+#    00_government_types.txt: mercenary_government (:436, council = no :439, flag government_is_mercenary :458),
+#    holy_order_government (:478, :480, government_is_holy_order :503), monastic_holy_order_government (:519, :521,
+#    the same flag :551) and herder_government (:873, :878, government_is_herder :915). The flag NOR is kept (it names
+#    the reason; landless_adventurer_government :692, government_is_landless_adventurer :742, is also in it).
+# 2. The position's own 1.21 valid_position (game/common/council_positions/00_council_positions.txt): chancellor
+#    :53-60, steward :214-221, marshal :360-368 and court chaplain :868-876 are government_allows = council and NOR
+#    government_is_nomadic, government_is_landless_adventurer, government_is_merchant (merchant_government :1554, flag
+#    :1606, new in 1.21); spymaster :514-520 is government_allows = council and NOR government_is_landless_adventurer,
+#    government_is_merchant. Marshal and chaplain also NOR gdp_use_patrician_council_trigger = yes (game/common/
+#    scripted_triggers/gdp_republic_triggers.txt:513-516: a republic AND is_landed = no); it is left out here because
+#    the Court rows only open on a landed ruler (Realm's lock), for whom it is always false.
 # 0. The owner is a playable character (count tier or above). A baron has_council = yes but is not playable and has no
 #    seat to fill: assign_councillor_type then logs "doesn't have an open council position" (batch 6 F1, self-test
 #    s21c4). It is the FIRST condition of each councillor row.
@@ -51,6 +56,7 @@ one_trait_realm_court_chancellor_valid_trigger = {
 	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_court_has_council_tt
+		government_allows = council
 		NOR = {
 			government_has_flag = government_is_mercenary
 			government_has_flag = government_is_holy_order
@@ -63,6 +69,7 @@ one_trait_realm_court_chancellor_valid_trigger = {
 		NOR = {
 			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
+			government_has_flag = government_is_merchant
 		}
 	}
 }
@@ -74,6 +81,7 @@ one_trait_realm_court_marshal_valid_trigger = {
 	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_court_has_council_tt
+		government_allows = council
 		NOR = {
 			government_has_flag = government_is_mercenary
 			government_has_flag = government_is_holy_order
@@ -86,6 +94,7 @@ one_trait_realm_court_marshal_valid_trigger = {
 		NOR = {
 			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
+			government_has_flag = government_is_merchant
 		}
 	}
 }
@@ -97,6 +106,7 @@ one_trait_realm_court_steward_valid_trigger = {
 	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_court_has_council_tt
+		government_allows = council
 		NOR = {
 			government_has_flag = government_is_mercenary
 			government_has_flag = government_is_holy_order
@@ -109,6 +119,7 @@ one_trait_realm_court_steward_valid_trigger = {
 		NOR = {
 			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
+			government_has_flag = government_is_merchant
 		}
 	}
 }
@@ -120,6 +131,7 @@ one_trait_realm_court_spymaster_valid_trigger = {
 	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_court_has_council_tt
+		government_allows = council
 		NOR = {
 			government_has_flag = government_is_mercenary
 			government_has_flag = government_is_holy_order
@@ -129,7 +141,10 @@ one_trait_realm_court_spymaster_valid_trigger = {
 	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_court_seat_open_tt
-		NOT = { government_has_flag = government_is_landless_adventurer }
+		NOR = {
+			government_has_flag = government_is_landless_adventurer
+			government_has_flag = government_is_merchant
+		}
 	}
 }
 one_trait_realm_court_chaplain_shown_trigger = { always = yes }
@@ -140,6 +155,7 @@ one_trait_realm_court_chaplain_valid_trigger = {
 	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_court_has_council_tt
+		government_allows = council
 		NOR = {
 			government_has_flag = government_is_mercenary
 			government_has_flag = government_is_holy_order
@@ -152,6 +168,7 @@ one_trait_realm_court_chaplain_valid_trigger = {
 		NOR = {
 			government_has_flag = government_is_landless_adventurer
 			government_has_flag = government_is_nomadic
+			government_has_flag = government_is_merchant
 		}
 	}
 }
@@ -351,8 +368,17 @@ one_trait_diplomacy_vassals_vassalize_shown_trigger = { always = yes }
 # has cannot_be_vassal_or_liege (mercenary, holy order, landless adventurer: 00_government_types.txt:348, 388, 431,
 # 615) or government_is_herder (game/common/character_interactions/00_character_interactions.txt:53-56), and
 # offer_fealty_interaction wants the liege side not cannot_be_vassal_or_liege (:577), so the player is guarded too.
+# Added (2.13 C-fix3, self-test s17c1 in phase C2: a baron with a liege, the click changed nothing and logged
+# nothing): they must be a playable character, a count or higher. Vanilla never makes a baron anyone's vassal this
+# way: offer_vassalization_interaction's recipient has is_playable_character = yes (1.21
+# game/common/character_interactions/00_character_interactions.txt:40) and the debug take_vassal_interaction this
+# row's tier rule comes from shows only for highest_held_title_tier >= tier_county (00_test_interactions.txt:538).
 one_trait_diplomacy_vassals_vassalize_valid_trigger = {
 	is_landed = yes
+	custom_tooltip = {
+		text = one_trait_diplomacy_vassal_count_or_higher_tt
+		is_playable_character = yes
+	}
 	custom_tooltip = {
 		text = one_trait_diplomacy_vassal_government_tt
 		NOR = {

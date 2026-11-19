@@ -1,5 +1,43 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.13] — 2026-11-18
+
+Updated for **CK3 1.21** (Silk & Silver): districts, Prosperity, Settlement Size, Popular Opinion and the new county
+control.
+
+### Added
+- **Realm > Buildings: "Fill every empty district slot in the domain, then max it."** Every empty district slot in
+  your domain gets the game's own pick of district, then everything is maxed as below.
+- **Realm > Culture: "Advance their culture to the next era"** (Tribal to Early Medieval, Early to High Medieval, High
+  to Late Medieval). The culture still has to unlock that era's innovations (the Unlock rows beside it do that).
+
+### Changed
+- **Buildings, for 1.21's districts.**
+  - Max fills and upgrades the districts you have, as high as the local culture's innovations and era allow: 1.21
+    enforces every building's requirements, so Max no longer goes past them. Empty district slots are left alone (the
+    Fill row is for them). Max the duchy capital works on a built duchy capital district.
+  - The county list's **Add district slot** (was Add slot) adds a district slot.
+  - **Rebuild every ruined great district** (was great building).
+- **The Sanctum of the One** is now a special district of its own. Its county gets +50 control baseline and +50
+  popular opinion, and both climb +5 a month; prosperity growth as before. It never takes a barony that already has a
+  special district or a slot for one.
+- **The Realm Builds Itself** (Builder) builds or upgrades one thing per county a year, inside a district you have
+  already built. **Golden Age** adds +1 Prosperity level and +1 Settlement Size to every county you hold, yearly.
+- **Manager**: control baseline +100 and popular opinion +100, and both climb +10 a month; prosperity growth.
+- **Wealth**: its tax bonus uses 1.21's form. **Legends** add popular opinion.
+- **Master Builder** covers districts too: their cost -100% and build time -300%, as for buildings and holdings
+  (build time was -100%). CK3 floors construction cost and time at 10%, so building is near free and fast, not
+  instant.
+- The One Trait War's defeat payout uses 1.21's yearly-income form.
+- **Innovations**: both Unlock every innovation rows cover 1.21's new innovations. Governments, puppets, the war
+  casus belli and domicile upgrades follow 1.21.
+
+### Fixed
+- Switching to Feudal (and the other governments) no longer logs errors for vassals without a capital barony.
+- **Character rows follow CK3's own rules.** The heir row greys for anyone the game would not take as your heir, the
+  council rows grey for seats a government does not have (merchants, nomads), legacy glory needs a knight whose
+  accolade exists, and both first-name rows now work on popes, emperors and others with a regnal name.
+
 ## [2.12] — 2026-11-09
 
 Pin the characters you edit often, and edit them all at once. A long-standing roadmap item (multi-character

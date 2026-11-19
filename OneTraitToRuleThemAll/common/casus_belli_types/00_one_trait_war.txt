@@ -154,10 +154,15 @@
 
 		# Prestige loss for the attacker
 		scope:attacker = {
+			# 2.13: CK3 1.21 vanilla no longer writes `yearly_income = yes`; five years of income is spelled out
+			# as vanilla's reparations do (game/common/scripted_effects/00_war_effects.txt:2374;
+			# yearly_character_income: docs/reference/ck3-1.21.0-triggers.log:11042).
 			pay_short_term_gold = {
-				gold = 5
+				gold = {
+					value = 5
+					multiply = yearly_character_income
+				}
 				target = scope:defender
-				yearly_income = yes
 			}
 			add_prestige = {
 				value = massive_prestige_value

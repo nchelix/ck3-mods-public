@@ -3,6 +3,19 @@
 	knight_effectiveness_mult = 5
 }
 
+# 2.13 (CK3 1.21, spec B1): Realm > Buildings > Choose a county > Add district slot. One more regular district
+# slot in the county's capital barony per click; 1.21 grants these by Settlement Size (vanilla
+# province_size_level_* in game/common/modifiers/00_basic_modifiers.txt:893-926). It replaces vanilla's
+# extra_building_slot (building_slot_add, 00_province_modifiers.txt:236-239), whose stacking it keeps.
+# district_slot_add is a character, province and county modifier (docs/reference/ck3-1.21.0-modifiers.log:2183).
+# Icon: economy_positive (gfx/interface/icons/modifiers/economy_positive.dds); 1.21 has no
+# county_modifier_building_positive.dds, though gdp_republic_modifiers.txt:85 names it.
+one_trait_extra_district_slot = {
+	icon = economy_positive
+	stacking = yes
+	district_slot_add = 1
+}
+
 unlimited_menatarms = {
 	icon = martial_positive
 	men_at_arms_cap = 999

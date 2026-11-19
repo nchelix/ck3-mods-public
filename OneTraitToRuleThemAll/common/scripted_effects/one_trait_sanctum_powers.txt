@@ -22,24 +22,17 @@ one_trait_sanctum_report = {
 
 # --- Builder ------------------------------------------------------------------
 
-# The Realm Builds Itself: every county held directly gains a building, or
-# raises every building one level if it has no free slot.
+# The Realm Builds Itself: in every county held directly, one free new building or one level higher, inside a
+# district its capital barony has already built (2.13, CK3 1.21: spec B3). No new districts. Counts only the
+# counties where a district had room to grow (one_trait_built, 0 or 1: plan R4).
 one_trait_sanctum_run_builder = {
 	save_scope_value_as = { name = sanctum_count value = 0 }
 	story_owner = {
 		every_held_county = {
-			title_province = {
-				if = {
-					limit = { has_free_building_slot = yes }
-					generate_building = yes
-				}
-				else = {
-					one_trait_upgrade_one_step_in_province = yes
-				}
-			}
+			title_province = { one_trait_build_one_step_in_province = yes }
 			save_scope_value_as = {
 				name = sanctum_count
-				value = { value = scope:sanctum_count add = 1 }
+				value = { value = scope:sanctum_count add = scope:one_trait_built }
 			}
 		}
 	}
@@ -49,12 +42,18 @@ one_trait_sanctum_run_builder = {
 	}
 }
 
-# Golden Age: +1 development in every county held directly.
+# Golden Age: +1 Prosperity level and +1 Settlement Size in every county held directly (2.13, CK3 1.21:
+# spec B4, the user 2026-11-17).
 one_trait_sanctum_run_golden_age = {
 	save_scope_value_as = { name = sanctum_count value = 0 }
 	story_owner = {
 		every_held_county = {
-			change_development_level = 1
+			# A landed_title effect in levels (docs/reference/ck3-1.21.0-effects.log:15093; vanilla
+			# change_prosperity_level = 1 on a county, game/common/decisions/dlc_decisions/mpo/mpo_decisions.txt:6875).
+			change_prosperity_level = 1
+			# A province effect in size levels, `= value` (docs/reference/ck3-1.21.0-effects.log:18638:
+			# "Change a province's size level by the given value"), on the county's capital barony.
+			title_province = { change_province_size = 1 }
 			save_scope_value_as = {
 				name = sanctum_count
 				value = { value = scope:sanctum_count add = 1 }

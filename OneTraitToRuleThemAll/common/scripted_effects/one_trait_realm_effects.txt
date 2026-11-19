@@ -251,6 +251,30 @@ one_trait_realm_culture_innovations_all_effect = {
 	}
 }
 
+# 2.13 R13 (decision B6): one era on, the ladder tribal -> early -> high -> late medieval (the four eras of
+# game/common/culture/eras/00_culture_eras.txt; tribal is the base). join_era "joins all culture eras up to
+# and including the given one", culture scope (docs/reference/ck3-1.21.0-effects.log:20252);
+# has_cultural_era_or_later, culture scope (triggers.log:14519). Vanilla script never calls join_era, so
+# phase C proves it in game. Greyed at late medieval (one_trait_realm_culture_era_next_valid_trigger).
+one_trait_realm_culture_era_next_effect = {
+	custom_tooltip = one_trait_realm_culture_era_next.tt
+	hidden_effect = {
+		scope:one_trait_target.culture = {
+			if = {
+				limit = { has_cultural_era_or_later = culture_era_high_medieval }
+				join_era = culture_era_late_medieval
+			}
+			else_if = {
+				limit = { has_cultural_era_or_later = culture_era_early_medieval }
+				join_era = culture_era_high_medieval
+			}
+			else = {
+				join_era = culture_era_early_medieval
+			}
+		}
+	}
+}
+
 # Moved from one_trait_menu_events.txt:1906-1919 (option .acceptance), minus its trigger (:1902-1905, moved
 # to one_trait_realm_culture_acceptance_valid_trigger below) and trigger_event (:1920).
 one_trait_realm_culture_acceptance_effect = {
@@ -288,6 +312,19 @@ one_trait_realm_buildings_realm_effect = {
 	scope:one_trait_target = {
 		every_realm_county = {
 			one_trait_max_county_buildings = yes
+		}
+	}
+}
+
+# 2.13 (CK3 1.21, spec B1): the Max rows leave empty district slots alone; this row fills them with the game's
+# own pick of district, then maxes, in every barony with a holding of the domain (never vassals).
+one_trait_realm_buildings_fill_effect = {
+	scope:one_trait_target = {
+		every_held_county = {
+			every_county_province = {
+				limit = { has_holding = yes }
+				one_trait_fill_district_slots_in_province = yes
+			}
 		}
 	}
 }
@@ -330,8 +367,10 @@ one_trait_realm_buildings_rebuild_effect = {
 	scope:one_trait_target = {
 		every_held_county = {
 			every_county_province = {
-				limit = { has_ruined_great_building = yes }
-				rebuild_great_building = yes
+				# 2.13: CK3 1.21 great buildings are great districts. Both province scope:
+				# docs/reference/ck3-1.21.0-triggers.log:13328, docs/reference/ck3-1.21.0-effects.log:19044.
+				limit = { has_ruined_great_district = yes }
+				rebuild_great_district = yes
 			}
 		}
 	}
@@ -362,7 +401,7 @@ one_trait_realm_realm_events_herd_drain_effect = {
 # for the top tier only works if every lower tier is already built; build each tier that isn't built yet,
 # lowest first, up to the top tier below, using vanilla's own gating idiom (has_domicile_building = the
 # previous tier, NOT = { has_domicile_building_or_higher = this tier }), e.g.
-# game/common/scripted_effects/00_administrative_effects.txt:404-421 (set_up_domicile_estate_effect).
+# game/common/scripted_effects/00_administrative_effects.txt:386-420 (set_up_domicile_estate_effect; 1.21.0).
 # Chains (game/common/domiciles/buildings/, tier 01 up to the top tier named below):
 #   camp: 00_camp_buildings.txt (camp_main_01..04); estate: 00_estate_buildings.txt (estate_main_01..05);
 #   east_asian_estate: 00_chinese_estate_buildings.txt (east_asian_estate_main_01..05);
@@ -372,8 +411,8 @@ one_trait_realm_realm_events_herd_drain_effect = {
 # triggered requirements: 'east_asian_estate_main_04' ... ]" (run 3). The previous-tier gate above is not
 # enough above tier 03: tiers 04/05(/06) carry their own owner-culture `can_construct` requirement that the
 # chain never tested before calling add_domicile_building. Found the vanilla idiom for testing this BEFORE
-# adding: game/common/scripted_effects/00_administrative_effects.txt:403-421 (estate), :441-459
-# (japanese_manor), :475-493 (east_asian_estate) -- set_up_domicile_estate_effect, called from DOMICILE
+# adding: game/common/scripted_effects/00_administrative_effects.txt:387-420 (estate), :421-454
+# (japanese_manor), :455-488 (east_asian_estate) -- set_up_domicile_estate_effect, called from DOMICILE
 # scope exactly like this effect, copies each tier's own `can_construct` requirement into its own gate as
 # `owner.culture ?= { has_innovation = ... }` (the building's own can_construct block runs with the OWNER as
 # its implicit scope -- the error says "Domicile owner failed..." -- so from domicile scope it needs the
@@ -383,16 +422,27 @@ one_trait_realm_realm_events_herd_drain_effect = {
 # so their own `can_construct` blocks are copied directly from the building files (cited per tier below) in
 # the same `owner.culture ?=` form, per the handoff's fallback ("if no script-side test exists, copy each
 # tier's requirement block into the gate"):
-#   estate_main_04 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:251-252
-#   estate_main_05 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:336-337
-#   east_asian_estate_main_04 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:253-255
-#   east_asian_estate_main_05 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:291-293
-#   japanese_manor_main_04 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:128-129
-#   japanese_manor_main_05 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:171-172
-#   japanese_manor_main_06 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:213-214
+# 2.13: every gate below re-read from the CK3 1.21.0 files (tier 04 now needs innovation_prosperity_03, was
+# innovation_development_03; the other gates are unchanged). Tier 02/03 gates are the same can_construct
+# blocks set_up_domicile_estate_effect copies. tools/test_one_trait_realm_events.py compares each pair with the
+# installed game.
+#   estate_main_02 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:91-93
+#   estate_main_03 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:175-177
+#   estate_main_04 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:260-262
+#   estate_main_05 can_construct: game/common/domiciles/buildings/00_estate_buildings.txt:345-347
+#   east_asian_estate_main_02 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:164-166
+#   east_asian_estate_main_03 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:201-203
+#   east_asian_estate_main_04 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:239-241
+#   east_asian_estate_main_05 can_construct: game/common/domiciles/buildings/00_chinese_estate_buildings.txt:277-279
+#   japanese_manor_main_02 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:130-132
+#   japanese_manor_main_03 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:174-176
+#   japanese_manor_main_04 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:217-219
+#   japanese_manor_main_05 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:260-262
+#   japanese_manor_main_06 can_construct: game/common/domiciles/buildings/10_japanese_manor_buildings.txt:302-304
+#   innovation_prosperity_03: game/common/culture/innovations/00_high_medieval_innovations.txt:443
 # camp (00_camp_buildings.txt, main_01..04) has NO can_construct block on any main tier -- checked directly,
 # no gate needed there. yurt's can_construct blocks (00_yurt_buildings.txt) are an OR of `has_realm_law`
-# instead of culture (main_03: :77; main_04: :132; main_05: :187; main_06: :242). Vanilla never writes
+# instead of culture (main_03: :163-173; main_04: :220-229; main_05: :277-286; main_06: :334-342). Vanilla never writes
 # `owner.has_realm_law = X`, so the gate enters the owner's scope instead: `owner = { OR = { has_realm_law = ...
 # } }` (a scope block followed by an ordinary character trigger).
 one_trait_realm_realm_events_domicile_effect = {
@@ -413,7 +463,7 @@ one_trait_realm_realm_events_domicile_effect = {
 			if = { limit = { NOT = { has_domicile_building_or_higher = estate_main_01 } } add_domicile_building = estate_main_01 }
 			if = { limit = { has_domicile_building = estate_main_01 NOT = { has_domicile_building_or_higher = estate_main_02 } owner.culture ?= { has_innovation = innovation_city_planning } } add_domicile_building = estate_main_02 }
 			if = { limit = { has_domicile_building = estate_main_02 NOT = { has_domicile_building_or_higher = estate_main_03 } owner.culture ?= { has_innovation = innovation_manorialism } } add_domicile_building = estate_main_03 }
-			if = { limit = { has_domicile_building = estate_main_03 NOT = { has_domicile_building_or_higher = estate_main_04 } owner.culture ?= { has_innovation = innovation_development_03 } } add_domicile_building = estate_main_04 }
+			if = { limit = { has_domicile_building = estate_main_03 NOT = { has_domicile_building_or_higher = estate_main_04 } owner.culture ?= { has_innovation = innovation_prosperity_03 } } add_domicile_building = estate_main_04 }
 			if = { limit = { has_domicile_building = estate_main_04 NOT = { has_domicile_building_or_higher = estate_main_05 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = estate_main_05 }
 		}
 		else_if = {
@@ -423,7 +473,7 @@ one_trait_realm_realm_events_domicile_effect = {
 			if = { limit = { NOT = { has_domicile_building_or_higher = east_asian_estate_main_01 } } add_domicile_building = east_asian_estate_main_01 }
 			if = { limit = { has_domicile_building = east_asian_estate_main_01 NOT = { has_domicile_building_or_higher = east_asian_estate_main_02 } owner.culture ?= { has_innovation = innovation_city_planning } } add_domicile_building = east_asian_estate_main_02 }
 			if = { limit = { has_domicile_building = east_asian_estate_main_02 NOT = { has_domicile_building_or_higher = east_asian_estate_main_03 } owner.culture ?= { has_innovation = innovation_manorialism } } add_domicile_building = east_asian_estate_main_03 }
-			if = { limit = { has_domicile_building = east_asian_estate_main_03 NOT = { has_domicile_building_or_higher = east_asian_estate_main_04 } owner.culture ?= { has_innovation = innovation_development_03 } } add_domicile_building = east_asian_estate_main_04 }
+			if = { limit = { has_domicile_building = east_asian_estate_main_03 NOT = { has_domicile_building_or_higher = east_asian_estate_main_04 } owner.culture ?= { has_innovation = innovation_prosperity_03 } } add_domicile_building = east_asian_estate_main_04 }
 			if = { limit = { has_domicile_building = east_asian_estate_main_04 NOT = { has_domicile_building_or_higher = east_asian_estate_main_05 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = east_asian_estate_main_05 }
 		}
 		else_if = {
@@ -472,7 +522,7 @@ one_trait_realm_realm_events_domicile_effect = {
 			if = { limit = { NOT = { has_domicile_building_or_higher = japanese_manor_main_01 } } add_domicile_building = japanese_manor_main_01 }
 			if = { limit = { has_domicile_building = japanese_manor_main_01 NOT = { has_domicile_building_or_higher = japanese_manor_main_02 } owner.culture ?= { has_innovation = innovation_city_planning } } add_domicile_building = japanese_manor_main_02 }
 			if = { limit = { has_domicile_building = japanese_manor_main_02 NOT = { has_domicile_building_or_higher = japanese_manor_main_03 } owner.culture ?= { has_innovation = innovation_manorialism } } add_domicile_building = japanese_manor_main_03 }
-			if = { limit = { has_domicile_building = japanese_manor_main_03 NOT = { has_domicile_building_or_higher = japanese_manor_main_04 } owner.culture ?= { has_innovation = innovation_development_03 } } add_domicile_building = japanese_manor_main_04 }
+			if = { limit = { has_domicile_building = japanese_manor_main_03 NOT = { has_domicile_building_or_higher = japanese_manor_main_04 } owner.culture ?= { has_innovation = innovation_prosperity_03 } } add_domicile_building = japanese_manor_main_04 }
 			if = { limit = { has_domicile_building = japanese_manor_main_04 NOT = { has_domicile_building_or_higher = japanese_manor_main_05 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = japanese_manor_main_05 }
 			if = { limit = { has_domicile_building = japanese_manor_main_05 NOT = { has_domicile_building_or_higher = japanese_manor_main_06 } owner.culture ?= { has_innovation = innovation_cranes } } add_domicile_building = japanese_manor_main_06 }
 		}
@@ -616,9 +666,11 @@ one_trait_realm_buildings_county_max_effect = {
 # R12: the slot body (one_trait_menu_events.txt:867-875, option .slot), generalised to
 # scope:landed_title.title_province instead of scope:one_trait_target.capital_province, minus the trigger
 # (:868-870, moved to one_trait_realm_buildings_county_slot_valid_trigger below) and trigger_event (:874).
+# 2.13 (CK3 1.21, spec B1): an extra district slot (common/modifiers/onetrait_modifiers.txt), not 1.20's
+# extra building slot.
 one_trait_realm_buildings_county_slot_effect = {
 	scope:landed_title.title_province = {
-		add_province_modifier = extra_building_slot
+		add_province_modifier = one_trait_extra_district_slot
 	}
 }
 

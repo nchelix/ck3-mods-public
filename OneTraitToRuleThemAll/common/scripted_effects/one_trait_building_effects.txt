@@ -1,13 +1,179 @@
-﻿# One Trait 1.7 -- effects for the Buildings menu.
-# The per-province upgrade effects are generated: see
-# one_trait_building_upgrades.txt and tools/gen_building_upgrades.py.
+﻿# One Trait 2.13 -- effects for the Buildings menu, on CK3 1.21's districts.
+#
+# 1.21 put every building inside a district: a holding district (the castle, city or temple and its
+# buildings), regular districts in a province's district slots, a duchy capital district, a special district
+# (a wonder) and a great district. One hand-written engine replaces the 1.20 per-building upgrade lists
+# (spec 2026-11-17 B5, plan Task 3):
+#   one_trait_max_district_effect          one district: fill its building slots, top every chain, twice
+#   one_trait_max_buildings_in_province    every built district of a barony; never creates a district
+#   one_trait_max_county_buildings         every barony with a holding of a county
+#   one_trait_fill_district_slots_in_province  the ONLY effect that creates districts (the B1 rule)
+#   one_trait_max_duchy_capital_building_in_province  the duchy capital district, if one is built
+#   one_trait_build_one_step_in_province   the Builder power's one free step
+#
+# Engine names, all from the 1.21.0 dumps in docs/reference/:
+#   build_random_district_building    effects.log:18624 (province scope, district = <saved scope>)
+#   build_or_upgrade_random_district_building  effects.log:18609 (province scope, district = <saved scope>)
+#   upgrade_this_building             effects.log:1802 (building scope; "errors if there is no upgrade")
+#   can_building_be_upgraded          triggers.log:1621 (building scope; next level exists and its
+#                                     conditions are met; cost is not checked)
+#   has_free_building_slot            triggers.log:661 (district scope)
+#   has_free_district_slot            triggers.log:13283 (province scope, regular district slots)
+#   generate_building                 effects.log:18810 (province scope, the AI's construction logic)
+#   every_built_regular_district      effects.log:18752 (province -> district)
+#   every_district_building           effects.log:689, any_district_building triggers.log:647 (district -> building)
+#   holding_district, duchy_capital_district, great_district, special_district
+#                                     event_targets.log:1484, :1466, :1478, :1514 (province -> district)
+#   district_province                 event_targets.log:1707 (district -> province)
+# Vanilla prior art: build_random_district_building = { district = scope:oath_holding_district } from province
+# scope (game/common/buildings/holding_buildings/00_castle_buildings.txt:1344-1349);
+# upgrade_holding_primary_building_effect (game/common/scripted_effects/00_building_effects.txt:1337-1346:
+# holding_district ?= { random_district_building = { limit = { can_building_be_upgraded = yes }
+# upgrade_this_building = yes } }); the nested district predicates of
+# game/common/scripted_effects/gdp_merchant_scripted_effects.txt:4538-4552; a saved district scope used from
+# its province (00_building_effects.txt:1219-1240).
+
+# Province scope; reads scope:one_trait_district (a district of this province). Fill the district's free
+# building slots, then take every building in it as far up its chain as its own conditions allow (the same
+# innovation and era gates as building it by hand). Two rounds: upgrading the primary building opens building
+# slots and district levels, and the second round fills and tops those (the 2.7 suite saw a domain's free
+# slots go 3 -> 4 after the holding rose). Every loop is capped at 10 and stops as soon as nothing is left.
+one_trait_max_district_effect = {
+	while = {
+		count = 10
+		limit = { scope:one_trait_district = { has_free_building_slot = yes } }
+		build_random_district_building = { district = scope:one_trait_district }
+	}
+	while = {
+		count = 10
+		limit = { scope:one_trait_district = { any_district_building = { can_building_be_upgraded = yes } } }
+		scope:one_trait_district = {
+			every_district_building = {
+				limit = { can_building_be_upgraded = yes }
+				upgrade_this_building = yes
+			}
+		}
+	}
+	while = {
+		count = 10
+		limit = { scope:one_trait_district = { has_free_building_slot = yes } }
+		build_random_district_building = { district = scope:one_trait_district }
+	}
+	while = {
+		count = 10
+		limit = { scope:one_trait_district = { any_district_building = { can_building_be_upgraded = yes } } }
+		scope:one_trait_district = {
+			every_district_building = {
+				limit = { can_building_be_upgraded = yes }
+				upgrade_this_building = yes
+			}
+		}
+	}
+}
+
+# Province scope. Max every district this barony has built, of all five kinds. An empty district slot stays
+# empty: only one_trait_fill_district_slots_in_province creates districts (decision B1).
+one_trait_max_buildings_in_province = {
+	holding_district ?= {
+		save_scope_as = one_trait_district
+		district_province = { one_trait_max_district_effect = yes }
+	}
+	every_built_regular_district = {
+		save_scope_as = one_trait_district
+		district_province = { one_trait_max_district_effect = yes }
+	}
+	duchy_capital_district ?= {
+		save_scope_as = one_trait_district
+		district_province = { one_trait_max_district_effect = yes }
+	}
+	special_district ?= {
+		save_scope_as = one_trait_district
+		district_province = { one_trait_max_district_effect = yes }
+	}
+	great_district ?= {
+		save_scope_as = one_trait_district
+		district_province = { one_trait_max_district_effect = yes }
+	}
+}
 
 # County scope. Max every building in every barony of the county that has a
-# holding: fill free slots, then every building to the top of its chain.
+# holding: fill free building slots, then every building to the top of its chain.
 one_trait_max_county_buildings = {
 	every_county_province = {
 		limit = { has_holding = yes }
 		one_trait_max_buildings_in_province = yes
+	}
+}
+
+# Province scope. Fill every empty regular district slot with the game's own pick of district, then max the
+# barony. generate_building "adds a random building to the province, using the AI's construction logic"
+# (effects.log:18810); vanilla runs it per province, e.g. game/common/decisions/dlc_decisions/mpo/
+# mpo_decisions.txt:6838. Whether it starts a district in an empty slot is checked at phase B (plan Task 3
+# step 6, R5); a loop where it does nothing ends at its cap.
+one_trait_fill_district_slots_in_province = {
+	while = {
+		count = 10
+		limit = { has_free_district_slot = yes }
+		generate_building = yes
+	}
+	one_trait_max_buildings_in_province = yes
+}
+
+# Province scope. Max the duchy capital district, if this barony has one built. A barony without one is
+# skipped: Max only tops what was built (spec B1).
+one_trait_max_duchy_capital_building_in_province = {
+	duchy_capital_district ?= {
+		save_scope_as = one_trait_district
+		district_province = { one_trait_max_district_effect = yes }
+	}
+}
+
+# Province scope. The Builder power's yearly step (spec B3): one free new building, or one level higher, in a
+# random built district of this barony that has room to grow. Never creates a district.
+# Sets the saved scope value one_trait_built to 1 when a district qualified, 0 otherwise; the caller adds it
+# to its count (plan R4). build_or_upgrade_random_district_building builds a new building when it can,
+# otherwise upgrades one (effects.log:18609); it runs from the saved province scope, never from district scope.
+one_trait_build_one_step_in_province = {
+	save_scope_value_as = { name = one_trait_built value = 0 }
+	save_scope_as = one_trait_step_province
+	holding_district ?= {
+		if = {
+			limit = { one_trait_district_can_grow_trigger = yes }
+			add_to_temporary_list = one_trait_step_districts
+		}
+	}
+	every_built_regular_district = {
+		limit = { one_trait_district_can_grow_trigger = yes }
+		add_to_temporary_list = one_trait_step_districts
+	}
+	duchy_capital_district ?= {
+		if = {
+			limit = { one_trait_district_can_grow_trigger = yes }
+			add_to_temporary_list = one_trait_step_districts
+		}
+	}
+	special_district ?= {
+		if = {
+			limit = { one_trait_district_can_grow_trigger = yes }
+			add_to_temporary_list = one_trait_step_districts
+		}
+	}
+	great_district ?= {
+		if = {
+			limit = { one_trait_district_can_grow_trigger = yes }
+			add_to_temporary_list = one_trait_step_districts
+		}
+	}
+	random_in_list = {
+		list = one_trait_step_districts
+		# A temporary list lives for the whole effect, so in the Builder power's every_held_county loop it still
+		# holds earlier counties' districts. Pick only from this province.
+		limit = { district_province = scope:one_trait_step_province }
+		save_scope_as = one_trait_district
+		scope:one_trait_step_province = {
+			build_or_upgrade_random_district_building = { district = scope:one_trait_district }
+		}
+		save_scope_value_as = { name = one_trait_built value = 1 }
 	}
 }
 
@@ -37,32 +203,35 @@ one_trait_fill_empty_baronies = {
 	}
 }
 
-# Character scope. Raise the Sanctum in the capital barony, or, if that barony
-# already has a special building (Constantinople's Hagia Sophia, say), in
-# another barony of the capital county that has none. Never replaces a wonder.
+# Character scope. Raise the Sanctum of the One, a special district (2.13, CK3 1.21: spec B2, plan Task 4),
+# in the capital barony, or in another barony of the capital county when the capital is not a free site.
+# A free site has a holding, no special district and no special district slot
+# (one_trait_sanctum_site_ok_trigger): a reserved slot with no district is an unbuilt wonder, so the Sanctum
+# never takes a wonder's place, and it shares the rule with Pantheon of One's districts.
+# On the site, a slot typed for the Sanctum, then the district itself, as vanilla places a typed special
+# district (game/events/dlc/bp3/bp3_survey_events.txt:3391-3400: hidden_effect = { add_special_district_slot
+# = X } then add_special_district = X). add_special_district_slot and add_special_district are province
+# effects targeting a district type (docs/reference/ck3-1.21.0-effects.log:18566, :18559).
 one_trait_raise_sanctum = {
 	if = {
 		limit = {
-			capital_province = {
-				has_holding = yes
-				has_special_building = no
-			}
+			# 1.21: a character with a capital county can have no capital barony (Codex review #1; phase A, R12).
+			exists = capital_province
+			capital_province = { one_trait_sanctum_site_ok_trigger = yes }
 		}
 		capital_province = { save_scope_as = sanctum_site }
 	}
 	else = {
 		capital_county = {
 			random_county_province = {
-				limit = {
-					has_holding = yes
-					has_special_building = no
-				}
+				limit = { one_trait_sanctum_site_ok_trigger = yes }
 				save_scope_as = sanctum_site
 			}
 		}
 	}
 	scope:sanctum_site = {
-		add_special_building = one_trait_sanctum_01
+		hidden_effect = { add_special_district_slot = one_trait_sanctum_01_district }
+		add_special_district = one_trait_sanctum_01_district
 	}
 	set_variable = {
 		name = one_trait_sanctum_site
@@ -71,7 +240,12 @@ one_trait_raise_sanctum = {
 	create_story = story_one_trait_sanctum
 }
 
-# Character scope. Remove the Sanctum and end its story.
+# Character scope. Remove the Sanctum and end its story. The primary building cannot be removed on its own in
+# 1.21, so the whole district goes (remove_district_type, effects.log:19066; vanilla's tower_of_pisa_lean_effect,
+# game/common/scripted_effects/00_building_effects.txt:1349-1358), and only while the Sanctum still stands.
+# If 1.21 leaves the empty typed slot behind, it goes too (remove_special_district_slot = yes,
+# effects.log:19127): the site had no special slot before the Sanctum. The story ends on every path, also when
+# something else already destroyed the district.
 one_trait_tear_down_sanctum = {
 	random_owned_story = {
 		limit = { story_type = story_one_trait_sanctum }
@@ -81,7 +255,19 @@ one_trait_tear_down_sanctum = {
 				var:sanctum_province = { has_building = one_trait_sanctum_01 }
 			}
 			var:sanctum_province = {
-				remove_building = one_trait_sanctum_01
+				remove_district_type = one_trait_sanctum_01_district
+			}
+		}
+		if = {
+			limit = {
+				exists = var:sanctum_province
+				var:sanctum_province = {
+					has_special_district = no
+					has_special_district_slot = yes
+				}
+			}
+			var:sanctum_province = {
+				remove_special_district_slot = yes
 			}
 		}
 		end_story = yes

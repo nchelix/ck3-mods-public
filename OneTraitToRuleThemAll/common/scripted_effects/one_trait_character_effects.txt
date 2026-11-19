@@ -171,6 +171,7 @@ one_trait_reroll_name_effect = {
 	}
 	scope:one_trait_rename_target = {
 		change_first_name = { template_character = scope:one_trait_name_donor }
+		remove_regnal_name = yes # 2.13 C-fix8: else a regnal name hides the new one (see the name give row below)
 	}
 	scope:one_trait_name_donor = {
 		silent_disappearance_effect = yes
@@ -218,9 +219,13 @@ one_trait_character_identity_faith_your_capital_effect = {
 one_trait_character_identity_name_reroll_effect = {
 	scope:one_trait_target = { one_trait_reroll_name_effect = yes }
 }
+# 2.13 C-fix8 (self-test s11c3 FAILed once on a random subject): has_first_name, and the name shown, use the regnal
+# name when one is set (docs/reference/ck3-1.21.0-triggers.log:6520), so a pope or emperor likely kept showing it
+# after change_first_name (unproven; s11c3's regnal-probe INFO line tells). remove_regnal_name: effects.log:13317.
 one_trait_character_identity_name_give_effect = {
 	scope:one_trait_target = {
 		change_first_name = { template_character = root }
+		remove_regnal_name = yes
 	}
 }
 
@@ -260,21 +265,29 @@ one_trait_character_traits_looks_looks_take_effect = {
 
 # ---- Family ----
 
+# C-fix3: both are guarded by their row's own valid trigger (one_trait_character_triggers.txt), so even a direct
+# call never reaches set_designated_heir / set_father / set_mother with a character the engine refuses.
 one_trait_character_family_heir_effect = {
-	set_designated_heir = scope:one_trait_target
+	if = {
+		limit = { scope:one_trait_target = { one_trait_character_family_heir_valid_trigger = yes } }
+		set_designated_heir = scope:one_trait_target
+	}
 }
 one_trait_character_family_adopt_effect = {
 	scope:one_trait_target = {
 		if = {
-			limit = { root = { is_female = no } }
-			set_father = root
-		}
-		else = {
-			set_mother = root
-		}
-		if = {
-			limit = { exists = root.house }
-			set_house = root.house
+			limit = { one_trait_character_family_adopt_valid_trigger = yes }
+			if = {
+				limit = { root = { is_female = no } }
+				set_father = root
+			}
+			else = {
+				set_mother = root
+			}
+			if = {
+				limit = { exists = root.house }
+				set_house = root.house
+			}
 		}
 	}
 }
@@ -304,9 +317,12 @@ one_trait_character_legacy_legend_effect = {
 		}
 	}
 }
+# 2.13 C-fix7 (self-test s14c2 on a fresh save, error.log: add_glory "Scoped object is not valid. Type: weak
+# (Accolade - 4294967295)"): an acclaimed knight's accolade link can be unset. accolade ?= is vanilla's own form
+# (game/common/combat_phase_events/00_knight_phase_events.txt:177: accolade ?= { add_glory = minimal_glory_gain }).
 one_trait_character_legacy_glory_effect = {
 	scope:one_trait_target = {
-		accolade = {
+		accolade ?= {
 			add_glory = 10000
 		}
 	}

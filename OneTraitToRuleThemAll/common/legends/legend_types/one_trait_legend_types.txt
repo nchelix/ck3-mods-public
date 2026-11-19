@@ -210,7 +210,9 @@ one_trait_heroic = {
 
 			impact = {
 				province_modifier = {
-					county_opinion_add = 5
+					# 2.13: CK3 1.21 county_opinion_add -> popular_opinion_add (docs/reference/ck3-1.21.0-modifiers.log:2060;
+					# vanilla legends use it the same way: game/common/legends/legend_types/00_legends.txt:211).
+					popular_opinion_add = 5
 					stationed_maa_damage_mult = 0.05
 				}
 				owner_modifier = {
@@ -311,7 +313,9 @@ one_trait_heroic = {
 
 			impact = {
 				province_modifier = {
-					county_opinion_add = 10
+					# 2.13: CK3 1.21 county_opinion_add -> popular_opinion_add (docs/reference/ck3-1.21.0-modifiers.log:2060;
+					# vanilla legends use it the same way: game/common/legends/legend_types/00_legends.txt:211).
+					popular_opinion_add = 10
 					stationed_maa_damage_mult = 0.1
 				}
 				owner_modifier = {
@@ -418,7 +422,9 @@ one_trait_heroic = {
 
 			impact = {
 				province_modifier = {
-					county_opinion_add = 20
+					# 2.13: CK3 1.21 county_opinion_add -> popular_opinion_add (docs/reference/ck3-1.21.0-modifiers.log:2060;
+					# vanilla legends use it the same way: game/common/legends/legend_types/00_legends.txt:211).
+					popular_opinion_add = 20
 					stationed_maa_damage_mult = 0.2
 				}
 				owner_modifier = {

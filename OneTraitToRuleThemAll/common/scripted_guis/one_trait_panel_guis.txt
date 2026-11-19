@@ -3652,6 +3652,22 @@ one_trait_ui_act_culture_innovations_all = {
 	}
 }
 
+one_trait_ui_act_culture_era_next = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_era_next_shown_trigger = yes }
+	}
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_culture_era_next_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_culture_era_next_click_effect = yes
+	}
+}
+
 one_trait_ui_act_culture_acceptance = {
 	scope = character
 	is_shown = {
@@ -3697,6 +3713,22 @@ one_trait_ui_act_buildings_realm = {
 	}
 	effect = {
 		one_trait_ui_act_buildings_realm_click_effect = yes
+	}
+}
+
+one_trait_ui_act_buildings_fill = {
+	scope = character
+	is_shown = {
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_fill_shown_trigger = yes }
+	}
+	is_valid = {
+		one_trait_pin_single_mode_trigger = yes
+		has_variable = one_trait_ui_target
+		var:one_trait_ui_target = { one_trait_realm_buildings_fill_valid_trigger = yes }
+	}
+	effect = {
+		one_trait_ui_act_buildings_fill_click_effect = yes
 	}
 }
 

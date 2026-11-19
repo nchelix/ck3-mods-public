@@ -18,30 +18,45 @@ one_trait_has_sanctum = {
 	}
 }
 
-# Character scope. A capital-county barony with a holding and no special
-# building is free for the Sanctum.
+# Province scope (2.13, CK3 1.21: spec B2). A barony the Sanctum of the One may stand in: it has a holding,
+# no special district, and no special district slot, since a reserved slot with no district is an unbuilt
+# wonder. Raise, can-raise and blocked all use this one rule, and Pantheon of One's districts follow the same
+# rule, so neither mod takes the other's barony. has_special_district and has_special_district_slot are
+# province triggers (docs/reference/ck3-1.21.0-triggers.log:13334, :13340).
+one_trait_sanctum_site_ok_trigger = {
+	has_holding = yes
+	has_special_district = no
+	has_special_district_slot = no
+}
+
+# Character scope. A capital-county barony is free for the Sanctum.
 one_trait_can_raise_sanctum = {
 	NOT = { one_trait_has_sanctum = yes }
 	exists = capital_county
 	capital_county = {
-		any_county_province = {
-			has_holding = yes
-			has_special_building = no
-		}
+		any_county_province = { one_trait_sanctum_site_ok_trigger = yes }
 	}
 }
 
-# Character scope. Could raise it, but every barony already has a wonder.
+# Character scope. Could raise it, but every barony already has a wonder (or a slot reserved for one).
 one_trait_sanctum_blocked = {
 	NOT = { one_trait_has_sanctum = yes }
 	exists = capital_county
 	capital_county = {
 		NOT = {
-			any_county_province = {
-				has_holding = yes
-				has_special_building = no
-			}
+			any_county_province = { one_trait_sanctum_site_ok_trigger = yes }
 		}
+	}
+}
+
+# District scope (2.13). The district has room to grow: a free building slot, or a building whose next level
+# can be built now. has_free_building_slot is a district trigger (docs/reference/ck3-1.21.0-triggers.log:661),
+# can_building_be_upgraded a building trigger (:1621, through any_district_building :647). The Builder power's
+# one step picks among the districts that pass (one_trait_build_one_step_in_province).
+one_trait_district_can_grow_trigger = {
+	OR = {
+		has_free_building_slot = yes
+		any_district_building = { can_building_be_upgraded = yes }
 	}
 }
 

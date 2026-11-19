@@ -148,12 +148,56 @@ one_trait_character_family_heir_valid_trigger = {
 		text = one_trait_character_not_heir_yet_tt
 		NOT = { root.designated_heir ?= this }
 	}
+	# C-fix3 (2.13 phase C2 error.log: set_designated_heir "Trying to assign '<daughter>' as designated heir to
+	# '<king>', but they cannot inherit from them"): the child must be able to inherit. Vanilla 1.21's own
+	# designate_heir_interaction (game/common/character_interactions/00_heir.txt:136-149) refuses a recipient who is a
+	# eunuch, disinherited, adopted_no_inheritance, devoted, an order_member or a bastard, or outside the actor's
+	# house; vanilla's own scripted set_designated_heir (hold_court.4001, game/events/activities/hold_court_activity/
+	# hold_court_events_general.txt:3631-3639 and :3757) also requires character_gender_can_inherit_from_trigger =
+	# { CHARACTER = root } (game/common/scripted_triggers/00_law_triggers.txt:32: the primary title's gender law).
+	custom_tooltip = {
+		text = one_trait_character_heir_can_inherit_tt
+		is_eunuch_trigger = no
+		NOR = {
+			has_trait = disinherited
+			has_trait = adopted_no_inheritance
+			has_trait = devoted
+			has_trait = order_member
+			has_trait = bastard
+		}
+		house ?= root.house
+	}
+	custom_tooltip = {
+		text = one_trait_character_heir_gender_law_tt
+		character_gender_can_inherit_from_trigger = { CHARACTER = root }
+	}
+	# C-fix5 (2.13 phase C2 re-run 2, self-test s13c1: the row was valid for Boyan, an adult unlanded child of your
+	# house with no blocking trait, yet set_designated_heir was a silent no-op, with no error.log line): ask the engine
+	# itself. is_valid_designated_heir, docs/reference/ck3-1.21.0-triggers.log:8906-8910 ("can they inherit one or more
+	# of the titles the scoped character holds?", character scope, character target). Vanilla 1.21 uses it in the
+	# same form, scope:puppet_or_actor = { is_valid_designated_heir = scope:recipient }
+	# (game/common/character_interactions/pam_interactions.txt:105-107, the line itself at pam_interactions.txt:106).
+	# Here the scoped character is you (root) and the target is this child (prev: the scope outside root = { }).
+	custom_tooltip = {
+		text = one_trait_character_heir_engine_tt
+		root = { is_valid_designated_heir = prev }
+	}
 }
 one_trait_character_family_adopt_shown_trigger = {
 	NOT = { this = root }
 }
+# C-fix3 (2.13 phase C2 error.log: set_father "[ Parent can't be younger than their child ]"): you become their
+# parent, so they must be younger than you. age: docs/reference/ck3-1.21.0-triggers.log:3647; comparing one
+# character's age with another's is vanilla's own form (age > scope:recipient.age,
+# game/common/character_interactions/06_ep3_interactions.txt:4557). Vanilla's adopt_interaction keeps the adoptee
+# a child and the adopter an adult (00_adoption.txt:12, 137), so it never meets the case; whole years are compared,
+# so a strictly smaller age is always a later birth.
 one_trait_character_family_adopt_valid_trigger = {
 	NOT = { is_child_of = root }
+	custom_tooltip = {
+		text = one_trait_character_younger_than_you_tt
+		age < root.age
+	}
 }
 one_trait_character_family_disown_shown_trigger = {
 	NOT = { this = root }
@@ -211,10 +255,14 @@ one_trait_character_legacy_glory_shown_trigger = {
 	always = yes
 }
 # Playtest 2.8 fix 2: is_acclaimed has no trigger_localization entry, so the greyed row showed no reason.
+# 2.13 C-fix7 (self-test s14c2 on a fresh save: add_glory on an acclaimed knight hit "Scoped object is not valid
+# ... Accolade"): the accolade link can be unset, so the row also asks for it, inside the same tooltip. Vanilla's
+# own pair: is_acclaimed = yes exists = accolade (game/events/activities/tournaments/jason_locale_events.txt:2666-2667).
 one_trait_character_legacy_glory_valid_trigger = {
 	custom_tooltip = {
 		text = one_trait_character_not_acclaimed_tt
 		is_acclaimed = yes
+		exists = accolade
 	}
 }
 one_trait_character_legacy_relic_shown_trigger = {

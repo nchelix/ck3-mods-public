@@ -1,8 +1,9 @@
 ﻿# The Sanctum of the One -- a special building that exists only through the
-# One Trait menu (Buildings -> The Sanctum). Never offered in the build menu.
+# One Trait panel (the Sanctum category). Never offered in the build menu.
 # Its powers are run by story_one_trait_sanctum, not by this file.
+# 2.13 (CK3 1.21): the primary building of its own special district, one_trait_sanctum_01_district
+# (common/districts/one_trait_sanctum_districts.txt). 1.21 buildings have no `type`; the district has it.
 one_trait_sanctum_01 = {
-	type = special
 	construction_time = 1
 	type_icon = "icon_structure_one_trait_sanctum.dds"
 
@@ -24,10 +25,19 @@ one_trait_sanctum_01 = {
 		hostile_raid_time = 1
 	}
 
+	# 2.13 (CK3 1.21): development is Prosperity, county opinion is Popular Opinion, and control drifts to a
+	# baseline (decision A1). The two monthly changes (decision A2, plan R11) make control and opinion climb
+	# to it fast, the successors of the 1.20 monthly_county_control_growth_add = 5. All five are character,
+	# province and county modifiers: docs/reference/ck3-1.21.0-modifiers.log:776, :2648, :2060, :791, :1082;
+	# defined in game/common/modifier_definition_formats/00_definitions.txt (:3309 control_baseline_add,
+	# :3359 monthly_control_change_when_below_baseline_add, :3419 popular_opinion_add, :3424
+	# monthly_popular_opinion_change).
 	county_modifier = {
-		development_growth_factor = 1
-		monthly_county_control_growth_add = 5
-		county_opinion_add = 50
+		prosperity_growth_factor = 1
+		control_baseline_add = 50
+		popular_opinion_add = 50
+		monthly_control_change_when_below_baseline_add = 5
+		monthly_popular_opinion_change = 5
 	}
 
 	character_modifier = {

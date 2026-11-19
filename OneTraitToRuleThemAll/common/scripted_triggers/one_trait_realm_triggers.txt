@@ -121,6 +121,17 @@ one_trait_realm_culture_innovations_era_valid_trigger = { always = yes }
 one_trait_realm_culture_innovations_all_shown_trigger = { always = yes }
 one_trait_realm_culture_innovations_all_valid_trigger = { always = yes }
 
+# 2.13 R13 (decision B6): shown always; greyed, with the reason, once their culture has reached the last
+# vanilla era (game/common/culture/eras/00_culture_eras.txt defines tribal, early, high and late medieval).
+# has_cultural_era_or_later: culture scope (docs/reference/ck3-1.21.0-triggers.log:14519).
+one_trait_realm_culture_era_next_shown_trigger = { always = yes }
+one_trait_realm_culture_era_next_valid_trigger = {
+	custom_tooltip = {
+		text = one_trait_realm_culture_not_last_era_tt
+		culture = { NOT = { has_cultural_era_or_later = culture_era_late_medieval } }
+	}
+}
+
 one_trait_realm_culture_acceptance_shown_trigger = {
 	culture != root.culture
 }
@@ -136,6 +147,10 @@ one_trait_realm_buildings_domain_valid_trigger = { is_landed = yes }
 
 one_trait_realm_buildings_realm_shown_trigger = { always = yes }
 one_trait_realm_buildings_realm_valid_trigger = { is_landed = yes }
+
+# 2.13: the Fill row (one_trait_realm_buildings_fill_effect) mirrors the domain row's triggers.
+one_trait_realm_buildings_fill_shown_trigger = { always = yes }
+one_trait_realm_buildings_fill_valid_trigger = { is_landed = yes }
 
 one_trait_realm_buildings_baronies_shown_trigger = { always = yes }
 one_trait_realm_buildings_baronies_valid_trigger = {

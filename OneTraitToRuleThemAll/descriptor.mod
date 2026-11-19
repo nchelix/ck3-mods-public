@@ -1,7 +1,7 @@
-version="2.12"
+version="2.13"
 tags={
 	"Character Interactions"
 }
 name="One Trait to Rule Them All"
-supported_version="1.20.*"
+supported_version="1.21.*"
 remote_file_id="2245233173"

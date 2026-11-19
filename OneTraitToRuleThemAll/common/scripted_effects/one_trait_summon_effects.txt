@@ -165,11 +165,30 @@ one_trait_realm_court_chaplain_effect = {
 	scope:one_trait_summoned = {
 		set_variable = { name = can_be_councillor_override value = yes }
 	}
+	# 2.13 C-fix3 (self-test s21c5 in phase C2: on yourself, nobody joined the court). Vanilla's court chaplain
+	# on_get_position (game/common/council_positions/00_council_positions.txt:878-905, the same in 1.20.1.2) treats a
+	# non-ruler seated by script as the AUTOMATIC fill when the owner's rite has clerical regions and cannot appoint
+	# its own chaplain (Catholic and the like): it seats a landed realm priest instead
+	# (assign_landed_realm_priest_effect) and move_to_pool's our character. It is skipped for a player owner flagged
+	# manual_council_appointment_in_progress, the flag vanilla's own council-position offer sets around its
+	# assignment (game/common/character_interactions/00_vassal_interactions.txt:1729-1737), and for any owner flagged
+	# pam_church_replacing_realm_priest, the flag vanilla's church sets around installing its own pick
+	# (pam_interactions.txt:2628-2635); an AI owner is only exempted by the second. Both live for this one assignment.
 	scope:one_trait_target = {
+		add_character_flag = { flag = manual_council_appointment_in_progress days = 1 }
+		if = {
+			limit = { is_ai = yes }
+			add_character_flag = { flag = pam_church_replacing_realm_priest days = 1 }
+		}
 		assign_councillor_type = {
 			type = councillor_court_chaplain
 			target = scope:one_trait_summoned
 			remove_existing_councillor = yes
+		}
+		remove_character_flag = manual_council_appointment_in_progress
+		if = {
+			limit = { has_character_flag = pam_church_replacing_realm_priest }
+			remove_character_flag = pam_church_replacing_realm_priest
 		}
 	}
 }

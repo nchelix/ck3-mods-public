@@ -1,0 +1,22 @@
+﻿# One Trait 2.13 -- the Sanctum of the One as a CK3 1.21 special district (spec 2026-11-17 B2, plan Task 4).
+#
+# 1.21 puts a wonder's building inside a special district: the district carries `type = special` and names
+# its building as `primary_building`, which is built with the district. Shape copied from vanilla's
+# kyz_kala_01_district (game/common/districts/other_special_districts.txt:14-23), fields per
+# game/common/districts/_districts.info. The Sanctum exists only through one_trait_raise_sanctum
+# (common/scripted_effects/one_trait_building_effects.txt), so it never shows in the build menu.
+one_trait_sanctum_01_district = {
+	primary_building = one_trait_sanctum_01
+
+	# Fallback, as kyz_kala_01_district's.
+	background = {
+		reference = "gfx/interface/illustrations/holding_types/castle_mena.dds"
+	}
+
+	type = special
+
+	# _districts.info: "Whether the district even appears in the build menu".
+	can_construct_potential = {
+		always = no
+	}
+}

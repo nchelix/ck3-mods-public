@@ -12,6 +12,9 @@ one_trait_ui_law_partition_allowed_trigger = {
 		government_has_flag = government_is_celestial
 		government_has_flag = government_is_meritocratic
 		government_has_flag = government_is_steppe_admin
+		government_has_flag = government_is_republic
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_merchant
 	}
 }
 
@@ -24,6 +27,9 @@ one_trait_ui_law_high_partition_allowed_trigger = {
 		government_has_flag = government_is_celestial
 		government_has_flag = government_is_meritocratic
 		government_has_flag = government_is_steppe_admin
+		government_has_flag = government_is_republic
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_merchant
 	}
 }
 
@@ -36,6 +42,9 @@ one_trait_ui_law_confederate_partition_allowed_trigger = {
 		government_has_flag = government_is_celestial
 		government_has_flag = government_is_meritocratic
 		government_has_flag = government_is_steppe_admin
+		government_has_flag = government_is_republic
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_merchant
 	}
 }
 
@@ -43,6 +52,9 @@ one_trait_ui_law_primogeniture_allowed_trigger = {
 	NOR = {
 		government_has_flag = government_is_nomadic
 		government_has_flag = government_is_mandala
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_merchant
+		government_has_flag = government_is_republic
 	}
 	trigger_if = {
 		limit = {
@@ -65,6 +77,9 @@ one_trait_ui_law_ultimogeniture_allowed_trigger = {
 	NOR = {
 		government_has_flag = government_is_nomadic
 		government_has_flag = government_is_mandala
+		government_has_flag = government_is_republic
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_merchant
 	}
 }
 
@@ -73,5 +88,8 @@ one_trait_ui_law_house_seniority_allowed_trigger = {
 		government_has_flag = government_is_administrative
 		government_has_flag = government_is_nomadic
 		government_has_flag = government_is_mandala
+		government_has_flag = government_is_landless_adventurer
+		government_has_flag = government_is_merchant
+		government_has_flag = government_is_republic
 	}
 }
