@@ -1,0 +1,66 @@
+﻿# Pantheon of One 2.13 (CK3 1.21): the Fire from Heaven crater's special districts, one per aftermath state. 1.21 took
+# `type = special` off buildings: a special building now gets its slot from a district of type = special that names it as
+# its primary building (vanilla game/common/districts/_districts.info; game/common/districts/special_districts.txt). The
+# three crater buildings (common/buildings/pantheon_fire_crater.txt, the 2.10 assets) are the primary buildings here.
+#
+# common/scripted_effects/pantheon_fire_effects.txt places one (pantheon_fire_crater_set_effect: add_special_district,
+# vanilla game/common/scripted_effects/00_building_effects.txt:1354), swaps it by stage (remove_district_type, then
+# add_special_district, vanilla tower_of_pisa_lean_effect, same file :1349-1357) and takes it down with the special slot
+# its own placement created (pantheon_fire_crater_teardown_effect). Repair C-r1 (user decision 2026-11-18): it may also
+# borrow an empty special slot that is not ours (a reserved, unbuilt wonder's, or a burned wonder's kept slot) while the land
+# burns; that slot is never marked ours, so at heal only the crater's district goes and the wonder can be built there again.
+# Visual only, as 2.10: no modifiers.
+#
+# can_construct_potential: never offered in a build menu. True only while the crater effect places it, through the province
+# variable pantheon_fire_crater_placing -- vanilla's own pattern for a special district placed by script
+# (tower_of_pisa_leaning's tower_of_pisa_leaning_unlocked, new in 1.21, game/common/buildings/special_buildings/
+# 00_special_buildings.txt), and the Great Temple's (common/districts/pantheon_great_temple_districts.txt, placed in game in
+# Test A). The three buildings carry the same guard.
+#
+# Backgrounds (the holding view's fallback illustration): vanilla event scenes, a burning settlement while the crater burns
+# and smoulders, a ruined holding once it is cold.
+
+pantheon_fire_crater_burning_district = {
+	primary_building = pantheon_fire_crater_burning
+
+	#Fallback
+	background = {
+		reference = "gfx/interface/illustrations/event_scenes/raid_burning.dds"
+	}
+
+	type = special
+
+	can_construct_potential = {
+		has_variable = pantheon_fire_crater_placing
+	}
+}
+
+pantheon_fire_crater_smouldering_district = {
+	primary_building = pantheon_fire_crater_smouldering
+
+	#Fallback
+	background = {
+		reference = "gfx/interface/illustrations/event_scenes/raid_burning.dds"
+	}
+
+	type = special
+
+	can_construct_potential = {
+		has_variable = pantheon_fire_crater_placing
+	}
+}
+
+pantheon_fire_crater_cold_district = {
+	primary_building = pantheon_fire_crater_cold
+
+	#Fallback
+	background = {
+		reference = "gfx/interface/illustrations/event_scenes/tgp_ruined_holding.dds"
+	}
+
+	type = special
+
+	can_construct_potential = {
+		has_variable = pantheon_fire_crater_placing
+	}
+}

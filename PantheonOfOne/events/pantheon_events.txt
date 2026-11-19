@@ -354,6 +354,36 @@ pantheon.0011 = {
 		pantheon_glance_sweep_effect = yes
 		# 2.10 (Task 7): the Fire from Heaven aftermath counts a month down (once a month, however many gods run this)
 		pantheon_fire_aftermath_monthly_effect = yes
+		# Ordering: this block runs BEFORE the build countdown/completion below. A running upgrade that completed on
+		# the first 2.13 tick would call pantheon_temple_complete_effect, whose has_building guard on the previous tier
+		# fails when 1.21 dropped that building, losing the temple before this block could re-raise it. The firing
+		# branch also holds a running upgrade at 2 months left (when it was 1 or less), so it cannot complete this
+		# tick either: it completes after the unconfirmed-tier branch below has re-raised the tier.
+		# 2.13 (CK3 1.21, old-save migration): once per god, on its first 2.13 tick. 1.21 moved the temple into a
+		# special district, so a 2.12 temple in a 1.20 save can load with its tier confirmed standing
+		# (pantheon_temple_confirmed_tier = pantheon_temple_tier) and its building gone -- which the check below
+		# would treat as destroyed and lose. For exactly that state, forget the confirmation (and any stale
+		# attempt count): the unconfirmed-tier branch below then re-places the tier this very tick through
+		# pantheon_temple_retry_place_effect (attempt 1 of its 2), so this block never calls the retry itself.
+		# Then the flag is set whatever the god's state, and nothing else ever touches it: a temple destroyed
+		# later in the same game is lost as before, and a temple the lost effect cleared has no tier left to
+		# re-raise. Best effort: Paradox makes no 1.20 save promise.
+		if = {
+			limit = { NOT = { has_variable = pantheon_temple_migrated_2_13 } }
+			if = {
+				limit = {
+					has_variable = pantheon_temple_tier
+					var:pantheon_temple_tier >= 1
+					has_variable = pantheon_temple_confirmed_tier
+					var:pantheon_temple_confirmed_tier = var:pantheon_temple_tier
+					NOT = { pantheon_temple_building_stands_trigger = yes }
+				}
+				remove_variable = pantheon_temple_confirmed_tier
+				if = { limit = { has_variable = pantheon_temple_confirm_attempts } remove_variable = pantheon_temple_confirm_attempts }
+				if = { limit = { has_variable = pantheon_temple_build_months var:pantheon_temple_build_months <= 1 } set_variable = { name = pantheon_temple_build_months value = 2 } }
+			}
+			set_variable = { name = pantheon_temple_migrated_2_13 value = yes }
+		}
 		# 2.2 R6: the Great Temple's build timer is a months-left counter counted down here, not a delayed
 		# event (trigger_event days takes only a literal: docs/selftest-kit/GUIDE.md:215) nor a date (no vanilla
 		# precedent for adding days to current_date); completion when it reaches 0.
@@ -370,7 +400,7 @@ pantheon.0011 = {
 				limit = { var:pantheon_temple_build_months <= 0 }
 				pantheon_temple_complete_effect = yes
 				# Batch g1 repair: a special building's construction_time (>= 1 month) means has_building can
-				# still read false the SAME tick add_special_building just ran -- the destroyed-temple check
+				# still read false the SAME tick the tier was placed (2.13: add_special_district/add_building) -- the destroyed-temple check
 				# below must never run against a tier that completed this very tick, or it declares the brand
 				# new building lost before the engine has even reported it standing.
 				set_variable = pantheon_temple_completed_this_tick

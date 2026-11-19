@@ -27,10 +27,14 @@ pantheon_temple_not_reserved_trigger = {
 # temple never replaces a wonder -- OneTraitToRuleThemAll/common/scripted_effects/
 # one_trait_building_effects.txt one_trait_raise_sanctum), and is not reserved by another god's temple
 # (batch 1r1 repair, P2 -- pantheon_temple_not_reserved_trigger above).
+# 2.13 (CK3 1.21): no special district AND no special district slot (ck3-1.21.0-triggers.log:13334/13340):
+# a typed slot with no district is a reserved, unbuilt wonder, which the temple never takes -- the same pair
+# pantheon_temple_found_effect's site picks require.
 pantheon_temple_placeable_trigger = {
 	any_county_province = {
 		has_holding = yes
-		has_special_building = no
+		has_special_district = no
+		has_special_district_slot = no
 		pantheon_temple_not_reserved_trigger = yes
 	}
 }
@@ -135,7 +139,10 @@ pantheon_miracle_ready_trigger = {
 # temple's current range. Root is the god throughout (every_ruler does not change it). Stays in the ruler's
 # own capital_province scope rather than entering the temple's province, so `root.pantheon_temple_range`
 # still resolves faith.religious_head from the god (a province has its own, unrelated `faith`).
+# 2.13 repair A-r1: a follower with no capital (landless, e.g. 1.21's landless adventurers) is out of range, not an
+# error -- capital_province is unset for them.
 pantheon_temple_in_range_trigger = {
+	exists = capital_province
 	capital_province = {
 		squared_distance = {
 			target = root.var:pantheon_temple_province

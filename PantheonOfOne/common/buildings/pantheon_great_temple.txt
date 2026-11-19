@@ -11,14 +11,21 @@
 # (capital_bureau_01's is_enabled). The founder is stored as a character variable on the province itself at
 # founding (pantheon_temple_found_effect); dormant when the founder no longer has pantheon_divine, or the
 # province's county is no longer in faithful hands for that founder.
+#
+# 2.13 (CK3 1.21): `type = special` moved off the buildings. The five tiers are now the chain of one special
+# district, pantheon_great_temple_district (common/districts/pantheon_great_temple_districts.txt), with tier 1
+# as its primary building; the temple effects place the district and set each tier inside it, so the tier
+# below is replaced in the chain rather than removed by script. can_construct_potential is the province
+# variable pantheon_temple_placing, set only around those placing calls (add_building fails for a building
+# that can't be constructed, docs/reference/ck3-1.21.0-effects.log:668; vanilla's tower_of_pisa_leaning uses
+# the same pattern), so no tier is ever offered in a build menu or by vanilla's Upgrade button.
 
 pantheon_great_temple_01 = {
-	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_01.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
 	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
-	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	# button stays shut: can_construct_potential holds only while the mod places a tier itself (2.13: the placing flag).
 	next_building = pantheon_great_temple_02
 
 	asset = {
@@ -27,7 +34,12 @@ pantheon_great_temple_01 = {
 	}
 
 	can_construct_potential = {
-		always = no
+		# 2.13 repair A-r1: named for vanilla's Upgrade control (it listed the raw NOT_has_variable_trigger);
+		# the text is common/trigger_localization/pantheon_trigger_localization.txt's entry
+		custom_description = {
+			text = pantheon_temple_placing_req
+			has_variable = pantheon_temple_placing # 2.13: set only while the temple effects place a tier
+		}
 	}
 
 	flag = pantheon_great_temple
@@ -41,8 +53,8 @@ pantheon_great_temple_01 = {
 	}
 
 	county_modifier = {
-		county_opinion_add = 10
-		development_growth_factor = 0.1
+		popular_opinion_add = 10
+		prosperity_growth_factor = 0.1
 	}
 
 	ai_value = {
@@ -51,12 +63,11 @@ pantheon_great_temple_01 = {
 }
 
 pantheon_great_temple_02 = {
-	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_02.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
 	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
-	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	# button stays shut: can_construct_potential holds only while the mod places a tier itself (2.13: the placing flag).
 	next_building = pantheon_great_temple_03
 
 	asset = {
@@ -65,7 +76,12 @@ pantheon_great_temple_02 = {
 	}
 
 	can_construct_potential = {
-		always = no
+		# 2.13 repair A-r1: named for vanilla's Upgrade control (it listed the raw NOT_has_variable_trigger);
+		# the text is common/trigger_localization/pantheon_trigger_localization.txt's entry
+		custom_description = {
+			text = pantheon_temple_placing_req
+			has_variable = pantheon_temple_placing # 2.13: set only while the temple effects place a tier
+		}
 	}
 
 	flag = pantheon_great_temple
@@ -79,8 +95,8 @@ pantheon_great_temple_02 = {
 	}
 
 	county_modifier = {
-		county_opinion_add = 10
-		development_growth_factor = 0.1
+		popular_opinion_add = 10
+		prosperity_growth_factor = 0.1
 	}
 
 	character_modifier = {
@@ -93,12 +109,11 @@ pantheon_great_temple_02 = {
 }
 
 pantheon_great_temple_03 = {
-	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_03.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
 	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
-	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	# button stays shut: can_construct_potential holds only while the mod places a tier itself (2.13: the placing flag).
 	next_building = pantheon_great_temple_04
 
 	asset = {
@@ -107,7 +122,12 @@ pantheon_great_temple_03 = {
 	}
 
 	can_construct_potential = {
-		always = no
+		# 2.13 repair A-r1: named for vanilla's Upgrade control (it listed the raw NOT_has_variable_trigger);
+		# the text is common/trigger_localization/pantheon_trigger_localization.txt's entry
+		custom_description = {
+			text = pantheon_temple_placing_req
+			has_variable = pantheon_temple_placing # 2.13: set only while the temple effects place a tier
+		}
 	}
 
 	flag = pantheon_great_temple
@@ -121,9 +141,9 @@ pantheon_great_temple_03 = {
 	}
 
 	county_modifier = {
-		county_opinion_add = 10
-		development_growth_factor = 0.1
-		monthly_county_control_growth_add = 2
+		popular_opinion_add = 10
+		prosperity_growth_factor = 0.1
+		monthly_control_change = 2
 	}
 
 	character_modifier = {
@@ -136,12 +156,11 @@ pantheon_great_temple_03 = {
 }
 
 pantheon_great_temple_04 = {
-	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_04.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
 	# 2.2.2 (#7): the chain makes the map window badge read the real level (I-V). Vanilla's own Upgrade
-	# button stays shut: every tier keeps can_construct_potential = { always = no }; the mod swaps tiers itself.
+	# button stays shut: can_construct_potential holds only while the mod places a tier itself (2.13: the placing flag).
 	next_building = pantheon_great_temple_05
 
 	asset = {
@@ -150,7 +169,12 @@ pantheon_great_temple_04 = {
 	}
 
 	can_construct_potential = {
-		always = no
+		# 2.13 repair A-r1: named for vanilla's Upgrade control (it listed the raw NOT_has_variable_trigger);
+		# the text is common/trigger_localization/pantheon_trigger_localization.txt's entry
+		custom_description = {
+			text = pantheon_temple_placing_req
+			has_variable = pantheon_temple_placing # 2.13: set only while the temple effects place a tier
+		}
 	}
 
 	flag = pantheon_great_temple
@@ -164,9 +188,9 @@ pantheon_great_temple_04 = {
 	}
 
 	county_modifier = {
-		county_opinion_add = 10
-		development_growth_factor = 0.1
-		monthly_county_control_growth_add = 2
+		popular_opinion_add = 10
+		prosperity_growth_factor = 0.1
+		monthly_control_change = 2
 	}
 
 	character_modifier = {
@@ -183,7 +207,6 @@ pantheon_great_temple_04 = {
 }
 
 pantheon_great_temple_05 = {
-	type = special
 	construction_time = 1
 	type_icon = "icon_structure_pantheon_great_temple_05.dds" # 2.2 Task 6 (R14): a render of this tier's own model
 
@@ -193,7 +216,12 @@ pantheon_great_temple_05 = {
 	}
 
 	can_construct_potential = {
-		always = no
+		# 2.13 repair A-r1: named for vanilla's Upgrade control (it listed the raw NOT_has_variable_trigger);
+		# the text is common/trigger_localization/pantheon_trigger_localization.txt's entry
+		custom_description = {
+			text = pantheon_temple_placing_req
+			has_variable = pantheon_temple_placing # 2.13: set only while the temple effects place a tier
+		}
 	}
 
 	flag = pantheon_great_temple
@@ -208,9 +236,9 @@ pantheon_great_temple_05 = {
 
 	# All of tiers 1-4's bonuses; the miracles (Task 3) are not static modifiers.
 	county_modifier = {
-		county_opinion_add = 10
-		development_growth_factor = 0.1
-		monthly_county_control_growth_add = 2
+		popular_opinion_add = 10
+		prosperity_growth_factor = 0.1
+		monthly_control_change = 2
 	}
 
 	character_modifier = {

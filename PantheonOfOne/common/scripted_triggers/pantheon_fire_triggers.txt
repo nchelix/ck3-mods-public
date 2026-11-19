@@ -43,6 +43,27 @@ pantheon_fire_barony_protected_trigger = {
 	barony.holder = { pantheon_fire_protected_trigger = yes }
 }
 
+# 2.13 Task 6 (spec section 5): the strike's crater may stand in this barony. Province scope; needs no root.
+# - no special district standing, with or without a special slot (repair C-r1, user decision 2026-11-18, after Test C):
+#   . no slot: the placement creates one, which is then ours (pantheon_fire_crater_set_effect sets
+#     pantheon_fire_crater_slot_ours) and goes with the crater at heal;
+#   . an empty slot that is not ours (a reserved, unbuilt wonder's, or a burned wonder's kept slot: the strike's raze removes
+#     the district only): the crater borrows it while the land burns. It is never marked ours, so the teardown leaves it and
+#     the wonder can be built there again;
+#   . our own empty slot: a crater whose district went missing is put back in it (the 2.13 Task 6 own-slot case, now part of
+#     this one);
+# - or one of our crater districts stands (a stage swap; has_special_district is yes/no only, so ours is told by its
+#   building, ck3-1.21.0-triggers.log:13334).
+# Never over someone else's special district (a wonder, a university, the Great Temple): neither branch holds while one stands.
+pantheon_fire_crater_site_trigger = {
+	OR = {
+		has_special_district = no
+		has_building = pantheon_fire_crater_burning
+		has_building = pantheon_fire_crater_smouldering
+		has_building = pantheon_fire_crater_cold
+	}
+}
+
 # Task 8: a county the Restore decision can work on. Title scope; needs no root (decisions run it in the UI).
 # A struck county (it has a stage) with no effort already running (one per county at a time), whose stage clock outlasts a
 # new effort: when the stage ends first, pantheon_fire_advance_stage_effect clears the counter and the gold would buy nothing.

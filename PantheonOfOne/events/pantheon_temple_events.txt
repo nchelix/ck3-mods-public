@@ -10,3 +10,25 @@ pantheon_temple.0010 = {
 		pantheon_temple_age_end_effect = yes
 	}
 }
+
+# 2.13 repair A-r1 (#94): the Wrath of Heaven, fired immediately on the god by pantheon_wrath_of_heaven_interaction
+# (common/character_interactions/pantheon_interactions.txt) with the right-clicked ruler in var:pantheon_miracle_wrath_target.
+# Root is the god here, as pantheon_miracle_wrath_effect and the shared sweeps it calls (pantheon_wrath_fear_sweep_effect,
+# pantheon_plague_devotion_penalty_effect, the Devotion helpers) all assume; inside the interaction root was unset. The
+# victim is re-saved as scope:pantheon_victim, which the fear sweep and the toast read. The effect re-checks
+# pantheon_miracle_ready_trigger itself.
+pantheon_temple.0020 = {
+	type = character_event
+	hidden = yes
+	immediate = {
+		var:pantheon_miracle_wrath_target ?= { save_scope_as = pantheon_victim }
+		if = { limit = { has_variable = pantheon_miracle_wrath_target } remove_variable = pantheon_miracle_wrath_target }
+		if = {
+			limit = {
+				exists = scope:pantheon_victim
+				scope:pantheon_victim = { exists = capital_province }
+			}
+			pantheon_miracle_wrath_effect = { CENTER = scope:pantheon_victim.capital_province }
+		}
+	}
+}

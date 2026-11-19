@@ -259,8 +259,9 @@ pantheon_wrath_disaster_effect = {
 
 # A building always falls (user, 2026-10-03): where the wrath landed first (the chosen county or the capital),
 # then their other counties best-developed first, and if they own no buildings at all the capital loses 2
-# development. Proven: vanilla's variable effect sets destroyed_building_variable only when a destroyable
-# building exists. The wreck is only reached from the disaster effect, which has already run the helper.
+# development. 2.13 (CK3 1.21): vanilla's variable effect saves scope:destroyed_building_district (and
+# scope:destroyed_building_type) only when a destroyable building exists, clearing a stale one first
+# (00_building_effects.txt:1219-1234). The wreck is only reached from the disaster effect, which has already run the helper.
 pantheon_wrath_wreck_building_effect = {
 	if = {
 		limit = { exists = scope:pantheon_wrecked }
@@ -269,7 +270,7 @@ pantheon_wrath_wreck_building_effect = {
 	var:pantheon_wrath_origin ?= {
 		destroy_random_building_variable_effect = yes
 		if = {
-			limit = { has_variable = destroyed_building_variable }
+			limit = { exists = scope:destroyed_building_district }
 			destroy_random_building_effect = yes
 			save_scope_as = pantheon_wrecked
 		}
@@ -279,7 +280,7 @@ pantheon_wrath_wreck_building_effect = {
 		scope:pantheon_victim = {
 			ordered_held_title = {
 				limit = { tier = tier_county }
-				order_by = development_level
+				order_by = prosperity_level
 				max = 100
 				check_range_bounds = no
 				if = {
@@ -287,7 +288,7 @@ pantheon_wrath_wreck_building_effect = {
 					title_province = {
 						destroy_random_building_variable_effect = yes
 						if = {
-							limit = { has_variable = destroyed_building_variable }
+							limit = { exists = scope:destroyed_building_district }
 							destroy_random_building_effect = yes
 							save_scope_as = pantheon_wrecked
 						}
@@ -305,7 +306,7 @@ pantheon_wrath_wreck_building_effect = {
 		}
 	}
 	else = {
-		scope:pantheon_victim.capital_county ?= { change_development_level = -2 }
+		scope:pantheon_victim.capital_county ?= { change_prosperity_level = -2 }
 		send_interface_toast = {
 			type = event_toast_effect_neutral
 			title = pantheon_wrath_ruin_t

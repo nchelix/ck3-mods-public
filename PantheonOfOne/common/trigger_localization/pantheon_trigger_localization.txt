@@ -1,0 +1,15 @@
+﻿# Pantheon of One 2.13 repair A-r1: trigger localization for custom_description (its `text` names an entry here, not a
+# plain loc key: a plain key left the tooltip empty, One Trait 2.7 row 28). Format: game/common/trigger_localization/
+# _trigger_localization.info; vanilla's building requirements (00_building_requirement_triggers.txt) point the positive
+# and negative rule at the same key, as every rule here does.
+
+# The Great Temple buildings' can_construct_potential (common/buildings/pantheon_great_temple.txt): vanilla's Upgrade
+# control in the county view shows this instead of NOT_has_variable_trigger.
+pantheon_temple_placing_req = {
+	global = pantheon_temple_placing_req
+	global_not = pantheon_temple_placing_req
+	first = pantheon_temple_placing_req
+	first_not = pantheon_temple_placing_req
+	third = pantheon_temple_placing_req
+	third_not = pantheon_temple_placing_req
+}

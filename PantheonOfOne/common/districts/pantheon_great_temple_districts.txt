@@ -1,0 +1,33 @@
+﻿# Pantheon of One 2.13 (CK3 1.21): the Great Temple's special district. 1.21 took `type = special` off
+# buildings: a special building now gets its slot from a district of type = special that names it as its
+# primary building (vanilla game/common/districts/_districts.info; game/common/districts/special_districts.txt,
+# e.g. holy_site_pagan_grand_temple_01_district, whose fallback background this borrows).
+#
+# The five tiers stay one chain in common/buildings/pantheon_great_temple.txt (next_building 01 -> 05), so the
+# holding view's level badge still reads I-V. common/scripted_effects/pantheon_temple_effects.txt places the
+# district at tier 1 (add_special_district, vanilla game/common/on_action/game_start.txt:511, Cluny Abbey), sets
+# each higher tier inside it (special_district = { add_building = ... }, same line) and removes it whole when
+# the temple is lost (remove_district_type, vanilla game/common/scripted_effects/00_building_effects.txt:1348,
+# tower_of_pisa_lean_effect).
+#
+# can_construct_potential: never offered in a build menu. True only while the temple effects place the
+# temple, through the province variable pantheon_temple_placing -- vanilla's own pattern for a special
+# district placed by script (tower_of_pisa_leaning's tower_of_pisa_leaning_unlocked,
+# game/common/buildings/special_buildings/00_special_buildings.txt and 00_building_effects.txt:1352). The
+# five buildings carry the same guard, since add_building fails for a building that can't be constructed
+# (docs/reference/ck3-1.21.0-effects.log:668).
+
+pantheon_great_temple_district = {
+	primary_building = pantheon_great_temple_01
+
+	#Fallback
+	background = {
+		reference = "gfx/interface/illustrations/event_scenes/ep2_holysite_tribal.dds"
+	}
+
+	type = special
+
+	can_construct_potential = {
+		has_variable = pantheon_temple_placing
+	}
+}

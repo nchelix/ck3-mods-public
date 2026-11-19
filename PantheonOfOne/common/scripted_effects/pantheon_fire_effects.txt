@@ -93,7 +93,7 @@ pantheon_fire_gather_effect = {
 		}
 		ordered_in_list = {
 			list = pantheon_fire_counties
-			order_by = development_level
+			order_by = prosperity_level
 			max = 1
 			save_scope_as = pantheon_fire_center
 		}
@@ -210,16 +210,17 @@ pantheon_fire_kill_effect = {
 # Ruins the land of every listed county. The holder may have changed through inheritance since the gather, so protection is
 # rechecked per county; the counties that really burn go into pantheon_fire_ruined, which from here on is the strike's real
 # footprint (the report counts it, Task 5's tribal rule matches it, Task 7's aftermath and crater use only it).
-# Per ruined county: development and control to 0; in every province not directly held by a protected character, the specials and duchy
-# capital building go, a great building is ruined, the capital becomes a tribal holding (and loses the buildings a tribal
-# holding can keep), and every other holding is removed.
+# Per ruined county: Prosperity and Control to 0. In every province not directly held by a protected character: the burned mark
+# (pantheon_fire_burned, the province's own land modifiers key on it), Settlement Size to 0, the districts razed
+# (pantheon_fire_raze_districts_effect), the capital becomes a bare tribal holding (it keeps only its primary building), and every
+# other holding is removed. A protected barony gets none of it: the loop's limit is the only gate.
 pantheon_fire_ruin_land_effect = {
 	every_in_list = {
 		list = pantheon_fire_counties
 		limit = { NOT = { pantheon_fire_county_exempt_trigger = yes } }
 		add_to_temporary_list = pantheon_fire_ruined
 	}
-	# Reselect the centre from the real footprint, on the pre-strike development (it is zeroed below).
+	# Reselect the centre from the real footprint, on the pre-strike prosperity (it is zeroed below).
 	if = {
 		limit = {
 			exists = scope:pantheon_fire_center
@@ -234,7 +235,7 @@ pantheon_fire_ruin_land_effect = {
 		}
 		ordered_in_list = {
 			list = pantheon_fire_ruined
-			order_by = development_level
+			order_by = prosperity_level
 			max = 1
 			save_scope_as = pantheon_fire_center
 		}
@@ -242,29 +243,80 @@ pantheon_fire_ruin_land_effect = {
 	every_in_list = {
 		list = pantheon_fire_ruined
 		root = { change_variable = { name = pantheon_fire_report_counties add = 1 } }
-		change_development_level = { subtract = development_level }
+		change_prosperity_level = { subtract = prosperity_level }
 		# Control to 0: -500 is vanilla's own "lowest control" (common/character_interactions/00_debug_interactions.txt:2276).
 		change_county_control = -500
+		# 2.13 Task 5 (Review Focus 2): a re-strike first forgets the earlier strike's burned marks and land modifiers on every
+		# province, so a barony that has passed to a protected holder since keeps neither. The loop below marks this strike's
+		# footprint, and the aftermath (pantheon_fire_begin_aftermath_effect) puts the Burning land modifier on it.
+		every_county_province = {
+			remove_variable = pantheon_fire_burned
+			pantheon_fire_land_clear_effect = yes
+		}
 		every_county_province = {
 			limit = { NOT = { pantheon_fire_barony_protected_trigger = yes } }
-			pantheon_fire_remove_specials_effect = yes
-			if = {
-				limit = { has_great_building = yes }
-				ruin_great_building = yes
-			}
+			set_variable = pantheon_fire_burned
+			# Settlement Size to 0 (user decision B), vanilla's own set-to-a-value form (mpo_decisions.txt:6678).
+			change_province_size_progress = { value = 0 subtract = province_size }
+			pantheon_fire_raze_districts_effect = yes
 			if = {
 				limit = { is_county_capital = yes }
 				if = {
 					limit = { NOT = { has_holding_type = tribal_holding } }
 					set_holding_type = tribal_holding
 				}
-				pantheon_fire_remove_ordinary_effect = yes
+				# A bare tribal holding: set_holding_type keeps the buildings a tribal holding allows, so they go too. Never the
+				# primary building (remove_this_building errors on it, and a seat without one is broken).
+				# A holding district is never inactive, so no include_inactive here.
+				holding_district ?= {
+					every_district_building = {
+						limit = { is_primary_building = no }
+						remove_this_building = yes
+					}
+				}
 			}
 			else_if = {
 				limit = { has_holding = yes }
 				remove_holding = yes
 			}
 		}
+	}
+}
+
+# Province scope, root is the god; the ruin loop above runs it on every unprotected province of a ruined county. One dynamic
+# pass over the districts in place of 2.10's generated list of building keys (1.21 dropped all 948 of them; a list goes
+# stale every patch, the loop never does):
+# - every regular district goes with its buildings, inactive ones too (a district whose slot was lost still stands);
+# - a special district that is not ours (holy sites, wonders, universities) and the duchy-capital district are destroyed, but
+#   their typed slot stays (remove_district removes the district only): the strike wrecks what stands, not the map, and the
+#   wonder can be rebuilt once the land heals (user, 2026-11-17). Ours stay: a god's Great Temple (has_special_district is
+#   yes/no only, so it is told by its chain, pantheon_great_temple_01 or higher) and the strike's crater (the aftermath resets
+#   it instead);
+# - a great district is ruined, as 2.10.
+pantheon_fire_raze_districts_effect = {
+	every_built_regular_district = {
+		include_inactive = yes
+		remove_district = yes
+	}
+	if = {
+		limit = {
+			has_special_district = yes
+			NOT = { has_building_or_higher = pantheon_great_temple_01 }
+			NOT = { has_building = pantheon_fire_crater_burning }
+			NOT = { has_building = pantheon_fire_crater_smouldering }
+			NOT = { has_building = pantheon_fire_crater_cold }
+		}
+		special_district ?= { remove_district = yes }
+	}
+	duchy_capital_district ?= { remove_district = yes }
+	# 1.21 resource districts go too; trade posts and entrepots belong to other rulers and are left standing (coordinator ruling).
+	resource_district ?= { remove_district = yes }
+	if = {
+		limit = {
+			has_great_district = yes
+			NOT = { has_ruined_great_district = yes }
+		}
+		ruin_great_district = yes
 	}
 }
 
@@ -415,30 +467,61 @@ pantheon_fire_reaction_effect = {
 #   pantheon_fire_crater_province (only on the strike's centre: the province batch B2 puts the crater on).
 # The counties still in an aftermath are the global_var list pantheon_fire_struck (a temporary list lasts one immediate only).
 
-# County scope. Removes the stage modifiers and the recovery marker.
+# County scope. Removes the stage modifiers and the recovery marker, and the land modifier of every province the strike burned
+# (2.13 Task 5).
 pantheon_fire_clear_stage_effect = {
 	remove_county_modifier = pantheon_fire_burning
 	remove_county_modifier = pantheon_fire_smouldering
 	remove_county_modifier = pantheon_fire_scarred
 	remove_county_modifier = pantheon_fire_restoring
+	every_county_province = {
+		limit = { has_variable = pantheon_fire_burned }
+		pantheon_fire_land_clear_effect = yes
+	}
 }
 
-# County scope. Puts on the modifier of the county's current stage (the recovery marker is not touched).
+# Province scope (2.13 Task 5). Removes the three land modifiers (the per-barony Settlement Size baseline). Every removal of
+# them goes through here: the stage clear and the stage swap (marked provinces), heal and a re-strike (every province).
+pantheon_fire_land_clear_effect = {
+	remove_province_modifier = pantheon_fire_burning_land
+	remove_province_modifier = pantheon_fire_smouldering_land
+	remove_province_modifier = pantheon_fire_scarred_land
+}
+
+# County scope. Puts on the modifier of the county's current stage (the recovery marker is not touched), and the stage's land
+# modifier on every province the strike burned (pantheon_fire_burned): never on a protected barony, which the strike never marks
+# (2.13 Task 5). The first Burning comes through here too (pantheon_fire_begin_aftermath_effect), then each stage move.
 pantheon_fire_stage_modifier_effect = {
 	remove_county_modifier = pantheon_fire_burning
 	remove_county_modifier = pantheon_fire_smouldering
 	remove_county_modifier = pantheon_fire_scarred
+	every_county_province = {
+		limit = { has_variable = pantheon_fire_burned }
+		pantheon_fire_land_clear_effect = yes
+	}
 	if = {
 		limit = { var:pantheon_fire_stage = 1 }
 		add_county_modifier = pantheon_fire_burning
+		every_county_province = {
+			limit = { has_variable = pantheon_fire_burned }
+			add_province_modifier = pantheon_fire_burning_land
+		}
 	}
 	else_if = {
 		limit = { var:pantheon_fire_stage = 2 }
 		add_county_modifier = pantheon_fire_smouldering
+		every_county_province = {
+			limit = { has_variable = pantheon_fire_burned }
+			add_province_modifier = pantheon_fire_smouldering_land
+		}
 	}
 	else_if = {
 		limit = { var:pantheon_fire_stage = 3 }
 		add_county_modifier = pantheon_fire_scarred
+		every_county_province = {
+			limit = { has_variable = pantheon_fire_burned }
+			add_province_modifier = pantheon_fire_scarred_land
+		}
 	}
 }
 
@@ -525,46 +608,90 @@ pantheon_fire_leave_situation_effect = {
 	}
 }
 
-# ---- Task 8: the crater. One per strike, on the centre county's capital province (var:pantheon_fire_crater_province on that
-# county), in three states that follow the centre's stage: burning (1), smouldering (2), cold (3). It goes when the centre heals.
-# The buildings: common/buildings/pantheon_fire_crater.txt. Swap form: the Great Temple's tiers (pantheon_temple_effects.txt,
-# pantheon_temple_complete_effect: remove_building, then add_special_building).
+# ---- Task 8: the crater. One per strike, on a barony of the centre county (var:pantheon_fire_crater_province on that county),
+# in three states that follow the centre's stage: burning (1), smouldering (2), cold (3). It goes when the centre heals.
+# 2.13 Task 6 (CK3 1.21, spec section 5): each state is a special district whose primary building is the 2.10 crater building
+# (common/districts/pantheon_fire_crater_districts.txt, common/buildings/pantheon_fire_crater.txt). Swap form: vanilla's
+# tower_of_pisa_lean_effect (00_building_effects.txt:1349-1357): remove_district_type, then add_special_district.
+# Where it may stand: pantheon_fire_crater_site_trigger (common/scripted_triggers/pantheon_fire_triggers.txt): any barony with
+# no special district standing, or with our crater. Repair C-r1 (user decision 2026-11-18, after Test C): that includes an
+# empty special slot that is not ours (a reserved, unbuilt wonder's, or a burned wonder's kept slot), which the crater borrows
+# while the land burns. The province variable pantheon_fire_crater_slot_ours marks only a special slot the crater's own
+# placement created; the teardown removes that slot with the crater, so a later temple or wonder can use the barony, and
+# leaves a borrowed (unmarked) slot standing, so the wonder can be built there again. Every path that drops or moves the crater (heal, the
+# protected-barony clean-up in the show effect, the re-strike's old-centre clean-up and the new-centre move in
+# pantheon_fire_begin_aftermath_effect) runs the teardown on the old province BEFORE it changes the county's pointer.
 
-# Province scope. Removes whichever crater state stands here.
+# Province scope. Removes whichever crater district stands here: a stage swap only (the district, never the slot).
+# remove_district_type names our own district types, so it can never take anyone else's (effects.log:19066).
 pantheon_fire_crater_clear_effect = {
-	if = { limit = { has_building = pantheon_fire_crater_burning } remove_building = pantheon_fire_crater_burning }
-	if = { limit = { has_building = pantheon_fire_crater_smouldering } remove_building = pantheon_fire_crater_smouldering }
-	if = { limit = { has_building = pantheon_fire_crater_cold } remove_building = pantheon_fire_crater_cold }
+	if = { limit = { has_building = pantheon_fire_crater_burning } remove_district_type = pantheon_fire_crater_burning_district }
+	if = { limit = { has_building = pantheon_fire_crater_smouldering } remove_district_type = pantheon_fire_crater_smouldering_district }
+	if = { limit = { has_building = pantheon_fire_crater_cold } remove_district_type = pantheon_fire_crater_cold_district }
 }
 
-# Province scope. Puts up the crater in state $STATE$ (burning, smouldering or cold) in place of any crater already here. A
-# special building that is not ours (one the strike's wipe does not know, e.g. another mod's) is never replaced: add_special_building
-# would take its slot ("will also add/change a special slot if needed", effects log). The guard is read before the clear.
-pantheon_fire_crater_set_effect = {
+# Province scope. Takes the crater down for good: its district, then the special slot its placement created (only when the slot
+# is ours and stands empty, so a slot another district now occupies is never removed; remove_special_district_slot,
+# effects.log:19127, as the Great Temple's pantheon_temple_remove_district_effect), then the mark, always. A borrowed wonder
+# slot (repair C-r1) carries no mark, so only the crater's district goes and the slot stays for the wonder.
+pantheon_fire_crater_teardown_effect = {
+	pantheon_fire_crater_clear_effect = yes
 	if = {
 		limit = {
-			OR = {
-				has_special_building = no
-				has_building = pantheon_fire_crater_burning
-				has_building = pantheon_fire_crater_smouldering
-				has_building = pantheon_fire_crater_cold
+			has_variable = pantheon_fire_crater_slot_ours
+			has_special_district = no
+			has_special_district_slot = yes
+		}
+		remove_special_district_slot = yes
+	}
+	remove_variable = pantheon_fire_crater_slot_ours
+}
+
+# Province scope. Puts up the crater in state $STATE$ (burning, smouldering or cold) in place of any crater already here, when
+# the site trigger allows it (never over a special district that is not ours; an empty slot that is not ours is borrowed,
+# repair C-r1). The guard is read before the clear. A barony found with neither a district nor a slot gets its slot from
+# add_special_district (as the Great Temple's tier 1 in Test A), so that slot is marked ours first. A barony found with a slot
+# already there is never marked: a borrowed slot is not ours, so no teardown removes it. The placing flag lets the district's and the building's
+# can_construct_potential pass for this one call (vanilla tower_of_pisa_lean_effect's form).
+pantheon_fire_crater_set_effect = {
+	if = {
+		limit = { pantheon_fire_crater_site_trigger = yes }
+		if = {
+			limit = {
+				has_special_district = no
+				has_special_district_slot = no
 			}
+			set_variable = pantheon_fire_crater_slot_ours
+			# Temporary marker: this call (not an earlier one) made the mark, so only this call may take it back.
+			set_variable = pantheon_fire_crater_slot_fresh
 		}
 		pantheon_fire_crater_clear_effect = yes
-		add_special_building = pantheon_fire_crater_$STATE$
+		set_variable = pantheon_fire_crater_placing
+		add_special_district = pantheon_fire_crater_$STATE$_district
+		remove_variable = pantheon_fire_crater_placing
+		# A first placement that failed left no slot: the mark we just set would be stale, so it goes again. A re-place into
+		# our own existing slot never set the marker, so a failure there keeps its mark.
+		if = {
+			limit = {
+				has_variable = pantheon_fire_crater_slot_fresh
+				has_special_district_slot = no
+			}
+			remove_variable = pantheon_fire_crater_slot_ours
+		}
+		remove_variable = pantheon_fire_crater_slot_fresh
 	}
 }
 
 # County scope. When this county carries the strike's crater, shows the state that matches its stage. Every placement and swap
 # goes through here, and each one rechecks the barony first (batch B review, finding 7): protected land carries no scar, so a crater
-# province that a protected character now holds loses our crater (if it stands), the county forgets the province, and nothing is
-# placed.
+# province that a protected character now holds loses our crater (if it stands) and the slot it created, the county forgets the
+# province, and nothing is placed. A crater whose district went missing is put back here too (the site trigger's own-slot case).
 pantheon_fire_crater_show_effect = {
 	if = {
 		limit = { has_variable = pantheon_fire_crater_province }
 		if = {
 			limit = { var:pantheon_fire_crater_province = { pantheon_fire_barony_protected_trigger = yes } }
-			var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+			var:pantheon_fire_crater_province = { pantheon_fire_crater_teardown_effect = yes }
 			remove_variable = pantheon_fire_crater_province
 		}
 		else_if = {
@@ -586,7 +713,10 @@ pantheon_fire_crater_show_effect = {
 # inheritance gets no aftermath) starts again at Burning in the sub-region of this strike's own scorch situation. A county
 # already in an earlier strike's aftermath leaves that sub-region first (and the old situation ends if it was the last).
 # A county that is an earlier strike's centre has its crater reset to burning. This strike's crater goes on the centre's
-# capital province, unless that barony is protected; an old crater the centre carried is taken down first.
+# capital province if that barony is unprotected and the crater may stand there (pantheon_fire_crater_site_trigger: no special
+# district standing; a burned wonder's kept slot is borrowed and left at heal, repair C-r1); else on another burned, unprotected barony of the centre county where
+# it may (2.13 Task 6, spec section 5); else the strike leaves no crater. An old crater the centre carried is taken down first
+# (the teardown: its district and the slot it created).
 pantheon_fire_begin_aftermath_effect = {
 	if = {
 		limit = { any_in_list = { list = pantheon_fire_ruined } }
@@ -614,14 +744,16 @@ pantheon_fire_begin_aftermath_effect = {
 					add_dejure_title_to_sub_region = scope:pantheon_fire_struck_county
 				}
 			}
-			add_county_modifier = pantheon_fire_burning
+			# 2.13 Task 5 (Codex plan review P1): the first Burning goes through the stage helper, so the county modifier and the
+			# Burning land modifier on the provinces the ruin just marked go on together.
+			pantheon_fire_stage_modifier_effect = yes
 			# An earlier strike's centre: its crater burns again, unless its barony is now protected (spared by this strike).
 			if = {
 				limit = {
 					has_variable = pantheon_fire_crater_province
 					var:pantheon_fire_crater_province = { pantheon_fire_barony_protected_trigger = yes }
 				}
-				var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+				var:pantheon_fire_crater_province = { pantheon_fire_crater_teardown_effect = yes }
 				remove_variable = pantheon_fire_crater_province
 			}
 			pantheon_fire_crater_show_effect = yes
@@ -629,15 +761,39 @@ pantheon_fire_begin_aftermath_effect = {
 		scope:pantheon_fire_center ?= {
 			if = {
 				limit = { has_variable = pantheon_fire_crater_province }
-				var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+				var:pantheon_fire_crater_province = { pantheon_fire_crater_teardown_effect = yes }
 			}
 			remove_variable = pantheon_fire_crater_province
+			# The capital barony first (Review Focus 1: never a protected one; repair C-r1: never over a standing special district
+			# that is not ours, but an empty wonder slot is borrowed, unmarked, and left at heal).
 			title_province = {
 				save_temporary_scope_as = pantheon_fire_crater_prov
 				if = {
-					limit = { NOT = { pantheon_fire_barony_protected_trigger = yes } }
+					limit = {
+						NOT = { pantheon_fire_barony_protected_trigger = yes }
+						pantheon_fire_crater_site_trigger = yes
+					}
 					scope:pantheon_fire_center = {
 						set_variable = { name = pantheon_fire_crater_province value = scope:pantheon_fire_crater_prov }
+					}
+				}
+			}
+			# Else another barony this strike burned (pantheon_fire_burned: unprotected by construction, rechecked) where the
+			# crater may stand. None: no crater, and the pointer stays unset. It must hold a holding: burned non-capital baronies
+			# lose their holding to the strike and a 1.21 special district needs a holding, so in practice the crater goes on
+			# the capital or nowhere.
+			if = {
+				limit = { NOT = { has_variable = pantheon_fire_crater_province } }
+				random_county_province = {
+					limit = {
+						has_variable = pantheon_fire_burned
+						has_holding = yes
+						NOT = { pantheon_fire_barony_protected_trigger = yes }
+						pantheon_fire_crater_site_trigger = yes
+					}
+					save_temporary_scope_as = pantheon_fire_crater_alt_prov
+					scope:pantheon_fire_center = {
+						set_variable = { name = pantheon_fire_crater_province value = scope:pantheon_fire_crater_alt_prov }
 					}
 				}
 			}
@@ -647,14 +803,20 @@ pantheon_fire_begin_aftermath_effect = {
 }
 
 # County scope. The county is healed: modifiers, variables, sub-region membership and its place in the global list all go.
-# A centre county takes its crater down with it (Task 8).
+# A centre county takes its crater down with it (Task 8; 2.13 Task 6: the teardown, so the special slot the crater created goes
+# too and a later temple or wonder can use the barony). 2.13 Task 5: every province loses the land modifiers and the burned
+# mark, marked or not, so nothing of this strike is left for a later one to read.
 pantheon_fire_heal_effect = {
 	if = {
 		limit = { has_variable = pantheon_fire_crater_province }
-		var:pantheon_fire_crater_province = { pantheon_fire_crater_clear_effect = yes }
+		var:pantheon_fire_crater_province = { pantheon_fire_crater_teardown_effect = yes }
 	}
 	remove_variable = pantheon_fire_crater_province
 	pantheon_fire_clear_stage_effect = yes
+	every_county_province = {
+		pantheon_fire_land_clear_effect = yes
+		remove_variable = pantheon_fire_burned
+	}
 	pantheon_fire_leave_situation_effect = yes
 	remove_variable = pantheon_fire_stage
 	remove_variable = pantheon_fire_months

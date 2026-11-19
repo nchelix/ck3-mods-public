@@ -1,5 +1,26 @@
 ﻿# Changelog — Pantheon of One
 
+## [2.13] — 2026-11-18
+
+Pantheon of One on CK3 1.21 "Florin". Needs CK3 1.21; no DLC required.
+
+### Changed
+- Updated for 1.21's districts, Prosperity, Settlement Size, Popular Opinion and control baseline.
+- The Great Temple is a special district, its five tiers one chain with the I-V badge on the map as before. Its bonuses carry over: Popular Opinion +10, Prosperity growth +10%, and from tier III control +2 a month.
+- Fire from Heaven: each burned county loses its Prosperity, its Settlement Size and its control, and its districts are razed. Regular, resource and duchy-capital districts go; wonders and other special districts are destroyed but keep their slot, so they can be rebuilt once the land heals; great districts are ruined. Trade posts and entrepots belong to other rulers and stay standing. Faithful followers' baronies are spared, as before.
+- The aftermath holds the land down: Settlement Size stays at zero in each burned barony while it burns and smoulders, and one level down while scarred; control drifts toward a low baseline (-60, -40, then -20).
+- The crater is a special district. On a capital with an empty wonder slot (Paris has one for Notre-Dame), the crater stands in that slot while the land burns, and healing leaves the slot for the wonder. In a city the crater sits among the town's buildings.
+- Harvest and the Disasters move all of a county's tax and its Prosperity growth.
+- Wrath of Heaven can wreck a building again (1.21 changed how vanilla reports a destroyed building).
+
+### Fixed
+- Casting Wrath of Heaven no longer floods error.log and stalls the game (#94).
+- A Shrine finished on a barony that is already another faith's holy site no longer logs an error; the Temple page says the temple's barony could not be made a holy site (#86).
+- A landless follower near the temple no longer logs errors.
+
+### Saves
+- Paradox does not promise 1.20 saves work on 1.21. Best effort: a Great Temple from 2.12 is raised again at its tier a few days after loading, and a 2.12 crater comes back at its county's next stage change.
+
 ## [2.12] — 2026-11-11
 
 The Temple page: your Great Temple, built and used at a glance.

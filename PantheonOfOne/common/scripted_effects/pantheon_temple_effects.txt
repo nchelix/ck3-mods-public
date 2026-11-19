@@ -20,6 +20,10 @@
 # repair (P2): both picks, and the eligibility check that chooses between them, also skip a province
 # reserved by another god's temple (pantheon_temple_not_reserved_trigger, common/scripted_triggers/
 # pantheon_temple_triggers.txt).
+# 2.13 (CK3 1.21): "no special building" is now no special district AND no special district slot
+# (ck3-1.21.0-triggers.log:13334/13340, yes/no only). Slots are typed, so a barony with a slot and no district
+# is a reserved, unbuilt wonder (vanilla game/common/decisions/06_ce1_decisions.txt adds one before its
+# district); the temple never takes it.
 pantheon_temple_found_effect = {
 	if = { limit = { exists = scope:pantheon_temple_site } clear_saved_scope = pantheon_temple_site }
 	if = {
@@ -28,7 +32,8 @@ pantheon_temple_found_effect = {
 				any_county_province = {
 					is_county_capital = yes
 					has_holding = yes
-					has_special_building = no
+					has_special_district = no
+					has_special_district_slot = no
 					pantheon_temple_not_reserved_trigger = yes
 				}
 			}
@@ -38,7 +43,8 @@ pantheon_temple_found_effect = {
 				limit = {
 					is_county_capital = yes
 					has_holding = yes
-					has_special_building = no
+					has_special_district = no
+					has_special_district_slot = no
 					pantheon_temple_not_reserved_trigger = yes
 				}
 				save_scope_as = pantheon_temple_site
@@ -48,7 +54,7 @@ pantheon_temple_found_effect = {
 	else = {
 		$SITE$ = {
 			random_county_province = {
-				limit = { has_holding = yes has_special_building = no pantheon_temple_not_reserved_trigger = yes }
+				limit = { has_holding = yes has_special_district = no has_special_district_slot = no pantheon_temple_not_reserved_trigger = yes }
 				save_scope_as = pantheon_temple_site
 			}
 		}
@@ -85,12 +91,25 @@ pantheon_temple_upgrade_effect = {
 
 # God scope, called from pantheon.0011 once `var:pantheon_temple_build_months` reaches 0. Branches on
 # which tier just finished building, since a building key can't be assembled from a variable.
+# 2.13 (CK3 1.21): tier 1 places the temple's special district (add_special_district, province scope; its
+# primary building is tier 1); each higher tier is set inside it with special_district = { add_building }, which
+# replaces the tier below in the chain (vanilla game/common/on_action/game_start.txt:511, Cluny Abbey 01 -> 02)
+# -- 1.21's remove_building is district scope and never removes a primary building, so nothing is removed by
+# hand. Every placing call sits between set_variable/remove_variable of pantheon_temple_placing on that
+# province, the flag the buildings' and the district's can_construct_potential read (add_building fails for a
+# building that can't be constructed, ck3-1.21.0-effects.log:668; vanilla tower_of_pisa_lean_effect sets its own
+# flag the same way, 00_building_effects.txt:1352). The tier-1 site must still have no special district and no
+# reserved slot (a wonder slot reserved during the build is never taken: the temple is lost instead).
 pantheon_temple_complete_effect = {
 	if = {
 		limit = { var:pantheon_temple_build_tier ?= 1 }
 		if = {
-			limit = { var:pantheon_temple_province = { has_holding = yes has_special_building = no } }
-			var:pantheon_temple_province = { add_special_building = pantheon_great_temple_01 }
+			limit = { var:pantheon_temple_province = { has_holding = yes has_special_district = no has_special_district_slot = no } }
+			var:pantheon_temple_province = {
+				set_variable = pantheon_temple_placing
+				add_special_district = pantheon_great_temple_district
+				remove_variable = pantheon_temple_placing
+			}
 			set_variable = { name = pantheon_temple_tier value = 1 }
 			pantheon_temple_create_holy_site_effect = yes
 			pantheon_temple_build_done_effect = yes
@@ -102,8 +121,9 @@ pantheon_temple_complete_effect = {
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_01 } }
 			var:pantheon_temple_province = {
-				remove_building = pantheon_great_temple_01
-				add_special_building = pantheon_great_temple_02
+				set_variable = pantheon_temple_placing
+				special_district = { add_building = pantheon_great_temple_02 }
+				remove_variable = pantheon_temple_placing
 			}
 			set_variable = { name = pantheon_temple_tier value = 2 }
 			pantheon_temple_build_done_effect = yes
@@ -115,8 +135,9 @@ pantheon_temple_complete_effect = {
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_02 } }
 			var:pantheon_temple_province = {
-				remove_building = pantheon_great_temple_02
-				add_special_building = pantheon_great_temple_03
+				set_variable = pantheon_temple_placing
+				special_district = { add_building = pantheon_great_temple_03 }
+				remove_variable = pantheon_temple_placing
 			}
 			set_variable = { name = pantheon_temple_tier value = 3 }
 			pantheon_temple_build_done_effect = yes
@@ -128,8 +149,9 @@ pantheon_temple_complete_effect = {
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_03 } }
 			var:pantheon_temple_province = {
-				remove_building = pantheon_great_temple_03
-				add_special_building = pantheon_great_temple_04
+				set_variable = pantheon_temple_placing
+				special_district = { add_building = pantheon_great_temple_04 }
+				remove_variable = pantheon_temple_placing
 			}
 			set_variable = { name = pantheon_temple_tier value = 4 }
 			pantheon_temple_build_done_effect = yes
@@ -141,8 +163,9 @@ pantheon_temple_complete_effect = {
 		if = {
 			limit = { var:pantheon_temple_province = { has_building = pantheon_great_temple_04 } }
 			var:pantheon_temple_province = {
-				remove_building = pantheon_great_temple_04
-				add_special_building = pantheon_great_temple_05
+				set_variable = pantheon_temple_placing
+				special_district = { add_building = pantheon_great_temple_05 }
+				remove_variable = pantheon_temple_placing
 			}
 			set_variable = { name = pantheon_temple_tier value = 5 }
 			pantheon_temple_build_done_effect = yes
@@ -163,6 +186,12 @@ pantheon_temple_complete_effect = {
 # and "whichever county holy site of this type turns up" (the form it fell back to before this repair,
 # which a faith change between creation and loss, or another faith's same-type site sharing the county,
 # could mislead).
+# 2.13 (#86): create_holy_site refuses (and logs an error for) a barony that is already a holy site of ANY
+# faith, which the own-faith county check above does not see. The temple's own barony is now named
+# explicitly (ck3-1.21.0-effects.log:17663, `barony =`) and guarded with is_holy_site = no
+# (ck3-1.21.0-triggers.log:11903, "a holy site of any faith"); when it already is one, nothing is created and
+# the refusal is recorded, the same variable and Temple page line as an engine refusal. Another faith's site
+# on a DIFFERENT barony of the county no longer matters.
 pantheon_temple_create_holy_site_effect = {
 	if = {
 		limit = {
@@ -170,28 +199,34 @@ pantheon_temple_create_holy_site_effect = {
 				var:pantheon_temple_province = { county = { any_county_province = { barony = { is_holy_site_of = root.faith } } } }
 			}
 		}
-		faith = {
-			create_holy_site = {
-				type = pantheon_great_temple_site
-				eminent = yes
-				county = root.var:pantheon_temple_province.county
-				actor = root
-			}
-		}
-		if = { limit = { exists = scope:pantheon_temple_new_holy_site_barony } clear_saved_scope = pantheon_temple_new_holy_site_barony }
-		var:pantheon_temple_province = {
-			county = {
-				random_county_province = {
-					limit = { barony = { is_holy_site_of = root.faith } }
-					barony = { save_scope_as = pantheon_temple_new_holy_site_barony }
+		if = {
+			limit = { var:pantheon_temple_province = { barony = { is_holy_site = no } } }
+			faith = {
+				create_holy_site = {
+					type = pantheon_great_temple_site
+					eminent = yes
+					barony = root.var:pantheon_temple_province.barony
+					actor = root
 				}
 			}
-		}
-		if = {
-			limit = { exists = scope:pantheon_temple_new_holy_site_barony }
-			set_variable = { name = pantheon_temple_created_holy_site value = yes }
-			set_variable = { name = pantheon_temple_holy_site_barony value = scope:pantheon_temple_new_holy_site_barony }
-			set_variable = { name = pantheon_temple_holy_site_faith value = faith }
+			if = { limit = { exists = scope:pantheon_temple_new_holy_site_barony } clear_saved_scope = pantheon_temple_new_holy_site_barony }
+			var:pantheon_temple_province = {
+				county = {
+					random_county_province = {
+						limit = { barony = { is_holy_site_of = root.faith } }
+						barony = { save_scope_as = pantheon_temple_new_holy_site_barony }
+					}
+				}
+			}
+			if = {
+				limit = { exists = scope:pantheon_temple_new_holy_site_barony }
+				set_variable = { name = pantheon_temple_created_holy_site value = yes }
+				set_variable = { name = pantheon_temple_holy_site_barony value = scope:pantheon_temple_new_holy_site_barony }
+				set_variable = { name = pantheon_temple_holy_site_faith value = faith }
+			}
+			else = {
+				set_variable = { name = pantheon_temple_holy_site_refused value = yes }
+			}
 		}
 		else = {
 			set_variable = { name = pantheon_temple_holy_site_refused value = yes }
@@ -266,6 +301,9 @@ pantheon_temple_lost_clear_effect = {
 	if = { limit = { has_variable = pantheon_temple_age_months } remove_variable = pantheon_temple_age_months }
 	if = {
 		limit = { has_variable = pantheon_temple_province }
+		# 2.13 (CK3 1.21): a lost temple leaves no district behind (pantheon_temple_remove_district_effect below:
+		# only our own district, and only when it stands).
+		var:pantheon_temple_province = { pantheon_temple_remove_district_effect = yes }
 		var:pantheon_temple_province = {
 			# Batch 1r1 repair (P2): only this god's OWN founder flag -- another god can now hold the matching
 			# flag on a DIFFERENT province while both builds race for eligibility, and must never have theirs
@@ -303,6 +341,27 @@ pantheon_temple_lost_clear_effect = {
 	if = { limit = { has_variable = pantheon_temple_province } remove_variable = pantheon_temple_province }
 }
 
+# Province scope (2.13, CK3 1.21): remove the Great Temple's special district, whichever tier stands in it.
+# 1.21's remove_building is district scope and can never remove a primary building, so the temple goes whole:
+# remove_district_type (province scope, ck3-1.21.0-effects.log:19066; vanilla tower_of_pisa_lean_effect,
+# 00_building_effects.txt:1348). It names our own district type, so it can never remove anyone else's special
+# district, and runs only when our district stands (has_building_or_higher on tier 1 reads any tier of the
+# chain; has_special_district takes no type, ck3-1.21.0-triggers.log:13334). The special slot our district
+# stood in goes with it when the engine leaves it behind (remove_special_district_slot, effects.log:19127) --
+# only right after removing ours and only when no other special district stands there, so it is never another
+# wonder's slot, and the barony is left as the founding site pick found it (no slot), free to be picked again.
+# Called by pantheon_temple_lost_clear_effect and by the debug mod's temple teardowns.
+pantheon_temple_remove_district_effect = {
+	if = {
+		limit = { has_building_or_higher = pantheon_great_temple_01 }
+		remove_district_type = pantheon_great_temple_district
+		if = {
+			limit = { has_special_district = no has_special_district_slot = yes }
+			remove_special_district_slot = yes
+		}
+	}
+}
+
 # God scope (R7): the site is gone (the previous tier's own building, or the whole barony, genuinely
 # destroyed off-script after having stood confirmed). Clear every temple variable; nothing is refunded.
 pantheon_temple_lost_effect = {
@@ -317,7 +376,7 @@ pantheon_temple_lost_effect = {
 
 # God scope (batch g1 repair, coordinator diagnosis item 3): a newly completed tier's building never once
 # got confirmed standing (pantheon_temple_confirmed_tier, events/pantheon_events.txt pantheon.0011) despite
-# pantheon_temple_retry_place_effect re-running add_special_building for up to 2 monthly ticks. Same
+# pantheon_temple_retry_place_effect re-placing it for up to 2 monthly ticks. Same
 # clearing as pantheon_temple_lost_effect, with a distinct toast/reason.
 pantheon_temple_lost_no_barony_effect = {
 	pantheon_temple_lost_clear_effect = yes
@@ -329,30 +388,69 @@ pantheon_temple_lost_no_barony_effect = {
 	}
 }
 
-# God scope (batch g1 repair, coordinator diagnosis item 2/3): re-run add_special_building for the current
-# tier on the stored province, used by pantheon.0011 while a freshly completed tier's building has not yet
-# been confirmed standing. One branch per tier, since the building key cannot be built from a variable.
+# God scope (batch g1 repair, coordinator diagnosis item 2/3): re-place the current tier on the stored
+# province, used by pantheon.0011 while a freshly completed tier's building has not yet been confirmed
+# standing -- and, since 2.13, for a 2.12 temple a 1.20 save brought into 1.21 without its building (the
+# one-time migration in pantheon.0011 hands it to this retry). Caller guards has_variable = pantheon_temple_tier.
+# 2.13 (CK3 1.21): the special district first, when our district is not there and no other special district
+# stands (add_special_district, as tier 1's completion does), then each tier up to the stored one, one step at
+# a time inside the district (special_district = { add_building }, as tiers 2-5 complete), skipping tiers
+# already standing (has_building_or_higher reads the chain). A step at a time because an upgrade needs the
+# tier below it in the chain, the same order completion builds them in. All of it under the placing flag the
+# buildings' can_construct_potential reads, set and removed on the province around the whole repair. One
+# branch per tier, since the building key cannot be built from a variable.
 pantheon_temple_retry_place_effect = {
+	var:pantheon_temple_province = { set_variable = pantheon_temple_placing }
 	if = {
-		limit = { var:pantheon_temple_tier = 1 }
-		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_01 }
+		limit = {
+			var:pantheon_temple_province = {
+				NOT = { has_building_or_higher = pantheon_great_temple_01 }
+				has_special_district = no
+			}
+		}
+		var:pantheon_temple_province = { add_special_district = pantheon_great_temple_district }
 	}
-	else_if = {
-		limit = { var:pantheon_temple_tier = 2 }
-		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_02 }
+	if = {
+		limit = {
+			var:pantheon_temple_tier >= 2
+			var:pantheon_temple_province = {
+				has_building_or_higher = pantheon_great_temple_01
+				NOT = { has_building_or_higher = pantheon_great_temple_02 }
+			}
+		}
+		var:pantheon_temple_province = { special_district = { add_building = pantheon_great_temple_02 } }
 	}
-	else_if = {
-		limit = { var:pantheon_temple_tier = 3 }
-		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_03 }
+	if = {
+		limit = {
+			var:pantheon_temple_tier >= 3
+			var:pantheon_temple_province = {
+				has_building_or_higher = pantheon_great_temple_02
+				NOT = { has_building_or_higher = pantheon_great_temple_03 }
+			}
+		}
+		var:pantheon_temple_province = { special_district = { add_building = pantheon_great_temple_03 } }
 	}
-	else_if = {
-		limit = { var:pantheon_temple_tier = 4 }
-		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_04 }
+	if = {
+		limit = {
+			var:pantheon_temple_tier >= 4
+			var:pantheon_temple_province = {
+				has_building_or_higher = pantheon_great_temple_03
+				NOT = { has_building_or_higher = pantheon_great_temple_04 }
+			}
+		}
+		var:pantheon_temple_province = { special_district = { add_building = pantheon_great_temple_04 } }
 	}
-	else_if = {
-		limit = { var:pantheon_temple_tier = 5 }
-		var:pantheon_temple_province = { add_special_building = pantheon_great_temple_05 }
+	if = {
+		limit = {
+			var:pantheon_temple_tier >= 5
+			var:pantheon_temple_province = {
+				has_building_or_higher = pantheon_great_temple_04
+				NOT = { has_building_or_higher = pantheon_great_temple_05 }
+			}
+		}
+		var:pantheon_temple_province = { special_district = { add_building = pantheon_great_temple_05 } }
 	}
+	var:pantheon_temple_province = { remove_variable = pantheon_temple_placing }
 }
 
 # God scope, quarterly (pantheon.0010, alongside the Worship credit): pantheon_temple_aura Devotion to every

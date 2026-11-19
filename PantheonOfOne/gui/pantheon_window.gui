@@ -2957,7 +2957,7 @@ window = {
 												text = "[Character.Custom('pantheon_temple_state')]"
 												tooltip = "[Character.Custom('pantheon_temple_state')]"
 											}
-											# R13, batch 2b: the capital could not be made a holy site (e.g. the faith was already at its
+											# R13, batch 2b: the temple's barony could not be made a holy site (e.g. the faith was already at its
 											# holy-site maximum). The temple itself still works fully.
 											text_single = {
 												name = "pantheon_temple_refused_line"

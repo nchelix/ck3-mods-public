@@ -8,9 +8,9 @@ pantheon_holy_seat = {
 
 pantheon_harvest = {
 	icon = pantheon_harvest
-	tax_mult = 1
+	all_tax_mult = 1
 	levy_size = 1
-	development_growth_factor = 1
+	prosperity_growth_factor = 1
 }
 
 pantheon_walls = {
@@ -64,22 +64,22 @@ pantheon_cursed = {
 # A Disaster: the kind follows the capital's terrain, and the effect is the same for all three.
 pantheon_disaster_flood = {
 	icon = pantheon_disaster_flood
-	development_growth_factor = -0.5
-	tax_mult = -0.5
+	prosperity_growth_factor = -0.5
+	all_tax_mult = -0.5
 	levy_size = -0.5
 }
 
 pantheon_disaster_quake = {
 	icon = pantheon_disaster_quake
-	development_growth_factor = -0.5
-	tax_mult = -0.5
+	prosperity_growth_factor = -0.5
+	all_tax_mult = -0.5
 	levy_size = -0.5
 }
 
 pantheon_disaster_famine = {
 	icon = pantheon_disaster_famine
-	development_growth_factor = -0.5
-	tax_mult = -0.5
+	prosperity_growth_factor = -0.5
+	all_tax_mult = -0.5
 	levy_size = -0.5
 }
 
@@ -114,26 +114,46 @@ pantheon_warded_person = {
 # recovery decision (batch B2) and carries no stats.
 # Supply (part 2, the user): the engine never goes below MINIMUM_SUPPLY_LIMIT (1000, vanilla 00_defines.txt), so -1 while Burning
 # is the floor, then the development's steps; vanilla's own disasters use the same modifier (10_tgp_natural_disasters_modifiers.txt).
-# Control: the strike drops it to 0 (pantheon_fire_ruin_land_effect); these keep its regrowth slow, on the development's steps.
+# Control: the strike drops it to 0 (pantheon_fire_ruin_land_effect). 2.13 (CK3 1.21 dropped the control growth factor): a
+# control baseline holds it low instead, on the same steps (spec section 4, starting values to tune in game).
 pantheon_fire_burning = {
 	icon = pantheon_fire_burning
-	development_growth_factor = -0.9
+	prosperity_growth_factor = -0.9
 	supply_limit_mult = -1
-	monthly_county_control_growth_factor = -0.9
+	control_baseline_add = -60
 }
 
 pantheon_fire_smouldering = {
 	icon = pantheon_fire_smouldering
-	development_growth_factor = -0.9
+	prosperity_growth_factor = -0.9
 	supply_limit_mult = -0.9
-	monthly_county_control_growth_factor = -0.9
+	control_baseline_add = -40
 }
 
 pantheon_fire_scarred = {
 	icon = pantheon_fire_scarred
-	development_growth_factor = -0.5
+	prosperity_growth_factor = -0.5
 	supply_limit_mult = -0.5
-	monthly_county_control_growth_factor = -0.5
+	control_baseline_add = -20
+}
+
+# 2.13 Task 5: the burned land, one province modifier per stage on each barony the strike burned (the province variable
+# pantheon_fire_burned), never on the faithful's protected baronies. Settlement Size is pinned at 0 while the land burns and
+# smoulders and held a level low while scarred; the stage paths swap it alongside the county modifier
+# (pantheon_fire_stage_modifier_effect), and heal and a re-strike take it away.
+pantheon_fire_burning_land = {
+	icon = pantheon_fire_burning
+	province_size_baseline_add = -1000
+}
+
+pantheon_fire_smouldering_land = {
+	icon = pantheon_fire_smouldering
+	province_size_baseline_add = -1000
+}
+
+pantheon_fire_scarred_land = {
+	icon = pantheon_fire_scarred
+	province_size_baseline_add = -100
 }
 
 pantheon_fire_restoring = {

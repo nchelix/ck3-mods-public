@@ -268,6 +268,11 @@ pantheon_lands_interaction = {
 # unlike Judgement/Lands, there is no greyed is_valid_showing_failures_only state, matching the window's own
 # note ("Right-click a ruler to choose where"), which only appears once the miracle is ready. Never offered
 # to the AI (is_ai = no and ai_will_do = 0, both proven forms above).
+# 2.13 repair A-r1 (#94): an interaction has no root, and its tooltip build evaluates on_accept's limits (hidden_effect
+# included) on every hover; running the miracle here read root (root.faith in the fear sweep, holder = root in the
+# strike) thousands of times and stalled the game. on_accept now only records the recipient on the god and fires the
+# hidden event pantheon_temple.0020 (events/pantheon_temple_events.txt) on the god, where root is the god -- the same
+# handoff as every other interaction here (Judgement pantheon.0106, Fire from Heaven pantheon_fire.0001).
 pantheon_wrath_of_heaven_interaction = {
 	category = interaction_category_hostile
 	icon = pantheon_wrath_of_heaven_interaction # 2.2: AutoSprite painting (user-approved), cropped to 100x100
@@ -286,9 +291,9 @@ pantheon_wrath_of_heaven_interaction = {
 	}
 	on_accept = {
 		hidden_effect = {
-			scope:recipient = { save_scope_as = pantheon_victim }
 			scope:actor = {
-				pantheon_miracle_wrath_effect = { CENTER = scope:recipient.capital_province }
+				set_variable = { name = pantheon_miracle_wrath_target value = scope:recipient }
+				trigger_event = pantheon_temple.0020
 			}
 		}
 	}
