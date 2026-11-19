@@ -270,7 +270,7 @@ individual_county_de_jure_cb = {
 
 	combine_into_one = yes
 	should_show_war_goal_subview = yes
-	mutually_exclusive_titles = { NOT = { scope:attacker = { uwc_shared_titles_trigger = yes } } }
+	mutually_exclusive_titles = { always = yes }
 
 	allowed_for_character = {
 		scope:attacker = {
@@ -553,7 +553,7 @@ individual_duchy_de_jure_cb = {
 
 	combine_into_one = yes
 	should_show_war_goal_subview = yes
-	mutually_exclusive_titles = { NOT = { scope:attacker = { uwc_shared_titles_trigger = yes } } }
+	mutually_exclusive_titles = { always = yes }
 
 	allowed_for_character = {
 		scope:attacker = {
@@ -848,7 +848,7 @@ imperial_reconquest_cb = {
 
 	combine_into_one = yes
 	should_show_war_goal_subview = yes
-	mutually_exclusive_titles = { NOT = { scope:attacker = { uwc_shared_titles_trigger = yes } } }
+	mutually_exclusive_titles = { always = yes }
 
 	allowed_for_character = {
 		scope:attacker = {
