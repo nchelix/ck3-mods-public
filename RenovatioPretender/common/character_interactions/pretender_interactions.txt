@@ -263,7 +263,7 @@ receive_patrimony_interaction = {
 					NOT = { this = scope:recipient.capital_county }
 				}
 				order_by = {
-					value = development_level
+					value = prosperity_level
 					multiply = -1
 				}
 				save_scope_as = patrimony

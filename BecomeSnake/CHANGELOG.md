@@ -1,5 +1,23 @@
 # Changelog — Become the Snake
 
+## [1.2.1] — 2026-11-19
+
+Compatibility update for **CK3 1.21** (including the 2026-11-18 and
+2026-11-19 hotfixes). No script, gameplay or portrait changes: all three
+looks are exactly as before.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every trait field, interaction field, trigger and effect against
+  1.21: all still valid, none renamed or removed.
+- Checked the portrait side: `gene_scaly`/`scaly`, the `eye_accessory`
+  templates `bloodshot_eyes` and `blind_eyes`, the eyebrow `no_eyebrows`
+  templates and the skin and eye colour genes are unchanged, and
+  `should_show_disturbing_portrait_modifiers` still works. The portrait
+  modifier files the hotfixes touched are clothing, hair and headgear only.
+- No file, trait, interaction, portrait modifier or localization key in the
+  mod collides with anything 1.21 added.
+
 ## [1.2] — 2026-09-22
 
 Adds a deeper tier and inheritance, and removes the gate that made the mod look

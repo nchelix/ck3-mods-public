@@ -1,4 +1,4 @@
-version="1.2"
+version="1.2.1"
 tags={
 	"Decisions"
 	"Character Interactions"
@@ -6,5 +6,5 @@ tags={
 	"Portraits"
 }
 name="Become the Snake"
-supported_version="1.20.*"
+supported_version="1.21.*"
 remote_file_id="2232605324"

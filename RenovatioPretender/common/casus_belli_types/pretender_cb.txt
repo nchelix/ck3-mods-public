@@ -62,7 +62,7 @@ pretender_uprising_cb = {
 			}
 			ordered_in_list = {
 				variable = pretender_uprising_counties
-				order_by = development_level
+				order_by = prosperity_level
 				save_scope_as = rally_county
 			}
 			every_in_list = {
@@ -107,7 +107,7 @@ pretender_uprising_cb = {
 		scope:attacker = {
 			ordered_in_list = {
 				variable = pretender_uprising_counties
-				order_by = development_level
+				order_by = prosperity_level
 				save_scope_as = new_capital
 			}
 			primary_title = { save_scope_as = old_title }
