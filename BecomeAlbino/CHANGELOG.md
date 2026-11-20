@@ -1,5 +1,46 @@
 # Changelog — Become Albino
 
+## [1.3] — 2026-11-19
+
+One menu entry instead of five, and the mod's own art.
+
+### Changed
+- **Albino Looks** replaces the five interactions (Make Albino, Found an Albino
+  Bloodline, Grant True Albinism, Make Their Children Albino, Remove Albino).
+  It opens one window with a radio choice (`send_options_exclusive = yes`):
+  - *Albino appearance*, *Albino bloodline*, *True albinism*: a look that the
+    character already has is greyed out. Picking another one **replaces** the
+    current look, so switching no longer needs a Remove first. The three stay
+    mutually exclusive.
+  - *Give their children the bloodline*: shown while a child has no look yet.
+    Same effect as 1.2's Make Their Children Albino.
+  - *Natural appearance*: shown while the character has a look. Same effect as
+    1.2's Remove Albino.
+  - *Albino appearance* is preselected for a character with no look. For one
+    who already has a look nothing is preselected, so Send cannot change it by
+    accident.
+  - Removals are guarded, so the Send tooltip lists only traits that are
+    actually lost.
+- Still players only (`is_ai = no`). The AI never used these interactions.
+
+### Art
+- New trait icons, painted with AutoSprite: a lock of white hair on the base
+  game's neutral physical frame, and the same lock with a blood drop for the
+  bloodline, the way vanilla's `pure_blooded` is a drop. The 1.2 icons were
+  pearl photos on opaque squares.
+- New interaction icon (a hand mirror) instead of the generic `icon_personal`.
+- New Workshop thumbnail: a painted white-haired queen (AutoSprite) with the
+  title and both trait icons, 512x512, replacing the 444x616 screenshot.
+- Sources are in `art/become_albino/`. `tools/build_become_albino_icons.py`
+  rebuilds the DDS files (120x120 BGRA8, no mipmaps, as vanilla's traits and icon_personal)
+  and the thumbnail.
+
+### Compatibility
+- Save-compatible: the traits are unchanged, so characters who already carry
+  a look keep it, and the bloodline keeps passing down.
+- Localization: the old interaction keys are gone; 15 new keys in all nine
+  languages (non-English files still carry English placeholders).
+
 ## [1.2.1] — 2026-11-19
 
 Compatibility update for **CK3 1.21** (including the 2026-11-18 and 2026-11-19
