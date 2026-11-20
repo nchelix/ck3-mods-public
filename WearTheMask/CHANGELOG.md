@@ -1,5 +1,22 @@
 # Changelog — Wear The Mask
 
+## [1.2.1] — 2026-11-19
+
+Compatibility update for **CK3 1.21** (including the 2026-11-18 and 2026-11-19
+hotfixes). No script, gameplay or portrait changes: all four masks look and
+work exactly as before.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every trait modifier and field, interaction field, effect and trigger
+  against 1.21: all still valid, none renamed or removed.
+- Checked the portrait side: the `face_mask` and `head_bandage` templates of
+  `special_headgear_face_mask`, the `no_beard` template and all 41 face morph
+  genes are unchanged in 1.21 and its hotfixes. 1.21 adds two carnival-mask
+  templates to the same gene, which do not affect this mod.
+- No file, trait, interaction or localization key in the mod collides with
+  anything 1.21 added.
+
 ## [1.2] — 2026-09-22
 
 Adds a fourth mask and puts the dread tiers to work.
