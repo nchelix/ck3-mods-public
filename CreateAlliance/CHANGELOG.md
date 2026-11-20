@@ -1,5 +1,23 @@
 # Changelog — Create Alliance
 
+## [1.2.1] — 2026-11-19
+
+Compatibility update for **CK3 1.21** (including both hotfixes, 2026-11-18 and
+2026-11-19). No script or gameplay changes: the four interactions do exactly
+what they did before.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every interaction field, effect, trigger and the vanilla loc function
+  the mod uses against 1.21 and the hotfixed install: all still valid, none
+  renamed or removed. `create_alliance`, `allow_alliance` and `break_alliance`
+  are documented exactly as in 1.20.
+- `perk_negotiated_alliance_opinion` is unchanged, and the game's
+  `is_alliance_valid` rule still counts it as a qualifying bond, so alliances
+  made with this mod (landed or not) stay valid.
+- No file, interaction key or loc key in the mod collides with anything 1.21
+  added. The hotfix change to the revoke title interaction does not touch it.
+
 ## [1.2] — 2026-09-22
 
 The first release that adds features rather than just keeping the mod running.
