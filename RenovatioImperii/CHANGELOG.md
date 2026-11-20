@@ -1,5 +1,23 @@
 # Changelog — Renovatio Imperii
 
+## [1.2.1] — 2026-11-19
+
+Compatibility update for **CK3 1.21** (including both 1.21.0 hotfixes). No
+script or gameplay changes.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every trigger, effect, scope, modifier, casus belli field, decision
+  field and the `on_birthday` hook against 1.21, plus the vanilla titles,
+  culture pillars, regions, character template, scripted lists and loc keys
+  the mod uses: all still valid, none renamed or removed. Every vanilla
+  scripted effect the casus belli calls still exists and takes the same
+  parameters. No file or key in the mod collides with anything 1.21 added.
+- Known difference: 1.21 refactored vanilla's `imperial_reconquest_cb`, which
+  `renovatio_cb` was copied from, to end wars through new wrapper effects that
+  also grant influence and add stress. `renovatio_cb` keeps the 1.20 outcome
+  effects, which all still work.
+
 ## [1.2] — 2026-09-28
 
 Art only. No script changes.
