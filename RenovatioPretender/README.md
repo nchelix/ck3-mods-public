@@ -24,7 +24,7 @@ old Roman borders region.
 
 A landless adventurer can commission a family tree. Over one to two years, choose
 an ancestor — Caesar, the people's general, or Augustus, the founder of order —
-and gather the "proof": a bribed archivist, forged charters, a staged relic.
+and gather the “proof”: a bribed archivist, forged charters, a staged relic.
 Each choice trades cost, time, and risk against **forgery quality**, a hidden
 score that protects the secret later.
 
