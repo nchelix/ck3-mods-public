@@ -1,5 +1,18 @@
 # Changelog — La Grande Armée
 
+## [1.0.2] — 2026-11-19
+
+Compatibility update for **CK3 1.21** (including the 2026-11-18 and 2026-11-19
+hotfixes). No script or gameplay changes: the doctrine and all five regiments
+are exactly as strong, and cost exactly as much, as before.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every men-at-arms field, unit type, counter, terrain and icon, the trait
+  modifiers, the five innovations, the interaction fields, triggers and effects
+  against 1.21: all still valid, none renamed or removed. No file or key in the
+  mod collides with anything 1.21 added.
+
 ## [1.0.1] — 2026-10-20
 
 A small fix to the men-at-arms cards.
