@@ -1,5 +1,40 @@
 # Changelog — Become the Snake
 
+## [1.3] — 2026-11-20
+
+New icons, and one popup instead of five menu entries.
+
+### Changed
+- The five interactions (Become A Snake, Become Fully A Snake, Found a Snake
+  Bloodline, Make Their Children Snakes, No More Snake) are now one
+  **Snake Looks** interaction. It opens a popup with a radio choice: Snake
+  appearance, Full serpent, Snake bloodline, Give their children the bloodline,
+  and Natural appearance.
+- Picking a look now replaces whichever look the character has, so going from
+  the scales to the full serpent (or to the bloodline) is one step instead of
+  No More Snake and then the new look.
+- The look a character already has is greyed out. When they have one, nothing
+  is preselected, so Send never changes a look by accident.
+
+### Art
+- New painted icons for all three traits, on the base game's neutral physical
+  trait frame: a slit-pupil eye (Is a Snake), a milk-eyed serpent head (Is Fully
+  a Snake) and the eye with a blood drop (Snake Bloodline). They replace the
+  recoloured cobra on a flat square.
+- The Snake Looks interaction has its own icon, a hand mirror with a snake in
+  the glass, instead of the generic one. It matches Become Albino's.
+- New Workshop thumbnail: a painted queen with scales across her face
+  (AutoSprite) with the title and all three trait icons, 512x512, replacing
+  the in-game screenshot. Matches Become Albino's.
+- Sources are in `art/become_snake/`. `tools/build_become_snake_icons.py`
+  rebuilds the DDS files (120x120 BGRA8, no mipmaps, as vanilla) and the
+  thumbnail.
+
+### Compatibility
+- Save-compatible: the three traits are unchanged, so characters who already
+  have a look keep it, and the bloodline keeps passing down.
+- The AI still never uses the interaction (it never used the old ones).
+
 ## [1.2.1] — 2026-11-19
 
 Compatibility update for **CK3 1.21** (including the 2026-11-18 and

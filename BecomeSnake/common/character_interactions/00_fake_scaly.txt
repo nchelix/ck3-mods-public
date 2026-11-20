@@ -1,122 +1,64 @@
-﻿# Become the Snake interactions.
-# The three looks are mutually exclusive; No More Snake clears whichever is present.
+﻿# Become the Snake interaction.
+#
+# 1.3: one "Snake Looks" entry with a radio choice, replacing the five separate
+# interactions of 1.2 (Become A Snake, Become Fully A Snake, Found a Snake
+# Bloodline, Make Their Children Snakes, No More Snake). The traits are
+# untouched, so characters who already carry a look keep it.
+#
+# The three looks stay mutually exclusive: picking one replaces whichever the
+# character has. The serpent is its own look, not an upgrade of the scales, so
+# it needs no precondition. Players only: the AI never used these and still
+# does not.
 
-become_scaly_interaction = {
+snake_looks_interaction = {
 	category = interaction_category_friendly
 	common_interaction = yes
 	interface_priority = 64
-	icon = icon_personal
+	icon = snake_looks_interaction
 
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 
-	desc = become_scaly_interaction_desc
+	desc = snake_looks_interaction_desc
 
 	is_shown = {
 		scope:actor = {
 			is_ai = no
 		}
-		scope:recipient = {
-			NOR = {
-				has_trait = fake_scaly
-				has_trait = fake_scaly_serpent
-				has_trait = fake_scaly_bloodline
+	}
+
+	# Nothing is preselected when the recipient already has a look, so Send
+	# cannot remove or replace one by accident.
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = snake_looks_choose_tt
+			OR = {
+				scope:snake_look_scaly ?= yes
+				scope:snake_look_serpent ?= yes
+				scope:snake_look_bloodline ?= yes
+				scope:snake_look_children ?= yes
+				scope:snake_look_remove ?= yes
 			}
 		}
 	}
 
-	on_accept = {
-		scope:recipient = {
-			add_trait = fake_scaly
-		}
-	}
+	options_heading = snake_looks_heading
+	send_options_exclusive = yes
 
-	auto_accept = yes
-}
-
-become_serpent_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 63
-	icon = icon_personal
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = become_serpent_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-		}
-		scope:recipient = {
-			NOR = {
-				has_trait = fake_scaly
-				has_trait = fake_scaly_serpent
-				has_trait = fake_scaly_bloodline
+	send_option = {
+		flag = snake_look_scaly
+		localization = snake_look_scaly
+		current_description = snake_look_scaly_desc
+		is_valid = {
+			custom_tooltip = {
+				text = snake_look_already_has_tt
+				scope:recipient = {
+					NOT = { has_trait = fake_scaly }
+				}
 			}
 		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = fake_scaly_serpent
-		}
-	}
-
-	auto_accept = yes
-}
-
-become_scaly_bloodline_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 62
-	icon = icon_personal
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = become_scaly_bloodline_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-		}
-		scope:recipient = {
-			NOR = {
-				has_trait = fake_scaly
-				has_trait = fake_scaly_serpent
-				has_trait = fake_scaly_bloodline
-			}
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = fake_scaly_bloodline
-		}
-	}
-
-	auto_accept = yes
-}
-
-scaly_children_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 61
-	icon = icon_personal
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = scaly_children_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-		}
-		scope:recipient = {
-			any_child = {
+		starts_enabled = {
+			scope:recipient = {
 				NOR = {
 					has_trait = fake_scaly
 					has_trait = fake_scaly_serpent
@@ -126,53 +68,140 @@ scaly_children_interaction = {
 		}
 	}
 
-	on_accept = {
-		scope:recipient = {
-			every_child = {
-				limit = {
+	send_option = {
+		flag = snake_look_serpent
+		localization = snake_look_serpent
+		current_description = snake_look_serpent_desc
+		is_valid = {
+			custom_tooltip = {
+				text = snake_look_already_has_tt
+				scope:recipient = {
+					NOT = { has_trait = fake_scaly_serpent }
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = snake_look_bloodline
+		localization = snake_look_bloodline
+		current_description = snake_look_bloodline_desc
+		is_valid = {
+			custom_tooltip = {
+				text = snake_look_already_has_tt
+				scope:recipient = {
+					NOT = { has_trait = fake_scaly_bloodline }
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = snake_look_children
+		localization = snake_look_children
+		current_description = snake_look_children_desc
+		is_shown = {
+			scope:recipient = {
+				any_child = {
 					NOR = {
 						has_trait = fake_scaly
 						has_trait = fake_scaly_serpent
 						has_trait = fake_scaly_bloodline
 					}
 				}
-				add_trait = fake_scaly_bloodline
 			}
 		}
 	}
 
-	auto_accept = yes
-}
-
-remove_scaly_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 60
-	icon = icon_personal
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = remove_scaly_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-		}
-		scope:recipient = {
-			OR = {
-				has_trait = fake_scaly
-				has_trait = fake_scaly_serpent
-				has_trait = fake_scaly_bloodline
+	send_option = {
+		flag = snake_look_remove
+		localization = snake_look_remove
+		current_description = snake_look_remove_desc
+		is_shown = {
+			scope:recipient = {
+				OR = {
+					has_trait = fake_scaly
+					has_trait = fake_scaly_serpent
+					has_trait = fake_scaly_bloodline
+				}
 			}
 		}
 	}
 
 	on_accept = {
-		scope:recipient = {
-			remove_trait = fake_scaly
-			remove_trait = fake_scaly_serpent
-			remove_trait = fake_scaly_bloodline
+		if = {
+			limit = { scope:snake_look_scaly ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = fake_scaly_serpent }
+					remove_trait = fake_scaly_serpent
+				}
+				if = {
+					limit = { has_trait = fake_scaly_bloodline }
+					remove_trait = fake_scaly_bloodline
+				}
+				add_trait = fake_scaly
+			}
+		}
+		else_if = {
+			limit = { scope:snake_look_serpent ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = fake_scaly }
+					remove_trait = fake_scaly
+				}
+				if = {
+					limit = { has_trait = fake_scaly_bloodline }
+					remove_trait = fake_scaly_bloodline
+				}
+				add_trait = fake_scaly_serpent
+			}
+		}
+		else_if = {
+			limit = { scope:snake_look_bloodline ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = fake_scaly }
+					remove_trait = fake_scaly
+				}
+				if = {
+					limit = { has_trait = fake_scaly_serpent }
+					remove_trait = fake_scaly_serpent
+				}
+				add_trait = fake_scaly_bloodline
+			}
+		}
+		else_if = {
+			limit = { scope:snake_look_children ?= yes }
+			scope:recipient = {
+				every_child = {
+					limit = {
+						NOR = {
+							has_trait = fake_scaly
+							has_trait = fake_scaly_serpent
+							has_trait = fake_scaly_bloodline
+						}
+					}
+					add_trait = fake_scaly_bloodline
+				}
+			}
+		}
+		else_if = {
+			limit = { scope:snake_look_remove ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = fake_scaly }
+					remove_trait = fake_scaly
+				}
+				if = {
+					limit = { has_trait = fake_scaly_serpent }
+					remove_trait = fake_scaly_serpent
+				}
+				if = {
+					limit = { has_trait = fake_scaly_bloodline }
+					remove_trait = fake_scaly_bloodline
+				}
+			}
 		}
 	}
 
