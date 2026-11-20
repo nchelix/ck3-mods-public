@@ -1,5 +1,14 @@
 # Changelog — Council Automation
 
+## [1.2.2] — 2026-11-19
+
+### Changed
+- Updated for the second CK3 1.21 hotfix (1.21.0.3). Regenerated from the patched game; only the
+  "Generated from CK3" version line changed. The hotfix's one change to an input file is in
+  `99_court_chaplain_values.txt`, and it is to Fabricate Claim's costs, not to
+  `court_chaplain_conversion_factors`, so no task, trigger or card changes. The local More Game Rules
+  patch is regenerated too (1.0.2), with the same header-only change.
+
 ## [1.2.1] — 2026-11-17
 
 ### Changed
