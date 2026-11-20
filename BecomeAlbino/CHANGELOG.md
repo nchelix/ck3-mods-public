@@ -1,5 +1,18 @@
 # Changelog — Become Albino
 
+## [1.2.1] — 2026-11-19
+
+Compatibility update for **CK3 1.21** (including the 2026-11-18 and 2026-11-19
+hotfixes). No script, gameplay or portrait changes.
+
+### Compatibility
+- `supported_version` raised from `1.20.*` to `1.21.*`.
+- Checked every effect, trigger, trait field and interaction field, the base
+  game's `albino` trait, and the five genes the portrait modifier edits
+  (`skin_color`, `hair_color`, `eye_color`, `gene_eyebrows_shape`,
+  `gene_eyebrows_fullness`) against 1.21: all unchanged. No file or key in the
+  mod collides with anything 1.21 added.
+
 ## [1.2] — 2026-09-22
 
 Adds inheritance and a route to the base game's own albino trait.
