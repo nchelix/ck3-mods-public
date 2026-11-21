@@ -1,5 +1,11 @@
 # Changelog — Warrior Trait
 
+## [1.4.1] — 2026-11-20
+
+### Fixed
+- Warrior's Battles Won track now has its icon in the trait tooltip. The mod
+  never shipped one, so the game logged a missing texture error.
+
 ## [1.4] — 2026-11-20
 
 New icons, and one popup instead of four menu entries.

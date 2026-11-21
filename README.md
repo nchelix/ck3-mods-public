@@ -13,7 +13,7 @@ Each mod's page explains what it does and how to use it; the [Releases](https://
 | [La Grande Armee](GrandeArmee/) | 1.0.2 | Napoleon arrives in 867. Everyone else is about nine hundred years behind. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806598359) |
 | [Renovatio Imperii](RenovatioImperii/) | 1.2.1 | Rome fell centuries ago, but its inheritance never found an owner. Vanilla makes that inheritance a trophy: you cannot even see the decision to restore the… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3806764786) |
 | [Renovatio: Pretender](RenovatioPretender/) | 1.1 | Rome fell centuries ago, but its name still moves armies. Renovatio Imperii gives that name to landed kings. This mod gives the road before the crown: a… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3809982416) |
-| [Warrior Trait](WarriorTrait/) | 1.4 | Some rulers are good in a fight. These two cannot lose one. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2250932791) |
+| [Warrior Trait](WarriorTrait/) | 1.4.1 | Some rulers are good in a fight. These two cannot lose one. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2250932791) |
 | [OP Troops](TheImmortalArmy/) | 1.3.2 | Five hundred soldiers who do not lose. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231435851) |
 | [Wear the Mask](WearTheMask/) | 1.3 | Nobody cared who I was before I put on the mask. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2231939373) |
 | [Become Albino](BecomeAlbino/) | 1.3 | Turn anyone in the world albino, and decide how far it goes. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232333172) |
