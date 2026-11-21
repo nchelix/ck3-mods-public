@@ -1,5 +1,42 @@
 # Changelog — Warrior Trait
 
+## [1.4] — 2026-11-20
+
+New icons, and one popup instead of four menu entries.
+
+### Changed
+- The four interactions (Become A Warrior, Remove Warrior, Become A God
+  Warrior, Remove God Warrior) are now one **Warrior** interaction. It opens a
+  popup with a radio choice: Become a Warrior, Become a God Warrior, and Stop
+  being a Warrior or Stop being a God Warrior (only the one that applies).
+- Picking a trait now replaces the other one, so going from Warrior to God
+  Warrior (or back) is one step instead of Remove and then Become. When it
+  would wipe Warrior's Battles Won progress, the option's tooltip says so.
+- God Warrior still does not need Warrior first, and the two traits stay
+  mutually exclusive.
+- When the character already has a trait, nothing is preselected, so Send
+  never changes a trait by accident.
+
+### Art
+- New painted icons for both traits, on the base game's green physical trait
+  frame (the one Strong uses): a dented steel great helm (Warrior) and the same
+  helm gilded and crowned with laurel (God Warrior). They replace the flat
+  cartoon swords.
+- The Warrior interaction has its own icon, two crossed swords behind a
+  buckler, instead of the generic combat one.
+- New Workshop thumbnail: a painted battle-worn knight (AutoSprite) with the
+  title and both trait icons, 512x512, replacing the old tooltip screenshot.
+  Laid out as Become Albino's and Become the Snake's.
+- Sources are in `art/warrior_trait/`. `tools/build_warrior_trait_icons.py`
+  rebuilds the DDS files (120x120 BGRA8, no mipmaps, as vanilla) and the
+  thumbnail.
+
+### Compatibility
+- Save-compatible: both traits are unchanged, so characters who already have
+  one keep it, and Warrior keeps its Battles Won progress. The battle hook is
+  unchanged: five progress per battle won in person.
+- The AI still never uses the interaction (it never used the old ones).
+
 ## [1.3.1] — 2026-11-18
 
 Compatibility update for **CK3 1.21** (including the 2026-11-18 hotfix). No

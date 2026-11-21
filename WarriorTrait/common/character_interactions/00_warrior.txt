@@ -1,123 +1,159 @@
-﻿# Warrior Trait interactions.
-# The two traits are mutually exclusive: a character is either earning their
-# reputation or has been handed it outright.
+﻿# Warrior Trait interaction.
+#
+# 1.4: one "Warrior" entry with a radio choice, replacing the four separate
+# interactions of 1.3 (Become A Warrior, Remove Warrior, Become A God Warrior,
+# Remove God Warrior). The traits are untouched, so characters who already
+# have one keep it, and Warrior keeps its Battles Won progress.
+#
+# The two traits stay mutually exclusive: a character is either earning their
+# reputation or has been handed it outright. Picking one replaces the other.
+# God Warrior does not need Warrior first, as before. Players only: the AI
+# never used these and still does not.
 
-become_warrior_interaction = {
+warrior_interaction = {
 	category = interaction_category_friendly
 	common_interaction = yes
 	interface_priority = 62
-	icon = icon_combat
+	icon = warrior_interaction
 
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 
-	desc = become_warrior_interaction_desc
+	desc = warrior_interaction_desc
 
 	is_shown = {
 		scope:actor = {
 			is_ai = no
 		}
-		scope:recipient = {
-			NOR = {
+	}
+
+	# Nothing is preselected when the recipient already has a trait, so Send
+	# cannot remove or replace one by accident.
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = warrior_choose_tt
+			OR = {
+				scope:warrior_choice_warrior ?= yes
+				scope:warrior_choice_god ?= yes
+				scope:warrior_choice_remove_warrior ?= yes
+				scope:warrior_choice_remove_god ?= yes
+			}
+		}
+	}
+
+	options_heading = warrior_heading
+	send_options_exclusive = yes
+
+	send_option = {
+		flag = warrior_choice_warrior
+		localization = warrior_choice_warrior
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						scope:recipient = { has_trait = god_warrior }
+					}
+					desc = warrior_choice_warrior_replaces_desc
+				}
+				desc = warrior_choice_warrior_desc
+			}
+		}
+		is_shown = {
+			scope:recipient = {
+				NOT = { has_trait = warrior }
+			}
+		}
+		starts_enabled = {
+			scope:recipient = {
+				NOR = {
+					has_trait = warrior
+					has_trait = god_warrior
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = warrior_choice_god
+		localization = warrior_choice_god
+		current_description = {
+			first_valid = {
+				triggered_desc = {
+					trigger = {
+						scope:recipient = { has_trait = warrior }
+					}
+					desc = warrior_choice_god_replaces_desc
+				}
+				desc = warrior_choice_god_desc
+			}
+		}
+		is_shown = {
+			scope:recipient = {
+				NOT = { has_trait = god_warrior }
+			}
+		}
+	}
+
+	send_option = {
+		flag = warrior_choice_remove_warrior
+		localization = warrior_choice_remove_warrior
+		current_description = warrior_choice_remove_warrior_desc
+		is_shown = {
+			scope:recipient = {
 				has_trait = warrior
+			}
+		}
+	}
+
+	send_option = {
+		flag = warrior_choice_remove_god
+		localization = warrior_choice_remove_god
+		current_description = warrior_choice_remove_god_desc
+		is_shown = {
+			scope:recipient = {
 				has_trait = god_warrior
 			}
 		}
 	}
 
 	on_accept = {
-		scope:recipient = {
-			add_trait = warrior
-		}
-	}
-
-	auto_accept = yes
-}
-
-remove_warrior_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 61
-	icon = icon_combat
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = remove_warrior_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-		}
-		scope:recipient = {
-			has_trait = warrior
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			remove_trait = warrior
-		}
-	}
-
-	auto_accept = yes
-}
-
-become_god_warrior_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 60
-	icon = icon_combat
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = become_god_warrior_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-		}
-		scope:recipient = {
-			NOR = {
-				has_trait = warrior
-				has_trait = god_warrior
+		if = {
+			limit = { scope:warrior_choice_warrior ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = god_warrior }
+					remove_trait = god_warrior
+				}
+				add_trait = warrior
 			}
 		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = god_warrior
+		else_if = {
+			limit = { scope:warrior_choice_god ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = warrior }
+					remove_trait = warrior
+				}
+				add_trait = god_warrior
+			}
 		}
-	}
-
-	auto_accept = yes
-}
-
-remove_god_warrior_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 59
-	icon = icon_combat
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = remove_god_warrior_interaction_desc
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
+		else_if = {
+			limit = { scope:warrior_choice_remove_warrior ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = warrior }
+					remove_trait = warrior
+				}
+			}
 		}
-		scope:recipient = {
-			has_trait = god_warrior
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			remove_trait = god_warrior
+		else_if = {
+			limit = { scope:warrior_choice_remove_god ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = god_warrior }
+					remove_trait = god_warrior
+				}
+			}
 		}
 	}
 
