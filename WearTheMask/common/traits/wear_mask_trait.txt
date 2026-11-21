@@ -1,4 +1,4 @@
-﻿# Trigger Mask
+﻿# Wear the Mask
 #
 # Four masks. The first two are pure disguise and differ only in appearance.
 # The last two convert fear into something useful -- dread is worth far more in

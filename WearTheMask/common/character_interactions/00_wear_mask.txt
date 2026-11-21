@@ -1,216 +1,233 @@
-﻿# Trigger Mask interactions.
-# The mask options only appear while the menu is open, so a right-click on a
-# character is not permanently cluttered with them.
+﻿# Wear the Mask interaction.
+#
+# 1.3: one "Masks" entry with a radio choice, replacing the seven entries of
+# 1.2 (Open Mask Menu, Close Mask Menu, the four masks and Remove the Mask).
+# The traits are untouched, so characters who already wear a mask keep it.
+#
+# The four masks stay mutually exclusive: picking one replaces whichever mask
+# the character wears. Players only: the AI never used these and still does
+# not.
 
-nc_open_mask_menu = {
+masks_interaction = {
 	category = interaction_category_friendly
+	common_interaction = yes
 	interface_priority = 70
-	icon = icon_personal
-	desc = open_mask_menu_desc
-	common_interaction = yes
+	icon = masks_interaction
 
-	auto_accept = yes
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
+
+	desc = masks_interaction_desc
 
 	is_shown = {
 		scope:actor = {
 			is_ai = no
-			NOT = {
-				has_character_flag = open_mask_menu
-			}
 		}
 	}
 
-	on_send = {
-		scope:actor = {
-			add_character_flag = open_mask_menu
-		}
-	}
-}
-
-nc_close_mask_menu = {
-	category = interaction_category_friendly
-	interface_priority = 69
-	icon = icon_personal
-	desc = close_mask_menu_desc
-	common_interaction = yes
-
-	auto_accept = yes
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	is_shown = {
-		scope:actor = {
-			is_ai = no
-			has_character_flag = open_mask_menu
-		}
-	}
-
-	on_send = {
-		scope:actor = {
-			remove_character_flag = open_mask_menu
-		}
-	}
-}
-
-wear_mask_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 68
-	icon = secret
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = wear_mask_interaction_desc
-
-	is_shown = {
-		scope:actor = { has_character_flag = open_mask_menu }
-		scope:recipient = {
-			NOR = {
-				has_trait = wearing_mask
-				has_trait = wearing_bandaged_face
-				has_trait = wearing_dread_mask
-				has_trait = wearing_very_dread_mask
-			}
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = wearing_mask
-		}
-	}
-
-	auto_accept = yes
-}
-
-wear_bandaged_face_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 67
-	icon = secret
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = wear_bandaged_face_interaction_desc
-
-	is_shown = {
-		scope:actor = { has_character_flag = open_mask_menu }
-		scope:recipient = {
-			NOR = {
-				has_trait = wearing_mask
-				has_trait = wearing_bandaged_face
-				has_trait = wearing_dread_mask
-				has_trait = wearing_very_dread_mask
-			}
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = wearing_bandaged_face
-		}
-	}
-
-	auto_accept = yes
-}
-
-wear_dread_mask_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 66
-	icon = secret
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = wear_dread_mask_interaction_desc
-
-	is_shown = {
-		scope:actor = { has_character_flag = open_mask_menu }
-		scope:recipient = {
-			NOR = {
-				has_trait = wearing_mask
-				has_trait = wearing_bandaged_face
-				has_trait = wearing_dread_mask
-				has_trait = wearing_very_dread_mask
-			}
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = wearing_dread_mask
-		}
-	}
-
-	auto_accept = yes
-}
-
-wear_very_dread_mask_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 65
-	icon = secret
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = wear_very_dread_mask_interaction_desc
-
-	is_shown = {
-		scope:actor = { has_character_flag = open_mask_menu }
-		scope:recipient = {
-			NOR = {
-				has_trait = wearing_mask
-				has_trait = wearing_bandaged_face
-				has_trait = wearing_dread_mask
-				has_trait = wearing_very_dread_mask
-			}
-		}
-	}
-
-	on_accept = {
-		scope:recipient = {
-			add_trait = wearing_very_dread_mask
-		}
-	}
-
-	auto_accept = yes
-}
-
-remove_mask_interaction = {
-	category = interaction_category_friendly
-	common_interaction = yes
-	interface_priority = 64
-	icon = secret
-
-	use_diplomatic_range = no
-	ignores_pending_interaction_block = yes
-
-	desc = remove_mask_interaction_desc
-
-	is_shown = {
-		scope:actor = { has_character_flag = open_mask_menu }
-		scope:recipient = {
+	# Nothing is preselected when the recipient already wears a mask, so Send
+	# cannot swap or remove one by accident.
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = masks_choose_tt
 			OR = {
-				has_trait = wearing_mask
-				has_trait = wearing_bandaged_face
-				has_trait = wearing_dread_mask
-				has_trait = wearing_very_dread_mask
+				scope:mask_choice_plain ?= yes
+				scope:mask_choice_bandaged ?= yes
+				scope:mask_choice_dread ?= yes
+				scope:mask_choice_very_dread ?= yes
+				scope:mask_choice_remove ?= yes
+			}
+		}
+	}
+
+	options_heading = masks_heading
+	send_options_exclusive = yes
+
+	send_option = {
+		flag = mask_choice_plain
+		localization = mask_choice_plain
+		current_description = mask_choice_plain_desc
+		is_valid = {
+			custom_tooltip = {
+				text = mask_already_worn_tt
+				scope:recipient = {
+					NOT = { has_trait = wearing_mask }
+				}
+			}
+		}
+		starts_enabled = {
+			scope:recipient = {
+				NOR = {
+					has_trait = wearing_mask
+					has_trait = wearing_bandaged_face
+					has_trait = wearing_dread_mask
+					has_trait = wearing_very_dread_mask
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = mask_choice_bandaged
+		localization = mask_choice_bandaged
+		current_description = mask_choice_bandaged_desc
+		is_valid = {
+			custom_tooltip = {
+				text = mask_already_worn_tt
+				scope:recipient = {
+					NOT = { has_trait = wearing_bandaged_face }
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = mask_choice_dread
+		localization = mask_choice_dread
+		current_description = mask_choice_dread_desc
+		is_valid = {
+			custom_tooltip = {
+				text = mask_already_worn_tt
+				scope:recipient = {
+					NOT = { has_trait = wearing_dread_mask }
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = mask_choice_very_dread
+		localization = mask_choice_very_dread
+		current_description = mask_choice_very_dread_desc
+		is_valid = {
+			custom_tooltip = {
+				text = mask_already_worn_tt
+				scope:recipient = {
+					NOT = { has_trait = wearing_very_dread_mask }
+				}
+			}
+		}
+	}
+
+	send_option = {
+		flag = mask_choice_remove
+		localization = mask_choice_remove
+		current_description = mask_choice_remove_desc
+		is_shown = {
+			scope:recipient = {
+				OR = {
+					has_trait = wearing_mask
+					has_trait = wearing_bandaged_face
+					has_trait = wearing_dread_mask
+					has_trait = wearing_very_dread_mask
+				}
 			}
 		}
 	}
 
 	on_accept = {
-		scope:recipient = {
-			remove_trait = wearing_mask
-			remove_trait = wearing_bandaged_face
-			remove_trait = wearing_dread_mask
-			remove_trait = wearing_very_dread_mask
+		# 1.2 kept the mask entries behind this flag. Nothing reads it any more;
+		# clear it so old saves do not carry it forever. The add is deliberate: the
+		# game logs an error at load for a flag that is used but never set anywhere
+		# in script, and adding it first also makes the removal safe without a guard.
+		scope:actor = {
+			hidden_effect = {
+				add_character_flag = open_mask_menu
+				remove_character_flag = open_mask_menu
+			}
+		}
+		if = {
+			limit = { scope:mask_choice_plain ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = wearing_bandaged_face }
+					remove_trait = wearing_bandaged_face
+				}
+				if = {
+					limit = { has_trait = wearing_dread_mask }
+					remove_trait = wearing_dread_mask
+				}
+				if = {
+					limit = { has_trait = wearing_very_dread_mask }
+					remove_trait = wearing_very_dread_mask
+				}
+				add_trait = wearing_mask
+			}
+		}
+		else_if = {
+			limit = { scope:mask_choice_bandaged ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = wearing_mask }
+					remove_trait = wearing_mask
+				}
+				if = {
+					limit = { has_trait = wearing_dread_mask }
+					remove_trait = wearing_dread_mask
+				}
+				if = {
+					limit = { has_trait = wearing_very_dread_mask }
+					remove_trait = wearing_very_dread_mask
+				}
+				add_trait = wearing_bandaged_face
+			}
+		}
+		else_if = {
+			limit = { scope:mask_choice_dread ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = wearing_mask }
+					remove_trait = wearing_mask
+				}
+				if = {
+					limit = { has_trait = wearing_bandaged_face }
+					remove_trait = wearing_bandaged_face
+				}
+				if = {
+					limit = { has_trait = wearing_very_dread_mask }
+					remove_trait = wearing_very_dread_mask
+				}
+				add_trait = wearing_dread_mask
+			}
+		}
+		else_if = {
+			limit = { scope:mask_choice_very_dread ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = wearing_mask }
+					remove_trait = wearing_mask
+				}
+				if = {
+					limit = { has_trait = wearing_bandaged_face }
+					remove_trait = wearing_bandaged_face
+				}
+				if = {
+					limit = { has_trait = wearing_dread_mask }
+					remove_trait = wearing_dread_mask
+				}
+				add_trait = wearing_very_dread_mask
+			}
+		}
+		else_if = {
+			limit = { scope:mask_choice_remove ?= yes }
+			scope:recipient = {
+				if = {
+					limit = { has_trait = wearing_mask }
+					remove_trait = wearing_mask
+				}
+				if = {
+					limit = { has_trait = wearing_bandaged_face }
+					remove_trait = wearing_bandaged_face
+				}
+				if = {
+					limit = { has_trait = wearing_dread_mask }
+					remove_trait = wearing_dread_mask
+				}
+				if = {
+					limit = { has_trait = wearing_very_dread_mask }
+					remove_trait = wearing_very_dread_mask
+				}
+			}
 		}
 	}
 

@@ -1,4 +1,48 @@
-# Changelog — Wear The Mask
+# Changelog — Wear the Mask
+
+Called **Trigger Mask** before 1.3.
+
+## [1.3] — 2026-11-20
+
+Renamed to **Wear the Mask**, new icons, and one popup instead of seven menu
+entries.
+
+### Changed
+- The mod is now called **Wear the Mask** (formerly Trigger Mask) in the
+  launcher and on the Workshop.
+- Open Mask Menu, Close Mask Menu, the four mask entries and Remove the Mask
+  are now one **Masks** interaction. It opens a popup with a radio choice:
+  The Mask, Bandaged face, The Dread Mask, The Mask of Extreme Dread, and
+  Remove the mask (shown only while a mask is on).
+- Picking a mask now replaces whichever mask the character wears, so going
+  from the plain mask to a dread mask is one step instead of Remove the Mask
+  and then the new one.
+- The mask a character already wears is greyed out. When they wear one,
+  nothing is preselected, so Send never swaps or removes a mask by accident.
+- Each old entry's text lives on as its option's tooltip.
+- The `Decisions` tag is gone from the descriptor; the mod has had no
+  decisions since 1.2.
+
+### Art
+- New painted icons for all four traits, on the base game's neutral physical
+  trait frame, as one family: an engraved silver mask, a linen-wrapped head, a
+  blackened iron mask, and the iron mask snarling with a red glow in the eyes.
+  They replace one photo of a mask tinted four ways.
+- The Masks interaction has its own icon, a hand mirror with the mask in the
+  glass, instead of the generic one. It matches Become Albino's and Become
+  the Snake's.
+- New Workshop thumbnail: a painted crowned king in a silver mask (AutoSprite)
+  with the title and all four trait icons, 512x512.
+- Sources are in `art/wear_the_mask/`. `tools/build_wear_the_mask_icons.py`
+  rebuilds the DDS files (120x120 BGRA8, no mipmaps, as vanilla) and the
+  thumbnail.
+
+### Compatibility
+- Save-compatible: the four traits and the portrait file are unchanged, so
+  masked characters stay masked.
+- The 1.2 menu flag (`open_mask_menu`) is no longer read. Using the popup
+  clears it from your character.
+- The AI still never uses the interaction (it never used the old ones).
 
 ## [1.2.1] — 2026-11-19
 
