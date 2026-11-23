@@ -9,12 +9,16 @@
 # which the game's own is_alliance_valid rule counts as a qualifying bond -- and
 # that rule has no landed or ruler requirement, which is why allying an unlanded
 # adventurer works and persists.
+#
+# 1.3: Isolate and Remove only act on alliances that a pact alone holds together
+# (create_alliance_rests_on_pact_only_trigger). Anything else is held by a bond
+# the game re-checks, so the click would do nothing or damage that bond.
 
 create_alliance_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
 	interface_priority = 60
-	icon = alliance
+	icon = create_alliance_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 
@@ -26,6 +30,18 @@ create_alliance_interaction = {
 			NOR = {
 				is_allied_to = scope:recipient
 				this = scope:recipient
+			}
+		}
+	}
+
+	# is_alliance_valid opens with NOT has_title = title:h_china on the first
+	# character of the alliance, and this interaction makes the player that
+	# character, so the game would dissolve the alliance straight away.
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = create_alliance_hegemon_tt
+			scope:actor = {
+				NOT = { has_title = title:h_china }
 			}
 		}
 	}
@@ -57,7 +73,7 @@ inherit_alliances_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
 	interface_priority = 59
-	icon = alliance
+	icon = inherit_alliances_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 
@@ -74,6 +90,16 @@ inherit_alliances_interaction = {
 					this = scope:actor
 					is_allied_to = scope:actor
 				}
+			}
+		}
+	}
+
+	# The same h_china rule as Create Alliance: the player is the alliance's first character.
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = create_alliance_hegemon_tt
+			scope:actor = {
+				NOT = { has_title = title:h_china }
 			}
 		}
 	}
@@ -112,7 +138,7 @@ isolate_character_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
 	interface_priority = 58
-	icon = icon_remove_from_bloc
+	icon = isolate_character_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 
@@ -127,9 +153,26 @@ isolate_character_interaction = {
 		}
 	}
 
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = isolate_no_pact_ally_tt
+			scope:recipient = {
+				any_ally = {
+					create_alliance_rests_on_pact_only_trigger = { OTHER = scope:recipient }
+				}
+			}
+		}
+	}
+
 	on_accept = {
 		scope:recipient = {
 			every_ally = {
+				# break_alliance runs vanilla's on_alliance_broken, which also clears the
+				# pact opinion both ways, ends a blood brotherhood and cancels a betrothal
+				# behind the alliance. The limit keeps it away from those.
+				limit = {
+					create_alliance_rests_on_pact_only_trigger = { OTHER = scope:recipient }
+				}
 				break_alliance = scope:recipient
 			}
 		}
@@ -143,7 +186,7 @@ break_alliance_interaction = {
 	category = interaction_category_diplomacy
 	common_interaction = yes
 	interface_priority = 57
-	icon = alliance
+	icon = break_alliance_interaction
 	use_diplomatic_range = no
 	ignores_pending_interaction_block = yes
 
@@ -158,15 +201,23 @@ break_alliance_interaction = {
 		}
 	}
 
-	on_accept = {
-		scope:actor = {
-			allow_alliance = scope:recipient
-		}
-		scope:recipient = {
-			remove_opinion = {
-				modifier = perk_negotiated_alliance_opinion
-				target = scope:actor
+	is_valid_showing_failures_only = {
+		custom_tooltip = {
+			text = break_alliance_bound_tt
+			scope:recipient = {
+				create_alliance_rests_on_pact_only_trigger = { OTHER = scope:actor }
 			}
+		}
+	}
+
+	on_accept = {
+		# Either side may have made the pact, so clear it both ways. With no bond
+		# left, is_alliance_valid fails and the game ends the alliance the next day.
+		scope:recipient = {
+			try_remove_perk_alliance_opinion_effect = { TARGET = scope:actor }
+		}
+		scope:actor = {
+			try_remove_perk_alliance_opinion_effect = { TARGET = scope:recipient }
 		}
 	}
 

@@ -6,6 +6,9 @@
  inherit_alliances_interaction:0 "Inherit Their Alliances" # TODO translate
  inherit_alliances_interaction_desc:0 "Every ally of [recipient.GetShortUINameNoTooltip] will become your ally as well." # TODO translate
  isolate_character_interaction:0 "Isolate Them" # TODO translate
- isolate_character_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will lose every alliance they have, and stand alone." # TODO translate
+ isolate_character_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] will lose every alliance made by pact. Alliances held by marriage, betrothal, family or a sworn bond stay." # TODO translate
  break_alliance_interaction:0 "Bündnis brechen"
  break_alliance_interaction_desc:0 "[recipient.GetShortUINameNoTooltip|U] wird nicht weiter dein Alliierter sein"
+ create_alliance_hegemon_tt:0 "The Hegemon of China cannot hold alliances made this way: the game would end them at once." # TODO translate
+ isolate_no_pact_ally_tt:0 "They have no alliance that can be broken. Marriage, betrothal, family and sworn alliances hold." # TODO translate
+ break_alliance_bound_tt:0 "This alliance is held by marriage, betrothal, family or a sworn bond, so it cannot be removed." # TODO translate

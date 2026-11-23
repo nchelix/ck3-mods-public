@@ -1,5 +1,34 @@
 # Changelog — Create Alliance
 
+## [1.3] — 2026-11-23
+
+New icons and thumbnail, and Isolate Them and Remove Alliance now do what they
+say. Saves are safe: the four interactions keep their keys and no flag was added
+or retired.
+
+### Fixed
+- **Remove Alliance could silently do nothing.** It only cleared the pact opinion
+  held by the other character. A pact they had made with you stayed, and so did
+  any alliance held by marriage or family. It now clears the pact both ways, and
+  greys out with a reason when something else holds the alliance. It no longer
+  calls `allow_alliance`, which only applies to an alliance already broken.
+- **Isolate Them could do nothing or cost you a bond.** A marriage alliance
+  survived it, and vanilla's `on_alliance_broken` also ends blood brotherhoods
+  and cancels betrothals behind an alliance. It now breaks pact alliances only,
+  and greys out with a reason when the character has none.
+- **The Hegemon of China** could click Create Alliance and Inherit Their
+  Alliances, but `is_alliance_valid` refuses that title on the alliance's first
+  character, so the game ended the alliance. Both now grey out with a reason.
+
+### Changed
+- Four painted interaction icons (AutoSprite): a clasped gauntlet and hand, a
+  treaty with three seals, a king inside a broken chain, and a torn treaty.
+- New painted Workshop thumbnail, 512x512.
+- New `create_alliance_rests_on_pact_only_trigger` decides what can be ended. It
+  covers every bond in vanilla's rule, plus marriages and betrothals between
+  relatives through the engine's own `yields_alliance`.
+- The new text is in English in the eight other languages, marked as before.
+
 ## [1.2.1] — 2026-11-19
 
 Compatibility update for **CK3 1.21** (including both hotfixes, 2026-11-18 and

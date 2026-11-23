@@ -1,0 +1,128 @@
+﻿# Create Alliance 1.3: can this alliance actually be ended?
+#
+# The game keeps an alliance while is_alliance_valid holds for one of its reason
+# pairs (game/common/scripted_rules/00_rules.txt). Script cannot read those pairs,
+# so this works it out from both ends:
+#   1. a pact exists: perk_negotiated_alliance_opinion, held by either side;
+#   2. no other bond the rule accepts links the two characters directly;
+#   3. no marriage or betrothal between their relatives yields the alliance
+#      (the engine's own yields_alliance, as vanilla's broken-betrothal effect uses it).
+#
+# Evaluated in one participant's scope, with the other passed as OTHER. OTHER must
+# be a saved scope such as scope:actor, never this or prev: parameters are pasted
+# in as text and would change meaning inside the blocks below.
+create_alliance_rests_on_pact_only_trigger = {
+	save_temporary_scope_as = create_alliance_pact_self
+	$OTHER$ = { save_temporary_scope_as = create_alliance_pact_other }
+	OR = {
+		has_opinion_modifier = {
+			modifier = perk_negotiated_alliance_opinion
+			target = scope:create_alliance_pact_other
+		}
+		scope:create_alliance_pact_other = {
+			has_opinion_modifier = {
+				modifier = perk_negotiated_alliance_opinion
+				target = scope:create_alliance_pact_self
+			}
+		}
+	}
+	NOR = {
+		is_spouse_of = scope:create_alliance_pact_other
+		betrothed ?= scope:create_alliance_pact_other
+		is_parent_of = scope:create_alliance_pact_other
+		is_child_of = scope:create_alliance_pact_other
+		is_sibling_of = scope:create_alliance_pact_other
+		is_grandparent_of = scope:create_alliance_pact_other
+		is_great_grandparent_of = scope:create_alliance_pact_other
+		is_grandchild_of = scope:create_alliance_pact_other
+		is_great_grandchild_of = scope:create_alliance_pact_other
+		is_uncle_or_aunt_of = scope:create_alliance_pact_other
+		is_nibling_of = scope:create_alliance_pact_other
+		has_relation_blood_brother = scope:create_alliance_pact_other
+		has_opinion_modifier = {
+			modifier = event_negotiated_alliance_opinion
+			target = scope:create_alliance_pact_other
+		}
+		scope:create_alliance_pact_other = {
+			has_opinion_modifier = {
+				modifier = event_negotiated_alliance_opinion
+				target = scope:create_alliance_pact_self
+			}
+		}
+		# The childhood hostage oath of friendship.
+		AND = {
+			has_relation_friend = scope:create_alliance_pact_other
+			OR = {
+				any_memory = {
+					memory_type = hostage_oath_of_friendship
+					has_memory_participant = scope:create_alliance_pact_other
+				}
+				scope:create_alliance_pact_other = {
+					any_memory = {
+						memory_type = hostage_oath_of_friendship
+						has_memory_participant = scope:create_alliance_pact_self
+					}
+				}
+			}
+		}
+		has_character_flag = fp3_is_a_loyalist_puppet
+		scope:create_alliance_pact_other = { has_character_flag = fp3_is_a_loyalist_puppet }
+		# A marriage or betrothal between the two families, searched from both sides:
+		# the game counts relatives up to a combined distance of 4
+		# (MAX_ALLIANCE_FAMILY_DISTANCE_SUM), so a far relative on one side is often
+		# only one step from the other character.
+		create_alliance_family_match_trigger = {
+			ARRANGER = scope:create_alliance_pact_self
+			TARGET = scope:create_alliance_pact_other
+		}
+		scope:create_alliance_pact_other = {
+			create_alliance_family_match_trigger = {
+				ARRANGER = scope:create_alliance_pact_other
+				TARGET = scope:create_alliance_pact_self
+			}
+		}
+	}
+}
+
+# Scope: ARRANGER. Does a marriage or betrothal of ARRANGER or a relative give
+# ARRANGER an alliance with TARGET? any_close_or_extended_family_member does not
+# include grandchildren or great-grandchildren, so they are searched separately.
+create_alliance_family_match_trigger = {
+	OR = {
+		create_alliance_match_yields_alliance_trigger = { ARRANGER = $ARRANGER$ TARGET = $TARGET$ }
+		any_close_or_extended_family_member = {
+			create_alliance_match_yields_alliance_trigger = { ARRANGER = $ARRANGER$ TARGET = $TARGET$ }
+		}
+		any_grandchild = {
+			create_alliance_match_yields_alliance_trigger = { ARRANGER = $ARRANGER$ TARGET = $TARGET$ }
+		}
+		any_great_grandchild = {
+			create_alliance_match_yields_alliance_trigger = { ARRANGER = $ARRANGER$ TARGET = $TARGET$ }
+		}
+	}
+}
+
+# Scope: a candidate from ARRANGER's side.
+create_alliance_match_yields_alliance_trigger = {
+	save_temporary_scope_as = create_alliance_pact_candidate
+	OR = {
+		any_spouse = {
+			create_alliance_partner_yields_alliance_trigger = { ARRANGER = $ARRANGER$ TARGET = $TARGET$ }
+		}
+		betrothed ?= {
+			create_alliance_partner_yields_alliance_trigger = { ARRANGER = $ARRANGER$ TARGET = $TARGET$ }
+		}
+	}
+}
+
+# Scope: the candidate's spouse or betrothed.
+create_alliance_partner_yields_alliance_trigger = {
+	save_temporary_scope_as = create_alliance_pact_partner
+	$ARRANGER$ = {
+		yields_alliance = {
+			candidate = scope:create_alliance_pact_candidate
+			target = $TARGET$
+			target_candidate = scope:create_alliance_pact_partner
+		}
+	}
+}
