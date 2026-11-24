@@ -1,0 +1,29 @@
+﻿namespace = uwc_truce
+
+# Unlimited Wars and Claims 1.2, rule 8 (issue #144): fired a day after a war ends on each qualifying
+# participant (common/on_action/uwc_on_actions.txt). Ends root's own truces against the other side,
+# one way: X = { cancel_truce_one_way = Y } ends X's truce with Y (vanilla's CANCEL_TRUCE_ONE_WAY_EFFECT
+# text), so a truce the other side holds against root stays. Several wars ending the same day share
+# one list; the first event empties it and the trigger skips the rest.
+uwc_truce.1 = {
+	type = character_event
+	hidden = yes
+
+	trigger = {
+		has_variable_list = uwc_truces_to_clear
+	}
+
+	immediate = {
+		every_in_list = {
+			variable = uwc_truces_to_clear
+			save_temporary_scope_as = uwc_truce_enemy
+			root = {
+				if = {
+					limit = { has_truce = scope:uwc_truce_enemy }
+					cancel_truce_one_way = scope:uwc_truce_enemy
+				}
+			}
+		}
+		clear_variable_list = uwc_truces_to_clear
+	}
+}

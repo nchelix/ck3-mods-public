@@ -73,3 +73,15 @@ uwc_unlimited_subjugation_trigger = {
 		}
 	}
 }
+
+# Rule 8 (1.2, issue #144): no war truces. Character scope = the truce holder (any war participant, not
+# only the attacker); read when the war ends (common/on_action/uwc_on_actions.txt).
+uwc_no_war_truces_trigger = {
+	OR = {
+		has_game_rule = uwc_no_war_truces_everyone
+		AND = {
+			has_game_rule = uwc_no_war_truces_players
+			is_ai = no
+		}
+	}
+}

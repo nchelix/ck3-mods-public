@@ -105,3 +105,20 @@ uwc_unlimited_subjugation = {
 	uwc_unlimited_subjugation_everyone = {
 	}
 }
+
+# Rule 8 (1.2, issue #144): no war truces. Default Off, unlike rules 1-7, so existing campaigns keep
+# vanilla truces unless the player opts in.
+uwc_no_war_truces = {
+	default = uwc_no_war_truces_off
+
+	categories = {
+		game_modes
+	}
+
+	uwc_no_war_truces_off = {
+	}
+	uwc_no_war_truces_players = {
+	}
+	uwc_no_war_truces_everyone = {
+	}
+}

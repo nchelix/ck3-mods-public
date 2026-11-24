@@ -1,0 +1,76 @@
+﻿# Unlimited Wars and Claims 1.2, rule 8 (issue #144): no war truces.
+#
+# When a war ends, each qualifying participant (uwc_no_war_truces_trigger) queues every participant
+# on the other side, and a day later (events/uwc_truce_events.txt) its own truces against them are
+# cancelled. Vanilla makes those truces in each casus belli's outcome (00_war_effects.txt's
+# add_truce_attacker_*_effect gives the attacker a one-way truce; civil wars, great holy wars and
+# others add their own), and the engine may add more. Script cannot tell where a truce came from, so
+# any truce a qualifying character holds against someone who fought on the other side goes, a bought
+# or event truce with them included. Truces with anyone who did not fight on the other side stay.
+# Known gap (Codex review 2026-11-23): a great holy war's title recipient who did not fight is not a
+# participant, so the both-way truces vanilla gives them and the pledged defenders
+# (add_truce_GHW_attacker_victory_effect) are kept.
+#
+# The day's delay sidesteps the order in which a war's last tick runs the casus belli outcome and
+# these on_actions; the war scope is gone by then, so the other side is kept in a variable list.
+#
+# The vanilla on_actions (game/common/on_action/war_on_actions.txt) are only appended to, as
+# game/common/on_action/_on_actions.info ("MODDING INFO") documents: an on_actions list merges
+# across files, a second effect or trigger block would conflict. No vanilla file is replaced.
+on_war_won_attacker = {
+	on_actions = { uwc_war_ended_clear_truces }
+}
+
+on_war_won_defender = {
+	on_actions = { uwc_war_ended_clear_truces }
+}
+
+on_war_white_peace = {
+	on_actions = { uwc_war_ended_clear_truces }
+}
+
+on_war_invalidated = {
+	on_actions = { uwc_war_ended_clear_truces }
+}
+
+uwc_war_ended_clear_truces = {
+	trigger = {
+		NOT = { has_game_rule = uwc_no_war_truces_off }
+	}
+	effect = {
+		scope:war = {
+			every_war_attacker = {
+				limit = { uwc_no_war_truces_trigger = yes }
+				save_temporary_scope_as = uwc_truce_holder
+				scope:war = {
+					every_war_defender = {
+						save_temporary_scope_as = uwc_truce_enemy
+						scope:uwc_truce_holder = {
+							add_to_variable_list = {
+								name = uwc_truces_to_clear
+								target = scope:uwc_truce_enemy
+							}
+						}
+					}
+				}
+				trigger_event = { id = uwc_truce.1 days = 1 }
+			}
+			every_war_defender = {
+				limit = { uwc_no_war_truces_trigger = yes }
+				save_temporary_scope_as = uwc_truce_holder
+				scope:war = {
+					every_war_attacker = {
+						save_temporary_scope_as = uwc_truce_enemy
+						scope:uwc_truce_holder = {
+							add_to_variable_list = {
+								name = uwc_truces_to_clear
+								target = scope:uwc_truce_enemy
+							}
+						}
+					}
+				}
+				trigger_event = { id = uwc_truce.1 days = 1 }
+			}
+		}
+	}
+}

@@ -19,7 +19,7 @@ Each mod's page explains what it does and how to use it; the [Releases](https://
 | [Become Albino](BecomeAlbino/) | 1.3 | Turn anyone in the world albino, and decide how far it goes. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232333172) |
 | [Become the Snake](BecomeSnake/) | 1.3 | Don't step on snek. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=2232605324) |
 | [Allied AI War Fix](AlliedAIWarFixPatch/) | 1.0.1 | Stop the AI from starting wars it expects you to fight. | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3820079745) |
-| [Unlimited Wars and Claims](UnlimitedWarsAndClaims/) | 1.1.2 | Take several titles in one war, press several claims, use the de jure casus belli without Divine Right, declare war with your armies already raised, and… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3820523343) |
+| [Unlimited Wars and Claims](UnlimitedWarsAndClaims/) | 1.2 | Take several titles in one war, press several claims, use the de jure casus belli without Divine Right, declare war with your armies already raised, invade,… | [Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3820523343) |
 
 ## Licence
 

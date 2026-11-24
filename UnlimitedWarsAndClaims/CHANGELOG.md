@@ -1,5 +1,31 @@
 # Changelog — Unlimited Wars and Claims
 
+## [1.2] — 2026-11-23
+
+### Added
+- **No war truces** (issue #144, a Workshop request). An eighth game rule, "UWC: No war truces"
+  (Off / Players / Everyone, **default Off**, so existing campaigns keep vanilla truces unless the
+  player opts in). The day after a war ends (victory, defeat, white peace or invalidation), each
+  qualifying participant's truces against everyone who fought on the other side are cancelled.
+  The attacker's usual 5-year truce goes, and so do the both-way truces of civil and faction wars,
+  for the qualifying side only. On Players the AI keeps every truce, including those it holds
+  against the player. A truce's source can't be read in script, so a bought or event truce with
+  someone who fought on the other side goes too; truces with anyone else are kept. Known gap: a
+  great holy war's title recipient who did not fight keeps their truces with the pledged defenders.
+  Faction cooldowns (`joining_faction_block`) still apply.
+- Built on vanilla's own `cancel_truce_one_way` effect, hooked through the four war-end on_actions
+  with the append pattern documented in `_on_actions.info`. New files only
+  (`common/on_action/uwc_on_actions.txt`, `events/uwc_truce_events.txt`); no vanilla file is
+  replaced and no vanilla on_action effect is overridden. A mod that adds its own truces between
+  former enemies at war end will see them cancelled too. The one-day delay avoids depending on the order of
+  the casus belli outcome and the on_actions in the war's last tick.
+- Findings and the options considered: issue #144.
+
+### Changed
+- **New thumbnail**: a painted warlord before a burning castle (AutoSprite, picked from 24 drafts),
+  in the style of Warrior Trait, Wear the Mask and Create Alliance, replacing the generic 1.0 image.
+  Source in `art/unlimited_wars/`, built by `tools/build_uwc_thumbnail.py`.
+
 ## [1.1.2] — 2026-11-18
 
 ### Changed
