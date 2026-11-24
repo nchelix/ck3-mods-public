@@ -104,3 +104,22 @@ one_trait_relic_modifier = {
 	learning = 5
 	prowess = 5
 }
+
+# 2.14 Long life (#79, #80, #81; plan Task 2): one permanent character modifier per toggle, so each power shows in the
+# character window's modifier bar (spec anti-goal: no invisible power). Never ill and Ageless body carry no stat: the
+# vanilla immune_to_disease flag and the cures do the work (common/scripted_effects/one_trait_long_life_effects.txt).
+# Undiminished arm carries exactly no_prowess_loss_from_age (docs/reference/ck3-1.21.0-modifiers.log:1295, character).
+# Icons: the mod's own (gfx/interface/icons/modifiers/one_trait_<short>.dds, built by tools/build_one_trait_icons.py
+# from art/one_trait/; plan Task 4).
+one_trait_never_ill = {
+	icon = one_trait_never_ill
+}
+
+one_trait_ageless_body = {
+	icon = one_trait_ageless
+}
+
+one_trait_undiminished_arm = {
+	icon = one_trait_arm
+	no_prowess_loss_from_age = yes
+}

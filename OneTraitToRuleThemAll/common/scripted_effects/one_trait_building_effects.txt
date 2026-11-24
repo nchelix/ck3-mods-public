@@ -199,6 +199,10 @@ one_trait_fill_empty_baronies = {
 			else = {
 				set_holding_type = castle_holding
 			}
+			# 2.14 (#113): counted on the player (root: the panel's scripted GUI and the self-test's click macros run on
+			# the player) for the "Filled N baronies" toast; one_trait_realm_buildings_baronies_effect zeroes it first.
+			# change_variable: docs/reference/ck3-1.21.0-effects.log:3002.
+			root = { change_variable = { name = one_trait_baronies_filled add = 1 } }
 		}
 	}
 }

@@ -331,10 +331,17 @@ one_trait_realm_buildings_fill_effect = {
 
 # Moved from one_trait_menu_events.txt:859-861 (option .baronies), minus its trigger (:851-857, moved to
 # one_trait_realm_buildings_baronies_valid_trigger below) and trigger_event (:862).
+# 2.14 (#113): the player's one_trait_baronies_filled is zeroed, the fill counts each barony it fills into it
+# (one_trait_building_effects.txt), and a toast says how many ("Filled N baronies": the toast shows only its title,
+# so the count is in the title key, as one_trait_pin_applied_toast_t). send_interface_toast:
+# docs/reference/ck3-1.21.0-effects.log:13763; set_variable :6028; type event_toast_effect_good as the panel's own
+# toasts (one_trait_panel_effects.txt, bulk_effect).
 one_trait_realm_buildings_baronies_effect = {
+	root = { set_variable = { name = one_trait_baronies_filled value = 0 } }
 	scope:one_trait_target = {
 		one_trait_fill_empty_baronies = yes
 	}
+	root = { send_interface_toast = { type = event_toast_effect_good title = one_trait_fill_baronies_toast_t } }
 }
 
 # Moved from one_trait_menu_events.txt:884-891 (option .duchy), minus its trigger (:880-882, moved to

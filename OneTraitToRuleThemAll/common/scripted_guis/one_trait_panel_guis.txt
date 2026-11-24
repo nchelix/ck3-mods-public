@@ -28,6 +28,7 @@ one_trait_ui_toggle = {
 		else = {
 			set_variable = { name = one_trait_ui_target value = this }
 			if = { limit = { NOT = { has_variable = one_trait_ui_tab } } set_variable = { name = one_trait_ui_tab value = 1 } }
+			if = { limit = { NOT = { has_variable = one_trait_ui_subtab } } set_variable = { name = one_trait_ui_subtab value = 1 } }
 			one_trait_ui_puppets_effect = yes
 			# 2.12: the Apply-to switch starts on This character whenever the panel opens; the dead drop off the pins
 			if = { limit = { has_variable = one_trait_ui_apply_all } remove_variable = one_trait_ui_apply_all }
@@ -100,6 +101,7 @@ one_trait_ui_pin_select = {
 	}
 	effect = {
 		one_trait_ui_clear_confirm_effect = yes
+		scope:pinned = { save_scope_as = pinned }
 		set_variable = { name = one_trait_ui_target value = scope:pinned }
 	}
 }
@@ -162,6 +164,34 @@ one_trait_ui_apply_all_on = {
 	is_valid = { has_variable = one_trait_ui_apply_all }
 }
 
+# 2.14 Task 1 (#84): Unpin all, beside Details. Two clicks: the first arms 103 (the face reads "Confirm?"), the
+# second empties the list (one_trait_pin_unpin_all_effect) -- the age rows' arm-then-apply form
+# (one_trait_pin_all_age_<p1|p10>_click_effect), and any other click disarms it (one_trait_ui_clear_confirm_effect).
+# Greyed with nobody pinned, as Details. Panel steering (PANEL_NAV_GUIS): the All pinned switch never greys it.
+one_trait_ui_unpin_all = {
+	scope = character
+	is_valid = {
+		custom_tooltip = {
+			text = one_trait_pin_none_yet_tt
+			one_trait_pin_any_trigger = yes
+		}
+	}
+	effect = {
+		if = {
+			limit = {
+				has_variable = one_trait_ui_confirm
+				var:one_trait_ui_confirm = 103
+			}
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_unpin_all_effect = yes
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			set_variable = { name = one_trait_ui_confirm value = 103 }
+		}
+	}
+}
+
 one_trait_ui_tab_character = {
 	scope = character
 	effect = {
@@ -219,6 +249,23 @@ one_trait_ui_tab_traits = {
 		set_variable = { name = one_trait_ui_tab value = 2 }
 		set_variable = { name = one_trait_ui_subtab value = 1 }
 		one_trait_ui_puppets_effect = yes
+	}
+}
+
+one_trait_ui_subtab_ot_traits = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 1 }
+	}
+}
+
+one_trait_ui_subtab_all_traits = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_subtab value = 2 }
+		if = { limit = { NOT = { has_variable = one_trait_ui_trait_cat } } set_variable = { name = one_trait_ui_trait_cat value = 1 } }
 	}
 }
 
@@ -931,6 +978,9 @@ one_trait_ui_remove_all = {
 				has_trait = one_trait_scheme
 				has_trait = one_trait_steppe
 				has_trait = one_trait_wanderer
+				has_character_modifier = one_trait_never_ill
+				has_character_modifier = one_trait_ageless_body
+				has_character_modifier = one_trait_undiminished_arm
 			}
 		}
 	}
@@ -958,7 +1008,2200 @@ one_trait_ui_remove_all = {
 			remove_trait = one_trait_scheme
 			remove_trait = one_trait_steppe
 			remove_trait = one_trait_wanderer
+			one_trait_never_ill_off_effect = yes
+			one_trait_ageless_off_effect = yes
+			one_trait_arm_off_effect = yes
 		}
+	}
+}
+
+# ---- 2.14 Task 3 (#79-#81): Long life. Each tile switches its modifier on the target with the hand-written
+# on/off effects (common/scripted_effects/one_trait_long_life_effects.txt); _on lights the tile.
+
+one_trait_ui_longlife_never_ill = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_longlife_effect = { MODIFIER = one_trait_never_ill ON = one_trait_never_ill_on_effect OFF = one_trait_never_ill_off_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= {
+				if = { limit = { has_character_modifier = one_trait_never_ill } one_trait_never_ill_off_effect = yes }
+				else = { one_trait_never_ill_on_effect = yes }
+			}
+		}
+	}
+}
+
+one_trait_ui_longlife_never_ill_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = one_trait_never_ill } }
+}
+
+one_trait_ui_longlife_ageless = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_longlife_effect = { MODIFIER = one_trait_ageless_body ON = one_trait_ageless_on_effect OFF = one_trait_ageless_off_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= {
+				if = { limit = { has_character_modifier = one_trait_ageless_body } one_trait_ageless_off_effect = yes }
+				else = { one_trait_ageless_on_effect = yes }
+			}
+		}
+	}
+}
+
+one_trait_ui_longlife_ageless_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = one_trait_ageless_body } }
+}
+
+one_trait_ui_longlife_arm = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_longlife_effect = { MODIFIER = one_trait_undiminished_arm ON = one_trait_arm_on_effect OFF = one_trait_arm_off_effect }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= {
+				if = { limit = { has_character_modifier = one_trait_undiminished_arm } one_trait_arm_off_effect = yes }
+				else = { one_trait_arm_on_effect = yes }
+			}
+		}
+	}
+}
+
+one_trait_ui_longlife_arm_on = {
+	scope = character
+	is_valid = { var:one_trait_ui_target ?= { has_character_modifier = one_trait_undiminished_arm } }
+}
+
+# ---- 2.14 Task 6 (#112): All traits. The category chips set one_trait_ui_trait_cat (panel steering).
+
+one_trait_ui_trait_cat_personality = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 1 }
+	}
+}
+
+one_trait_ui_trait_cat_education = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 2 }
+	}
+}
+
+one_trait_ui_trait_cat_childhood = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 3 }
+	}
+}
+
+one_trait_ui_trait_cat_lifestyle = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 4 }
+	}
+}
+
+one_trait_ui_trait_cat_commander = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 5 }
+	}
+}
+
+one_trait_ui_trait_cat_fame = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 6 }
+	}
+}
+
+one_trait_ui_trait_cat_health = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 7 }
+	}
+}
+
+one_trait_ui_trait_cat_other = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		set_variable = { name = one_trait_ui_trait_cat value = 8 }
+	}
+}
+
+# A grid icon's left click: every opposite of the trait they hold goes, then the trait is added; a refusal (the game
+# still says no: an age range, an is_potential) is counted on the player and named in a toast (its title carries the count).
+one_trait_ui_any_trait_add = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_any_trait_add_effect = yes
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			set_variable = { name = one_trait_any_trait_refused value = 0 }
+			var:one_trait_ui_target ?= { one_trait_any_trait_add_effect = yes }
+			if = {
+				limit = { var:one_trait_any_trait_refused > 0 }
+				send_interface_toast = { type = event_toast_effect_bad title = one_trait_any_trait_refused_toast_t }
+			}
+		}
+	}
+}
+
+# A grid icon's right click: the trait is taken away if they have it.
+one_trait_ui_any_trait_remove = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_any_trait_remove_effect = yes
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_any_trait_remove_effect = yes }
+		}
+	}
+}
+
+# The glow: the panel's character has the trait (Scope cannot hand a trait back to the GUI, so a scripted GUI answers).
+# 2.14 Task 7: in All pinned mode, every living pin has it.
+one_trait_ui_any_trait_held = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			exists = scope:picked_trait
+			one_trait_pin_any_trigger = yes
+			any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_trait = scope:picked_trait } }
+		}
+		trigger_else = {
+			exists = scope:picked_trait
+			var:one_trait_ui_target ?= { has_trait = scope:picked_trait }
+		}
+	}
+}
+
+# The tooltip's "Replaces:" line shows while the click would take something: the panel's character lacks the trait, may
+# have it (batch D3: a refused click takes nothing) and holds an opposite of it or a trait of its group (the main
+# educations count as one family).
+one_trait_ui_any_trait_clash = {
+	scope = character
+	is_valid = {
+		exists = scope:picked_trait
+		var:one_trait_ui_target ?= {
+			one_trait_any_trait_would_replace_trigger = yes
+		}
+	}
+}
+
+# 2.14 batch D3 (Codex #1): the same for All pinned's generic "Replaces:" line: some living pin would lose something.
+one_trait_ui_any_trait_clash_all = {
+	scope = character
+	is_valid = {
+		exists = scope:picked_trait
+		has_variable_list = one_trait_pinned
+		any_in_list = {
+			variable = one_trait_pinned
+			is_alive = yes
+			one_trait_any_trait_would_replace_trigger = yes
+		}
+	}
+}
+
+# 2.14 batch C1: the "Replaces:" line's list. Never executed (no click runs it): the grid tooltip shows its ExecuteTooltip,
+# the route the phase B probe proved ("You lose the Trait Lustful" over Chaste). Its effect is exactly the removals a left
+# click would make (batch D3: none when they may not have the trait), and no add_trait.
+one_trait_ui_any_trait_preview = {
+	scope = character
+	effect = {
+		var:one_trait_ui_target ?= {
+			if = {
+				limit = {
+					exists = scope:picked_trait
+					NOT = { has_trait = scope:picked_trait }
+					one_trait_any_trait_eligible_trigger = yes
+				}
+				one_trait_any_trait_clear_effect = yes
+			}
+		}
+	}
+}
+
+# ---- 2.14 Task 7: trait XP. A single-track row's step (the trait arrives as scope:picked_trait).
+
+one_trait_ui_trait_xp_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_xp_down_effect = { AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_xp_effect = { AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_xp_down_effect = { AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_xp_effect = { AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_xp_up_effect = { AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_xp_effect = { AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_xp_up_effect = { AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_xp_effect = { AMOUNT = 25 } }
+		}
+	}
+}
+
+# One track of a trait with several (MULTI_TRACK_TRAITS: add_trait_xp needs the track named).
+
+one_trait_ui_trait_xp_lifestyle_hunter_hunter_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_hunter_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_hunter_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_hunter_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = hunter AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_falconer_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_falconer_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_falconer_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_hunter_falconer_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_hunter TRACK = falconer AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_bandit_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_bandit_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_bandit_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_bandit_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = bandit AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_trickster_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_trickster_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_trickster_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_trickster_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = trickster AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_thief_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_thief_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_thief_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_thief_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = thief AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_poacher_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_poacher_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_poacher_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_poacher_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = poacher AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_marauder_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_marauder_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_marauder_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_gallowsbait_marauder_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = gallowsbait TRACK = marauder AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_foot_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_foot_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_foot_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_foot_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = foot AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_bow_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_bow_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_bow_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_bow_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = bow AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_horse_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_horse_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_horse_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_horse_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = horse AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_wit_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_wit_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_wit_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_tourney_participant_wit_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = tourney_participant TRACK = wit AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_travel_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_travel_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_travel_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_travel_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = travel AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_danger_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_danger_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_danger_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_traveler_danger_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_traveler TRACK = danger AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_caravaneer_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_caravaneer_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_caravaneer_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_caravaneer_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = caravaneer AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_artisan_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_artisan_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_artisan_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_artisan_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = artisan AMOUNT = 25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_creditor_m25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = -25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = -25 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_creditor_m10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_down_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = -10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = -10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_creditor_p10 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = 10 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = 10 } }
+		}
+	}
+}
+
+one_trait_ui_trait_xp_lifestyle_merchant_creditor_p25 = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_pin_none_yet_tt
+				has_variable_list = one_trait_pinned
+				any_in_list = { variable = one_trait_pinned is_alive = yes }
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			one_trait_ui_clear_confirm_effect = yes
+			one_trait_pin_all_trait_track_xp_up_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = 25 }
+		}
+		else = {
+			one_trait_ui_clear_confirm_effect = yes
+			var:one_trait_ui_target ?= { one_trait_trait_track_xp_effect = { TRAIT = lifestyle_merchant TRACK = creditor AMOUNT = 25 } }
+		}
+	}
+}
+
+# ---- 2.14 Task 9 (#76): any culture and any faith. The pick is held on the player until Confirm.
+
+one_trait_ui_any_culture_open = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		if = { limit = { has_variable = one_trait_ui_pins_open } remove_variable = one_trait_ui_pins_open }
+		set_variable = { name = one_trait_ui_any_open value = 1 }
+	}
+}
+
+one_trait_ui_any_culture_pick = {
+	scope = character
+	effect = {
+		if = {
+			limit = { exists = scope:picked_culture }
+			scope:picked_culture = { save_scope_as = picked_culture }
+			one_trait_ui_clear_confirm_effect = yes
+			set_variable = { name = one_trait_ui_any_open value = 1 }
+			set_variable = { name = one_trait_ui_picked_culture value = scope:picked_culture }
+		}
+	}
+}
+
+one_trait_ui_any_culture_is_picked = {
+	scope = character
+	is_valid = {
+		exists = scope:picked_culture
+		has_variable = one_trait_ui_picked_culture
+		var:one_trait_ui_picked_culture = scope:picked_culture
+	}
+}
+
+one_trait_ui_act_identity_any_culture_confirm = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_any_culture_pick_first_tt
+				has_variable = one_trait_ui_picked_culture
+			}
+			trigger_if = {
+				limit = { has_variable = one_trait_ui_picked_culture }
+				custom_tooltip = {
+					text = one_trait_pin_qualify_any_culture_tt
+					has_variable_list = one_trait_pinned
+					any_in_list = { variable = one_trait_pinned is_alive = yes NOT = { has_culture = root.var:one_trait_ui_picked_culture } }
+				}
+			}
+		}
+		trigger_else = {
+			custom_tooltip = {
+				text = one_trait_any_culture_pick_first_tt
+				has_variable = one_trait_ui_picked_culture
+			}
+			trigger_if = {
+				limit = { has_variable = one_trait_ui_picked_culture }
+				custom_tooltip = {
+					text = one_trait_pin_dead_tt
+					var:one_trait_ui_target ?= { is_alive = yes }
+				}
+				custom_tooltip = {
+					text = one_trait_any_culture_same_tt
+					has_variable = one_trait_ui_target
+					var:one_trait_ui_target = { NOT = { has_culture = root.var:one_trait_ui_picked_culture } }
+				}
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			if = {
+				limit = { has_variable = one_trait_ui_picked_culture }
+				var:one_trait_ui_picked_culture = { save_scope_as = one_trait_any_new_culture }
+				one_trait_ui_clear_confirm_effect = yes
+				one_trait_pin_all_any_culture_confirm_effect = yes
+			}
+		}
+		else = {
+			if = {
+				limit = {
+					has_variable = one_trait_ui_picked_culture
+					has_variable = one_trait_ui_target
+					var:one_trait_ui_target ?= { is_alive = yes }
+				}
+				var:one_trait_ui_picked_culture = { save_scope_as = one_trait_any_new_culture }
+				one_trait_ui_clear_confirm_effect = yes
+				var:one_trait_ui_target = { one_trait_any_culture_apply_effect = yes }
+			}
+		}
+	}
+}
+
+one_trait_ui_any_faith_open = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
+		if = { limit = { has_variable = one_trait_ui_pins_open } remove_variable = one_trait_ui_pins_open }
+		set_variable = { name = one_trait_ui_any_open value = 2 }
+	}
+}
+
+one_trait_ui_any_faith_pick = {
+	scope = character
+	effect = {
+		if = {
+			limit = { exists = scope:picked_faith }
+			scope:picked_faith = { save_scope_as = picked_faith }
+			one_trait_ui_clear_confirm_effect = yes
+			set_variable = { name = one_trait_ui_any_open value = 2 }
+			set_variable = { name = one_trait_ui_picked_faith value = scope:picked_faith }
+		}
+	}
+}
+
+one_trait_ui_any_faith_is_picked = {
+	scope = character
+	is_valid = {
+		exists = scope:picked_faith
+		has_variable = one_trait_ui_picked_faith
+		var:one_trait_ui_picked_faith = scope:picked_faith
+	}
+}
+
+one_trait_ui_act_identity_any_faith_confirm = {
+	scope = character
+	is_valid = {
+		trigger_if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			custom_tooltip = {
+				text = one_trait_any_faith_pick_first_tt
+				has_variable = one_trait_ui_picked_faith
+			}
+			trigger_if = {
+				limit = { has_variable = one_trait_ui_picked_faith }
+				custom_tooltip = {
+					text = one_trait_pin_qualify_any_faith_tt
+					has_variable_list = one_trait_pinned
+					any_in_list = { variable = one_trait_pinned is_alive = yes NOT = { has_faith = root.var:one_trait_ui_picked_faith } }
+				}
+			}
+		}
+		trigger_else = {
+			custom_tooltip = {
+				text = one_trait_any_faith_pick_first_tt
+				has_variable = one_trait_ui_picked_faith
+			}
+			trigger_if = {
+				limit = { has_variable = one_trait_ui_picked_faith }
+				custom_tooltip = {
+					text = one_trait_pin_dead_tt
+					var:one_trait_ui_target ?= { is_alive = yes }
+				}
+				custom_tooltip = {
+					text = one_trait_any_faith_same_tt
+					has_variable = one_trait_ui_target
+					var:one_trait_ui_target = { NOT = { has_faith = root.var:one_trait_ui_picked_faith } }
+				}
+			}
+		}
+	}
+	effect = {
+		if = {
+			limit = { has_variable = one_trait_ui_apply_all }
+			if = {
+				limit = { has_variable = one_trait_ui_picked_faith }
+				var:one_trait_ui_picked_faith = { save_scope_as = one_trait_any_new_faith }
+				one_trait_ui_clear_confirm_effect = yes
+				one_trait_pin_all_any_faith_confirm_effect = yes
+			}
+		}
+		else = {
+			if = {
+				limit = {
+					has_variable = one_trait_ui_picked_faith
+					has_variable = one_trait_ui_target
+					var:one_trait_ui_target ?= { is_alive = yes }
+				}
+				var:one_trait_ui_picked_faith = { save_scope_as = one_trait_any_new_faith }
+				one_trait_ui_clear_confirm_effect = yes
+				var:one_trait_ui_target = { one_trait_any_faith_apply_effect = yes }
+			}
+		}
+	}
+}
+
+# The picker's Close (the overlay's own button).
+one_trait_ui_any_close = {
+	scope = character
+	effect = {
+		one_trait_ui_clear_confirm_effect = yes
 	}
 }
 
@@ -1208,376 +3451,6 @@ one_trait_ui_sex_asexual = {
 one_trait_ui_sex_asexual_on = {
 	scope = character
 	is_valid = { var:one_trait_ui_target ?= { has_sexuality = asexual } }
-}
-
-one_trait_ui_edu_diplomacy = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = diplomacy } }
-	}
-}
-
-one_trait_ui_edu_diplomacy_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_diplomacy_trigger = yes } }
-}
-
-one_trait_ui_edu_martial = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = martial } }
-	}
-}
-
-one_trait_ui_edu_martial_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_martial_trigger = yes } }
-}
-
-one_trait_ui_edu_stewardship = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = stewardship } }
-	}
-}
-
-one_trait_ui_edu_stewardship_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_stewardship_trigger = yes } }
-}
-
-one_trait_ui_edu_intrigue = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = intrigue } }
-	}
-}
-
-one_trait_ui_edu_intrigue_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_intrigue_trigger = yes } }
-}
-
-one_trait_ui_edu_learning = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_effect = { LIFESTYLE = learning } }
-	}
-}
-
-one_trait_ui_edu_learning_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_main_education_learning_trigger = yes } }
-}
-
-one_trait_ui_edu_none_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { one_trait_has_no_main_education_trigger = yes } }
-}
-
-one_trait_ui_edu_tier_1 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 1 } }
-	}
-}
-
-one_trait_ui_edu_tier_1_on = {
-	scope = character
-	is_valid = {
-		var:one_trait_ui_target ?= {
-			one_trait_has_no_main_education_trigger = no
-			one_trait_main_education_tier_value = 1
-		}
-	}
-}
-
-one_trait_ui_edu_tier_2 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 2 } }
-	}
-}
-
-one_trait_ui_edu_tier_2_on = {
-	scope = character
-	is_valid = {
-		var:one_trait_ui_target ?= {
-			one_trait_has_no_main_education_trigger = no
-			one_trait_main_education_tier_value = 2
-		}
-	}
-}
-
-one_trait_ui_edu_tier_3 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 3 } }
-	}
-}
-
-one_trait_ui_edu_tier_3_on = {
-	scope = character
-	is_valid = {
-		var:one_trait_ui_target ?= {
-			one_trait_has_no_main_education_trigger = no
-			one_trait_main_education_tier_value = 3
-		}
-	}
-}
-
-one_trait_ui_edu_tier_4 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 4 } }
-	}
-}
-
-one_trait_ui_edu_tier_4_on = {
-	scope = character
-	is_valid = {
-		var:one_trait_ui_target ?= {
-			one_trait_has_no_main_education_trigger = no
-			one_trait_main_education_tier_value = 4
-		}
-	}
-}
-
-one_trait_ui_edu_tier_5 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_main_education_tier_effect = { TIER = 5 } }
-	}
-}
-
-one_trait_ui_edu_tier_5_on = {
-	scope = character
-	is_valid = {
-		var:one_trait_ui_target ?= {
-			one_trait_has_no_main_education_trigger = no
-			one_trait_main_education_tier_value = 5
-		}
-	}
-}
-
-one_trait_ui_edu_prowess_0 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 0 } }
-	}
-}
-
-one_trait_ui_edu_prowess_0_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { NOR = { has_trait = education_martial_prowess_1 has_trait = education_martial_prowess_2 has_trait = education_martial_prowess_3 has_trait = education_martial_prowess_4 } } }
-}
-
-one_trait_ui_edu_prowess_1 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 1 } }
-	}
-}
-
-one_trait_ui_edu_prowess_1_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_1 } }
-}
-
-one_trait_ui_edu_prowess_2 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 2 } }
-	}
-}
-
-one_trait_ui_edu_prowess_2_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_2 } }
-}
-
-one_trait_ui_edu_prowess_3 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 3 } }
-	}
-}
-
-one_trait_ui_edu_prowess_3_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_3 } }
-}
-
-one_trait_ui_edu_prowess_4 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_martial_prowess TIER = 4 } }
-	}
-}
-
-one_trait_ui_edu_prowess_4_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_martial_prowess_4 } }
-}
-
-one_trait_ui_edu_republican_0 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 0 } }
-	}
-}
-
-one_trait_ui_edu_republican_0_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { NOR = { has_trait = education_republican_knowledge_1 has_trait = education_republican_knowledge_2 has_trait = education_republican_knowledge_3 has_trait = education_republican_knowledge_4 } } }
-}
-
-one_trait_ui_edu_republican_1 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 1 } }
-	}
-}
-
-one_trait_ui_edu_republican_1_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_1 } }
-}
-
-one_trait_ui_edu_republican_2 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 2 } }
-	}
-}
-
-one_trait_ui_edu_republican_2_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_2 } }
-}
-
-one_trait_ui_edu_republican_3 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 3 } }
-	}
-}
-
-one_trait_ui_edu_republican_3_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_3 } }
-}
-
-one_trait_ui_edu_republican_4 = {
-	scope = character
-	is_valid = {
-		one_trait_pin_single_mode_trigger = yes
-		var:one_trait_ui_target ?= { one_trait_can_edit_upbringing_trigger = yes }
-	}
-	effect = {
-		one_trait_ui_clear_confirm_effect = yes
-		var:one_trait_ui_target ?= { one_trait_set_extra_education_effect = { GROUP = education_republican_knowledge TIER = 4 } }
-	}
-}
-
-one_trait_ui_edu_republican_4_on = {
-	scope = character
-	is_valid = { var:one_trait_ui_target ?= { has_trait = education_republican_knowledge_4 } }
 }
 
 one_trait_ui_ring_count_m1000 = {
@@ -5552,4 +7425,28 @@ one_trait_ui_pin_age_p10_reaches_16 = {
 one_trait_ui_target_has_royal_court = {
 	scope = character
 	is_valid = { var:one_trait_ui_target ?= { has_royal_court = yes } }
+}
+
+one_trait_ui_longlife_never_ill_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_character_modifier = one_trait_never_ill } }
+	}
+}
+
+one_trait_ui_longlife_ageless_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_character_modifier = one_trait_ageless_body } }
+	}
+}
+
+one_trait_ui_longlife_arm_all_on = {
+	scope = character
+	is_valid = {
+		one_trait_pin_any_trigger = yes
+		any_in_list = { variable = one_trait_pinned count = all OR = { is_alive = no has_character_modifier = one_trait_undiminished_arm } }
+	}
 }

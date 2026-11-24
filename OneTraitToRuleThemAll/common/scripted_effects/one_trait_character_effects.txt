@@ -66,8 +66,32 @@ one_trait_perfect_genetics_effect = {
 
 # Bundle 2. Scarred, eunuchs and every *_genetic variant are deliberately
 # untouched; the genetic ones are what bundle 1 is for.
+# 2.14 (plan Task 2, R8): the Diseases block and the Ageing block (with Incapable, which the spec's Ageless body
+# removes too) are their own effects, reused by the Long life toggles and their upkeep
+# (one_trait_long_life_effects.txt). The cleanse removes exactly the set it removed in 2.13
+# (tools/test_one_trait_long_life.py CureSplit214.test_cleanse_unchanged).
 one_trait_cleanse_effect = {
 	# Diseases
+	one_trait_cure_illness_effect = yes
+	# Wounds and injuries (Incapable moved to the Ageing block)
+	one_trait_remove_if_present = { TRAIT = wounded_1 }
+	one_trait_remove_if_present = { TRAIT = wounded_2 }
+	one_trait_remove_if_present = { TRAIT = wounded_3 }
+	one_trait_remove_if_present = { TRAIT = maimed }
+	one_trait_remove_if_present = { TRAIT = one_eyed }
+	one_trait_remove_if_present = { TRAIT = one_legged }
+	one_trait_remove_if_present = { TRAIT = disfigured }
+	one_trait_remove_if_present = { TRAIT = blind }
+	# Non-genetic mental illness
+	one_trait_remove_if_present = { TRAIT = depressed_1 }
+	one_trait_remove_if_present = { TRAIT = lunatic_1 }
+	one_trait_remove_if_present = { TRAIT = possessed_1 }
+	# Ageing, and Incapable
+	one_trait_cure_ageing_effect = yes
+}
+
+# The cleanse's Diseases block, moved verbatim (2.14). Never ill runs it on switch-on and in its upkeep.
+one_trait_cure_illness_effect = {
 	one_trait_remove_if_present = { TRAIT = ill }
 	one_trait_remove_if_present = { TRAIT = pneumonic }
 	one_trait_remove_if_present = { TRAIT = great_pox }
@@ -83,26 +107,17 @@ one_trait_cleanse_effect = {
 	one_trait_remove_if_present = { TRAIT = dysentery }
 	one_trait_remove_if_present = { TRAIT = ergotism }
 	one_trait_remove_if_present = { TRAIT = gout_ridden }
-	# Wounds and injuries
-	one_trait_remove_if_present = { TRAIT = wounded_1 }
-	one_trait_remove_if_present = { TRAIT = wounded_2 }
-	one_trait_remove_if_present = { TRAIT = wounded_3 }
-	one_trait_remove_if_present = { TRAIT = maimed }
-	one_trait_remove_if_present = { TRAIT = one_eyed }
-	one_trait_remove_if_present = { TRAIT = one_legged }
-	one_trait_remove_if_present = { TRAIT = disfigured }
-	one_trait_remove_if_present = { TRAIT = blind }
-	one_trait_remove_if_present = { TRAIT = incapable }
-	# Non-genetic mental illness
-	one_trait_remove_if_present = { TRAIT = depressed_1 }
-	one_trait_remove_if_present = { TRAIT = lunatic_1 }
-	one_trait_remove_if_present = { TRAIT = possessed_1 }
-	# Ageing
+}
+
+# The cleanse's Ageing block plus Incapable, moved verbatim (2.14). The five are vanilla's age_related_ailment
+# traits. Ageless body runs it on switch-on and in its upkeep.
+one_trait_cure_ageing_effect = {
 	one_trait_remove_if_present = { TRAIT = infirm }
 	one_trait_remove_if_present = { TRAIT = withering_mind }
 	one_trait_remove_if_present = { TRAIT = clouded_eyes }
 	one_trait_remove_if_present = { TRAIT = faltering_heart }
 	one_trait_remove_if_present = { TRAIT = fragile_bones }
+	one_trait_remove_if_present = { TRAIT = incapable }
 }
 
 # Bundle 4. The healthy coping traits (journaller, confider, athletic) are
@@ -522,15 +537,11 @@ one_trait_set_sexuality_effect = {
 	set_sexuality = $SEX$
 }
 
-# add_trait of $BASE$_$N$ (education_<lifestyle> and a tier). Keeps the pasted name out of the call sites, so the
-# validator's textual trait check sees only whole keys.
-one_trait_add_education_trait_effect = {
-	add_trait = $BASE$_$N$
-}
-
 # The 25 main education traits, education_<lifestyle>_<1-5> (game/common/traits/00_traits.txt:11-868). The
 # prowess and republican add-ons are NOT here, so changing the main education keeps them (a court champion
-# keeps Prowess).
+# keeps Prowess). 2.14 batch C1: the Identity education rows that called it are gone (Traits > All traits gives every
+# education, clearing this same family first: one_trait_any_trait_clear_group_effect); the debug self-test stages with
+# it, and tools/test_one_trait_panel.py AllTraitsGroups214 pins its 25 traits as that family.
 one_trait_remove_main_education_effect = {
 	one_trait_remove_if_present = { TRAIT = education_diplomacy_1 }
 	one_trait_remove_if_present = { TRAIT = education_diplomacy_2 }
@@ -557,103 +568,4 @@ one_trait_remove_main_education_effect = {
 	one_trait_remove_if_present = { TRAIT = education_learning_3 }
 	one_trait_remove_if_present = { TRAIT = education_learning_4 }
 	one_trait_remove_if_present = { TRAIT = education_learning_5 }
-}
-
-# Pick a lifestyle: keeps the current tier (1 when there is no main education), removes all 25 main traits
-# (so two main educations normalise to one) and adds the new one. The tier is read BEFORE the removal.
-one_trait_set_main_education_effect = {
-	if = {
-		limit = { one_trait_main_education_tier_value = 1 }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 1 }
-	}
-	else_if = {
-		limit = { one_trait_main_education_tier_value = 2 }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 2 }
-	}
-	else_if = {
-		limit = { one_trait_main_education_tier_value = 3 }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 3 }
-	}
-	else_if = {
-		limit = { one_trait_main_education_tier_value = 4 }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 4 }
-	}
-	else_if = {
-		limit = { one_trait_main_education_tier_value = 5 }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_$LIFESTYLE$ N = 5 }
-	}
-}
-
-# Pick a tier: keeps the current lifestyle (R4 precedence; Diplomacy when there is none), removes all 25 main
-# traits and adds the one.
-one_trait_set_main_education_tier_effect = {
-	if = {
-		limit = { one_trait_has_main_education_diplomacy_trigger = yes }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_diplomacy N = $TIER$ }
-	}
-	else_if = {
-		limit = { one_trait_has_main_education_martial_trigger = yes }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_martial N = $TIER$ }
-	}
-	else_if = {
-		limit = { one_trait_has_main_education_stewardship_trigger = yes }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_stewardship N = $TIER$ }
-	}
-	else_if = {
-		limit = { one_trait_has_main_education_intrigue_trigger = yes }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_intrigue N = $TIER$ }
-	}
-	else_if = {
-		limit = { one_trait_has_main_education_learning_trigger = yes }
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_learning N = $TIER$ }
-	}
-	else = {
-		# no main education: Diplomacy at the chosen tier
-		one_trait_remove_main_education_effect = yes
-		one_trait_add_education_trait_effect = { BASE = education_diplomacy N = $TIER$ }
-	}
-}
-
-# An add-on group (education_martial_prowess or education_republican_knowledge, tiers 1-4): removes the group's
-# four traits, then adds $GROUP$_<n> for the branch where TIER = n (TIER 0 = remove only, no branch matches).
-# Never touches a main trait. The branches name each trait literally (never $GROUP$_$TIER$) so TIER = 0 does not
-# expand to a trait key that does not exist. The literal TIER goes through a temporary scope value because a
-# number cannot stand on the left of a comparison; scope:name = n is vanilla's form
-# (game/common/scripted_effects/00_diarchy_scripted_effects.txt:1989, save_temporary_scope_value_as at
-# 00_adultery_effects.txt:171).
-one_trait_set_extra_education_effect = {
-	one_trait_remove_if_present = { TRAIT = $GROUP$_1 }
-	one_trait_remove_if_present = { TRAIT = $GROUP$_2 }
-	one_trait_remove_if_present = { TRAIT = $GROUP$_3 }
-	one_trait_remove_if_present = { TRAIT = $GROUP$_4 }
-	save_temporary_scope_value_as = {
-		name = one_trait_extra_tier
-		value = $TIER$
-	}
-	if = {
-		limit = { scope:one_trait_extra_tier = 1 }
-		add_trait = $GROUP$_1
-	}
-	if = {
-		limit = { scope:one_trait_extra_tier = 2 }
-		add_trait = $GROUP$_2
-	}
-	if = {
-		limit = { scope:one_trait_extra_tier = 3 }
-		add_trait = $GROUP$_3
-	}
-	if = {
-		limit = { scope:one_trait_extra_tier = 4 }
-		add_trait = $GROUP$_4
-	}
 }

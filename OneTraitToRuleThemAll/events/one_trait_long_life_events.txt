@@ -1,0 +1,45 @@
+﻿# One Trait 2.14: the Long life upkeep (plan Task 2 with R2; spec "My calls": a per-character check about once a month,
+# only for characters who have the modifier, rather than a global sweep). Started by
+# one_trait_long_life_start_upkeep_effect (common/scripted_effects/one_trait_long_life_effects.txt).
+# Precedent: PantheonOfOne/events/pantheon_events.txt:306-343 (a hidden monthly character event that re-runs a cure
+# and keeps its chain single with a timed variable). trigger_event `id = x days = n`:
+# docs/reference/ck3-1.21.0-effects.log:6139; set_variable :6028; remove_variable :5848;
+# has_character_modifier: ck3-1.21.0-triggers.log:6277.
+namespace = one_trait_long_life
+
+# While Never ill or Ageless body is held (Undiminished arm needs no upkeep): Never ill re-adds an absent
+# immune_to_disease flag and claims it, and cures any illness that slipped through; Ageless body strips the ageing
+# traits. Then the 35-day marker is renewed (R2) and the check comes again in 30 days. With neither, the chain stops
+# and the marker is cleared, so a later switch-on starts a fresh chain at once.
+one_trait_long_life.0001 = {
+	type = character_event
+	hidden = yes
+
+	immediate = {
+		if = {
+			limit = {
+				OR = {
+					has_character_modifier = one_trait_never_ill
+					has_character_modifier = one_trait_ageless_body
+				}
+			}
+			if = {
+				limit = { has_character_modifier = one_trait_never_ill }
+				one_trait_never_ill_claim_flag_effect = yes
+				one_trait_cure_illness_effect = yes
+			}
+			if = {
+				limit = { has_character_modifier = one_trait_ageless_body }
+				one_trait_cure_ageing_effect = yes
+			}
+			set_variable = { name = one_trait_long_life_upkeep value = yes days = 35 }
+			trigger_event = { id = one_trait_long_life.0001 days = 30 }
+		}
+		else = {
+			if = {
+				limit = { has_variable = one_trait_long_life_upkeep }
+				remove_variable = one_trait_long_life_upkeep
+			}
+		}
+	}
+}

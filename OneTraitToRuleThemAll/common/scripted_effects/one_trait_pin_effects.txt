@@ -25,6 +25,15 @@ one_trait_pin_remove_effect = {
 	one_trait_pin_clear_mode_if_none_effect = yes
 }
 
+# 2.14 (#84): Unpin all (one_trait_ui_unpin_all's second click). The list is emptied and the switch goes back to This
+# character; the Details drop-down folds away. The panel stays on whoever it is on. clear_variable_list:
+# docs/reference/ck3-1.21.0-effects.log:3070; remove_variable :5848.
+one_trait_pin_unpin_all_effect = {
+	if = { limit = { has_variable_list = one_trait_pinned } clear_variable_list = one_trait_pinned }
+	if = { limit = { has_variable = one_trait_ui_apply_all } remove_variable = one_trait_ui_apply_all }
+	if = { limit = { has_variable = one_trait_ui_pins_open } remove_variable = one_trait_ui_pins_open }
+}
+
 # All pinned mode needs someone pinned (plan Review Focus #3).
 one_trait_pin_clear_mode_if_none_effect = {
 	if = {

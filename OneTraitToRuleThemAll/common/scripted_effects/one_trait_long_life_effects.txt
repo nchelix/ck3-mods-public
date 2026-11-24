@@ -1,0 +1,100 @@
+﻿# One Trait 2.14: Long life (#79 Never ill, #80 Ageless body, #81 Undiminished arm). Plan
+# docs/superpowers/plans/2026-11-19-one-trait-2.14-pickers-and-long-life.md Task 2 (with R2); spec section C.
+# Each toggle is a permanent character modifier (common/modifiers/onetrait_modifiers.txt) so it shows in the
+# character window. Run on the character changed (the panel's tiles call these on var:one_trait_ui_target, Task 3).
+# Precedent, no key reused: PantheonOfOne/common/scripted_effects/pantheon_effects.txt:499-638 (the immune flag and
+# its ownership marker, the cure list) and PantheonOfOne/events/pantheon_events.txt:306-343 (a monthly re-run).
+# Engine names (docs/reference/ck3-1.21.0-effects.log): add_character_modifier :6252,
+# remove_character_modifier :13186, add_character_flag :6243, remove_character_flag :13181, set_variable :6028,
+# remove_variable :5848, trigger_event :6139 (`id = x days = n`). Triggers (ck3-1.21.0-triggers.log):
+# has_character_modifier :6277, has_character_flag :6272, has_variable :3162.
+# The flag: vanilla's can_contract_disease_trait_scope_trigger refuses anyone with immune_to_disease, for every
+# disease route, epidemics included (game/common/scripted_triggers/20_health_triggers.txt:246-254).
+
+# ---- Never ill (#79)
+# The modifier, the flag (added and claimed only when absent), every illness cured, the upkeep started.
+one_trait_never_ill_on_effect = {
+	if = {
+		limit = { NOT = { has_character_modifier = one_trait_never_ill } }
+		add_character_modifier = one_trait_never_ill
+	}
+	one_trait_never_ill_claim_flag_effect = yes
+	one_trait_cure_illness_effect = yes
+	one_trait_long_life_start_upkeep_effect = yes
+}
+
+# The flag's ownership (spec "My calls"): One Trait adds immune_to_disease only when nobody has, and marks it as its own
+# (one_trait_immune_ours), so switching off never takes away a flag Pantheon of One's god or warded followers, or a
+# vanilla event, set. The upkeep re-runs this, so a flag something else took away (vanilla removes it too:
+# story_cycle_party_baron.txt:41) comes back and is claimed.
+one_trait_never_ill_claim_flag_effect = {
+	if = {
+		limit = { NOT = { has_character_flag = immune_to_disease } }
+		add_character_flag = immune_to_disease
+		set_variable = one_trait_immune_ours
+	}
+}
+
+# Off: the modifier goes; the flag goes only if it is One Trait's (plan Review Focus #3).
+one_trait_never_ill_off_effect = {
+	if = {
+		limit = { has_character_modifier = one_trait_never_ill }
+		remove_character_modifier = one_trait_never_ill
+	}
+	if = {
+		limit = { has_variable = one_trait_immune_ours }
+		if = {
+			limit = { has_character_flag = immune_to_disease }
+			remove_character_flag = immune_to_disease
+		}
+		remove_variable = one_trait_immune_ours
+	}
+}
+
+# ---- Ageless body (#80)
+# The modifier, the six ageing traits cured (the five age_related_ailment traits and Incapable), the upkeep started:
+# vanilla health events can still land an ageing trait, so the monthly cure is the backstop (spec "My calls").
+one_trait_ageless_on_effect = {
+	if = {
+		limit = { NOT = { has_character_modifier = one_trait_ageless_body } }
+		add_character_modifier = one_trait_ageless_body
+	}
+	one_trait_cure_ageing_effect = yes
+	one_trait_long_life_start_upkeep_effect = yes
+}
+
+one_trait_ageless_off_effect = {
+	if = {
+		limit = { has_character_modifier = one_trait_ageless_body }
+		remove_character_modifier = one_trait_ageless_body
+	}
+}
+
+# ---- Undiminished arm (#81): the modifier alone (no_prowess_loss_from_age); nothing to keep up.
+one_trait_arm_on_effect = {
+	if = {
+		limit = { NOT = { has_character_modifier = one_trait_undiminished_arm } }
+		add_character_modifier = one_trait_undiminished_arm
+	}
+}
+
+one_trait_arm_off_effect = {
+	if = {
+		limit = { has_character_modifier = one_trait_undiminished_arm }
+		remove_character_modifier = one_trait_undiminished_arm
+	}
+}
+
+# ---- The upkeep chain (one per character)
+# Schedules one_trait_long_life.0001 (events/one_trait_long_life_events.txt) in 30 days unless a chain already lives.
+# R2: the marker one_trait_long_life_upkeep lasts 35 days and the event renews it every time it reschedules, so it never
+# lapses while a chain lives (no second chain from a second switch-on), and a chain that was lost (an old save, a
+# character who was briefly without the modifiers) lets it lapse within 35 days, after which the next switch-on starts
+# exactly one chain again.
+one_trait_long_life_start_upkeep_effect = {
+	if = {
+		limit = { NOT = { has_variable = one_trait_long_life_upkeep } }
+		set_variable = { name = one_trait_long_life_upkeep value = yes days = 35 }
+		trigger_event = { id = one_trait_long_life.0001 days = 30 }
+	}
+}

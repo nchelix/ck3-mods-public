@@ -23,6 +23,9 @@ one_trait_ui_clear_confirm_effect = {
 	if = { limit = { has_variable = one_trait_ui_confirm } remove_variable = one_trait_ui_confirm }
 	if = { limit = { has_variable = one_trait_ui_confirm_target } remove_variable = one_trait_ui_confirm_target }
 	if = { limit = { has_variable = one_trait_ui_confirm_title } remove_variable = one_trait_ui_confirm_title }
+	if = { limit = { has_variable = one_trait_ui_any_open } remove_variable = one_trait_ui_any_open }
+	if = { limit = { has_variable = one_trait_ui_picked_culture } remove_variable = one_trait_ui_picked_culture }
+	if = { limit = { has_variable = one_trait_ui_picked_faith } remove_variable = one_trait_ui_picked_faith }
 }
 
 # 2.9 Task 1: opens the panel on scope:one_trait_target. Run on the player (the right-click interaction's
@@ -2328,5 +2331,462 @@ one_trait_pin_all_act_identity_faith_their_capital_effect = {
 		}
 		set_variable = { name = one_trait_ui_target value = scope:one_trait_pin_panel_target }
 		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# 2.14 Task 3: a Long life tile (the trait tile's rule). If any living pin lacks the modifier, everyone without it
+# gets it ($ON$); if all have it, it is taken from all ($OFF$). Acts on each pin; the panel never moves.
+one_trait_pin_all_longlife_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		if = {
+			limit = { any_in_list = { variable = one_trait_pinned is_alive = yes NOT = { has_character_modifier = $MODIFIER$ } } }
+			every_in_list = {
+				variable = one_trait_pinned
+				limit = { is_alive = yes }
+				if = {
+					limit = { NOT = { has_character_modifier = $MODIFIER$ } }
+					$ON$ = yes
+					root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+				}
+			}
+		}
+		else = {
+			every_in_list = {
+				variable = one_trait_pinned
+				limit = { is_alive = yes }
+				if = {
+					limit = { has_character_modifier = $MODIFIER$ }
+					$OFF$ = yes
+					root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+				}
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# ---- 2.14 Task 7: All pinned on All traits (the grid's left / right click and the trait XP buttons). Run on the
+# player (root) by the scripted GUIs' bulk branches; scope:picked_trait is the clicked trait (the scripted GUI's
+# saved scope, visible inside every_in_list). Every loop is pin_loop(): the living pins only.
+
+# The grid's left click: each living pin without the trait gets it (held opposites and its group go first, per pin).
+# Counted only when they hold it after; a pin the game still refuses (an age range, an is_potential) is counted
+# apart and named in a bad toast.
+one_trait_pin_all_any_trait_add_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		set_variable = { name = one_trait_pin_refused value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { exists = scope:picked_trait NOT = { has_trait = scope:picked_trait } }
+				one_trait_any_trait_give_effect = yes
+				if = { limit = { has_trait = scope:picked_trait } root = { change_variable = { name = one_trait_pin_applied add = 1 } } }
+				if = { limit = { NOT = { has_trait = scope:picked_trait } } root = { change_variable = { name = one_trait_pin_refused add = 1 } } }
+			}
+		}
+		if = {
+			limit = { var:one_trait_pin_refused > 0 }
+			send_interface_toast = { type = event_toast_effect_bad title = one_trait_pin_refused_toast_t }
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# The grid's right click: each living pin with the trait loses it (counted when it went).
+one_trait_pin_all_any_trait_remove_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { exists = scope:picked_trait has_trait = scope:picked_trait }
+				one_trait_any_trait_remove_effect = yes
+				if = { limit = { NOT = { has_trait = scope:picked_trait } } root = { change_variable = { name = one_trait_pin_applied add = 1 } } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# A single-track trait's XP plus step: each living pin holding the clicked trait, below 100 on it.
+one_trait_pin_all_trait_xp_up_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { exists = scope:picked_trait has_trait = scope:picked_trait has_trait_xp = { trait = scope:picked_trait value < 100 } }
+				one_trait_trait_xp_effect = { AMOUNT = $AMOUNT$ }
+				root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# One track of a MULTI_TRACK_TRAITS trait, plus: each living pin holding $TRAIT$, below 100 on $TRACK$.
+one_trait_pin_all_trait_track_xp_up_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { has_trait = $TRAIT$ has_trait_xp = { trait = $TRAIT$ track = $TRACK$ value < 100 } }
+				one_trait_trait_track_xp_effect = { TRAIT = $TRAIT$ TRACK = $TRACK$ AMOUNT = $AMOUNT$ }
+				root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# A single-track trait's XP minus step: each living pin holding the clicked trait, above 0 on it.
+one_trait_pin_all_trait_xp_down_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { exists = scope:picked_trait has_trait = scope:picked_trait has_trait_xp = { trait = scope:picked_trait value > 0 } }
+				one_trait_trait_xp_effect = { AMOUNT = $AMOUNT$ }
+				root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# One track of a MULTI_TRACK_TRAITS trait, minus: each living pin holding $TRAIT$, above 0 on $TRACK$.
+one_trait_pin_all_trait_track_xp_down_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { has_trait = $TRAIT$ has_trait_xp = { trait = $TRAIT$ track = $TRACK$ value > 0 } }
+				one_trait_trait_track_xp_effect = { TRAIT = $TRAIT$ TRACK = $TRACK$ AMOUNT = $AMOUNT$ }
+				root = { change_variable = { name = one_trait_pin_applied add = 1 } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# ---- 2.14 Task 9: All pinned on the any-culture / any-faith Confirm. Run on the player (root) by the Confirm's bulk
+# branch; scope:one_trait_any_new_<kind> is the pick. Every loop is pin_loop(): the living pins only.
+
+# Each living pin on another culture takes the pick; only those who changed are counted.
+one_trait_pin_all_any_culture_confirm_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { NOT = { has_culture = scope:one_trait_any_new_culture } }
+				one_trait_any_culture_apply_effect = yes
+				if = { limit = { has_culture = scope:one_trait_any_new_culture } root = { change_variable = { name = one_trait_pin_applied add = 1 } } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# Each living pin on another faith takes the pick; only those who changed are counted.
+one_trait_pin_all_any_faith_confirm_effect = {
+	if = {
+		limit = { has_variable_list = one_trait_pinned }
+		set_variable = { name = one_trait_pin_applied value = 0 }
+		every_in_list = {
+			variable = one_trait_pinned
+			limit = { is_alive = yes }
+			if = {
+				limit = { NOT = { has_faith = scope:one_trait_any_new_faith } }
+				one_trait_any_faith_apply_effect = yes
+				if = { limit = { has_faith = scope:one_trait_any_new_faith } root = { change_variable = { name = one_trait_pin_applied add = 1 } } }
+			}
+		}
+		send_interface_toast = { type = event_toast_effect_good title = one_trait_pin_applied_toast_t }
+	}
+}
+
+# 2.14 batch C1 (#112): the All traits add clears the clicked trait's group (the main education family counts as
+# one) before add_trait, which refuses a second level of a held group (phase B, self-test s56c1). Generated from
+# TRAIT_GROUPS in tools/build_one_trait_panel.py (vanilla 1.21 game/common/traits/00_traits.txt).
+one_trait_any_trait_clear_group_effect = {
+	# main_education
+	if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:education_diplomacy_1
+				scope:picked_trait = trait:education_diplomacy_2
+				scope:picked_trait = trait:education_diplomacy_3
+				scope:picked_trait = trait:education_diplomacy_4
+				scope:picked_trait = trait:education_diplomacy_5
+				scope:picked_trait = trait:education_martial_1
+				scope:picked_trait = trait:education_martial_2
+				scope:picked_trait = trait:education_martial_3
+				scope:picked_trait = trait:education_martial_4
+				scope:picked_trait = trait:education_martial_5
+				scope:picked_trait = trait:education_stewardship_1
+				scope:picked_trait = trait:education_stewardship_2
+				scope:picked_trait = trait:education_stewardship_3
+				scope:picked_trait = trait:education_stewardship_4
+				scope:picked_trait = trait:education_stewardship_5
+				scope:picked_trait = trait:education_intrigue_1
+				scope:picked_trait = trait:education_intrigue_2
+				scope:picked_trait = trait:education_intrigue_3
+				scope:picked_trait = trait:education_intrigue_4
+				scope:picked_trait = trait:education_intrigue_5
+				scope:picked_trait = trait:education_learning_1
+				scope:picked_trait = trait:education_learning_2
+				scope:picked_trait = trait:education_learning_3
+				scope:picked_trait = trait:education_learning_4
+				scope:picked_trait = trait:education_learning_5
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = education_diplomacy_1 }
+		one_trait_remove_if_present = { TRAIT = education_diplomacy_2 }
+		one_trait_remove_if_present = { TRAIT = education_diplomacy_3 }
+		one_trait_remove_if_present = { TRAIT = education_diplomacy_4 }
+		one_trait_remove_if_present = { TRAIT = education_diplomacy_5 }
+		one_trait_remove_if_present = { TRAIT = education_martial_1 }
+		one_trait_remove_if_present = { TRAIT = education_martial_2 }
+		one_trait_remove_if_present = { TRAIT = education_martial_3 }
+		one_trait_remove_if_present = { TRAIT = education_martial_4 }
+		one_trait_remove_if_present = { TRAIT = education_martial_5 }
+		one_trait_remove_if_present = { TRAIT = education_stewardship_1 }
+		one_trait_remove_if_present = { TRAIT = education_stewardship_2 }
+		one_trait_remove_if_present = { TRAIT = education_stewardship_3 }
+		one_trait_remove_if_present = { TRAIT = education_stewardship_4 }
+		one_trait_remove_if_present = { TRAIT = education_stewardship_5 }
+		one_trait_remove_if_present = { TRAIT = education_intrigue_1 }
+		one_trait_remove_if_present = { TRAIT = education_intrigue_2 }
+		one_trait_remove_if_present = { TRAIT = education_intrigue_3 }
+		one_trait_remove_if_present = { TRAIT = education_intrigue_4 }
+		one_trait_remove_if_present = { TRAIT = education_intrigue_5 }
+		one_trait_remove_if_present = { TRAIT = education_learning_1 }
+		one_trait_remove_if_present = { TRAIT = education_learning_2 }
+		one_trait_remove_if_present = { TRAIT = education_learning_3 }
+		one_trait_remove_if_present = { TRAIT = education_learning_4 }
+		one_trait_remove_if_present = { TRAIT = education_learning_5 }
+	}
+	# wounded
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:wounded_1
+				scope:picked_trait = trait:wounded_2
+				scope:picked_trait = trait:wounded_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = wounded_1 }
+		one_trait_remove_if_present = { TRAIT = wounded_2 }
+		one_trait_remove_if_present = { TRAIT = wounded_3 }
+	}
+	# beauty_bad
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:beauty_bad_1
+				scope:picked_trait = trait:beauty_bad_2
+				scope:picked_trait = trait:beauty_bad_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = beauty_bad_1 }
+		one_trait_remove_if_present = { TRAIT = beauty_bad_2 }
+		one_trait_remove_if_present = { TRAIT = beauty_bad_3 }
+	}
+	# beauty_good
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:beauty_good_1
+				scope:picked_trait = trait:beauty_good_2
+				scope:picked_trait = trait:beauty_good_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = beauty_good_1 }
+		one_trait_remove_if_present = { TRAIT = beauty_good_2 }
+		one_trait_remove_if_present = { TRAIT = beauty_good_3 }
+	}
+	# intellect_bad
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:intellect_bad_1
+				scope:picked_trait = trait:intellect_bad_2
+				scope:picked_trait = trait:intellect_bad_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = intellect_bad_1 }
+		one_trait_remove_if_present = { TRAIT = intellect_bad_2 }
+		one_trait_remove_if_present = { TRAIT = intellect_bad_3 }
+	}
+	# intellect_good
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:intellect_good_1
+				scope:picked_trait = trait:intellect_good_2
+				scope:picked_trait = trait:intellect_good_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = intellect_good_1 }
+		one_trait_remove_if_present = { TRAIT = intellect_good_2 }
+		one_trait_remove_if_present = { TRAIT = intellect_good_3 }
+	}
+	# physique_bad
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:physique_bad_1
+				scope:picked_trait = trait:physique_bad_2
+				scope:picked_trait = trait:physique_bad_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = physique_bad_1 }
+		one_trait_remove_if_present = { TRAIT = physique_bad_2 }
+		one_trait_remove_if_present = { TRAIT = physique_bad_3 }
+	}
+	# physique_good
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:physique_good_1
+				scope:picked_trait = trait:physique_good_2
+				scope:picked_trait = trait:physique_good_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = physique_good_1 }
+		one_trait_remove_if_present = { TRAIT = physique_good_2 }
+		one_trait_remove_if_present = { TRAIT = physique_good_3 }
+	}
+	# child_of_concubine
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:child_of_concubine_female
+				scope:picked_trait = trait:child_of_concubine_male
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = child_of_concubine_female }
+		one_trait_remove_if_present = { TRAIT = child_of_concubine_male }
+	}
+	# kinslayer
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:kinslayer_1
+				scope:picked_trait = trait:kinslayer_2
+				scope:picked_trait = trait:kinslayer_3
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = kinslayer_1 }
+		one_trait_remove_if_present = { TRAIT = kinslayer_2 }
+		one_trait_remove_if_present = { TRAIT = kinslayer_3 }
+	}
+	# education_martial_prowess
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:education_martial_prowess_1
+				scope:picked_trait = trait:education_martial_prowess_2
+				scope:picked_trait = trait:education_martial_prowess_3
+				scope:picked_trait = trait:education_martial_prowess_4
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = education_martial_prowess_1 }
+		one_trait_remove_if_present = { TRAIT = education_martial_prowess_2 }
+		one_trait_remove_if_present = { TRAIT = education_martial_prowess_3 }
+		one_trait_remove_if_present = { TRAIT = education_martial_prowess_4 }
+	}
+	# diplomatic_court
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:diplomatic_court_1
+				scope:picked_trait = trait:diplomatic_court_2
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = diplomatic_court_1 }
+		one_trait_remove_if_present = { TRAIT = diplomatic_court_2 }
+	}
+	# warlike_court
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:warlike_court_1
+				scope:picked_trait = trait:warlike_court_2
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = warlike_court_1 }
+		one_trait_remove_if_present = { TRAIT = warlike_court_2 }
+	}
+	# administrative_court
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:administrative_court_1
+				scope:picked_trait = trait:administrative_court_2
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = administrative_court_1 }
+		one_trait_remove_if_present = { TRAIT = administrative_court_2 }
+	}
+	# intrigue_court
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:intrigue_court_1
+				scope:picked_trait = trait:intrigue_court_2
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = intrigue_court_1 }
+		one_trait_remove_if_present = { TRAIT = intrigue_court_2 }
+	}
+	# scholarly_court
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:scholarly_court_1
+				scope:picked_trait = trait:scholarly_court_2
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = scholarly_court_1 }
+		one_trait_remove_if_present = { TRAIT = scholarly_court_2 }
+	}
+	# education_republican_knowledge
+	else_if = {
+		limit = {
+			OR = {
+				scope:picked_trait = trait:education_republican_knowledge_1
+				scope:picked_trait = trait:education_republican_knowledge_2
+				scope:picked_trait = trait:education_republican_knowledge_3
+				scope:picked_trait = trait:education_republican_knowledge_4
+				scope:picked_trait = trait:education_republican_knowledge_5
+			}
+		}
+		one_trait_remove_if_present = { TRAIT = education_republican_knowledge_1 }
+		one_trait_remove_if_present = { TRAIT = education_republican_knowledge_2 }
+		one_trait_remove_if_present = { TRAIT = education_republican_knowledge_3 }
+		one_trait_remove_if_present = { TRAIT = education_republican_knowledge_4 }
+		one_trait_remove_if_present = { TRAIT = education_republican_knowledge_5 }
 	}
 }

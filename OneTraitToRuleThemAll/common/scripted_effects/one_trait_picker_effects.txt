@@ -1,0 +1,145 @@
+﻿# One Trait 2.14 (#112): the list pickers' effects. Hand-written; the panel's scripted GUIs call them
+# (tools/build_one_trait_panel.py any_trait_guis(): one_trait_ui_any_trait_add / _remove / _preview). Plan
+# docs/superpowers/plans/2026-11-19-one-trait-2.14-pickers-and-long-life.md, Task 6 ("Hand-written effects").
+#
+# Run on the character changed (the panel's character; in batch C's All pinned mode, each pin). root is the player (the
+# scripted GUI's root). The clicked trait arrives as scope:picked_trait (the grid's TRAIT_SCOPE, AddScope with
+# Trait.MakeScope: proven in the phase A probe).
+#
+# Engine names, docs/reference/ck3-1.21.0-effects.log: every_opposite_trait :92 (trait scope), add_trait :6573 (it
+# refuses a trait the character is not eligible for: an opposite held, outside the trait's age range, a failed
+# is_potential), remove_trait :13630, save_temporary_scope_as :5924, change_variable :3002. ck3-1.21.0-triggers.log:
+# has_trait :7591, exists (scope). A trait scope in a saved scope, removed and added by scope:
+# game/common/scripted_effects/00_accolades_scripted_effects.txt:3971-3981.
+
+# What a left click takes away before it adds (the add and the tooltip's "Replaces:" preview both run exactly this, so
+# the preview names exactly what the click removes):
+# 1. every opposite of the trait that they hold. The loop is the Debug mod's trait swap preview probe (phase B), whose
+#    tooltip rendered "You lose the Trait Lustful" over Chaste in game (OneTraitToRuleThemAllDebug/common/scripted_guis/,
+#    the trait swap preview): the opposite saved, then removed only if held;
+# 2. every trait they hold of the clicked trait's group, the five main educations counting as one family
+#    (one_trait_any_trait_clear_group_effect, generated from vanilla's groups into one_trait_panel_effects.txt). The phase
+#    B run proved add_trait refuses a second level of a held group (self-test s56c1: education_martial_4 on an
+#    education_martial_2 holder kept m2, refused m4), so the group goes first. A mod trait in no vanilla group keeps
+#    step 1 only.
+# Character scope = the character changed; scope:picked_trait set.
+one_trait_any_trait_clear_effect = {
+	save_temporary_scope_as = one_trait_trait_holder
+	scope:picked_trait = {
+		every_opposite_trait = {
+			save_temporary_scope_as = one_trait_trait_opposite
+			scope:one_trait_trait_holder = {
+				if = {
+					limit = { has_trait = scope:one_trait_trait_opposite }
+					remove_trait = scope:one_trait_trait_opposite
+				}
+			}
+		}
+	}
+	one_trait_any_trait_clear_group_effect = yes
+}
+
+# The give itself: what the trait replaces goes first (one_trait_any_trait_clear_effect), then the trait is added. The
+# caller checks they lack it. Shared by the single left click (one_trait_any_trait_add_effect, below) and, batch C2, the
+# All pinned left click (one_trait_pin_all_any_trait_add_effect, generated into one_trait_panel_effects.txt: its pin loop
+# runs this on each living pin without the trait and counts the changed and the refused itself, plan R3).
+# Batch D3 (Codex #1): eligibility is asked FIRST (one_trait_any_trait_eligible_trigger, generated from vanilla's age and
+# sex limits into one_trait_panel_triggers.txt). add_trait refuses outside them, and a put-back afterwards cannot work
+# (the removed trait may have the same limit), so an ineligible character loses nothing and gains nothing; the callers
+# read the after-state and count the refusal once. Limit: a trait of another mod is not in the table and counts as
+# eligible, so if the game refuses it the removals have already happened (the behaviour before this fix).
+one_trait_any_trait_give_effect = {
+	if = {
+		limit = { one_trait_any_trait_eligible_trigger = yes }
+		one_trait_any_trait_clear_effect = yes
+		add_trait = scope:picked_trait
+	}
+}
+
+# Left click (spec "Decisions (user)": swap on clash). What the trait replaces goes first, so the click always does
+# something; then the trait is added (one_trait_any_trait_give_effect). If they may not have it (a vanilla age range or
+# sex limit) nothing changes at all; either way a trait they still lack is counted as refused on the player
+# (one_trait_any_trait_refused: the toast's number). Nothing happens when they already have the trait.
+# Phase D run 2: the first line re-saves the same trait. Only a GUI's AddScope supplies scope:picked_trait, and with the
+# Debug kit off CK3 logs "Event target 'picked_trait' is used but is never set"; this is the shipped mod's own set site.
+one_trait_any_trait_add_effect = {
+	if = {
+		limit = {
+			exists = scope:picked_trait
+			NOT = { has_trait = scope:picked_trait }
+		}
+		scope:picked_trait = { save_scope_as = picked_trait }
+		one_trait_any_trait_give_effect = yes
+		if = {
+			limit = { NOT = { has_trait = scope:picked_trait } }
+			root = { change_variable = { name = one_trait_any_trait_refused add = 1 } }
+		}
+	}
+}
+
+# Right click: the trait is taken away if they have it.
+one_trait_any_trait_remove_effect = {
+	if = {
+		limit = {
+			exists = scope:picked_trait
+			has_trait = scope:picked_trait
+		}
+		remove_trait = scope:picked_trait
+	}
+}
+
+# 2.14 Task 7: a trait XP step (plan "Hand-written effects"). add_trait_xp, docs/reference/ck3-1.21.0-effects.log:6585:
+# "Track name is required if the trait has multiple tracks, otherwise should not be provided."
+# A single-track trait's row (the trait arrives as scope:picked_trait; a trait scope works as add_trait_xp's trait:
+# vanilla game/common/activities/pulse_actions/hunt_pulse_actions.txt:1863-1866). $AMOUNT$ may be negative.
+one_trait_trait_xp_effect = {
+	if = {
+		limit = {
+			exists = scope:picked_trait
+			has_trait = scope:picked_trait
+		}
+		add_trait_xp = {
+			trait = scope:picked_trait
+			value = $AMOUNT$
+		}
+	}
+}
+
+# One track of a trait with several (tools/build_one_trait_panel.py MULTI_TRACK_TRAITS names $TRAIT$ and $TRACK$; vanilla's
+# form, game/common/on_action/health_on_actions.txt:110 `add_trait_xp = { trait = infirm track = infirm value = 8 }`).
+one_trait_trait_track_xp_effect = {
+	if = {
+		limit = { has_trait = $TRAIT$ }
+		add_trait_xp = {
+			trait = $TRAIT$
+			track = $TRACK$
+			value = $AMOUNT$
+		}
+	}
+}
+
+# 2.14 Task 9 (#76): the any-culture / any-faith Confirm, on the character changed (the panel's character; in All pinned
+# mode, each living pin). The pick arrives as scope:one_trait_any_new_culture / _faith (the Confirm's scripted GUI saves it
+# from the player's pending variable before clearing it). Nothing happens when they already have it. Only the character
+# changes: their counties do not (spec non-goal). set_culture docs/reference/ck3-1.21.0-effects.log:13904,
+# set_character_faith :13841 (the effects the Identity copy rows use: one_trait_character_effects.txt); has_culture
+# ck3-1.21.0-triggers.log:6387, has_faith :6500.
+one_trait_any_culture_apply_effect = {
+	if = {
+		limit = {
+			exists = scope:one_trait_any_new_culture
+			NOT = { has_culture = scope:one_trait_any_new_culture }
+		}
+		set_culture = scope:one_trait_any_new_culture
+	}
+}
+
+one_trait_any_faith_apply_effect = {
+	if = {
+		limit = {
+			exists = scope:one_trait_any_new_faith
+			NOT = { has_faith = scope:one_trait_any_new_faith }
+		}
+		set_character_faith = scope:one_trait_any_new_faith
+	}
+}

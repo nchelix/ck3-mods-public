@@ -1,5 +1,41 @@
 # Changelog — One Trait to Rule Them All
 
+## [2.14] — 2026-11-23
+
+Pick **any trait, culture or faith** in the game, and three **Long life** powers.
+
+### Added
+- **Traits > All traits.** Traits now has two sub-tabs: **One Trait** (the cheat traits, as before) and **All traits**:
+  every trait in the game, read live so traits from mods added later appear, in an icon grid under eight chips
+  (Personality, Education, Childhood, Lifestyle, Commander, Fame, Health, Other). A gold glow marks the traits the
+  character has. **Left click adds, right click removes.** A trait that clashes with one they hold replaces it, and the
+  tooltip names what it replaces. A trait the game does not allow them (an age or sex limit) changes nothing, and a
+  toast says so.
+- **Trait XP** under the grid: a row for each leveled trait the character has (one per track for traits such as
+  Traveler), with its level, XP bar and -25 / -10 / +10 / +25 steps. A mod's multi-track trait shows its bars only.
+- **Character > Identity: Any culture… and Any faith….** Choose opens a picker: heritages and their cultures, or
+  religions and their faiths, straight from the game (hybrid, divergent, reformed and mod ones included). Pick one,
+  then Confirm. Only the character changes; their counties keep their culture and faith.
+- **Long life** on Traits > One Trait: three toggles, each with its own modifier and icon in the character window.
+  - **Never ill**: no disease takes hold of them, plagues included, and every illness they have is cured. Switching
+    it off never takes away a disease immunity something else gave them (Pantheon of One's, for example).
+  - **Ageless body**: the five ailments of old age and Incapable are cured, now and every month.
+  - **Undiminished arm**: their prowess no longer fades with age.
+- **Unpin all**, beside Details on the pin strip. It asks for a second click.
+- **All pinned** covers everything above: All traits clicks, the XP steps, the culture and faith Confirm and the Long
+  life toggles reach every pinned character.
+
+### Changed
+- **Character > Identity**: the Education, tier, Prowess and Republican rows are gone. **Traits > All traits** gives
+  every education trait (the Education chip).
+- **Realm > Culture**: the rows sit at the top of the tab.
+- **Realm > Buildings > Fill every empty barony**: the tooltip warns that each new holding counts against the domain
+  limit, and a toast says how many baronies were filled.
+- Game-derived files regenerated for CK3 1.21.0.3.
+
+### Fixed
+- The four sexuality labels on Identity are drawn in the same font.
+
 ## [2.13] — 2026-11-18
 
 Updated for **CK3 1.21** (Silk & Silver): districts, Prosperity, Settlement Size, Popular Opinion and the new county
