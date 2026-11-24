@@ -181,7 +181,7 @@ op_troops_elite = {
 	stack = 500
 	ai_quality = { value = -10000 }
 	illustration = {
-		reference = op_troops
+		reference = op_troops_elite
 	}
 }
 
@@ -224,7 +224,7 @@ op_troops_regular = {
 	stack = 500
 	ai_quality = { value = -10000 }
 	illustration = {
-		reference = op_troops
+		reference = op_troops_regular
 	}
 }
 
@@ -265,7 +265,7 @@ op_troops_cavalry_elite = {
 	stack = 500
 	ai_quality = { value = -10000 }
 	illustration = {
-		reference = op_troops_cavalry
+		reference = op_troops_cavalry_elite
 	}
 }
 
@@ -306,7 +306,7 @@ op_troops_cavalry_regular = {
 	stack = 500
 	ai_quality = { value = -10000 }
 	illustration = {
-		reference = op_troops_cavalry
+		reference = op_troops_cavalry_regular
 	}
 }
 
@@ -347,7 +347,7 @@ op_troops_archers_elite = {
 	stack = 500
 	ai_quality = { value = -10000 }
 	illustration = {
-		reference = op_troops_archers
+		reference = op_troops_archers_elite
 	}
 }
 
@@ -388,6 +388,6 @@ op_troops_archers_regular = {
 	stack = 500
 	ai_quality = { value = -10000 }
 	illustration = {
-		reference = op_troops_archers
+		reference = op_troops_archers_regular
 	}
 }

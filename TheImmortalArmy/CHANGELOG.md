@@ -1,5 +1,18 @@
 # Changelog — OP Troops (The Immortal Army)
 
+## [1.5] — 2026-11-23
+
+Each strength now has its own art (#145). No script or balance changes.
+
+### Added
+- Painted icons and regiment cards for the Elite and Regular versions of all
+  three troop types: polished steel with silver trim for Elite, plain mail and
+  leather for Regular. Godlike keeps its black and gold.
+
+### Saves
+- The nine regiment keys are unchanged. Regiments already raised show their
+  strength's new art.
+
 ## [1.4] — 2026-11-23
 
 Two radio popups replace the eleven right-click entries, with new art throughout.
