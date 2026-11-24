@@ -1,5 +1,32 @@
 # Changelog — OP Troops (The Immortal Army)
 
+## [1.4] — 2026-11-23
+
+Two radio popups replace the eleven right-click entries, with new art throughout.
+No balance changes: all nine troop types are exactly as strong as before.
+
+### Changed
+- **Raise Immortal Army** replaces the menu toggle and the six spawn entries: one
+  popup with a radio row for each of Soldiers, Riders and Bowmen, inheritable or
+  dying with their owner. It states the strength they will be raised at. It only
+  appears on characters with a capital, since that is where the army gathers. On a
+  landless character the old entries did nothing.
+- **Immortal Army Strength** replaces the three strength entries: one radio popup
+  with the current level preselected. Its effect text names the level new armies
+  will be raised at.
+- The spawn logic now lives in one scripted effect, `optroops_spawn_effect`.
+
+### Added
+- Painted icons for the three troop types, shared by their three strengths.
+- Painted regiment cards at both vanilla sizes for the three troop types.
+- Icons for both popups and a new thumbnail. Everything rebuilds with
+  `tools/build_op_troops_icons.py` from `art/op_troops/`.
+
+### Saves
+- The nine regiment keys and the `optroops_level_elite` and `optroops_level_regular`
+  flags are unchanged, so existing regiments and strength settings carry over.
+- The retired `open_optroop_menu` flag is cleared the first time either popup is used.
+
 ## [1.3.2] — 2026-11-19
 
 Compatibility update for **CK3 1.21** (including both hotfixes). No script or

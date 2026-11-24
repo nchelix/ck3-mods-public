@@ -1,0 +1,49 @@
+﻿# Raise one Immortal Army regiment on the current (recipient) scope, at the
+# strength the interaction's actor has chosen.
+#
+# GODLIKE, ELITE, REGULAR: the regiment type for each strength.
+# INHERITABLE: yes or no.
+
+optroops_spawn_effect = {
+	if = {
+		limit = { scope:actor = { has_character_flag = optroops_level_elite } }
+		spawn_army = {
+			levies = 0
+			men_at_arms = {
+				type = $ELITE$
+				stacks = 1
+			}
+			location = scope:recipient.capital_province
+			inheritable = $INHERITABLE$
+			uses_supply = no
+			name = $ELITE$
+		}
+	}
+	else_if = {
+		limit = { scope:actor = { has_character_flag = optroops_level_regular } }
+		spawn_army = {
+			levies = 0
+			men_at_arms = {
+				type = $REGULAR$
+				stacks = 1
+			}
+			location = scope:recipient.capital_province
+			inheritable = $INHERITABLE$
+			uses_supply = no
+			name = $REGULAR$
+		}
+	}
+	else = {
+		spawn_army = {
+			levies = 0
+			men_at_arms = {
+				type = $GODLIKE$
+				stacks = 1
+			}
+			location = scope:recipient.capital_province
+			inheritable = $INHERITABLE$
+			uses_supply = no
+			name = $GODLIKE$
+		}
+	}
+}

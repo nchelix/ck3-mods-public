@@ -2,8 +2,7 @@
 #
 # Three regiments, identical in absurdity but built on different base types, so
 # the game counters them differently and they behave differently on the field.
-# None can be bought; they exist only through this mod's decisions and
-# interactions.
+# None can be bought; they exist only through this mod's interactions.
 
 op_troops = {
 	type = heavy_infantry
@@ -46,7 +45,9 @@ op_troops = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = heavy_infantry
+	illustration = {
+		reference = op_troops
+	}
 }
 
 op_troops_cavalry = {
@@ -90,7 +91,9 @@ op_troops_cavalry = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = heavy_cavalry
+	illustration = {
+		reference = op_troops_cavalry
+	}
 }
 
 op_troops_archers = {
@@ -134,7 +137,9 @@ op_troops_archers = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = bowmen
+	illustration = {
+		reference = op_troops_archers
+	}
 }
 
 op_troops_elite = {
@@ -175,7 +180,9 @@ op_troops_elite = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = heavy_infantry
+	illustration = {
+		reference = op_troops
+	}
 }
 
 op_troops_regular = {
@@ -216,7 +223,9 @@ op_troops_regular = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = heavy_infantry
+	illustration = {
+		reference = op_troops
+	}
 }
 
 op_troops_cavalry_elite = {
@@ -255,7 +264,9 @@ op_troops_cavalry_elite = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = heavy_cavalry
+	illustration = {
+		reference = op_troops_cavalry
+	}
 }
 
 op_troops_cavalry_regular = {
@@ -294,7 +305,9 @@ op_troops_cavalry_regular = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = heavy_cavalry
+	illustration = {
+		reference = op_troops_cavalry
+	}
 }
 
 op_troops_archers_elite = {
@@ -333,7 +346,9 @@ op_troops_archers_elite = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = bowmen
+	illustration = {
+		reference = op_troops_archers
+	}
 }
 
 op_troops_archers_regular = {
@@ -372,5 +387,7 @@ op_troops_archers_regular = {
 
 	stack = 500
 	ai_quality = { value = -10000 }
-	icon = bowmen
+	illustration = {
+		reference = op_troops_archers
+	}
 }
